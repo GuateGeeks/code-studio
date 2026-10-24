@@ -2,7 +2,7 @@
 
 **22 de octubre de 2026, Guatemala. Resultado: 45 pruebas aprobadas, 23 Node y 22 Chromium, sin fallos ni omisiones.** OpenSpec pasa validación estricta. Commits, diffs versionados y lockfiles de Blockly, Xcratch y micro:bit permanecen iguales a la línea base.
 
-El laboratorio ya permite editar bloques visibles y ejecutar esa autoría dentro del runner aislado. Los bindings GG consultan y modifican la misma VM que ejecuta los bloques. La [evidencia medida](browser-evidence.json) conserva resultados, revisión, mapas de origen y estado; las tareas están en el [cambio OpenSpec](../../openspec/changes/phase-0-integration-foundations/tasks.md).
+El laboratorio ya permite editar bloques visibles y ejecutar esa autoría dentro del runner aislado. Los bindings GG consultan y modifican la misma VM que ejecuta los bloques. La [evidencia medida](browser-evidence.json) conserva resultados, revisión, mapas de origen y estado; las tareas están en el [cambio OpenSpec](../../openspec/changes/archive/2026-10-24-phase-0-integration-foundations/tasks.md).
 
 ## Probar el avance
 

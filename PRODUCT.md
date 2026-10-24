@@ -49,7 +49,7 @@ Orden de implementación: `pack-versioning-and-migrations` → `block-language-c
 
 ## Hoja de ruta de maduración (propuesta del 24 de octubre de 2026)
 
-El [plan de maduración por feature](docs/product/FEATURE-MATURATION-PLAN.md) ordena la evolución posterior a E4 y al rework, y sustituye la secuencia E0–E6 del [plan de acción del 22/10](docs/product/PLAN-DE-ACCION-2026-10-22.md) desde ese punto. **Estado: propuesta.** Solo ADR-011 está decidido. El resto depende de las decisiones abiertas D1–D8 y de que cada cambio OpenSpec se apruebe por separado.
+El [plan de maduración por feature](docs/product/FEATURE-MATURATION-PLAN.md) ordena la evolución posterior a E4 y al rework, y sustituye la secuencia E0–E6 del [plan de acción del 22/10](docs/product/PLAN-DE-ACCION-2026-10-22.md) desde ese punto. **Estado: propuesta.** Están decididos ADR-011 y el archivado de los cambios completos (D8). El resto depende de las decisiones abiertas D1–D7 y de que cada cambio OpenSpec se apruebe por separado.
 
 **Diagnóstico.** El producto es ancho y poco profundo:
 
@@ -75,7 +75,7 @@ El piloto apunta a N3 en 2D, texto, micro:bit y actividades, y a N4 en 2D, activ
 
 | Ola | Contenido | Estado |
 |---|---|---|
-| 0 · Higiene | `repo-baseline-and-spec-consolidation`, `pack-versioning-and-migrations`, `test-gate-scaling` | Cambios propuestos en `openspec/changes/` |
+| 0 · Higiene | `repo-baseline-and-spec-consolidation`, `pack-versioning-and-migrations`, `test-gate-scaling` | Línea base aplicada el 24/10: commit `670ab20`, etiquetas, 22 cambios archivados y 26 especificaciones consolidadas ([acta](docs/engineering/REPO-BASELINE-RESULTS.md)). Los otros dos, propuestos |
 | 1 · Núcleo 2D y texto | `block-language-contract`, multi-sprite, vocabulario 2D v2, `synced-code-views`, editor de código, modelo de continuidad, biblioteca de recursos | Dos cambios propuestos; el resto, por redactar |
 | 2 · Aprendizaje | Actividades v3 con feedback graduado, unidades, entrada «actividad primero», catálogo CNB, contenido; **Exp. 1** en aula | Por redactar; requiere D1 y un docente |
 | 3 · Capacidades | micro:bit v2 con radio y prueba física, bloques tipados 3D/web, Scratch importado multi-sprite | Por redactar |
@@ -91,9 +91,7 @@ El piloto apunta a N3 en 2D, texto, micro:bit y actividades, y a N4 en 2D, activ
 - D5: multi-sprite y GGPROJ v4.
 - D6: CodeMirror 6.
 - D7: editor de escena 3D en el piloto.
-- D8: archivar los 22 cambios completos.
-
-D9 (vistas sincronizadas) quedó resuelta por ADR-011.
+D8 (archivar los 22 cambios completos) se resolvió y aplicó el 24/10. D9 (vistas sincronizadas) quedó resuelta por ADR-011.
 
 ## Verdad de producto
 
@@ -108,5 +106,5 @@ D9 (vistas sincronizadas) quedó resuelta por ADR-011.
 
 Edad, grado, currículo, nivel lector, duración de clase, equipos escolares y alcance móvil final no están confirmados. Tampoco existe aquí una identidad visual oficial aprobada ni contrato implementado con Sócrates. Los sprites del proyecto son recursos de demostración.
 
-Fuentes: README, docs/phase-6/RESULTS.md, docs/phase-7/RESULTS.md, docs/phase-7/TEACHER-GUIDE.md, docs/product/PLAN-DE-ACCION-2026-10-22.md y los cambios openspec/changes/studio-integrated-2d-editor/, openspec/changes/studio-integrated-microbit-workspace/, openspec/changes/studio-integrated-scratch-workspace/, openspec/changes/studio-integrated-3d-workspace/ y openspec/changes/studio-integrated-web-workspace/. La dirección de vistas sincronizadas se rige por docs/adr/011-contrato-de-lenguaje-y-vistas-sincronizadas.md, docs/product/FEATURE-MATURATION-PLAN.md y los cambios openspec/changes/pack-versioning-and-migrations/, openspec/changes/block-language-contract/ y openspec/changes/synced-code-views/. La puerta micro:bit se registra en docs/product/INTEGRATED-MICROBIT-RESULTS.md y su integrated-microbit-evidence.json; el incremento Scratch conserva su estado de verificación en docs/product/INTEGRATED-SCRATCH-RESULTS.md, 3D en docs/product/INTEGRATED-3D-RESULTS.md y web en docs/product/INTEGRATED-WEB-RESULTS.md. La aceptación con docentes, estudiantes, tecnologías de asistencia, dispositivos escolares y hardware físico permanece separada de las pruebas automatizadas.
+Fuentes: README, docs/phase-6/RESULTS.md, docs/phase-7/RESULTS.md, docs/phase-7/TEACHER-GUIDE.md, docs/product/PLAN-DE-ACCION-2026-10-22.md y los cambios openspec/changes/archive/2026-10-24-studio-integrated-2d-editor/, openspec/changes/archive/2026-10-24-studio-integrated-microbit-workspace/, openspec/changes/archive/2026-10-24-studio-integrated-scratch-workspace/, openspec/changes/archive/2026-10-24-studio-integrated-3d-workspace/ y openspec/changes/archive/2026-10-24-studio-integrated-web-workspace/. La dirección de vistas sincronizadas se rige por docs/adr/011-contrato-de-lenguaje-y-vistas-sincronizadas.md, docs/product/FEATURE-MATURATION-PLAN.md y los cambios openspec/changes/pack-versioning-and-migrations/, openspec/changes/block-language-contract/ y openspec/changes/synced-code-views/. La puerta micro:bit se registra en docs/product/INTEGRATED-MICROBIT-RESULTS.md y su integrated-microbit-evidence.json; el incremento Scratch conserva su estado de verificación en docs/product/INTEGRATED-SCRATCH-RESULTS.md, 3D en docs/product/INTEGRATED-3D-RESULTS.md y web en docs/product/INTEGRATED-WEB-RESULTS.md. La aceptación con docentes, estudiantes, tecnologías de asistencia, dispositivos escolares y hardware físico permanece separada de las pruebas automatizadas.
 

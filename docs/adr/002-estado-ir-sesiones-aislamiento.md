@@ -2,7 +2,7 @@
 
 **Fecha:** 22 de octubre de 2026.  
 **Estado:** aceptada para F1; límites del spike y endurecimiento explícitos.  
-**Contratos:** [block-program](../../openspec/changes/phase-0-integration-foundations/specs/block-program/spec.md), [runtime-session](../../openspec/changes/phase-0-integration-foundations/specs/runtime-session/spec.md) y [scratch-adapter](../../openspec/changes/phase-0-integration-foundations/specs/scratch-adapter/spec.md).
+**Contratos:** [block-program](../../openspec/changes/archive/2026-10-24-phase-0-integration-foundations/specs/block-program/spec.md), [runtime-session](../../openspec/changes/archive/2026-10-24-phase-0-integration-foundations/specs/runtime-session/spec.md) y [scratch-adapter](../../openspec/changes/archive/2026-10-24-phase-0-integration-foundations/specs/scratch-adapter/spec.md).
 
 ## Contexto y decisión
 

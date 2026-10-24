@@ -4,7 +4,7 @@
 
 - **Repositorio:** la rama `main` no tiene commits. `.gitignore` ya excluye `node_modules/`, `.codegraph/`, `.cache/`, `artifacts/` (47 GB), `test-results/`, `playwright-report/`, `.impeccable/review/`, `*.log` y `.codex/config.toml`. Lo versionable ocupa unos 40 MB, de los que 9,2 MB son de `.impeccable/` (sin `review/`).
 - **Cambios:** 22 cambios completos con 26 capacidades `ADDED`, sin nombres repetidos ni requisitos `MODIFIED` o `REMOVED`.
-- **Enlaces:** 84 enlaces en 22 documentos apuntan a `openspec/changes/<cambio>/`, y `tests/tools/test-impact.test.mjs` usa rutas de cambios.
+- **Enlaces:** el recuento inicial (84 referencias en 22 archivos) incluía evidencias JSON. Al aplicar se midieron 33 referencias en 17 documentos Markdown y un enlace relativo dentro de un cambio archivado. `tests/tools/test-impact.test.mjs` solo usa una ruta ficticia (`openspec/changes/x/`) y no requiere cambios.
 - La identidad de Git configurada es la del usuario.
 
 ## Goals / Non-Goals

@@ -14,7 +14,7 @@ context: |
   El software E3 studio-educational-activities está completo y verificado; revisión docente pendiente. Conservar compatibilidad de actividades e historial.
   El primer editor 2D integrado E4 studio-integrated-2d-editor tiene puerta completa aprobada. La extensión micro:bit studio-integrated-microbit-workspace está autorizada e implementada, con validación del incremento en su evidencia. Las extensiones Scratch importado, 3D y web y el rework visual studio-visual-workspace-rework están implementados con puerta completa aprobada; E5–E6 siguen como propuestas.
   Conservar GGPROJ, autosave, recuperación sin autorun, copias textuales independientes y seis orígenes.
-  Hoja de ruta posterior a E4: docs/product/FEATURE-MATURATION-PLAN.md (olas 0–5, propuesta; decisiones D1–D8 abiertas). Ola 0: repo-baseline-and-spec-consolidation, pack-versioning-and-migrations, test-gate-scaling.
+  Hoja de ruta posterior a E4: docs/product/FEATURE-MATURATION-PLAN.md (olas 0–5, propuesta; decisiones D1–D7 abiertas). Ola 0: repo-baseline-and-spec-consolidation (aplicado: cambios anteriores archivados, specs consolidadas en openspec/specs/), pack-versioning-and-migrations, test-gate-scaling.
   ADR-011 (24/10/2026): vistas sincronizadas bloques↔texto dentro del subconjunto bloqueable, API textual legible sin GG visible y packs como tabla de lenguaje; cambios pack-versioning-and-migrations, block-language-contract y synced-code-views. Los proyectos y copias anteriores siguen abriéndose y ejecutándose.
 
 # Per-artifact rules (optional)

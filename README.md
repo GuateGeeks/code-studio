@@ -1,6 +1,6 @@
 # GuateGeeks Code Studio
 
-Estado al 24 de octubre de 2026: el [rework visual](docs/product/VISUAL-REWORK-RESULTS.md) está implementado y su puerta completa aprobó 400 Node, 63 herramientas y 177 E2E. La evolución siguiente sigue el [plan de maduración por feature](docs/product/FEATURE-MATURATION-PLAN.md) y [ADR-011](docs/adr/011-contrato-de-lenguaje-y-vistas-sincronizadas.md), que aprueba vistas sincronizadas bloques↔texto y una API textual legible. Hay cinco cambios OpenSpec propuestos sin implementar: `repo-baseline-and-spec-consolidation`, `pack-versioning-and-migrations` y `test-gate-scaling` (Ola 0), y `block-language-contract` y `synced-code-views` (Ola 1). Los párrafos siguientes conservan su fecha y corte.
+Estado al 24 de octubre de 2026: el [rework visual](docs/product/VISUAL-REWORK-RESULTS.md) está implementado y su puerta completa aprobó 400 Node, 63 herramientas y 177 E2E. La evolución siguiente sigue el [plan de maduración por feature](docs/product/FEATURE-MATURATION-PLAN.md) y [ADR-011](docs/adr/011-contrato-de-lenguaje-y-vistas-sincronizadas.md), que aprueba vistas sincronizadas bloques↔texto y una API textual legible. La [línea base del repositorio](docs/engineering/REPO-BASELINE-RESULTS.md) se aplicó el mismo día: commit inicial `670ab20` con etiquetas `v0.1.0-alpha.1` y `e4-visual-rework`, 22 cambios archivados en `openspec/changes/archive/` y 26 especificaciones consolidadas en `openspec/specs/`. Siguen propuestos `pack-versioning-and-migrations` y `test-gate-scaling` (Ola 0), y `block-language-contract` y `synced-code-views` (Ola 1). Los párrafos siguientes conservan su fecha y corte.
 
 La [revisión transversal E4](docs/product/E4-CROSS-CONTEXT-REVIEW.md) examinó los seis contextos y documentó ocho hallazgos priorizados. El [brief del rework](docs/product/VISUAL-REWORK-BRIEF.md), el cambio `studio-visual-workspace-rework` y el [prompt para Claude Opus](docs/product/CLAUDE-OPUS-VISUAL-REWORK-PROMPT.md) están preparados; el rediseño no se ha implementado y sus 19 tareas siguen pendientes. La observación humana permanece separada. Las notas de cada integración que siguen conservan su fecha y corte.
 
@@ -33,7 +33,7 @@ El [corte de persistencia F1](docs/phase-1/RESULTS.md) añade descarga/apertura 
 - [Procedencia y hashes](docs/phase-0/provenance.json).
 - [Flujo de pruebas incremental](docs/engineering/TESTING.md) y [resultados](docs/engineering/TEST-WORKFLOW-RESULTS.md).
 - [Prompt para la siguiente sesión](docs/engineering/NEXT-SESSION.md).
-- [Cambio OpenSpec de herramientas](openspec/changes/incremental-test-workflow/proposal.md).
+- [Cambio OpenSpec de herramientas](openspec/changes/archive/2026-10-24-incremental-test-workflow/proposal.md).
 - [Plan de producto](../docs/architecture/IMPLEMENTATION-PLAN.md).
 
 ## Ejecutar las pruebas

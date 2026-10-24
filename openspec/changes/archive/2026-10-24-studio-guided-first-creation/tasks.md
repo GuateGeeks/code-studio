@@ -1,6 +1,6 @@
 # Tasks
 
-Las tareas siguientes están completadas y respaldadas por los [resultados E1](../../../docs/product/FIRST-CREATION-RESULTS.md) y su evidencia. Los requisitos GG-ENTRY se encuentran en [la especificación](specs/studio-entry-journey/spec.md); las decisiones y límites están en [design.md](design.md).
+Las tareas siguientes están completadas y respaldadas por los [resultados E1](../../../../docs/product/FIRST-CREATION-RESULTS.md) y su evidencia. Los requisitos GG-ENTRY se encuentran en [la especificación](specs/studio-entry-journey/spec.md); las decisiones y límites están en [design.md](design.md).
 
 ## 1. Base revisable y contexto de implementación
 

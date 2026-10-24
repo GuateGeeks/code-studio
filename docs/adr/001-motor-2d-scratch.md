@@ -30,6 +30,6 @@ No construir un segundo motor nativo durante F1. Si la evidencia obliga a cambia
 
 ## Evidencia y criterios para reabrir
 
-Los contratos [scratch-adapter](../../openspec/changes/phase-0-integration-foundations/specs/scratch-adapter/spec.md) y [block-program](../../openspec/changes/phase-0-integration-foundations/specs/block-program/spec.md) son la referencia verificable. Los [criterios de entrada](../phase-0/PHASE-1-ENTRY.md) y el acta determinan la corrida de cierre y sus límites.
+Los contratos [scratch-adapter](../../openspec/changes/archive/2026-10-24-phase-0-integration-foundations/specs/scratch-adapter/spec.md) y [block-program](../../openspec/changes/archive/2026-10-24-phase-0-integration-foundations/specs/block-program/spec.md) son la referencia verificable. Los [criterios de entrada](../phase-0/PHASE-1-ENTRY.md) y el acta determinan la corrida de cierre y sus límites.
 
 Reabrir si una operación obligatoria no puede ejecutarse o detenerse preservando autoría; si GG requiere duplicar estado mutable; si ejecutar sin GUI exige descarga arbitraria o evaluación dinámica en el runner 2D; si una regresión bloquea recuperación tras Stop; o si el perfil escolar acordado incumple un presupuesto que no puede resolverse razonablemente dentro del adaptador. Una nueva capacidad o cambio sustancial de upstream requiere repetir las pruebas afectadas, sin atribuirle automáticamente la aprobación de este corte.

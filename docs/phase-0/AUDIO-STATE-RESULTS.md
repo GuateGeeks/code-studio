@@ -1,6 +1,6 @@
 # Audio, variables y condicionales en el runner
 
-**22 de octubre de 2026, Guatemala.** La fase 0 incorpora estado numérico, decisiones y audio real al corpus Blockly→IR→Scratch VM. Los contratos y tareas están en el [cambio OpenSpec](../../openspec/changes/phase-0-integration-foundations/tasks.md); los resultados medidos completos están en [browser-evidence.json](browser-evidence.json).
+**22 de octubre de 2026, Guatemala.** La fase 0 incorpora estado numérico, decisiones y audio real al corpus Blockly→IR→Scratch VM. Los contratos y tareas están en el [cambio OpenSpec](../../openspec/changes/archive/2026-10-24-phase-0-integration-foundations/tasks.md); los resultados medidos completos están en [browser-evidence.json](browser-evidence.json).
 
 **Resultado final:** 38 pruebas aprobadas, 20 Node y 18 Chromium, sin fallos ni omisiones. OpenSpec pasa validación estricta. Los tres upstreams conservan commits, diffs versionados y lockfiles respecto a la línea base.
 

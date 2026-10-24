@@ -30,7 +30,7 @@ Antes de editar, lee:
 2. `docs/engineering/NEXT-SESSION.md` y `docs/engineering/TESTING.md`.
 3. `docs/product/E4-CROSS-CONTEXT-REVIEW.md` y `e4-cross-context-evidence.json`.
 4. `docs/product/VISUAL-REWORK-BRIEF.md`.
-5. Los cuatro artefactos y specs de `openspec/changes/studio-visual-workspace-rework/`, además de los contratos de los cambios E2/E3/E4 relacionados.
+5. Los cuatro artefactos y specs de `openspec/changes/archive/2026-10-24-studio-visual-workspace-rework/`, además de los contratos de los cambios E2/E3/E4 relacionados.
 6. `docs/product/INTEGRATED-WEB-RESULTS.md` e `integrated-web-evidence.json`, que identifican la última puerta aprobada.
 
 No interpretes como pendientes las integraciones ya cerradas porque alguna nota histórica o el contexto antiguo de OpenSpec aún las describa como propuestas. Contrasta fechas y evidencia actual. El producto puede tener trabajo previo sin commits: conserva el checkout y los upstreams; no uses reset/clean para conseguir un árbol vacío.

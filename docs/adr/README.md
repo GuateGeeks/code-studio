@@ -10,7 +10,7 @@ Una decisión aceptada aquí selecciona una dirección técnica. La entrada a F1
 | [002](002-estado-ir-sesiones-aislamiento.md) | Estado único en VM, IR propia y referencias por sesión/revisión; runner separado | Aceptada para F1; endurecimiento pendiente |
 | [003](003-pxt-y-clasificacion-g2.md) | PXT encapsulado; compilación y simulación demostradas, G2 física pendiente | Aceptada; G2 no cerrada físicamente |
 
-La [evidencia de navegador](../phase-0/browser-evidence.json), los [resultados](../phase-0/RESULTS.md), la [procedencia](../phase-0/provenance.json), el [mapa CodeGraph](../phase-0/INTEGRATION-MAP.md) y los [contratos OpenSpec](../../openspec/changes/phase-0-integration-foundations/specs/) sustentan estas decisiones. Los informes anteriores conservan su alcance histórico; el acta de cierre identifica la ejecución utilizada para cerrar F0.
+La [evidencia de navegador](../phase-0/browser-evidence.json), los [resultados](../phase-0/RESULTS.md), la [procedencia](../phase-0/provenance.json), el [mapa CodeGraph](../phase-0/INTEGRATION-MAP.md) y los [contratos OpenSpec](../../openspec/changes/archive/2026-10-24-phase-0-integration-foundations/specs/) sustentan estas decisiones. Los informes anteriores conservan su alcance histórico; el acta de cierre identifica la ejecución utilizada para cerrar F0.
 
 Las decisiones se reabren al incumplir sus criterios, cambiar las fronteras o ampliar el alcance. Los cambios deben enlazar nueva evidencia y sustituir explícitamente el ADR previo; una limitación no se corrige cambiando silenciosamente el criterio de aceptación.
 

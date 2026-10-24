@@ -37,7 +37,7 @@ La coincidencia de fuentes respalda la pertinencia de las capturas, pero no es u
 - [Plan de acción](PLAN-DE-ACCION-2026-10-22.md) con público confirmado, prioridades, agentes, herramientas y cortes.
 - [Inventario](SKILLS-INVENTORY.json) de nueve skills locales y cuatro disponibles en el entorno. Sus hashes identifican SKILL.md, no un paquete externo íntegro.
 - [Aprendizaje](../../.agents/skills/gg-learning-experience/SKILL.md), [arquitectura local](../../.agents/skills/gg-browser-first/SKILL.md) y [diseño](../../.agents/skills/gg-design-system/SKILL.md).
-- [Propuesta](../../openspec/changes/studio-guided-first-creation/proposal.md), [diseño técnico](../../openspec/changes/studio-guided-first-creation/design.md), [especificación](../../openspec/changes/studio-guided-first-creation/specs/studio-entry-journey/spec.md) y [tareas](../../openspec/changes/studio-guided-first-creation/tasks.md).
+- [Propuesta](../../openspec/changes/archive/2026-10-24-studio-guided-first-creation/proposal.md), [diseño técnico](../../openspec/changes/archive/2026-10-24-studio-guided-first-creation/design.md), [especificación](../../openspec/changes/archive/2026-10-24-studio-guided-first-creation/specs/studio-entry-journey/spec.md) y [tareas](../../openspec/changes/archive/2026-10-24-studio-guided-first-creation/tasks.md).
 
 ## Límites operativos
 

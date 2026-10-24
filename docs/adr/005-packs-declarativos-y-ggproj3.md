@@ -10,4 +10,4 @@ El broker aplica permisos y recursos antes de mutar en el runner. Un cliente de 
 
 Los tres starters y sus predicados son datos locales. La evaluación distingue autoría y ejecución, conserva scope, limita consultas y cancela resultados obsoletos. Progreso separado de GGPROJ, con guardia antes de escribir en IndexedDB y aborto de transacción. Sustituir por un starter protege la autoría actual antes del commit. Un checkpoint opaco restaura incluso borradores textuales temporalmente inválidos ante un fallo de commit.
 
-Evidencia: [OpenSpec F3](../../openspec/changes/phase-3-packs-lessons-offline/design.md), pruebas packs/lessons/project-draft-rollback y acta F3 al consolidar.
+Evidencia: [OpenSpec F3](../../openspec/changes/archive/2026-10-24-phase-3-packs-lessons-offline/design.md), pruebas packs/lessons/project-draft-rollback y acta F3 al consolidar.

@@ -1,6 +1,6 @@
 # Plan de ejecución: rework visual de Code Studio
 
-23 de octubre de 2026. Plan de sesión que integra el [encargo](CLAUDE-OPUS-VISUAL-REWORK-PROMPT.md) con el prompt de preparación de herramientas derivado de Sócrates. No es un backlog paralelo: requisitos y tareas siguen en `openspec/changes/studio-visual-workspace-rework/`; cada fase remite a sus IDs de tarea. Nada de este plan está implementado todavía.
+23 de octubre de 2026. Plan de sesión que integra el [encargo](CLAUDE-OPUS-VISUAL-REWORK-PROMPT.md) con el prompt de preparación de herramientas derivado de Sócrates. No es un backlog paralelo: requisitos y tareas siguen en `openspec/changes/archive/2026-10-24-studio-visual-workspace-rework/`; cada fase remite a sus IDs de tarea. Nada de este plan está implementado todavía.
 
 ## Decisiones del usuario (23 oct 2026)
 

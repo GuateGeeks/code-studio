@@ -109,7 +109,7 @@ Cada ficha indica estado, qué tomar de cada referencia, brechas, cambios OpenSp
 
 | Cambio | Tamaño | Alcance | Aceptación |
 |---|---|---|---|
-| **`repo-baseline-and-spec-consolidation`** (propuesto) | S | Commit inicial y etiquetas `0.1.0-alpha.1` y `e4-visual-rework`; archivar los cambios completos y consolidar `openspec/specs/` con `openspec-archive-change`/`openspec-sync-specs` | `git rev-parse` corresponde a la huella de `src/`; `spec:validate` sobre specs consolidadas; ninguna acta histórica reescrita |
+| **`repo-baseline-and-spec-consolidation`** (aplicado 24/10) | S | Commit inicial y etiquetas `0.1.0-alpha.1` y `e4-visual-rework`; archivar los cambios completos y consolidar `openspec/specs/` con `openspec-archive-change`/`openspec-sync-specs` | `git rev-parse` corresponde a la huella de `src/`; `spec:validate` sobre specs consolidadas; ninguna acta histórica reescrita |
 | **`pack-versioning-and-migrations`** (propuesto) | M | **GGPROJ v4**: un proyecto declara `packId@version`; el catálogo instala varias versiones o migra hacia adelante con migraciones declarativas por pack (`migrations:[]` ya existe en los manifiestos); los permisos de operaciones dejan de estar fijados a `0.1.0`; lectura v1–v3 intacta | Un GGPROJ con `gg.sprites@0.1.0` abre en un catálogo con `@0.2.0`, migra sin perder IDs ni comportamiento y no ejecuta; un pack desconocido conserva datos y bloquea solo su contexto |
 | **`test-gate-scaling`** (propuesto) | S–M | Partición de E2E por contexto en `test:affected`, workers en paralelo con puertos asignados, fixtures de proyectos canónicos | Full < 30 min en la misma máquina, o justificación medida |
 
@@ -331,7 +331,7 @@ Ola 3  Contextos de capacidad (pistas paralelas)        Ola 4  Distribución y a
 | D5 | Aprobar **multi-sprite** y GGPROJ v4 | Es el cambio de formato más grande desde F1 | Recomendado: sí |
 | D6 | Aprobar **CodeMirror 6** como dependencia | Primera dependencia de UI nueva desde F0 | Recomendado: sí, con tamaño medido |
 | D7 | 3D: ¿editor de escena tipo CoSpaces en el piloto o después? | Una L adicional en la Ola 3 | Después del Exp. 1 |
-| D8 | ¿Archivar los 22 cambios OpenSpec completos? | Consolidar specs antes de abrir ~25 cambios nuevos | Recomendado: sí, conservando las actas |
+| D8 | ~~¿Archivar los 22 cambios OpenSpec completos?~~ | — | **Resuelta y aplicada el 24/10/2026** ([acta](../engineering/REPO-BASELINE-RESULTS.md)) |
 | D9 | ~~¿Vistas sincronizadas bloques↔texto y API sin `GG`?~~ | — | **Resuelta el 24/10/2026: sí** (ADR-011) |
 
 ---

@@ -2,7 +2,7 @@
 
 **Fecha:** 22 de octubre de 2026.  
 **Estado:** aceptada; compilación y simulación verificadas, G2 física pendiente.  
-**Contrato:** [microbit-build](../../openspec/changes/phase-0-integration-foundations/specs/microbit-build/spec.md).
+**Contrato:** [microbit-build](../../openspec/changes/archive/2026-10-24-phase-0-integration-foundations/specs/microbit-build/spec.md).
 
 ## Contexto y decisión
 

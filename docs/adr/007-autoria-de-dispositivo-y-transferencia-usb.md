@@ -20,4 +20,4 @@ DAPjs2.3.0 se empaqueta localmente. Solo la página superior device-transfer.htm
 
 La allowlist de placa/firmware se basa en las versiones publicadas por la Fundación; otras combinaciones conservan la descarga. [DAPLink micro:bit](https://tech.microbit.org/firmware/daplink-interface/), [formato Universal HEX](https://tech.microbit.org/firmware/spec-universal-hex/), [DAPjs](https://github.com/ARMmbed/dapjs) y [WebUSB en MakeCode](https://makecode.microbit.org/device/usb/webusb) son referencias primarias. Las pruebas con doble de transporte no certifican flasheo ni autonomía de una placa. La aceptación física queda pendiente hasta evidencia real.
 
-[OpenSpec F4](../../openspec/changes/phase-4-microbit-integration/design.md) y [resultados](../phase-4/RESULTS.md).
+[OpenSpec F4](../../openspec/changes/archive/2026-10-24-phase-4-microbit-integration/design.md) y [resultados](../phase-4/RESULTS.md).

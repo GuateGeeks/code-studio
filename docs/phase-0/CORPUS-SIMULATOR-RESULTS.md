@@ -1,6 +1,6 @@
 # Corpus 2D y simulador micro:bit
 
-**21 de octubre de 2026, Guatemala.** Continuación de la fase 0 con fixtures Blockly ampliados y ejecución del JS compilado en el simulador oficial local. Los resultados medidos, hashes y versiones están en [browser-evidence.json](browser-evidence.json); los criterios se encuentran en el [cambio OpenSpec](../../openspec/changes/phase-0-integration-foundations/tasks.md).
+**21 de octubre de 2026, Guatemala.** Continuación de la fase 0 con fixtures Blockly ampliados y ejecución del JS compilado en el simulador oficial local. Los resultados medidos, hashes y versiones están en [browser-evidence.json](browser-evidence.json); los criterios se encuentran en el [cambio OpenSpec](../../openspec/changes/archive/2026-10-24-phase-0-integration-foundations/tasks.md).
 
 **Resultado:** 29 pruebas aprobadas, 15 Node y 14 Chromium, sin fallos ni omisiones. La suite de navegador terminó en 53,0 s. OpenSpec pasó validación estricta y la línea base confirmó preservación de commits, diffs versionados y lockfiles de los tres upstreams.
 

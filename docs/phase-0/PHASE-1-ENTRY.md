@@ -9,7 +9,7 @@ Este documento define el paso al corte vertical 2D persistente del [plan](../../
 | Criterio | Evidencia requerida y regla de aceptación |
 |---|---|
 | Procedencia | [provenance.json](provenance.json), [mapa CodeGraph](INTEGRATION-MAP.md), commits/diffs/lockfiles preservados frente a la línea base |
-| Contratos | Cinco [capacidades OpenSpec](../../openspec/changes/phase-0-integration-foundations/specs/) enlazadas con pruebas y validación estricta aprobada tras incorporar el cierre |
+| Contratos | Cinco [capacidades OpenSpec](../../openspec/changes/archive/2026-10-24-phase-0-integration-foundations/specs/) enlazadas con pruebas y validación estricta aprobada tras incorporar el cierre |
 | G1: corpus mínimo | Secuencia, repetición, condiciones, variables locales/globales, espera, teclado/clic, dos scripts concurrentes, broadcast-and-wait, clones, cambio de disfraz, audio, diagnóstico y Stop; resultados reales de VM y representación cuando corresponde |
 | G1: integración | Sin Scratch GUI; estado GG/VM/píxeles coincidente; recursos locales permitidos; autoría/IDs conservados; bloque o IR inválidos no sustituyen la escena |
 | Run/Stop | Invalidación inmediata, rechazo de sesión/revisión y mensajes tardíos, cierre de audio, destrucción del worker bloqueado y nueva ejecución conservando autoría |
