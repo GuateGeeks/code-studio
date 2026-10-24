@@ -1,4 +1,4 @@
-import {selectContext,clickVisible,clickStagePoint,revealPanel} from './workspace-controls.mjs';
+import {selectContext,clickVisible,clickStagePoint,revealPanel,settled} from './workspace-controls.mjs';
 import {test, expect} from '@playwright/test';
 import {writeFile} from 'node:fs/promises';
 import {corpus} from '../fixtures/corpus.blocks.mjs';
@@ -52,10 +52,10 @@ async function startBackend(page, backend, name, {copy = true} = {}) {
   if (backend !== 'blocks' && copy) {
     await revealPanel(page,page.locator('#generated-language'));await revealPanel(page,page.locator('#generated-language'));await page.locator('#generated-language').selectOption(backend);
     await expect(page.locator('#generated-code')).toHaveJSProperty('readOnly', true);
-    await expect(page.locator('#generated-code')).toHaveValue(/GG\.program\.configure/);
+    await expect(page.locator('#generated-code')).toHaveValue(/onStart\(\(\) => \{|@on_start/);
     await selectContext(page,'2d');
     await clickVisible(page.locator('#copy-' + backend));
-    await expect(page.locator('#text-source')).toHaveValue(/await GG\.events\.run\(\)/);
+    await expect(page.locator('#text-source')).toHaveValue(/onStart\(\(\) => \{|@on_start/);
   }
   const startedAt = Date.now();
   const observations = observe(page);
@@ -104,9 +104,9 @@ async function inspect(page, name, backend, before, timing) {
     evidence.observedWaitMilliseconds = firstMove.at - waiting.at;
     expect(evidence.observedWaitMilliseconds).toBeGreaterThan(0);
     await key(page);
-    await expect.poll(async () => (await snapshot(page)).x, poll).toBe(12);
+    await expect.poll(async () => (await settled(snapshot, page)).x, poll).toBe(12);
     await clickHero(page, 12);
-    await expect.poll(async () => (await snapshot(page)).x, poll).toBe(23);
+    await expect.poll(async () => (await settled(snapshot, page)).x, poll).toBe(23);
     const after = await snapshot(page);
     expect(after.moves).toEqual([5, 12, 23]);
     expect(after.pixels.centerX - before.pixels.centerX).toBeCloseTo(23, 0);
@@ -120,7 +120,7 @@ async function inspect(page, name, backend, before, timing) {
     const finished = await sample(state => state.x === 13);
     evidence.observedWaitMilliseconds = finished.at - sender.at;
     expect(evidence.observedWaitMilliseconds).toBeGreaterThan(0);
-    await expect.poll(async () => (await snapshot(page)).x, poll).toBe(13);
+    await expect.poll(async () => (await settled(snapshot, page)).x, poll).toBe(13);
     expect((await snapshot(page)).moves).toEqual([1, 11, 13]);
   } else if (name === 'clones') {
     evidence.during = (await sample(state => state.targets.length === 2 &&
@@ -128,7 +128,7 @@ async function inspect(page, name, backend, before, timing) {
       state.targets.find(target => !target.isOriginal)?.x === 60)).state;
     expect(evidence.during.pixels.count).toBe(2 * before.pixels.count);
     await page.screenshot({path: artifactPath('textual-clones-' + backend + '.png')});
-    await expect.poll(async () => (await snapshot(page)).targets.length, poll).toBe(1);
+    await expect.poll(async () => (await settled(snapshot, page)).targets.length, poll).toBe(1);
     const after = await snapshot(page);
     expect(after.x).toBe(2); expect(after.pixels.count).toBe(before.pixels.count);
   } else if (name === 'variables') {
@@ -137,14 +137,14 @@ async function inspect(page, name, backend, before, timing) {
     expect(evidence.during.moves).toEqual([4, 11, 18, 21]);
     expect(evidence.during.pixels.centerX - before.pixels.centerX).toBeCloseTo(21, 0);
     await key(page);
-    await expect.poll(async () => (await snapshot(page)).x, poll).toBe(19);
+    await expect.poll(async () => (await settled(snapshot, page)).x, poll).toBe(19);
     expect(number((await snapshot(page)).variables['gg-score'])).toBe(2);
   } else if (name === 'globalVariables') {
     evidence.during = (await sample(state => number(state.globalVariables['gg-global-score']) === 17 &&
       number(state.targets.find(target => !target.isOriginal)?.variables['gg-local-score']) === 5)).state;
     expect(number(evidence.during.targets.find(target => target.isOriginal).variables['gg-local-score'])).toBe(3);
     for (const target of evidence.during.targets) expect(target.variables['gg-global-score']).toBeUndefined();
-    await expect.poll(async () => (await snapshot(page)).targets.length, poll).toBe(1);
+    await expect.poll(async () => (await settled(snapshot, page)).targets.length, poll).toBe(1);
     const after = await snapshot(page);
     expect(number(after.globalVariables['gg-global-score'])).toBe(17);
     expect(number(after.variables['gg-local-score'])).toBe(3);
@@ -163,7 +163,7 @@ async function inspect(page, name, backend, before, timing) {
     expect(evidence.during.pixels.count).toBe(0);
     expect(evidence.during.x).toBe(before.x);
     await page.screenshot({path: artifactPath('textual-costumes-' + backend + '.png')});
-    await expect.poll(async () => (await snapshot(page)).costume.name, poll).toBe('hero');
+    await expect.poll(async () => (await settled(snapshot, page)).costume.name, poll).toBe('hero');
     const after = await snapshot(page);
     expect(after.pixels.count).toBe(before.pixels.count); expect(after.bluePixels).toBe(0);
   } else if (name === 'audio' || name === 'audioStop') {
@@ -175,8 +175,8 @@ async function inspect(page, name, backend, before, timing) {
     expect(evidence.during.audio.peakHz).toBeGreaterThan(400);
     expect(evidence.during.audio.peakHz).toBeLessThan(480);
     expect(evidence.during.x).toBe(0);
-    await expect.poll(async () => (await snapshot(page)).x, poll).toBe(name === 'audio' ? 5 : 3);
-    await expect.poll(async () => (await snapshot(page)).audio.rms, poll).toBeLessThan(0.0001);
+    await expect.poll(async () => (await settled(snapshot, page)).x, poll).toBe(name === 'audio' ? 5 : 3);
+    await expect.poll(async () => (await settled(snapshot, page)).audio.rms, poll).toBeLessThan(0.0001);
     const after = await snapshot(page);
     expect(after.audio.sounds[0].playing).toBe(false);
     expect(after.audio.events.filter(event => event.type === 'play')).toHaveLength(1);
@@ -187,7 +187,7 @@ async function inspect(page, name, backend, before, timing) {
     expect(evidence.playbackSeconds).toBeGreaterThan(name === 'audio' ? 1.1 : 0.3);
     if (name === 'audioStop') expect(evidence.playbackSeconds).toBeLessThan(0.8);
   }
-  await expect.poll(async () => (await snapshot(page)).threads, poll).toBe(0);
+  await expect.poll(async () => (await settled(snapshot, page)).threads, poll).toBe(0);
   evidence.after = await snapshot(page);
   evidence.observedStates = timing.observations.entries.filter(entry => entry.state.revision === revision);
   evidence.comparable = comparable(evidence.after);
@@ -224,7 +224,7 @@ for (const name of names) {
         // then outlast the original wait to detect a late movement.
         const stoppedTiming = await startBackend(page, backend, name, {copy: false});
         await stoppedTiming.observations.stop();
-        await expect.poll(async () => (await snapshot(page)).audio.rms, poll).toBeGreaterThan(0.01);
+        await expect.poll(async () => (await settled(snapshot, page)).audio.rms, poll).toBeGreaterThan(0.01);
         evidence.activeStop = {playing: await snapshot(page)};
         evidence.activeStop.stopped = await stopBackend(page, backend);
         await page.waitForTimeout(1300);

@@ -1,3 +1,4 @@
+import {validateTextRuntime} from '../text-documents.mjs';
 // Owned language wire/data contract. No DOM or interpreter imports.
 import {validateCapabilityRPC} from './capability-language.mjs';
 import {validateTextProgramRPC} from './text-program.mjs';
@@ -19,9 +20,8 @@ export function validateLanguageDocument(document) {
   object(document, ['id', 'name', 'language', 'source', 'runtime']);
   if (!documentId(document.id) || !text(document.name, 80) || /[\u0000-\u001f\u007f]/.test(document.name)) fail('invalid document identity');
   if (!['javascript', 'python'].includes(document.language) || typeof document.source !== 'string' || encoder.encode(document.source).length > languageRuntimeLimits.sourceBytes) fail('invalid language or source size');
-  object(document.runtime, ['engine', 'version']);
-  const expected = document.language === 'javascript' ? ['quickjs', '0.32.0'] : ['pyodide', '314.0.7'];
-  if (document.runtime.engine !== expected[0] || document.runtime.version !== expected[1]) fail('unsupported runtime lock');
+  // Same runtime rules as GGPROJ: compatible interpreter versions, optional declared API (ADR-011).
+  validateTextRuntime(document.language, document.runtime, () => fail('unsupported runtime lock'));
   return structuredClone(document);
 }
 export function validateLanguageScope(scope) {

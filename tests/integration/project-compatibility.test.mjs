@@ -148,3 +148,15 @@ test('GG-COMPAT-006: newer formats and missing packs explain what is needed and 
   await assert.rejects(parseProject(JSON.stringify(missing), {catalog}), /no instalado.*gg\.microbit 0\.9\.0.*más reciente/);
   assert.equal(validateCapabilities(document.capabilities).locks.length, 2);
 });
+
+test('GG-COMPAT-007: a project without explicit capabilities keeps its v2 shape and becomes v4 when a copy declares its API', async () => {
+  const copy = createTextDocument({language: 'python', name: 'Copia', source: '@on_start\ndef inicio():\n    hero.move(1)\n', api: 'api3', variableIds: {}});
+  const legacy = await createProject({name: 'Legado', blockly: scoreBlockly, deviceSource: '', catalog, textDocuments: [copy], selectedTextDocumentId: copy.id});
+  assert.equal(legacy.version, 4);
+  assert.equal(Object.hasOwn(legacy, 'capabilities'), false);
+  assert.ok(legacy.scene, 'v2 scene shape is kept');
+  assert.deepEqual(await parseProject(serializeProject(legacy), {catalog}), legacy);
+  assert.deepEqual(await parseProjectArchive(await createProjectArchive(legacy, {catalog}), {catalog}), legacy);
+  const plain = await createProject({name: 'Legado', blockly: scoreBlockly, deviceSource: '', catalog, textDocuments: [], selectedTextDocumentId: null});
+  assert.equal(plain.version, 2, 'without a declared API the legacy version is unchanged');
+});

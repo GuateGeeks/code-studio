@@ -1,4 +1,4 @@
-import {selectContext,clickVisible,revealPanel} from './workspace-controls.mjs';
+import {selectContext,clickVisible,revealPanel,settled} from './workspace-controls.mjs';
 import {test, expect} from '@playwright/test';
 import {readFile, writeFile} from 'node:fs/promises';
 import JSZip from 'jszip';
@@ -36,7 +36,7 @@ async function run(page, x) {
   await selectContext(page,'2d');
   await clickVisible(page.locator('#run-editor'));
   await expect(page.locator('#status')).toHaveText('Bloques ejecutados');
-  await expect.poll(async () => (await snapshot(page)).x).toBe(x);
+  await expect.poll(async () => (await settled(snapshot, page)).x).toBe(x);
 }
 async function clickCheck(page) {
   const button=page.locator('#lesson-check');
@@ -98,7 +98,7 @@ for (const mobile of [false, true]) {
     await expect(page.locator('#packs-list')).toContainText('gg.score · 0.2.0');
     await editNumber(page,'lesson-score-move-n',10);
     await run(page,0);await spaces(page,3);
-    await expect.poll(async()=>(await snapshot(page)).x).toBe(30);
+    await expect.poll(async () => (await settled(snapshot, page)).x).toBe(30);
     await check(page);
     const blocks=await page.evaluate(()=>studioProbe.editor.save());
     const backend=mobile?'python':'javascript';
@@ -108,12 +108,14 @@ for (const mobile of [false, true]) {
     await clickVisible(page.locator('#run-document'));
     await expect(page.locator('#text-run-status')).toHaveText('Documento activo · eventos disponibles',{timeout:60000});
     await spaces(page,3);
-    await expect.poll(async()=>(await snapshot(page)).x).toBe(30);
+    await expect.poll(async () => (await settled(snapshot, page)).x).toBe(30);
     await check(page);
     const downloadPromise=page.waitForEvent('download');await clickVisible(page.locator('#save-project'));
     const file=await downloadPromise;const path=artifactPath('score-'+layout+'.ggproj');await file.saveAs(path);
     const zip=await JSZip.loadAsync(await readFile(path));const manifest=JSON.parse(await zip.file('manifest.json').async('string'));
-    expect(manifest.version).toBe(3);expect(manifest.scene).toBeUndefined();
+    // The copy declares API v3 (runtime.api), so the project is written as GGPROJ v4 (ADR-011).
+    expect(manifest.version).toBe(4);expect(manifest.scene).toBeUndefined();
+    expect(manifest.authoring.textDocuments.at(-1).runtime.api).toBe('api3');
     expect(manifest.capabilities.locks.find(lock=>lock.id==='gg.score').version).toBe('0.2.0');
     expect(manifest.capabilities.config['gg.score'].initialValue).toBe(0);
     expect(manifest.authoring.blockly).toEqual(blocks);
@@ -140,12 +142,12 @@ for (const mobile of [false, true]) {
     await selectContext(page,'2d');
     await clickVisible(page.locator('#copy-javascript'));
     const source=await page.locator('#text-source').inputValue();
-    expect(source).toContain('ctx.move(4)');
+    expect(source).toContain('hero.move(4)');
     await selectContext(page,'text');
-    await page.locator('#text-source').fill(source.replace('ctx.move(4)','ctx.move(6)'));
+    await page.locator('#text-source').fill(source.replace('hero.move(4)','hero.move(6)'));
     await clickVisible(page.locator('#run-document'));
     await expect(page.locator('#text-run-status')).toHaveText('Documento activo · eventos disponibles',{timeout:60000});
-    await expect.poll(async()=>(await snapshot(page)).x).toBe(18);
+    await expect.poll(async () => (await settled(snapshot, page)).x).toBe(18);
     const result=await check(page);
     expect(await page.evaluate(()=>studioProbe.editor.save())).toEqual(blocks);
     await selectContext(page,'text');

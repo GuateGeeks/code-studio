@@ -1,5 +1,5 @@
 import {generateCode} from '../generated-code.mjs';
-import {generateProgramSource} from '../generated-program-source.mjs';
+import {generateApi3ProgramSource} from '../generated-program-source.mjs';
 import {createDiagnosticConsole} from '../diagnostic-console.mjs';
 import {explainDiagnostic} from './presentation-text.mjs';
 
@@ -89,7 +89,8 @@ export function createCodeConsoleUI(editor, {selectSourceLocation = () => false,
     const language = languagePicker.value;
     if (language === 'ir') return generateCode(ir);
     if (!['javascript', 'python'].includes(language)) throw new Error('El lenguaje de lectura no está disponible.');
-    return generateProgramSource(ir, language);
+    // Readable API v3 (ADR-011); the language origin translates it before running.
+    return generateApi3ProgramSource(ir, language);
   }
   function updateCopyControls() {
     const disabled = copying || !listing || typeof createTextCopy !== 'function';
@@ -108,7 +109,7 @@ export function createCodeConsoleUI(editor, {selectSourceLocation = () => false,
     let generated;
     try {
       // Generate from current blocks, never from an old textarea or listing.
-      generated = generateProgramSource(editor.program(), language);
+      generated = generateApi3ProgramSource(editor.program(), language);
     } catch (error) {
       update();
       reportCopyError(error);
@@ -117,7 +118,7 @@ export function createCodeConsoleUI(editor, {selectSourceLocation = () => false,
       return;
     }
     try {
-      await createTextCopy({language, source: generated.text,
+      await createTextCopy({language, source: generated.text, api: 'api3', variableIds: generated.variableIds,
         name: language === 'javascript' ? 'Copia JavaScript' : 'Copia Python'});
       copyStatus.textContent = `Copia ${language === 'javascript' ? 'JavaScript' : 'Python'} creada. Editarla no cambia tus bloques.`;
     } catch (error) { reportCopyError(error); }

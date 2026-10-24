@@ -40,12 +40,16 @@ function text(value, maximum, field) {
 function timestamp(value, field) {
   if (typeof value !== 'string' || !/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/.test(value) || !Number.isFinite(Date.parse(value)) || new Date(value).toISOString() !== value) fail(`${field}: fecha inválida`);
 }
+// Capabilities live in v3 and in v4 projects that had them; a v4 without them
+// keeps the v2 shape (scene) and only adds declared text APIs.
+export const hasCapabilityProfile = document => document?.version === 3 || (document?.version === 4 && Object.hasOwn(document, 'capabilities'));
 function structure(document) {
   jsonTree(document);
-  object(document, document.version >= 3 ? ['format', 'version', 'project', 'authoring', 'capabilities', 'resources', 'locks'] : ['format', 'version', 'project', 'authoring', 'scene', 'resources', 'locks'], 'documento');
-  if (document.format !== 'ggproj') fail('formato o versión no soportada');
+  // Format and version first: a newer file is explained before its fields are checked.
+  if (!document || typeof document !== 'object' || document.format !== 'ggproj') fail('formato o versión no soportada');
   if (Number.isSafeInteger(document.version) && document.version > 4) fail(`formato o versión no soportada: GGPROJ v${document.version} es de una versión más reciente de Code Studio; ábrelo con esa versión`);
   if (![1, 2, 3, 4].includes(document.version)) fail('formato o versión no soportada');
+  object(document, hasCapabilityProfile(document) ? ['format', 'version', 'project', 'authoring', 'capabilities', 'resources', 'locks'] : ['format', 'version', 'project', 'authoring', 'scene', 'resources', 'locks'], 'documento');
   object(document.project, ['id', 'name', 'revision', 'createdAt', 'updatedAt'], 'project');
   const model = document.project;
   if (typeof model.id !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(model.id)) fail('ID de proyecto inválido');
@@ -61,7 +65,7 @@ function structure(document) {
   if (Object.keys(document.authoring.blockly).some(key => !['blocks', 'variables'].includes(key))) fail('metadatos de workspace no soportados');
   text(JSON.stringify(document.authoring.blockly), projectLimits.workspaceBytes, 'workspace Blockly');
   text(document.authoring.deviceSource, projectLimits.sourceBytes, 'fuente de dispositivo');
-  if (document.version >= 3) {
+  if (hasCapabilityProfile(document)) {
     if (!validateCapabilities(document.capabilities)) fail('capacidades explícitas ausentes');
   } else {
     object(document.scene, Object.keys(scene), 'scene');
@@ -91,7 +95,7 @@ export async function validateProject(document, {catalog, engineHistory = engine
   if (!isCompatibleEngineLocks(document.locks, {current: catalog.locks, history: engineHistory})) fail(`versiones o locks no soportados (${describeUnsupportedEngineLocks(document.locks, {current: catalog.locks, history: engineHistory})}). Ábrelo con una versión más reciente de Code Studio`);
   if([1,2].includes(document.resources.version)) {
     const policy=resolveResourcePolicy(document.capabilities);
-    if(document.version<3||policy!=='gg-resources-v'+document.resources.version)fail('política de recursos no instalada/seleccionada');
+    if(!hasCapabilityProfile(document)||policy!=='gg-resources-v'+document.resources.version)fail('política de recursos no instalada/seleccionada');
     const resources=await validateResources(document.resources,{policy});
     validateCapabilityReferences(document.capabilities,{resources,textDocuments:document.authoring.textDocuments});
     const result=structuredClone(document);result.resources=resources;return result;
@@ -115,7 +119,6 @@ export async function createProject({name, blockly, deviceSource, catalog, resou
   const profile = capabilities == null ? null : validateCapabilities(capabilities);
   const textAuthoring = textDocuments === undefined ? (profile ? {textDocuments: [], selectedTextDocumentId: null} : null) : validateTextDocuments(textDocuments, selectedTextDocumentId);
   const declaresApi = Boolean(textAuthoring?.textDocuments.some(item => Object.hasOwn(item.runtime, 'api')));
-  if (declaresApi && !profile) fail('la API textual declarada requiere capacidades explícitas');
   const document = {format: 'ggproj', version: declaresApi ? 4 : profile ? 3 : textAuthoring ? 2 : 1, project: {id, name, revision, createdAt, updatedAt},
     authoring: {blockly: structuredClone(blockly), deviceSource, ...(textAuthoring ?? {})},
     ...(profile ? {capabilities: profile} : {scene: {...scene}}), resources: structuredClone(resources??catalog?.resources), locks: structuredClone(catalog?.locks)};
@@ -142,7 +145,8 @@ export async function upgradeProject(document, {capabilities, catalog} = {}) {
   const previous = await validateProject(document, {catalog});
   const profile = validateCapabilities(capabilities);
   if (!profile) fail('la actualización requiere capacidades explícitas');
-  const candidate = {...previous, version: 3, capabilities: profile,
+  const declaresApi = (previous.authoring.textDocuments ?? []).some(item => Object.hasOwn(item.runtime, 'api'));
+  const candidate = {...previous, version: declaresApi ? 4 : 3, capabilities: profile,
     authoring: {...previous.authoring, textDocuments: previous.authoring.textDocuments ?? [],
       selectedTextDocumentId: previous.authoring.selectedTextDocumentId ?? null}};
   delete candidate.scene;

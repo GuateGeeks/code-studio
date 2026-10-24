@@ -1,4 +1,4 @@
-import {selectContext,clickVisible,revealPanel} from './workspace-controls.mjs';
+import {selectContext,clickVisible,revealPanel,settled} from './workspace-controls.mjs';
 import {revealAdvanced} from './advanced-controls.mjs';
 import {test, expect} from '@playwright/test';
 import {artifactPath} from './artifacts.mjs';
@@ -16,7 +16,7 @@ for (const language of ['javascript','python']) {
     const blocks = await page.evaluate(() => studioProbe.editor.save());
     await revealPanel(page,page.locator('#generated-language'));await revealPanel(page,page.locator('#generated-language'));await page.locator('#generated-language').selectOption(language);
     await expect(page.locator('#generated-code')).toHaveJSProperty('readOnly',true);
-    await expect(page.locator('#generated-code')).toHaveValue(/GG.program.configure/);
+    await expect(page.locator('#generated-code')).toHaveValue(/onStart\(\(\) => \{|@on_start/);
     await selectContext(page,'2d');
     await clickVisible(page.locator('#copy-' + language));
     await expect(page.locator('#copy-status')).toContainText('creada');
@@ -26,11 +26,11 @@ for (const language of ['javascript','python']) {
     await selectContext(page,'text');
     await clickVisible(page.getByRole('button',{name:'Ejecutar documento 2D',exact:true}));
     await expect(page.locator('#text-run-status')).toHaveText('Documento activo · eventos disponibles',{timeout:60000});
-    await expect.poll(async () => (await snapshot(page)).x).toBe(12);
+    await expect.poll(async () => (await settled(snapshot, page)).x).toBe(12);
     expect(Number((await snapshot(page)).variables['gg-score'].value)).toBe(1);
     await revealAdvanced(page);
     await clickVisible(page,page.getByRole('button',{name:'Enviar boost',exact:true}));
-    await expect.poll(async () => (await snapshot(page)).x).toBe(14);
+    await expect.poll(async () => (await settled(snapshot, page)).x).toBe(14);
     expect(Number((await snapshot(page)).variables['gg-score'].value)).toBe(2);
     await expect(page.locator('#text-source')).toHaveValue(source);
     expect(await page.evaluate(() => studioProbe.editor.save())).toEqual(blocks);
@@ -60,11 +60,11 @@ for (const mobile of [false,true]) {
     const changedBlocks=await page.evaluate(()=>studioProbe.editor.save());
     await expect(page.locator('#text-source')).toHaveValue(originalSource);
     await revealPanel(page,page.locator('#generated-language'));await revealPanel(page,page.locator('#generated-language'));await page.locator('#generated-language').selectOption('javascript');
-    await expect(page.locator('#generated-code')).toHaveValue(/ctx.move\(6\)/);
+    await expect(page.locator('#generated-code')).toHaveValue(/hero\.move\(6\)/);
     await selectContext(page,'text');
     await clickVisible(page.getByRole('button',{name:'Ejecutar documento 2D',exact:true}));
     await expect(page.locator('#text-run-status')).toHaveText('Documento activo · eventos disponibles',{timeout:60000});
-    await expect.poll(async()=>(await snapshot(page)).x).toBe(12);
+    await expect.poll(async () => (await settled(snapshot, page)).x).toBe(12);
     await selectContext(page,'2d');
     await clickVisible(page.locator('#copy-javascript'));
     await expect(page.locator('#text-run-document')).toContainText('El documento seleccionado aún no se ejecutó');
@@ -72,14 +72,14 @@ for (const mobile of [false,true]) {
     await selectContext(page,'text');
     await page.locator('#text-document').selectOption(documentId);
     await expect(page.locator('#text-run-document')).not.toContainText('El documento seleccionado aún no se ejecutó');
-    const modifiedSource=originalSource.replace('ctx.move(4)','ctx.move(5)');
+    const modifiedSource=originalSource.replace('hero.move(4)','hero.move(5)');
     expect(modifiedSource).not.toBe(originalSource);
     await selectContext(page,'text');
     await page.locator('#text-source').fill(modifiedSource);
     await selectContext(page,'text');
     await clickVisible(page.getByRole('button',{name:'Ejecutar documento 2D',exact:true}));
     await expect(page.locator('#text-run-status')).toHaveText('Documento activo · eventos disponibles',{timeout:60000});
-    await expect.poll(async()=>(await snapshot(page)).x).toBe(15);
+    await expect.poll(async () => (await settled(snapshot, page)).x).toBe(15);
     await page.evaluate(()=>studioProbe.project.flush());
     const downloadEvent=page.waitForEvent('download');
     await clickVisible(page.getByRole('button',{name:'Descargar proyecto',exact:true}));
@@ -99,7 +99,7 @@ for (const mobile of [false,true]) {
     await selectContext(page,'2d');
     await clickVisible(page.getByRole('button',{name:'Ejecutar bloques',exact:true}));
     await expect(page.locator('#status')).toHaveText('Bloques ejecutados');
-    await expect.poll(async()=>(await snapshot(page)).x).toBe(18);
+    await expect.poll(async () => (await settled(snapshot, page)).x).toBe(18);
     const context=await browser.newContext();
     const reopened=await context.newPage();await open(reopened);
     await reopened.locator('#open-project').setInputFiles(path);
@@ -129,7 +129,7 @@ test('GG-TEXT-PROGRAM-003: a contextual wait beyond20seconds completes and Stop 
   await selectContext(page,'text');
   await clickVisible(page.getByRole('button',{name:'Ejecutar documento 2D',exact:true}));
   await expect(page.locator('#text-run-status')).toHaveText('Documento activo · eventos disponibles',{timeout:60000});
-  await expect.poll(async()=>(await snapshot(page)).x,{timeout:30000,intervals:[500]}).toBe(9);
+  await expect.poll(async () => (await settled(snapshot, page)).x,{timeout:30000,intervals:[500]}).toBe(9);
   expect(Date.now()-started).toBeGreaterThanOrEqual(21000);
   await expect(page.locator('#console-entries')).not.toContainText('Runner timeout');
   await selectContext(page,'text');

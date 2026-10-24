@@ -1,5 +1,5 @@
 import {test,expect} from '@playwright/test';
-import {clickVisible,selectContext,revealPanel,revealControl} from './workspace-controls.mjs';
+import {clickVisible,selectContext,revealPanel,revealControl,settled} from './workspace-controls.mjs';
 import {artifactPath} from './artifacts.mjs';
 test.setTimeout(90000);
 const snapshot=page=>page.evaluate(()=>studioProbe.request('snapshot'));
@@ -23,7 +23,7 @@ async function edit(page,id,value){
 async function run(page,x){
   await selectContext(page,'2d');await clickVisible(page.locator('#run-editor'));
   await expect(page.locator('#status')).toHaveText('Bloques ejecutados');
-  await expect.poll(async()=>(await snapshot(page)).x).toBe(x);
+  await expect.poll(async () => (await settled(snapshot, page)).x).toBe(x);
 }
 async function check(page){
   await clickVisible(page.locator('#lesson-check'));await expect(page.locator('#lesson-status')).toContainText('Comprobación completada');
@@ -69,18 +69,18 @@ test('E3: cuatro pulsaciones completan solo la variante de puntos',async({page})
   await clickVisible(page.locator('#lesson-variant'));await run(page,0);
   const stage=page.frameLocator('#runner-slot iframe').locator('#stage');await stage.focus();
   for(let i=1;i<=4;i++){await stage.press('Space');await expect.poll(()=>page.evaluate(()=>GG.variables.get('gg-pack-score').then(value=>value.value))).toBe(i);}
-  await expect.poll(async()=>(await snapshot(page)).x).toBe(40);
+  await expect.poll(async () => (await settled(snapshot, page)).x).toBe(40);
   const result=await check(page);expect(result.historicalStepIds).toEqual(['score-variant']);
   expect(result.results[0].checks.every(check=>check.passed&&check.basis==='execution')).toBe(true);
 });
 for(const language of ['javascript','python'])test(`E3: variante textual independiente ${language}`,async({page})=>{
   await open(page,'text-transition');const blocks=await page.evaluate(()=>studioProbe.editor.save());
   await clickVisible(page.locator('#copy-'+language));
-  const source=await page.locator('#text-source').inputValue();expect(source).toContain('ctx.move(4)');
-  await page.locator('#text-source').fill(source.replace('ctx.move(4)','ctx.move(8)'));
+  const source=await page.locator('#text-source').inputValue();expect(source).toContain('hero.move(4)');
+  await page.locator('#text-source').fill(source.replace('hero.move(4)','hero.move(8)'));
   await clickVisible(page.locator('#lesson-variant'));await clickVisible(page.locator('#run-document'));
   await expect(page.locator('#text-run-status')).toHaveText('Documento activo · eventos disponibles');
-  await expect.poll(async()=>(await snapshot(page)).x).toBe(24);
+  await expect.poll(async () => (await settled(snapshot, page)).x).toBe(24);
   const result=await check(page);expect(result.historicalStepIds).toEqual(['text-variant']);
   expect(await page.evaluate(()=>studioProbe.editor.save())).toEqual(blocks);await run(page,12);
 });

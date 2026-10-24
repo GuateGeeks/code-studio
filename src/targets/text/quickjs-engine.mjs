@@ -3,6 +3,7 @@ import {createTextProgramSession,createCapabilityProgramSession, contextOperatio
 import {newQuickJSWASMModuleFromVariant, newVariant} from 'quickjs-emscripten-core';
 import RELEASE_SYNC from '@jitl/quickjs-wasmfile-release-sync';
 import {resolveLanguageProfile} from '../../contracts/capability-language.mjs';
+import {compileApi3JavaScript} from './api-v3.mjs';
 import {languageRuntimeLimits, validateLanguageDocument, validateLanguageRPC, validateLanguageWait} from '../../contracts/language-runtime.mjs';
 
 // Acorn is syntax-only. The pinned QuickJS C wrapper mishandles module
@@ -279,7 +280,8 @@ async function initializeQuickJSEngine({rpc, onDiagnostic, onProgramReady = () =
       if (!alive) throw new Error('Session stopped');
       const candidate = validateLanguageDocument(document);
       if (candidate.language !== 'javascript') throw new Error('Documento JavaScript requerido.');
-      prepared = candidate;
+      // API v3 documents are translated to API1 here, inside the language origin (ADR-011).
+      prepared = candidate.runtime.api === 'api3' && !profile ? {...candidate, source: compileApi3JavaScript(candidate.source, {variableIds: candidate.runtime.variableIds ?? {}}).source} : candidate;
       return {prepared: true};
     },
     execute() {
