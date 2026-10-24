@@ -111,7 +111,7 @@ Cada ficha indica estado, qué tomar de cada referencia, brechas, cambios OpenSp
 |---|---|---|---|
 | **`repo-baseline-and-spec-consolidation`** (aplicado 24/10) | S | Commit inicial y etiquetas `0.1.0-alpha.1` y `e4-visual-rework`; archivar los cambios completos y consolidar `openspec/specs/` con `openspec-archive-change`/`openspec-sync-specs` | `git rev-parse` corresponde a la huella de `src/`; `spec:validate` sobre specs consolidadas; ninguna acta histórica reescrita |
 | **`pack-versioning-and-migrations`** (aplicado 24/10, [acta](../engineering/PACK-VERSIONING-RESULTS.md)) | M | **GGPROJ v4**: un proyecto declara `packId@version`; el catálogo instala varias versiones o migra hacia adelante con migraciones declarativas por pack (`migrations:[]` ya existe en los manifiestos); los permisos de operaciones dejan de estar fijados a `0.1.0`; lectura v1–v3 intacta | Un GGPROJ con `gg.sprites@0.1.0` abre en un catálogo con `@0.2.0`, migra sin perder IDs ni comportamiento y no ejecuta; un pack desconocido conserva datos y bloquea solo su contexto |
-| **`test-gate-scaling`** (propuesto) | S–M | Partición de E2E por contexto en `test:affected`, workers en paralelo con puertos asignados, fixtures de proyectos canónicos | Full < 30 min en la misma máquina, o justificación medida |
+| **`test-gate-scaling`** (aplicado 24/10, [acta](../engineering/TEST-GATE-SCALING-RESULTS.md)) | S–M | Partición de E2E por contexto en `test:affected`, workers en paralelo con puertos asignados, fixtures de proyectos canónicos | Full < 30 min en la misma máquina, o justificación medida |
 
 ### F1 · Entrada y continuidad
 
@@ -324,12 +324,12 @@ Ola 3  Contextos de capacidad (pistas paralelas)        Ola 4  Distribución y a
 
 | # | Decisión | Por qué bloquea | Valor por defecto si no se decide |
 |---|---|---|---|
-| D1 | **Segmento y grado del piloto** (p. ej. 4.º–6.º primaria o 1.º–3.º básico) | Profundidad del vocabulario, nivel lector del copy y del contenido de la Ola 2 | Contenido para 10–14 años con lectura acompañada |
+| D1 | ~~Segmento y grado del piloto~~ | — | **Resuelta el 24/10/2026: primaria alta (10–12 años)** |
 | D2 | Equipos escolares y conectividad del piloto | Umbrales del Exp. 2 y alcance de Python/3D offline | Portátil de gama baja con Chromium; Python opcional |
 | D3 | ¿Habrá uso comercial? | Limita inspirarse en materiales CC BY-NC-SA | Tratar como comercial: solo contenido propio |
 | D4 | ¿Idiomas mayas? | Decide si `ui-strings-catalog` entra en la Ola 1 o la 4 | Ola 4, sin traducciones |
-| D5 | Aprobar **multi-sprite** y GGPROJ v4 | Es el cambio de formato más grande desde F1 | Recomendado: sí |
-| D6 | Aprobar **CodeMirror 6** como dependencia | Primera dependencia de UI nueva desde F0 | Recomendado: sí, con tamaño medido |
+| D5 | ~~Multi-sprite y GGPROJ v4~~ | — | **Resuelta el 24/10/2026: sí, en la Ola 1** (`scene2d-multi-sprite`) |
+| D6 | ~~CodeMirror 6 como dependencia~~ | — | **Resuelta el 24/10/2026: sí, con tamaño medido** (`text-editor-codemirror`) |
 | D7 | 3D: ¿editor de escena tipo CoSpaces en el piloto o después? | Una L adicional en la Ola 3 | Después del Exp. 1 |
 | D8 | ~~¿Archivar los 22 cambios OpenSpec completos?~~ | — | **Resuelta y aplicada el 24/10/2026** ([acta](../engineering/REPO-BASELINE-RESULTS.md)) |
 | D9 | ~~¿Vistas sincronizadas bloques↔texto y API sin `GG`?~~ | — | **Resuelta el 24/10/2026: sí** (ADR-011) |
