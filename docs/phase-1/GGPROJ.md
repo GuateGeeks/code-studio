@@ -1,0 +1,81 @@
+# GGPROJ v1 y recuperación local
+
+Este corte guarda la autoría del editor: bloques e IDs, fuente micro:bit, nombre/identidad del proyecto, estado inicial, recursos y versiones. Los valores modificados por la ejecución o por GG permanecen en la VM y no sustituyen esa autoría. Abrir o recuperar no ejecuta bloques ni compila la fuente automáticamente.
+
+## Archivo portable
+
+La descarga `.ggproj` es un ZIP estándar del subconjunto STORE, sin compresión. Contiene `manifest.json` y cuatro recursos propios bajo `assets/<id>.svg` o `.wav`. Los IDs del catálogo heredados del motor son MD5; cada contenido se verifica además mediante SHA-256 y longitud. No se confía solo en el nombre del archivo ni en su extensión.
+
+El documento rehidratado tiene estos campos:
+
+| Campo | Contenido |
+|---|---|
+| `format`, `version` | `ggproj`, `1` |
+| `project` | UUID, nombre, revisión entera, creación y actualización ISO UTC |
+| `authoring.blockly` | Serialización Blockly, con IDs de bloques/variables y coordenadas de autoría |
+| `authoring.deviceSource` | Fuente editable del dispositivo; no JS compilado ni firmware cacheado |
+| `scene` | Sprite `hero`, x/y=0, dirección 90, tamaño 100 y disfraz inicial `hero` |
+| `resources` | Assets, disfraces, sonidos e integridad; el manifiesto ZIP usa referencias a las entradas binarias |
+| `locks` | Blockly 13.4.0, IR 0, adaptador `scratch-2d-v0`, Scratch 12.3.1 y Scratch Audio 2.0.268 |
+
+El catálogo corresponde al build instalado: stage, hero, hero-alt y tone. Importar verifica el catálogo completo, los locks, las referencias, hashes y contenido. La portabilidad de v1 funciona entre páginas/contextos de una versión compatible de Studio. No admite assets ajenos, extensiones remotas, cambios arbitrarios de locks o importación SB3. Las versiones futuras deberán definir compatibilidad/migración explícitas.
+
+| Límite | Valor |
+|---|---:|
+| Documento JSON, archivo y contenido ZIP total | 2 MiB cada uno |
+| Entradas ZIP | 16 como máximo; v1 requiere exactamente las del catálogo y manifiesto |
+| Manifiesto ZIP | 512 KiB |
+| Cada asset | 256 KiB |
+| Workspace y fuente de dispositivo | 64 KiB UTF-8 cada uno |
+| Nombre | 1–80 caracteres, sin controles |
+
+El lector rechaza rutas desconocidas/peligrosas, duplicados, cabeceras locales/centrales incoherentes, CRC inválido, tamaños incompatibles, cifrado, symlinks, ZIP64, carpetas, extras, comentarios y DEFLATE. No expande datos comprimidos. Las pruebas usan JSZip como lector/escritor independiente para comprobar interoperabilidad del subformato STORE; JSZip no se incorpora al runtime.
+
+## Apertura atómica
+
+Antes de cambiar la UI se validan archivo y documento y se construye un workspace Blockly separado. El mismo traductor y contrato IR de la ejecución rechazan bloques, referencias o valores no soportados. Un fallo conserva autoría, nombre, fuente, escena, sesión y copias confirmadas. El archivo válido sustituye autoría y descarta el runner anterior; el nuevo queda sin ejecutar.
+
+`Descargar proyecto` produce el archivo desde el editor, incluso si falla el almacenamiento. `Abrir archivo GGPROJ` usa el selector local; no sube autoría al servidor. El servidor continúa entregando solamente archivos estáticos y configuración. La edición visible se bloquea brevemente durante recuperación inicial para evitar sobrescribir una edición mientras llega la copia local.
+
+## Autosave y recuperación
+
+IndexedDB usa `gg-studio-projects`, versión 1, store `snapshots`, claves `current` y `previous`. Cada registro contiene `{serialized,savedAt}`. `serialized` es el documento JSON con assets embebidos, diferente del archivo ZIP portable. Las operaciones van en cola y la rotación actual/anterior ocurre dentro de una sola transacción, después de validar la revisión entrante. La UI anuncia **Guardado en este navegador** únicamente al completar el commit.
+
+El debounce de 400 ms agrupa cambios de bloques, fuente y nombre. Run/Stop, consultas y movimientos GG no producen revisiones de autoría. La garantía de recuperación cubre la última copia confirmada: cerrar abruptamente antes del commit puede perder la edición pendiente. Los intentos de flush al ocultar/cerrar son complementarios y no convierten el cierre asíncrono en una garantía.
+
+Al iniciar se restaura la revisión actual válida, o la anterior con aviso si la actual está dañada. Si ambas fallan, se mantienen los registros y se suspende autosave: el usuario puede abrir un archivo o pulsar **Guardar este proyecto como copia nueva**. No se borra la evidencia dañada automáticamente al cargar el ejemplo.
+
+Un fallo por cuota, denegación o transacción deja intacta la última copia confirmada y muestra que no se guardó. Se puede editar, ejecutar y descargar; una edición o nuevo intento de guardado puede recuperarse del error sin reiniciar la cola. La base pertenece al origen del navegador: cambiar de puerto/perfil/equipo no transporta esas copias; para eso sirve el archivo GGPROJ. No existe todavía catálogo de proyectos, sincronización de cuentas ni fusión entre pestañas.
+
+## Reproducción
+
+Desde Ubuntu/WSL en el producto, después de preparar las dependencias:
+
+```bash
+source ../scripts/env.sh
+npm run browser:build
+npm test > artifacts/f1-integration.tap
+npm run test:browser
+node tools/f0/verify-baseline.mjs
+node tools/f1/evidence.mjs
+npm run spec:validate
+```
+
+El [informe de resultados](RESULTS.md) identifica la corrida validada, capturas y límites. La evidencia histórica F0 se conserva por separado.
+
+
+## Dispositivo contextual de F4
+
+GGPROJ3 conserva el contenedor capabilities y fija gg.microbit con deviceId/variant/mode/workspace. El BlockGraph plano propio conserva IDs/conexiones/layout y tiene límite8KiB; el perfil completo sigue limitado a16KiB. deviceSource es un documento TypeScript independiente. Alternar modo no borra ninguno. StaticTS, sourceMap, JSsimulador, HEX/USB, logs y estado mutable no se guardan como autoría. Lectura de v1/v2 permanece exacta, sin promoción automática. La coordinación prepara todos los participantes antes del commit y usa checkpoints opacos para restaurar borradores inválidos. Véase ../phase-4/RESULTS.md.
+
+## Recursos portables de F5
+
+La política instalada gg-resources-v1 (gg.assets0.1.0) habilita resources.version1 en GGPROJ3. No cambia el ZIP STORE ni los locks históricos del contenedor. Un documento v1/v2 o v3 sin esta política sigue usando el catálogo exacto descrito arriba; abrirlo no lo promueve.
+
+Cada asset tipado Image/svg, Image/png, Sound/wav o Source/sb3 se identifica mediante SHA256 y declara encoding base64/data. integrity conserva bytes y sha256. Descriptores costumes/sounds separan id, ownerId, name y assetId; los disfraces incluyen centerX/centerY/bitmapResolution. Los IDs estables, sin puntos ni rutas, son valores de los bloques; un nombre solo cambia la etiqueta. Source/sb3 es un original ZIP inerte, nunca un segundo programa editable o estado del VM.
+
+El ZIP moderno admite manifest más hasta32assets (33entradas), rutas derivadas de SHA64 y formato revisado. Mantiene2MiB para el documento/contenedor; medio128KiB, originalSB3256KiB;32disfraces/16sonidos/4originales. Imagen1024porlado/1MPindividual/4MPtotal; WAV PCM16 mono/estéreo8–48kHz y2s además del límite de bytes. El intake SB3 usa otro parser limitado que admite DEFLATE; esto no habilita DEFLATE en GGPROJ.
+
+La apertura verifica estructura, hashes, formato y referencias; PNG requiere salida zlib/filtros válidos y decode real antes del commit. ResourceStore se prepara antes de Blockly y los participantes. Los IDs raw de dropdown se verifican antes de deserializar para evitar sustitución silenciosa por Blockly. Candidatos y checkpoints son opacos; el rollback restaura recursos, selección y campos abiertos.
+
+La promoción copy-on-write es explícita. No se retira una política perdiendo recursos; reemplazar el proyecto es una transacción distinta. Los logs, candidatos VM, audio activo, cobertura derivada y exportaciones no forman parte de la autoría. La configuración gg.sb3 referencia el SHA del original. Véanse [ADR008](../adr/008-recursos-y-compatibilidad-sb3.md) y [resultados F5](../phase-5/RESULTS.md).

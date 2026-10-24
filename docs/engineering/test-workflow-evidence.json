@@ -1,0 +1,1412 @@
+{
+  "recordedAt": "2026-10-22T08:10:42.852Z",
+  "change": "incremental-test-workflow",
+  "status": "passed",
+  "environment": {
+    "node": "v22.23.4",
+    "platform": "linux",
+    "arch": "x64",
+    "kernel": "6.18.54.1-microsoft-standard-WSL2",
+    "playwright": "1.64.1",
+    "workers": 1,
+    "retries": 0
+  },
+  "commands": [
+    "npm run test:quick",
+    "npm run test:affected -- --files tests/browser/runner.spec.mjs",
+    "npm run test:affected -- --files tests/browser/project-persistence.spec.mjs",
+    "npm run test:full"
+  ],
+  "profiles": {
+    "quick": {
+      "profile": "quick",
+      "selection": "quick",
+      "startedAt": "2026-10-22T08:00:00.957Z",
+      "steps": [
+        {
+          "name": "integration",
+          "startedAt": "2026-10-22T08:00:00.957Z",
+          "durationMs": 2544.796409,
+          "exitCode": 0
+        },
+        {
+          "name": "tools",
+          "startedAt": "2026-10-22T08:00:03.503Z",
+          "durationMs": 218.24915399999963,
+          "exitCode": 0
+        },
+        {
+          "name": "build",
+          "startedAt": "2026-10-22T08:00:03.721Z",
+          "durationMs": 401.0723830000002,
+          "exitCode": 0
+        },
+        {
+          "name": "smoke",
+          "startedAt": "2026-10-22T08:00:04.122Z",
+          "durationMs": 14638.593230999999,
+          "exitCode": 0
+        }
+      ],
+      "baselineWritten": false,
+      "exitCode": 0,
+      "finishedAt": "2026-10-22T08:00:18.761Z",
+      "wallMs": 17804
+    },
+    "affected": {
+      "profile": "affected",
+      "selection": "affected",
+      "startedAt": "2026-10-22T08:05:38.074Z",
+      "steps": [
+        {
+          "name": "integration",
+          "startedAt": "2026-10-22T08:05:38.074Z",
+          "durationMs": 3253.326074,
+          "exitCode": 0
+        },
+        {
+          "name": "tools",
+          "startedAt": "2026-10-22T08:05:41.329Z",
+          "durationMs": 279.5123859999999,
+          "exitCode": 0
+        },
+        {
+          "name": "build",
+          "startedAt": "2026-10-22T08:05:41.609Z",
+          "durationMs": 516.3965600000001,
+          "exitCode": 0
+        },
+        {
+          "name": "browser",
+          "startedAt": "2026-10-22T08:05:42.125Z",
+          "durationMs": 57685.158009000006,
+          "exitCode": 0
+        },
+        {
+          "name": "specs",
+          "startedAt": "2026-10-22T08:06:39.810Z",
+          "durationMs": 337.5316440000024,
+          "exitCode": 0
+        }
+      ],
+      "baselineWritten": false,
+      "exitCode": 0,
+      "finishedAt": "2026-10-22T08:06:40.148Z",
+      "wallMs": 62074
+    },
+    "full": {
+      "profile": "full",
+      "selection": "full",
+      "startedAt": "2026-10-22T08:07:12.626Z",
+      "steps": [
+        {
+          "name": "integration",
+          "startedAt": "2026-10-22T08:07:12.626Z",
+          "durationMs": 2282.043175,
+          "exitCode": 0
+        },
+        {
+          "name": "tools",
+          "startedAt": "2026-10-22T08:07:14.909Z",
+          "durationMs": 236.4746329999998,
+          "exitCode": 0
+        },
+        {
+          "name": "build",
+          "startedAt": "2026-10-22T08:07:15.145Z",
+          "durationMs": 449.30158900000015,
+          "exitCode": 0
+        },
+        {
+          "name": "smoke",
+          "startedAt": "2026-10-22T08:07:15.595Z",
+          "durationMs": 14794.817576,
+          "exitCode": 0
+        },
+        {
+          "name": "browser",
+          "startedAt": "2026-10-22T08:07:30.390Z",
+          "durationMs": 145042.384428,
+          "exitCode": 0
+        },
+        {
+          "name": "specs",
+          "startedAt": "2026-10-22T08:09:55.432Z",
+          "durationMs": 313.0163220000104,
+          "exitCode": 0
+        },
+        {
+          "name": "upstream-preservation",
+          "startedAt": "2026-10-22T08:09:55.745Z",
+          "durationMs": 127.73010000001523,
+          "exitCode": 0
+        }
+      ],
+      "baselineWritten": true,
+      "exitCode": 0,
+      "finishedAt": "2026-10-22T08:09:56.773Z",
+      "wallMs": 164147
+    }
+  },
+  "browser": {
+    "quick": {
+      "startTime": "2026-10-22T08:00:04.635Z",
+      "duration": 14108.566,
+      "expected": 3,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "affected": {
+      "startTime": "2026-10-22T08:05:42.715Z",
+      "duration": 57075.588,
+      "expected": 8,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "fullSmoke": {
+      "startTime": "2026-10-22T08:07:16.117Z",
+      "duration": 14242.991,
+      "expected": 3,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "full": {
+      "startTime": "2026-10-22T08:07:30.982Z",
+      "duration": 144428.776,
+      "expected": 33,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    }
+  },
+  "node": {
+    "quick": {
+      "integration": 44,
+      "tools": 22
+    },
+    "affected": {
+      "integration": 44,
+      "tools": 23
+    },
+    "full": {
+      "integration": 44,
+      "tools": 23
+    }
+  },
+  "buildVerification": {
+    "recordedAt": "2026-10-22T07:53:37.382Z",
+    "cases": [
+      {
+        "name": "cold",
+        "expectedBuilt": [
+          "fixtures",
+          "pxt-pack",
+          "renderer-storage",
+          "static-sync",
+          "webpack-audio",
+          "webpack-editor",
+          "webpack-vm"
+        ],
+        "actualBuilt": [
+          "fixtures",
+          "pxt-pack",
+          "renderer-storage",
+          "static-sync",
+          "webpack-audio",
+          "webpack-editor",
+          "webpack-vm"
+        ],
+        "wallMs": 8928.150744,
+        "report": {
+          "recordedAt": "2026-10-22T07:53:46.217Z",
+          "forced": true,
+          "totalMs": 8796.720175,
+          "stages": [
+            {
+              "name": "static-sync",
+              "status": "built",
+              "reason": "forced",
+              "durationMs": 25.69878,
+              "inputsCount": 47,
+              "outputsCount": 38
+            },
+            {
+              "name": "fixtures",
+              "status": "built",
+              "reason": "forced",
+              "durationMs": 925.404235,
+              "inputsCount": 1092,
+              "outputsCount": 6
+            },
+            {
+              "name": "pxt-pack",
+              "status": "built",
+              "reason": "forced",
+              "durationMs": 135.13897099999986,
+              "inputsCount": 16,
+              "outputsCount": 8
+            },
+            {
+              "name": "renderer-storage",
+              "status": "built",
+              "reason": "forced",
+              "durationMs": 23.672039999999924,
+              "inputsCount": 13,
+              "outputsCount": 6
+            },
+            {
+              "name": "webpack-vm",
+              "status": "built",
+              "reason": "forced",
+              "durationMs": 6947.265078,
+              "inputsCount": 3561,
+              "outputsCount": 1
+            },
+            {
+              "name": "webpack-audio",
+              "status": "built",
+              "reason": "forced",
+              "durationMs": 270.6919139999991,
+              "inputsCount": 2683,
+              "outputsCount": 1
+            },
+            {
+              "name": "webpack-editor",
+              "status": "built",
+              "reason": "forced",
+              "durationMs": 431.1407820000004,
+              "inputsCount": 2656,
+              "outputsCount": 1
+            }
+          ]
+        }
+      },
+      {
+        "name": "warm",
+        "expectedBuilt": [],
+        "actualBuilt": [],
+        "wallMs": 504.58595100000093,
+        "report": {
+          "recordedAt": "2026-10-22T07:53:46.800Z",
+          "forced": false,
+          "totalMs": 457.244297,
+          "stages": [
+            {
+              "name": "static-sync",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 7.613322,
+              "inputsCount": 47,
+              "outputsCount": 38
+            },
+            {
+              "name": "fixtures",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 53.28883700000001,
+              "inputsCount": 1092,
+              "outputsCount": 6
+            },
+            {
+              "name": "pxt-pack",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 25.50875599999999,
+              "inputsCount": 16,
+              "outputsCount": 8
+            },
+            {
+              "name": "renderer-storage",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 11.559862999999993,
+              "inputsCount": 13,
+              "outputsCount": 6
+            },
+            {
+              "name": "webpack-vm",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 160.01230499999997,
+              "inputsCount": 3561,
+              "outputsCount": 1
+            },
+            {
+              "name": "webpack-audio",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 83.598027,
+              "inputsCount": 2683,
+              "outputsCount": 1
+            },
+            {
+              "name": "webpack-editor",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 80.93149500000004,
+              "inputsCount": 2656,
+              "outputsCount": 1
+            }
+          ]
+        }
+      },
+      {
+        "name": "html",
+        "expectedBuilt": [
+          "static-sync"
+        ],
+        "actualBuilt": [
+          "static-sync"
+        ],
+        "wallMs": 559.7848119999999,
+        "report": {
+          "recordedAt": "2026-10-22T07:53:47.358Z",
+          "forced": false,
+          "totalMs": 506.414133,
+          "stages": [
+            {
+              "name": "static-sync",
+              "status": "built",
+              "reason": "inputs-changed",
+              "durationMs": 23.987868999999996,
+              "inputsCount": 47,
+              "outputsCount": 38
+            },
+            {
+              "name": "fixtures",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 59.534409000000004,
+              "inputsCount": 1092,
+              "outputsCount": 6
+            },
+            {
+              "name": "pxt-pack",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 28.39396699999999,
+              "inputsCount": 16,
+              "outputsCount": 8
+            },
+            {
+              "name": "renderer-storage",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 12.545233999999994,
+              "inputsCount": 13,
+              "outputsCount": 6
+            },
+            {
+              "name": "webpack-vm",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 162.832786,
+              "inputsCount": 3561,
+              "outputsCount": 1
+            },
+            {
+              "name": "webpack-audio",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 94.77022,
+              "inputsCount": 2683,
+              "outputsCount": 1
+            },
+            {
+              "name": "webpack-editor",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 91.94125300000002,
+              "inputsCount": 2656,
+              "outputsCount": 1
+            }
+          ]
+        }
+      },
+      {
+        "name": "html-restored",
+        "expectedBuilt": [
+          "static-sync"
+        ],
+        "actualBuilt": [
+          "static-sync"
+        ],
+        "wallMs": 519.2653170000012,
+        "report": {
+          "recordedAt": "2026-10-22T07:53:47.882Z",
+          "forced": false,
+          "totalMs": 470.499455,
+          "stages": [
+            {
+              "name": "static-sync",
+              "status": "built",
+              "reason": "inputs-changed",
+              "durationMs": 22.520832,
+              "inputsCount": 47,
+              "outputsCount": 38
+            },
+            {
+              "name": "fixtures",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 50.68043099999999,
+              "inputsCount": 1092,
+              "outputsCount": 6
+            },
+            {
+              "name": "pxt-pack",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 24.588621000000003,
+              "inputsCount": 16,
+              "outputsCount": 8
+            },
+            {
+              "name": "renderer-storage",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 10.49381600000001,
+              "inputsCount": 13,
+              "outputsCount": 6
+            },
+            {
+              "name": "webpack-vm",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 159.816245,
+              "inputsCount": 3561,
+              "outputsCount": 1
+            },
+            {
+              "name": "webpack-audio",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 82.52985699999999,
+              "inputsCount": 2683,
+              "outputsCount": 1
+            },
+            {
+              "name": "webpack-editor",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 88.83963900000003,
+              "inputsCount": 2656,
+              "outputsCount": 1
+            }
+          ]
+        }
+      },
+      {
+        "name": "editor",
+        "expectedBuilt": [
+          "static-sync",
+          "webpack-editor"
+        ],
+        "actualBuilt": [
+          "static-sync",
+          "webpack-editor"
+        ],
+        "wallMs": 1292.238421,
+        "report": {
+          "recordedAt": "2026-10-22T07:53:49.153Z",
+          "forced": false,
+          "totalMs": 1223.454315,
+          "stages": [
+            {
+              "name": "static-sync",
+              "status": "built",
+              "reason": "inputs-changed",
+              "durationMs": 21.490028000000002,
+              "inputsCount": 47,
+              "outputsCount": 38
+            },
+            {
+              "name": "fixtures",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 47.76417300000001,
+              "inputsCount": 1092,
+              "outputsCount": 6
+            },
+            {
+              "name": "pxt-pack",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 24.787750000000003,
+              "inputsCount": 16,
+              "outputsCount": 8
+            },
+            {
+              "name": "renderer-storage",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 10.234764000000013,
+              "inputsCount": 13,
+              "outputsCount": 6
+            },
+            {
+              "name": "webpack-vm",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 145.60911,
+              "inputsCount": 3561,
+              "outputsCount": 1
+            },
+            {
+              "name": "webpack-audio",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 91.668024,
+              "inputsCount": 2683,
+              "outputsCount": 1
+            },
+            {
+              "name": "webpack-editor",
+              "status": "built",
+              "reason": "inputs-changed",
+              "durationMs": 849.880633,
+              "inputsCount": 547,
+              "outputsCount": 1
+            }
+          ]
+        }
+      },
+      {
+        "name": "editor-restored",
+        "expectedBuilt": [
+          "static-sync",
+          "webpack-editor"
+        ],
+        "actualBuilt": [
+          "static-sync",
+          "webpack-editor"
+        ],
+        "wallMs": 1255.497703000001,
+        "report": {
+          "recordedAt": "2026-10-22T07:53:50.410Z",
+          "forced": false,
+          "totalMs": 1187.02032,
+          "stages": [
+            {
+              "name": "static-sync",
+              "status": "built",
+              "reason": "inputs-changed",
+              "durationMs": 22.306994000000003,
+              "inputsCount": 47,
+              "outputsCount": 38
+            },
+            {
+              "name": "fixtures",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 48.533439,
+              "inputsCount": 1092,
+              "outputsCount": 6
+            },
+            {
+              "name": "pxt-pack",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 24.865225999999993,
+              "inputsCount": 16,
+              "outputsCount": 8
+            },
+            {
+              "name": "renderer-storage",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 10.197001,
+              "inputsCount": 13,
+              "outputsCount": 6
+            },
+            {
+              "name": "webpack-vm",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 146.86839,
+              "inputsCount": 3561,
+              "outputsCount": 1
+            },
+            {
+              "name": "webpack-audio",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 101.559507,
+              "inputsCount": 2683,
+              "outputsCount": 1
+            },
+            {
+              "name": "webpack-editor",
+              "status": "built",
+              "reason": "inputs-changed",
+              "durationMs": 799.8321990000001,
+              "inputsCount": 547,
+              "outputsCount": 1
+            }
+          ]
+        }
+      },
+      {
+        "name": "corrupt-editor",
+        "expectedBuilt": [
+          "webpack-editor"
+        ],
+        "actualBuilt": [
+          "webpack-editor"
+        ],
+        "wallMs": 1244.4676660000005,
+        "report": {
+          "recordedAt": "2026-10-22T07:53:51.656Z",
+          "forced": false,
+          "totalMs": 1172.593708,
+          "stages": [
+            {
+              "name": "static-sync",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 8.216729,
+              "inputsCount": 47,
+              "outputsCount": 38
+            },
+            {
+              "name": "fixtures",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 47.984303,
+              "inputsCount": 1092,
+              "outputsCount": 6
+            },
+            {
+              "name": "pxt-pack",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 26.553314,
+              "inputsCount": 16,
+              "outputsCount": 8
+            },
+            {
+              "name": "renderer-storage",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 11.885953,
+              "inputsCount": 13,
+              "outputsCount": 6
+            },
+            {
+              "name": "webpack-vm",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 163.452927,
+              "inputsCount": 3561,
+              "outputsCount": 1
+            },
+            {
+              "name": "webpack-audio",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 85.06455700000004,
+              "inputsCount": 2683,
+              "outputsCount": 1
+            },
+            {
+              "name": "webpack-editor",
+              "status": "built",
+              "reason": "outputs-changed",
+              "durationMs": 795.9568590000001,
+              "inputsCount": 547,
+              "outputsCount": 1
+            }
+          ]
+        }
+      },
+      {
+        "name": "missing-static",
+        "expectedBuilt": [
+          "static-sync"
+        ],
+        "actualBuilt": [
+          "static-sync"
+        ],
+        "wallMs": 451.0427400000008,
+        "report": {
+          "recordedAt": "2026-10-22T07:53:52.126Z",
+          "forced": false,
+          "totalMs": 398.55420300000003,
+          "stages": [
+            {
+              "name": "static-sync",
+              "status": "built",
+              "reason": "outputs-missing-or-invalid",
+              "durationMs": 24.836532999999996,
+              "inputsCount": 47,
+              "outputsCount": 38
+            },
+            {
+              "name": "fixtures",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 48.611782999999996,
+              "inputsCount": 1092,
+              "outputsCount": 6
+            },
+            {
+              "name": "pxt-pack",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 25.35110300000001,
+              "inputsCount": 16,
+              "outputsCount": 8
+            },
+            {
+              "name": "renderer-storage",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 10.629097000000002,
+              "inputsCount": 13,
+              "outputsCount": 6
+            },
+            {
+              "name": "webpack-vm",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 150.27447300000003,
+              "inputsCount": 3561,
+              "outputsCount": 1
+            },
+            {
+              "name": "webpack-audio",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 87.70620500000001,
+              "inputsCount": 2683,
+              "outputsCount": 1
+            },
+            {
+              "name": "webpack-editor",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 16.467427999999984,
+              "inputsCount": 547,
+              "outputsCount": 1
+            }
+          ]
+        }
+      },
+      {
+        "name": "corrupt-worker-chunk",
+        "expectedBuilt": [
+          "renderer-storage"
+        ],
+        "actualBuilt": [
+          "renderer-storage"
+        ],
+        "wallMs": 452.3873189999995,
+        "report": {
+          "recordedAt": "2026-10-22T07:53:52.581Z",
+          "forced": false,
+          "totalMs": 406.84461,
+          "stages": [
+            {
+              "name": "static-sync",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 7.947405999999997,
+              "inputsCount": 47,
+              "outputsCount": 38
+            },
+            {
+              "name": "fixtures",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 48.912735000000005,
+              "inputsCount": 1092,
+              "outputsCount": 6
+            },
+            {
+              "name": "pxt-pack",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 26.509002999999993,
+              "inputsCount": 16,
+              "outputsCount": 8
+            },
+            {
+              "name": "renderer-storage",
+              "status": "built",
+              "reason": "outputs-changed",
+              "durationMs": 33.968587000000014,
+              "inputsCount": 13,
+              "outputsCount": 6
+            },
+            {
+              "name": "webpack-vm",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 153.34150499999998,
+              "inputsCount": 3561,
+              "outputsCount": 1
+            },
+            {
+              "name": "webpack-audio",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 88.37241599999999,
+              "inputsCount": 2683,
+              "outputsCount": 1
+            },
+            {
+              "name": "webpack-editor",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 16.64054299999998,
+              "inputsCount": 547,
+              "outputsCount": 1
+            }
+          ]
+        }
+      },
+      {
+        "name": "final-warm",
+        "expectedBuilt": [],
+        "actualBuilt": [],
+        "wallMs": 458.13118300000133,
+        "report": {
+          "recordedAt": "2026-10-22T07:53:53.036Z",
+          "forced": false,
+          "totalMs": 405.083213,
+          "stages": [
+            {
+              "name": "static-sync",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 8.561080000000004,
+              "inputsCount": 47,
+              "outputsCount": 38
+            },
+            {
+              "name": "fixtures",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 50.508652000000005,
+              "inputsCount": 1092,
+              "outputsCount": 6
+            },
+            {
+              "name": "pxt-pack",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 25.378202,
+              "inputsCount": 16,
+              "outputsCount": 8
+            },
+            {
+              "name": "renderer-storage",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 11.942619000000008,
+              "inputsCount": 13,
+              "outputsCount": 6
+            },
+            {
+              "name": "webpack-vm",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 164.742584,
+              "inputsCount": 3561,
+              "outputsCount": 1
+            },
+            {
+              "name": "webpack-audio",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 89.92583400000001,
+              "inputsCount": 2683,
+              "outputsCount": 1
+            },
+            {
+              "name": "webpack-editor",
+              "status": "reused",
+              "reason": "unchanged",
+              "durationMs": 19.59570500000001,
+              "inputsCount": 547,
+              "outputsCount": 1
+            }
+          ]
+        }
+      }
+    ],
+    "sourceHashes": {
+      "spikes/browser/shell/index.html": {
+        "before": "ff98988ae095eeabec335a9613e9ca1ca9ffadc9796fe5c142a6adda03175c45",
+        "restored": "ff98988ae095eeabec335a9613e9ca1ca9ffadc9796fe5c142a6adda03175c45"
+      },
+      "spikes/browser/shell/editor-entry.mjs": {
+        "before": "e89f2107ec1846f23e4fa4a3930e10d65d8a17d9d6a52c214fb8c6b281c7a8f6",
+        "restored": "e89f2107ec1846f23e4fa4a3930e10d65d8a17d9d6a52c214fb8c6b281c7a8f6"
+      }
+    },
+    "success": true
+  },
+  "cliVerification": {
+    "success": true,
+    "cases": [
+      {
+        "name": "missing-reference",
+        "args": [
+          "--list"
+        ],
+        "selection": "full",
+        "exitCode": 0,
+        "selected": [
+          "tests/browser/audio-variables.spec.mjs",
+          "tests/browser/bindings-editor.spec.mjs",
+          "tests/browser/corpus.spec.mjs",
+          "tests/browser/isolation.spec.mjs",
+          "tests/browser/minimum-corpus.spec.mjs",
+          "tests/browser/project-persistence.spec.mjs",
+          "tests/browser/pxt-worker.spec.mjs",
+          "tests/browser/runner.spec.mjs",
+          "tests/browser/simulator.spec.mjs"
+        ],
+        "commands": [
+          "integration",
+          "tools",
+          "build",
+          "smoke",
+          "browser",
+          "specs",
+          "upstream-preservation"
+        ]
+      },
+      {
+        "name": "persistence",
+        "args": [
+          "--files",
+          "src/project-format.mjs",
+          "--list"
+        ],
+        "selection": "affected",
+        "count": 1,
+        "exitCode": 0,
+        "selected": [
+          "tests/browser/project-persistence.spec.mjs"
+        ],
+        "commands": [
+          "integration",
+          "tools",
+          "build",
+          "browser",
+          "specs"
+        ]
+      },
+      {
+        "name": "html",
+        "args": [
+          "--files",
+          "spikes/browser/shell/index.html",
+          "--list"
+        ],
+        "selection": "affected",
+        "count": 3,
+        "exitCode": 0,
+        "selected": [
+          "tests/browser/audio-variables.spec.mjs",
+          "tests/browser/bindings-editor.spec.mjs",
+          "tests/browser/project-persistence.spec.mjs"
+        ],
+        "commands": [
+          "integration",
+          "tools",
+          "build",
+          "browser",
+          "specs"
+        ]
+      },
+      {
+        "name": "pxt",
+        "args": [
+          "--files",
+          "spikes/browser/runner/compiler-worker.js",
+          "--list"
+        ],
+        "selection": "affected",
+        "count": 2,
+        "exitCode": 0,
+        "selected": [
+          "tests/browser/pxt-worker.spec.mjs",
+          "tests/browser/simulator.spec.mjs"
+        ],
+        "commands": [
+          "integration",
+          "tools",
+          "build",
+          "browser",
+          "specs"
+        ]
+      },
+      {
+        "name": "unknown",
+        "args": [
+          "--files",
+          "src/new-code.mjs",
+          "--list"
+        ],
+        "selection": "full",
+        "exitCode": 0,
+        "selected": [
+          "tests/browser/audio-variables.spec.mjs",
+          "tests/browser/bindings-editor.spec.mjs",
+          "tests/browser/corpus.spec.mjs",
+          "tests/browser/isolation.spec.mjs",
+          "tests/browser/minimum-corpus.spec.mjs",
+          "tests/browser/project-persistence.spec.mjs",
+          "tests/browser/pxt-worker.spec.mjs",
+          "tests/browser/runner.spec.mjs",
+          "tests/browser/simulator.spec.mjs"
+        ],
+        "commands": [
+          "integration",
+          "tools",
+          "build",
+          "smoke",
+          "browser",
+          "specs",
+          "upstream-preservation"
+        ]
+      },
+      {
+        "name": "docs",
+        "args": [
+          "--files",
+          "README.md",
+          "--list"
+        ],
+        "selection": "documentation",
+        "count": 0,
+        "exitCode": 0,
+        "selected": [],
+        "commands": [
+          "specs"
+        ]
+      },
+      {
+        "name": "invalid-flag",
+        "args": [
+          "--bogus"
+        ],
+        "invalid": true,
+        "exitCode": 1,
+        "error": "Argumento no reconocido: --bogus"
+      },
+      {
+        "name": "outside",
+        "args": [
+          "--files",
+          "/outside/secret.mjs",
+          "--list"
+        ],
+        "invalid": true,
+        "exitCode": 1,
+        "error": "Ruta fuera del workspace: /outside/secret.mjs"
+      }
+    ]
+  },
+  "reportIsolation": {
+    "checked": 63,
+    "changed": [],
+    "success": true
+  },
+  "upstreams": [
+    {
+      "repository": "raspberrypi-blockly",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    },
+    {
+      "repository": "xcratch-scratch-editor",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    },
+    {
+      "repository": "pxt-microbit",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    }
+  ],
+  "baseline": {
+    "producer": "test:full",
+    "recordedAt": "2026-10-22T08:09:56.764Z",
+    "fileCount": 12665,
+    "integrity": "ac8e988985eff155467d4bcae21537d25d6ba8fa09f9e00e6a28df37598f073b",
+    "sha256": "8dd5dbc017b32a381cc3ad1da91d9e9af982dfd6bd238fccbca7421b03bedbd4"
+  },
+  "sourceSha256": {
+    "tools/test/run.mjs": "be55bd7b8b9b7bb9c071213c3c9b5cec45871d93cdb809ecffb77a8b8d811dbe",
+    "tools/test/impact.mjs": "970596309c46b2e4cfdec269e9417fe908c24051885f31376404a730c247ade3",
+    "tools/test/snapshot.mjs": "13d6792b8dc2950b0e29ded3b5235900771adc75037f3d918305085ee0ec7589",
+    "tools/f0/build-browser.mjs": "c0aed5d87908330b288afbda30c64421ca58d2aeea001c016449a6c75ec167b9",
+    "tools/build/stage-cache.mjs": "bcdc3c994d383344f1c8e4634a6912e078f6135f2f16e80e112a222f5c1622a4",
+    "tools/build/fixtures.mjs": "0c1987dd9ac4e238d2608c1ef3feccfbda81ff63ebce48807a21752263f55623",
+    "tools/build/webpack-stage.mjs": "7e8f437c9a888d9d8b10e5117a62ac04d67eb7e8c31e75245837b071f19d4da8",
+    "tests/quick/studio.spec.mjs": "29307fe3fdcf81fc0722d99a02a8c7f2c0c0de06f636a7a5b656ad2b65559f9a",
+    "tests/browser/artifacts.mjs": "3ce6e1ac5b591417570b84b291d0c733ba28eae2ccf7522869b932e5fa101d03",
+    "playwright.quick.config.mjs": "151d096a6932a5b2d03f9579c4578e8b296ba3d9ab466bae9b29d77bdf8fac5f",
+    "package.json": "a88ed832844972c1dd0c5b5d1a41ddc51d3984c5c7aecb436a69cd6b41ce2825"
+  },
+  "historicalEvidenceSha256": {
+    "docs/phase-0/AUDIO-STATE-RESULTS.md": "8362ca95c0c50424306cc99466c5b8838f74132803d60a68283664ca2b8e4c60",
+    "docs/phase-0/BINDINGS-EDITOR-RESULTS.md": "c27500e5e6e4fb50fc74f783658f5f567954a500b4b76b98fe2061c3593cb867",
+    "docs/phase-0/BROWSER-RESULTS.md": "5018e740bc256886167625299fac5b11f8c500ab0230b658ac132d89be5256a9",
+    "docs/phase-0/CLOSEOUT.md": "7acd026295e0822698126542f57c6b99422f1d3575f2301aa601dd8911e9b836",
+    "docs/phase-0/CORPUS-SIMULATOR-RESULTS.md": "fc862637ec671de0065f3868a5f17caf414a7f41a5297bdb0f9155c5bf48130f",
+    "docs/phase-0/INTEGRATION-MAP.md": "1e5cb77b2de0a457d47fc89065d9dce82042ce882f47f729889bb3133f44cb90",
+    "docs/phase-0/PHASE-1-ENTRY.md": "0f5318a9a415573bb7d4c0a5352840f05d2716aa11c9f9aea82d5977cb71eac9",
+    "docs/phase-0/RESULTS.md": "bc2700bbcd2968ca36527f2aa21e9f8cf150313f32cb328f54ffdbac85e8f670",
+    "docs/phase-0/browser-evidence.json": "6b2ee8fbc9c64ce2f0e9dbf3585f0fe82d76ad7f42ef7c3df2c9220cd8e0e069",
+    "docs/phase-0/performance-evidence.json": "13ed832e5126e1ddbc066a52efa549c9bc5431fa47e5295c5a48d6429dce7922",
+    "docs/phase-0/provenance.json": "7f0048b4219032bed8a0de291200ed9450eb62b1880ee4a5d8d5305e7c6258b1",
+    "docs/phase-1/GGPROJ.md": "d3ac9a9d5c9f18f86cb402a2a28f4fa9057f7e3cfe70bb2a71ce9f7fa3a0a8d2",
+    "docs/phase-1/RESULTS.md": "17fb915220526cae4c72e8b2d48c0c5d9f2cb44689b17e50a0e6c83a73c272ec",
+    "docs/phase-1/browser-evidence.json": "427051988acdf72180afc0b30e1fa302e4cca8d1c6ea8600185f9da1209e5e18"
+  },
+  "limits": [
+    "Tiempos de una máquina de desarrollo, no una garantía para equipos escolares.",
+    "Quick/affected son parciales; full cubre 3 smoke y 33 E2E en reportes separados.",
+    "No se ejecutó benchmark prolongado ni validación física/offline de segunda visita.",
+    "El inventario excluye dependencias generales y añade explícitamente artefactos instalados consumidos; no inspecciona toda modificación arbitraria dentro de node_modules."
+  ],
+  "additionalAffected": {
+    "renderer": {
+      "results": {
+        "profile": "affected",
+        "selection": "affected",
+        "startedAt": "2026-10-22T08:00:18.985Z",
+        "steps": [
+          {
+            "name": "integration",
+            "startedAt": "2026-10-22T08:00:18.985Z",
+            "durationMs": 2443.447156,
+            "exitCode": 0
+          },
+          {
+            "name": "tools",
+            "startedAt": "2026-10-22T08:00:21.430Z",
+            "durationMs": 255.21741800000018,
+            "exitCode": 0
+          },
+          {
+            "name": "build",
+            "startedAt": "2026-10-22T08:00:21.686Z",
+            "durationMs": 419.56855799999994,
+            "exitCode": 0
+          },
+          {
+            "name": "browser",
+            "startedAt": "2026-10-22T08:00:22.105Z",
+            "durationMs": 4205.283513,
+            "exitCode": 0
+          },
+          {
+            "name": "specs",
+            "startedAt": "2026-10-22T08:00:26.311Z",
+            "durationMs": 438.84190299999955,
+            "exitCode": 0
+          }
+        ],
+        "baselineWritten": false,
+        "exitCode": 0,
+        "finishedAt": "2026-10-22T08:00:26.749Z"
+      },
+      "browser": {
+        "startTime": "2026-10-22T08:00:22.609Z",
+        "duration": 3679.8920000000003,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      }
+    }
+  },
+  "developmentFailures": {
+    "firstFull": {
+      "profile": "full",
+      "selection": "full",
+      "startedAt": "2026-10-22T08:02:09.537Z",
+      "steps": [
+        {
+          "name": "integration",
+          "startedAt": "2026-10-22T08:02:09.537Z",
+          "durationMs": 3074.713892,
+          "exitCode": 0
+        },
+        {
+          "name": "tools",
+          "startedAt": "2026-10-22T08:02:12.613Z",
+          "durationMs": 309.67477599999984,
+          "exitCode": 0
+        },
+        {
+          "name": "build",
+          "startedAt": "2026-10-22T08:02:12.923Z",
+          "durationMs": 502.3247030000002,
+          "exitCode": 0
+        },
+        {
+          "name": "smoke",
+          "startedAt": "2026-10-22T08:02:13.425Z",
+          "durationMs": 15069.559478,
+          "exitCode": 0
+        },
+        {
+          "name": "browser",
+          "startedAt": "2026-10-22T08:02:28.495Z",
+          "durationMs": 120289.30213999999,
+          "exitCode": 1
+        }
+      ],
+      "baselineWritten": false,
+      "exitCode": 1,
+      "finishedAt": "2026-10-22T08:04:28.784Z"
+    },
+    "reason": "El test de persistencia contaba workers de reemplazo después de Stop; ahora captura los de la ejecución anterior y exige su cierre, manteniendo audio, referencias obsoletas y autoría verificados."
+  },
+  "automaticSelection": {
+    "unchanged": {
+      "plan": {
+        "profile": "affected",
+        "source": "snapshot",
+        "selection": "unchanged",
+        "node": false,
+        "tools": false,
+        "quick": false,
+        "browser": [],
+        "validateSpecs": false,
+        "verifyBaseline": false,
+        "build": false,
+        "baselineMayAdvance": false,
+        "files": [],
+        "reasons": [],
+        "createdAt": "2026-10-22T08:10:42.779Z",
+        "dryRun": false,
+        "forceBuild": false,
+        "commands": []
+      },
+      "results": {
+        "profile": "affected",
+        "selection": "unchanged",
+        "startedAt": "2026-10-22T08:10:42.780Z",
+        "steps": [],
+        "baselineWritten": false,
+        "exitCode": 0,
+        "finishedAt": "2026-10-22T08:10:42.781Z",
+        "note": "Sin cambios respecto a la última regresión completa confirmada."
+      }
+    },
+    "documentation": {
+      "plan": {
+        "profile": "affected",
+        "source": "snapshot",
+        "selection": "documentation",
+        "node": false,
+        "tools": false,
+        "quick": false,
+        "browser": [],
+        "validateSpecs": true,
+        "verifyBaseline": false,
+        "build": false,
+        "baselineMayAdvance": false,
+        "files": [
+          "AGENTS.md",
+          "docs/engineering/TEST-WORKFLOW-RESULTS.md",
+          "docs/engineering/TESTING.md",
+          "docs/engineering/test-workflow-evidence.json",
+          "openspec/changes/incremental-test-workflow/tasks.md"
+        ],
+        "reasons": [
+          {
+            "file": "AGENTS.md",
+            "group": "documentation",
+            "reason": "Documentación o contrato OpenSpec"
+          },
+          {
+            "file": "docs/engineering/TEST-WORKFLOW-RESULTS.md",
+            "group": "documentation",
+            "reason": "Documentación o contrato OpenSpec"
+          },
+          {
+            "file": "docs/engineering/TESTING.md",
+            "group": "documentation",
+            "reason": "Documentación o contrato OpenSpec"
+          },
+          {
+            "file": "docs/engineering/test-workflow-evidence.json",
+            "group": "documentation",
+            "reason": "Documentación o contrato OpenSpec"
+          },
+          {
+            "file": "openspec/changes/incremental-test-workflow/tasks.md",
+            "group": "documentation",
+            "reason": "Documentación o contrato OpenSpec"
+          }
+        ],
+        "createdAt": "2026-10-22T08:11:51.350Z",
+        "dryRun": false,
+        "forceBuild": false,
+        "commands": [
+          {
+            "name": "specs",
+            "executable": "/home/adawolfs/projects/makecode/.tools/node-v22.23.4-linux-x64/bin/node",
+            "args": [
+              "tools/run-tool.mjs",
+              "openspec",
+              "validate",
+              "--all",
+              "--strict"
+            ]
+          }
+        ]
+      },
+      "results": {
+        "profile": "affected",
+        "selection": "documentation",
+        "startedAt": "2026-10-22T08:11:51.356Z",
+        "steps": [
+          {
+            "name": "specs",
+            "startedAt": "2026-10-22T08:11:51.356Z",
+            "durationMs": 352.501433,
+            "exitCode": 0
+          }
+        ],
+        "baselineWritten": false,
+        "exitCode": 0,
+        "finishedAt": "2026-10-22T08:11:51.710Z"
+      }
+    },
+    "baselineUnchanged": true
+  },
+  "openspec": {
+    "change": "incremental-test-workflow",
+    "progress": {
+      "total": 10,
+      "complete": 10,
+      "remaining": 0
+    },
+    "state": "all_done",
+    "strictValidation": {
+      "passed": 3,
+      "failed": 0,
+      "source": "artifacts/testflow-auto-documentation.log"
+    }
+  },
+  "documentationLinks": {
+    "checkedFiles": 4,
+    "missing": []
+  }
+}

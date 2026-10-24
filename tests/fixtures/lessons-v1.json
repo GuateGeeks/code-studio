@@ -1,0 +1,356 @@
+[
+  {
+    "version": 1,
+    "id": "story",
+    "revision": 1,
+    "title": "Una pequeña historia",
+    "introduction": "Hero comienza un viaje. Modifica el recorrido, añade una pausa y observa su cambio de disfraz.",
+    "starter": {
+      "name": "Actividad · Una pequeña historia",
+      "packIds": [
+        "gg.sprites"
+      ],
+      "blockly": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "gg_when_start",
+              "id": "lesson-story-start",
+              "fields": {},
+              "x": 20,
+              "y": 20,
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "gg_move",
+                    "id": "lesson-story-first",
+                    "inputs": {
+                      "STEPS": {
+                        "shadow": {
+                          "type": "math_number",
+                          "id": "lesson-story-first-n",
+                          "fields": {
+                            "NUM": 20
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "gg_wait",
+                        "id": "lesson-story-wait",
+                        "inputs": {
+                          "SECONDS": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "lesson-story-wait-n",
+                              "fields": {
+                                "NUM": 0.2
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "gg_set_costume",
+                            "id": "lesson-story-costume",
+                            "fields": {
+                              "COSTUME": "hero-alt"
+                            },
+                            "next": {
+                              "block": {
+                                "type": "gg_move",
+                                "id": "lesson-story-last",
+                                "inputs": {
+                                  "STEPS": {
+                                    "shadow": {
+                                      "type": "math_number",
+                                      "id": "lesson-story-last-n",
+                                      "fields": {
+                                        "NUM": 20
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "steps": [
+      {
+        "id": "story-position",
+        "title": "Llega hasta x=60",
+        "instructions": "El ejemplo llega a x=40. Cambia uno de los movimientos y pulsa Ejecutar bloques. Después, comprueba la posición.",
+        "hints": [
+          "Puedes cambiar el primer movimiento de 20 a 40 pasos."
+        ],
+        "checks": [
+          {
+            "kind": "position",
+            "axis": "x",
+            "equals": 60,
+            "tolerance": 0.01
+          }
+        ]
+      },
+      {
+        "id": "story-costume",
+        "title": "Declara un cambio de disfraz",
+        "instructions": "Conserva o añade el bloque para cambiar al disfraz hero-alt y observa el escenario. Aquí comprobamos que ese bloque está en tu programa; no comprobamos sus píxeles.",
+        "hints": [
+          "Busca Cambiar disfraz en Apariencia."
+        ],
+        "checks": [
+          {
+            "kind": "authored-operation",
+            "operation": "setCostume",
+            "costume": "hero-alt"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "version": 1,
+    "id": "score",
+    "revision": 1,
+    "title": "Un juego de tres puntos",
+    "introduction": "Usa la puntuación compartida del pack Score. Cada pulsación de espacio suma un punto y mueve a hero.",
+    "starter": {
+      "name": "Actividad · Un juego de tres puntos",
+      "packIds": [
+        "gg.sprites",
+        "gg.score"
+      ],
+      "blockly": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "gg_when_start",
+              "id": "lesson-score-start",
+              "fields": {},
+              "x": 20,
+              "y": 20,
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "gg_score_set",
+                    "id": "lesson-score-reset",
+                    "inputs": {
+                      "VALUE": {
+                        "shadow": {
+                          "type": "math_number",
+                          "id": "lesson-score-reset-n",
+                          "fields": {
+                            "NUM": 0
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "gg_when_key",
+              "id": "lesson-score-key",
+              "fields": {
+                "KEY": "space"
+              },
+              "x": 20,
+              "y": 180,
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "gg_score_change",
+                    "id": "lesson-score-change",
+                    "inputs": {
+                      "DELTA": {
+                        "shadow": {
+                          "type": "math_number",
+                          "id": "lesson-score-change-n",
+                          "fields": {
+                            "NUM": 1
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "gg_move",
+                        "id": "lesson-score-move",
+                        "inputs": {
+                          "STEPS": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "lesson-score-move-n",
+                              "fields": {
+                                "NUM": 5
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "steps": [
+      {
+        "id": "score-three",
+        "title": "Consigue tres puntos",
+        "instructions": "Ejecuta los bloques, enfoca el escenario y pulsa espacio tres veces. Comprobaremos el valor real de Puntos.",
+        "hints": [
+          "Si te pasas, Ejecutar bloques vuelve a comenzar desde cero."
+        ],
+        "checks": [
+          {
+            "kind": "variable",
+            "variableId": "gg-pack-score",
+            "equals": 3
+          }
+        ]
+      },
+      {
+        "id": "score-position",
+        "title": "Avanza diez pasos por punto",
+        "instructions": "El ejemplo avanza cinco pasos. Cámbialo para que tres puntos lleven a hero hasta x=30. Vuelve a ejecutar y consigue tres puntos.",
+        "hints": [
+          "Cambia el movimiento del evento espacio a 10."
+        ],
+        "checks": [
+          {
+            "kind": "position",
+            "axis": "x",
+            "equals": 30,
+            "tolerance": 0.01
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "version": 1,
+    "id": "text-transition",
+    "revision": 1,
+    "title": "De bloques a tu propio código",
+    "introduction": "Crea una copia JavaScript o Python, cambia su movimiento y conserva los bloques originales.",
+    "starter": {
+      "name": "Actividad · De bloques a tu propio código",
+      "packIds": [
+        "gg.sprites"
+      ],
+      "blockly": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "gg_when_start",
+              "id": "lesson-text-start",
+              "fields": {},
+              "x": 20,
+              "y": 20,
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "controls_repeat_ext",
+                    "id": "lesson-text-repeat",
+                    "inputs": {
+                      "TIMES": {
+                        "shadow": {
+                          "type": "math_number",
+                          "id": "lesson-text-repeat-n",
+                          "fields": {
+                            "NUM": 3
+                          }
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "gg_move",
+                          "id": "lesson-text-move",
+                          "inputs": {
+                            "STEPS": {
+                              "shadow": {
+                                "type": "math_number",
+                                "id": "lesson-text-move-n",
+                                "fields": {
+                                  "NUM": 4
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "steps": [
+      {
+        "id": "text-copy",
+        "title": "Crea una copia independiente",
+        "instructions": "El ejemplo de bloques llega a x=12. Usa Crear copia JavaScript o Crear copia Python y ejecuta ese documento.",
+        "hints": [
+          "La copia no se ejecuta al crearla. Usa Ejecutar documento."
+        ],
+        "checks": [
+          {
+            "kind": "text-copy"
+          }
+        ]
+      },
+      {
+        "id": "text-blocks",
+        "title": "Conserva los bloques",
+        "instructions": "Edita únicamente el documento textual. Comparamos los bloques actuales con los que tenían al crear la copia.",
+        "hints": [
+          "Editar la copia no sincroniza cambios hacia los bloques."
+        ],
+        "checks": [
+          {
+            "kind": "blocks-unchanged"
+          }
+        ]
+      },
+      {
+        "id": "text-position",
+        "title": "Llega a x=18 con tu código",
+        "instructions": "En la copia, cambia el movimiento de 4 a 6. Ejecuta el documento seleccionado y comprueba el nuevo recorrido.",
+        "hints": [
+          "Tres movimientos de seis pasos llegan a dieciocho."
+        ],
+        "checks": [
+          {
+            "kind": "position",
+            "axis": "x",
+            "equals": 18,
+            "tolerance": 0.01
+          }
+        ]
+      }
+    ]
+  }
+]

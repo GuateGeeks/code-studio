@@ -1,0 +1,4 @@
+{
+  "exclude": ["docs/", "built/", "node_modules/", "clients/", "pxtwapp/", "libs/**/_locales/", "libs/**/built/"],
+  "deprioritize": ["tests/", "libs/test-snippets/"]
+}

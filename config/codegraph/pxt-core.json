@@ -1,0 +1,4 @@
+{
+  "exclude": ["docs/", "common-docs/", "docfiles/", "built/", "node_modules/", "webapp/public/", "theme/", "skillmap/", "multiplayer/"],
+  "deprioritize": ["tests/", "scripts/"]
+}

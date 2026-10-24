@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="es">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GuateGeeks Code Studio</title><link rel="icon" href="data:,"><link rel="stylesheet" href="/style.css"><script defer src="/editor.bundle.js"></script><script type="module" src="/shell.js"></script></head>
+<body data-workspace-context="2d">
+<nav class="skip-links" aria-label="Saltos de navegación"><a href="#authoring-context">Ir al programa</a><a href="#scene-heading">Ir al escenario</a><a href="#stop-result">Ir a Detener</a><a href="#console-heading">Ir a la consola</a><a href="#text-heading">Ir al texto</a></nav>
+<header class="app-bar">
+<strong class="brand">GuateGeeks <span>Code Studio</span></strong>
+<section class="project-files" aria-labelledby="project-heading">
+<h2 id="project-heading" class="visually-hidden">Tu proyecto</h2>
+<div class="project-name"><label for="project-name">Nombre del proyecto</label><input id="project-name" value="Mi proyecto" maxlength="80" autocomplete="off"></div>
+<output id="project-status" aria-live="polite">Buscando una copia local…</output>
+</section>
+<nav class="app-actions" aria-label="Proyecto y clase">
+<button id="entry-toggle" type="button" aria-controls="entry-panel" aria-expanded="true">Inicio</button>
+<details id="project-menu" class="app-menu"><summary>Archivo</summary><div class="menu-panel">
+<button id="save-project" disabled>Descargar proyecto</button>
+<div class="project-open"><label for="open-project">Abrir archivo GGPROJ</label><input id="open-project" type="file" accept=".ggproj,application/zip" disabled></div>
+<p>Los cambios se guardan en este navegador. Descarga el archivo para llevar tu proyecto a otro equipo.</p>
+</div></details>
+<details id="offline-panel" class="app-menu"><summary>Preparar para clase</summary><div class="menu-panel">
+<section class="offline-tools" aria-labelledby="offline-heading"><div class="bar"><h2 id="offline-heading" tabindex="-1">Trabajar sin conexión</h2><output id="offline-status" aria-live="polite">Sin preparación confirmada</output></div><p>Prepara los recursos de este equipo mientras tienes conexión. Al terminar podrás cerrar el navegador y volver a tus proyectos sin los servidores.</p><div class="controls"><button id="prepare-offline" disabled>Preparar todos los recursos</button><button id="cancel-offline" hidden>Cancelar preparación</button><button id="rollback-offline" hidden>Volver a la preparación anterior</button></div><output id="offline-detail" aria-live="polite"></output><output id="offline-error" role="alert"></output></section>
+<details id="capabilities-panel"><summary>Capacidades y versiones</summary><section aria-labelledby="packs-heading"><h2 id="packs-heading">Capacidades del proyecto</h2><p>Las capacidades incluidas ofrecen bloques y operaciones revisadas. Sus versiones viajan con tu proyecto.</p><ul id="packs-list"></ul><div class="controls"><button id="enable-score" disabled>Activar puntuación compartida</button><button id="update-packs" hidden>Actualizar puntuación</button><button id="rollback-packs" hidden>Volver a la versión anterior</button></div><output id="packs-status" aria-live="polite">Preparando catálogo…</output><output id="packs-error" role="alert"></output></section></details>
+</div></details>
+</nav>
+</header>
+<main>
+<div class="project-notices"><output id="recovery-notice" aria-live="polite"></output><output id="project-error" role="alert"></output><button id="save-new-copy" hidden>Guardar este proyecto como copia nueva</button><button id="dismiss-notices" type="button">Entendido</button></div>
+<details id="entry-panel" open><summary>Empezar o continuar</summary>
+<section id="entry-journey" aria-labelledby="entry-heading" aria-busy="true">
+<div><h2 id="entry-heading">Crea, prueba y descubre</h2><p id="entry-description" aria-live="polite">Buscando tu proyecto en este navegador…</p></div>
+<nav class="entry-actions" aria-label="Empezar o continuar"><button id="entry-continue" hidden disabled>Continuar mi proyecto</button><button id="entry-create" disabled>Crear mi primera escena</button><button id="entry-activities" disabled>Explorar una actividad</button><button id="entry-open" disabled>Abrir un proyecto</button></nav>
+<output id="entry-error" role="alert"></output>
+</section>
+</details>
+<div class="workspace-layout">
+<section id="workspace-bar" class="transport-bar" aria-label="Ejecutar y detener">
+<nav class="workspace-navigation" aria-label="Recorrer el espacio"><a href="#editor-heading">Programa</a><a href="#scene-heading">Resultado</a><a href="#workspace-help-heading" data-tool="help">Ayuda</a></nav>
+<div class="workspace-transport"><div id="blocks-transport" class="controls"><button id="run-editor" class="run" disabled><svg class="icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4.5 2.6v10.8a.6.6 0 0 0 .9.5l8.4-5.4a.6.6 0 0 0 0-1L5.4 2.1a.6.6 0 0 0-.9.5z"/></svg>Ejecutar bloques</button></div><div id="text-transport" class="controls" hidden><button id="run-document" class="run" disabled><svg class="icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4.5 2.6v10.8a.6.6 0 0 0 .9.5l8.4-5.4a.6.6 0 0 0 0-1L5.4 2.1a.6.6 0 0 0-.9.5z"/></svg>Ejecutar documento 2D</button></div><div id="device-transport" class="controls" hidden><button id="run-device" class="run" disabled><svg class="icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4.5 2.6v10.8a.6.6 0 0 0 .9.5l8.4-5.4a.6.6 0 0 0 0-1L5.4 2.1a.6.6 0 0 0-.9.5z"/></svg>Ejecutar dispositivo y escena</button></div><div id="sb3-transport" class="controls" hidden><button id="run-sb3" class="run" disabled><svg class="icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4.5 2.6v10.8a.6.6 0 0 0 .9.5l8.4-5.4a.6.6 0 0 0 0-1L5.4 2.1a.6.6 0 0 0-.9.5z"/></svg>Ejecutar Scratch</button></div><div id="scene3d-transport" class="controls" hidden></div><div id="webapp-transport" class="controls" hidden></div><button id="stop-result" class="stop" aria-describedby="result-context"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><rect x="3.5" y="3.5" width="9" height="9" rx="1.5"/></svg>Detener</button></div>
+</section>
+<section class="authoring" aria-labelledby="editor-heading">
+<div class="authoring-bar">
+<div class="workspace-context"><label for="authoring-context">Qué programas</label><select id="authoring-context"><option value="2d">Escena 2D</option><option value="microbit">micro:bit y escena</option></select></div>
+<fieldset id="program-mode" class="mode-switch" hidden><legend>Programa</legend><label><input type="radio" name="program-mode" value="blocks" checked>Bloques</label><label><input type="radio" name="program-mode" value="javascript">JavaScript</label><label><input type="radio" name="program-mode" value="python">Python</label></fieldset>
+<div class="authoring-identity"><h1 id="editor-heading" tabindex="-1">Programa 2D</h1><p id="editing-context">Editando</p><output id="editor-status" aria-live="polite">Preparando bloques…</output><details class="keyboard-help"><summary>Usar bloques con el teclado</summary><p id="blockly-keyboard-help"><kbd>Tab</kbd> entra o sale del editor. Con un bloque enfocado, <kbd>T</kbd> abre la caja de herramientas y <kbd>W</kbd> vuelve al programa. Usa flechas para navegar y <kbd>Enter</kbd> para elegir o editar. <kbd>M</kbd> mueve un bloque; <kbd>Mayús + M</kbd>, su pila. Las flechas lo desplazan, <kbd>Enter</kbd> confirma y <kbd>Esc</kbd> cancela. <kbd>X</kbd> desconecta, <kbd>Supr</kbd> elimina y <kbd>Ctrl/Cmd + Z</kbd> deshace. Ejecutar y Detener se alcanzan con Tab.</p></details></div>
+</div>
+<div id="inactive-2d" hidden><p>Este proyecto no incluye una escena 2D.</p><button id="enable-2d">Añadir escena 2D</button></div>
+<div id="scene-blockly-surface"><p id="creation-guide">Cambia un bloque <strong>Mover</strong>, cuéntale a tu docente qué esperas y compara con el escenario.</p><div id="blockly-editor" aria-label="Editor Blockly" aria-describedby="blockly-keyboard-help"></div>
+<output id="editor-error" role="alert"></output>
+</div>
+<section id="device-authoring" aria-labelledby="device-heading" hidden>
+<div class="bar"><h2 id="device-heading">Dispositivo micro:bit</h2><output id="device-status" aria-live="polite">Sin dispositivo en este proyecto</output></div>
+<button id="enable-device" disabled>Añadir micro:bit al proyecto</button>
+<div id="device-configured" hidden>
+<div class="device-settings"><fieldset id="device-mode" class="mode-switch"><legend>Programa del dispositivo</legend><label><input type="radio" name="device-mode" value="blocks" checked>Bloques de firmware</label><label><input type="radio" name="device-mode" value="typescript">TypeScript independiente</label></fieldset></div>
+<p id="device-mode-help"></p><button id="edit-device-text" hidden>Ir al documento TypeScript</button>
+<div id="device-blockly-editor" aria-label="Editor de bloques de firmware micro:bit"></div>
+<div id="device-text-slot"></div>
+</div><output id="device-error" role="alert"></output>
+</section>
+<section id="sb3-authoring" aria-labelledby="sb3-heading" hidden>
+<h2 id="sb3-heading" tabindex="-1">Original Scratch</h2>
+<div class="sb3-import"><label for="import-sb3">Importar archivo Scratch SB3 · hasta 256 KiB</label><input id="import-sb3" type="file" accept=".sb3,application/zip" disabled></div>
+<div id="sb3-feedback-slot"></div>
+<section id="sb3-state" class="state-card" aria-labelledby="sb3-state-heading" data-state="empty"><h3 id="sb3-state-heading">Sin original importado</h3><p id="sb3-state-detail">Importa un archivo SB3 para revisar qué puede hacer aquí. El original se conserva sin cambios.</p><div class="controls sb3-copy-actions" id="sb3-next-actions"><button id="copy-sb3-blocks" disabled>Crear copia editable en bloques GG</button><button id="download-original-sb3" disabled>Descargar original Scratch</button><button id="sb3-review-coverage" type="button" hidden>Ver qué bloques lo impiden</button></div></section>
+<output id="sb3-summary" aria-live="polite"></output>
+<p id="sb3-review-guide">Antes de ejecutar, anticipa con tu docente qué hará el proyecto. Compara después con el escenario. Revisión de solo lectura: solo se ejecuta si su cobertura completa admite este entorno.</p>
+<div id="sb3-review" tabindex="0" aria-label="Revisión de cobertura del original Scratch"><details id="sb3-coverage-panel"><summary id="sb3-coverage-heading">Cobertura por objeto y bloque</summary><p id="sb3-coverage-count" aria-live="polite">Sin archivo para revisar.</p><ol id="sb3-coverage"></ol></details></div>
+</section>
+<div id="context-authoring"></div>
+<section class="text-authoring" hidden aria-labelledby="text-heading">
+<div class="bar"><h2 id="text-heading" tabindex="-1">Documentos de texto</h2><output id="text-document-status" aria-live="polite">Preparando documentos…</output></div>
+<p id="text-destination" class="independent-note" aria-live="polite">Destino: escena 2D. Documento independiente; editarlo no modifica los bloques.</p>
+<div class="text-document-fields"><div><label for="text-document">Documento</label><select id="text-document" disabled><option value="">Sin documentos</option></select></div><div><label for="text-name">Nombre del documento</label><input id="text-name" maxlength="80" autocomplete="off" disabled></div><div class="controls text-new"><button id="new-javascript" disabled>Nuevo JavaScript</button><button id="new-python" disabled>Nuevo Python</button></div></div>
+<div id="text-empty" class="result-note" hidden><p id="text-empty-message">No hay un documento seleccionado.</p><div class="controls"><button id="text-copy-from-blocks" type="button">Crear copia desde tus bloques</button></div></div>
+<!-- The explained error sits above the code so it stays visible at minimum heights. --><output id="text-error" role="alert"></output><label for="text-source">Código del documento seleccionado</label><textarea id="text-source" spellcheck="false" autocapitalize="off" autocomplete="off" wrap="off" disabled aria-describedby="text-api-help"></textarea>
+<nav id="text-context-actions" class="workspace-navigation" aria-label="Ejecutar el documento en su contexto" hidden><a id="text-context-run" href="#scene3d-run">Ir a Ejecutar contexto</a><a id="text-context-stop" href="#stop-result">Ir a Detener</a></nav>
+<div class="controls"><output id="text-run-status" aria-live="polite">Sin ejecutar</output></div><output id="text-run-document" aria-live="polite"></output>
+<details class="text-help"><summary>Lenguajes y operaciones disponibles</summary><p>JavaScript con QuickJS · Python con Pyodide. Los documentos se guardan con el proyecto. Selecciona un documento del lenguaje elegido y ejecuta con los controles de su contexto.</p><p id="text-api-help">API inicial: GG.scene.get(), GG.sprite.get/move/setPosition(), GG.variables.get/set(), GG.events.emit() y GG.wait(segundos). Usa await para esperar cada operación. Las copias desde bloques declaran eventos y reciben un contexto ctx para movimiento, variables, mensajes, clones, disfraces y audio. Dentro de eventos, usa ctx para modificar la escena.</p></details>
+</section>
+</section>
+<section class="scene" aria-labelledby="scene-heading">
+<div class="result-bar"><div class="result-identity"><h2 id="scene-heading" tabindex="-1">Resultado de</h2> <p id="result-context" aria-live="polite">la escena 2D inicial · sin ejecutar</p><p id="status-line" class="status-line"><span>Estado:</span> <output id="status" aria-live="polite">Preparando…</output><output id="position">x = 0</output></p></div><button id="expand-result" type="button" aria-pressed="false">Ampliar</button></div>
+<p id="result-other" class="result-note" hidden></p>
+<div id="result-pending" class="result-note" hidden><p id="result-pending-text">Tus cambios aún no se ejecutan; el resultado es la versión anterior.</p><button id="run-pending" type="button">Ejecutar con tus cambios</button></div>
+<nav class="scene-navigation" aria-label="Volver a la edición"><a href="#authoring-context">Volver al programa</a><a id="scene-stop-link" href="#stop-result">Ir a Detener</a></nav>
+<div id="runner-slot"></div>
+</section>
+<aside id="workspace-dock" aria-labelledby="dock-heading">
+<h2 id="dock-heading" class="visually-hidden">Consulta</h2>
+<div id="dock-tabs" role="tablist" aria-label="Consulta">
+<button type="button" role="tab" id="tab-inspector" aria-controls="dock-inspector" data-tool="inspector">Propiedades</button>
+<button type="button" role="tab" id="tab-code" aria-controls="dock-code" data-tool="code">Código</button>
+<button type="button" role="tab" id="tab-firmware" aria-controls="dock-firmware" data-tool="firmware" hidden>Firmware</button>
+<button type="button" role="tab" id="tab-sb3" aria-controls="dock-sb3" data-tool="sb3" hidden>Original y copia</button>
+<button type="button" role="tab" id="tab-scene3d-tools" aria-controls="dock-scene3d-tools" data-tool="scene3d-tools" hidden>Objetos 3D</button>
+<button type="button" role="tab" id="tab-scene3d-code" aria-controls="dock-scene3d-code" data-tool="scene3d-code" hidden>Código 3D</button>
+<button type="button" role="tab" id="tab-webapp-tools" aria-controls="dock-webapp-tools" data-tool="webapp-tools" hidden>Componentes web</button>
+<button type="button" role="tab" id="tab-webapp-code" aria-controls="dock-webapp-code" data-tool="webapp-code" hidden>Código web</button>
+<button type="button" role="tab" id="tab-activity" aria-controls="dock-activity" data-tool="activity">Actividad</button>
+<button type="button" role="tab" id="tab-console" aria-controls="dock-console" data-tool="console">Diagnósticos</button>
+<button type="button" role="tab" id="tab-resources" aria-controls="dock-resources" data-tool="resources">Recursos</button>
+<button type="button" role="tab" id="tab-help" aria-controls="dock-help" data-tool="help" aria-selected="true">Ayuda</button>
+</div>
+<div id="dock-content">
+<div role="tabpanel" id="dock-inspector" aria-labelledby="tab-inspector" hidden>
+<section class="scene-inspector" aria-labelledby="inspector-heading">
+<div class="bar"><h2 id="inspector-heading" tabindex="-1">Propiedades de la escena 2D</h2><output id="inspector-status" aria-live="polite">Sin lectura</output></div>
+<div class="inspection-actions"><div><label for="inspector-object">Objeto a inspeccionar</label><select id="inspector-object"><option value="hero">hero · Sprite</option><option value="scene">Escena 2D</option></select></div><button id="refresh-inspector">Actualizar lectura</button></div>
+<details><summary>Estado inicial del proyecto</summary><dl id="inspector-initial"></dl></details>
+<h3>Última lectura de ejecución</h3><dl id="inspector-runtime"></dl>
+<h3>Variables locales de hero</h3><ul id="inspector-variables"></ul>
+<p>La lectura no cambia tu proyecto. Actualiza para consultar los valores después de un evento.</p>
+</section>
+</div>
+<div role="tabpanel" id="dock-code" aria-labelledby="tab-code" hidden>
+<section class="code-console generated-panel" aria-labelledby="generated-heading"><div class="bar"><h2 id="generated-heading" tabindex="-1">Código generado desde tus bloques</h2><output id="generated-status" aria-live="polite">Preparando…</output></div>
+<p id="generated-help" class="derived-note">Vista de solo lectura desde tus bloques. Para editar JavaScript o Python, crea una copia independiente: editarla no cambia tus bloques. Ejecutar bloques siempre usa la IR validada.</p>
+<div class="generated-actions"><div><label for="generated-language">Vista del código generado</label><select id="generated-language"><option value="ir">IR educativa</option><option value="javascript">JavaScript</option><option value="python">Python</option></select></div><button id="copy-javascript">Crear copia JavaScript</button><button id="copy-python">Crear copia Python</button></div><output id="copy-status" aria-live="polite"></output>
+<label for="generated-code">Lectura del programa 2D · solo lectura</label><textarea id="generated-code" readonly spellcheck="false" aria-describedby="generated-help" wrap="off"></textarea></section>
+</div>
+<div role="tabpanel" id="dock-firmware" aria-labelledby="tab-firmware" hidden>
+<section id="device-firmware-panel" aria-labelledby="device-firmware-heading" hidden><h2 id="device-firmware-heading" tabindex="-1">Firmware y placa micro:bit</h2>
+<p>Los bloques generan el código TypeScript del firmware. El documento TypeScript se conserva como programa independiente. Ejecutar usa el modo seleccionado; compilar prepara firmware sin iniciar la simulación.</p>
+<label for="device-variant">Firmware para</label><select id="device-variant" disabled><option value="universal">micro:bit V1 y V2</option><option value="v1">micro:bit V1</option><option value="v2">micro:bit V2</option></select>
+<div class="controls device-actions"><button id="compile-device" disabled>Compilar firmware</button><button id="download-device" disabled>Descargar HEX</button><button id="transfer-device" disabled>Transferir por USB</button></div>
+<output id="device-build-status" aria-live="polite">Sin firmware compilado</output>
+<details id="device-source-panel"><summary>Leer Static TypeScript del dispositivo</summary><label for="device-generated-source">Fuente seleccionada para PXT · solo lectura</label><textarea id="device-generated-source" readonly spellcheck="false" wrap="off"></textarea></details>
+<p>Antes de ejecutar, predice con tu docente qué LED cambiará y qué hará el sprite al pulsar A o B. Después compara la placa simulada con la escena.</p>
+<p>En la ejecución conjunta, los botones envían los mensajes microbit-A, microbit-B y microbit-AB a los bloques «al recibir». El puente funciona en este simulador. El HEX autónomo conserva LEDs y botones; controlar una placa conectada requiere otro contrato.</p>
+<p class="limit-note">La transferencia USB abre una página propia y exige conectar y seleccionar la placa. La simulación y un HEX válido no certifican una prueba física.</p>
+<div id="device-text-secondary"><section id="device-text-authoring" class="code" aria-labelledby="device-text-heading"><h2 id="device-text-heading">Documento TypeScript independiente</h2><label for="source">Programa de dispositivo</label><textarea id="source" spellcheck="false" autocapitalize="off" autocomplete="off" wrap="off">basic.showIcon(IconNames.Heart)</textarea><p class="independent-note">Editar este documento no modifica los bloques. Para ejecutarlo junto a la escena, selecciona Documento TypeScript independiente.</p></section></div>
+<details id="device-document-tools"><summary>Herramientas del documento TypeScript</summary><p>Estas acciones usan el documento independiente, aunque el modo seleccionado sea bloques.</p><div class="controls"><button id="simulate" disabled>Ver simulador</button><button id="compile" disabled>Compilar firmware</button></div><output id="compile-result" aria-live="polite">Compilador bajo demanda</output><p>El firmware generado requiere una prueba en placa.</p></details>
+</section>
+</div>
+<div role="tabpanel" id="dock-sb3" aria-labelledby="tab-sb3" hidden>
+<section id="sb3-tools-panel" aria-labelledby="sb3-tools-heading" hidden><h2 id="sb3-tools-heading" tabindex="-1">Original y copia editable</h2>
+<p>El original se conserva por separado. Crear una copia editable reemplaza el programa 2D solo después de validar su traducción completa y abre ese contexto sin ejecutar. La copia y el original son independientes.</p>
+<p>Descargar el original y crear la copia editable están junto a la importación, con el estado del archivo.</p>
+<details id="sb3-identity"><summary>Identidad del original conservado</summary><output id="sb3-original-id">Aún no hay un original guardado.</output></details>
+<details id="sb3-runtime-panel"><summary>Lectura del resultado Scratch</summary><p>Consulta el estado de la última ejecución. Esta lectura no cambia el estado inicial ni los programas guardados. Los controles GG pertenecen al programa GG; Scratch conserva los nombres y objetos propios del archivo.</p><button id="refresh-sb3-runtime">Consultar ejecución Scratch</button><pre id="sb3-runtime" aria-live="polite">Sin ejecución Scratch activa</pre></details>
+</section>
+</div>
+<div role="tabpanel" id="dock-scene3d-tools" aria-labelledby="tab-scene3d-tools" hidden></div>
+<div role="tabpanel" id="dock-scene3d-code" aria-labelledby="tab-scene3d-code" hidden></div>
+<div role="tabpanel" id="dock-webapp-tools" aria-labelledby="tab-webapp-tools" hidden></div>
+<div role="tabpanel" id="dock-webapp-code" aria-labelledby="tab-webapp-code" hidden></div>
+<div role="tabpanel" id="dock-activity" aria-labelledby="tab-activity" hidden>
+<section class="learning-tools" aria-label="Actividades">
+<p id="activity-destination" class="result-note" hidden></p>
+<details id="lessons-panel" open><summary>Aprende con una actividad</summary>
+<section class="lessons" aria-labelledby="lessons-heading">
+<h2 id="lessons-heading">Aprende con una actividad</h2>
+<label for="lesson-select">Actividad</label><select id="lesson-select" disabled></select>
+<h3 id="lesson-title"></h3><p id="lesson-introduction"></p>
+<div id="lesson-learning" hidden>
+<h4>Lo que vas a explorar</h4><p id="lesson-objective"></p>
+<h4>Para empezar</h4><ul id="lesson-prerequisites"></ul>
+</div>
+<div class="controls" aria-label="Recorrido de la actividad">
+<button id="lesson-main" type="button" aria-pressed="true" disabled>Recorrido principal</button>
+<button id="lesson-variant" type="button" aria-pressed="false" disabled>Reto variante</button>
+</div>
+<h3 id="lesson-route-title">Recorrido principal</h3>
+<section class="lesson-prediction" aria-labelledby="lesson-prediction-heading"><h4 id="lesson-prediction-heading">Antes de ejecutar, predice</h4><p id="lesson-prediction"></p><p>Cuéntale tu idea al docente o anótala por tu cuenta. Después podrás compararla con el resultado.</p></section>
+<ol id="lesson-steps" class="stepper"></ol>
+<section class="lesson-reflection" aria-labelledby="lesson-reflection-heading"><h4 id="lesson-reflection-heading">Observa y explica</h4><p id="lesson-reflection"></p><p>Comprobar verifica condiciones del programa. Tu explicación y un nuevo intento ayudan al docente a observar lo que comprendiste.</p></section>
+<div class="controls"><button id="lesson-load" disabled>Cargar ejemplo y reemplazar el proyecto actual</button><button id="lesson-check" disabled>Comprobar</button></div>
+<p>Seleccionar una actividad o su reto solo muestra instrucciones. Antes de reemplazar el proyecto se protege su copia actual.</p>
+<output id="lesson-progress" aria-live="polite"></output><output id="lesson-status" aria-live="polite"></output><output id="lesson-error" role="alert"></output>
+</section></details>
+</section>
+</div>
+<div role="tabpanel" id="dock-console" aria-labelledby="tab-console" hidden>
+<section class="console-panel" aria-labelledby="console-heading"><div class="bar"><h2 id="console-heading" tabindex="-1">Diagnósticos</h2><button id="clear-console" disabled>Limpiar consola</button></div>
+<output id="console-summary" aria-live="polite" aria-atomic="true">Sin mensajes</output><p>Máximo 100 mensajes. Los enlaces apuntan a bloques o líneas de la autoría ejecutada.</p>
+<ol id="console-entries" aria-label="Mensajes de consola" aria-live="polite" aria-relevant="additions text" tabindex="0"></ol><output id="console-selection" aria-live="polite"></output></section>
+</div>
+<div role="tabpanel" id="dock-resources" aria-labelledby="tab-resources" hidden>
+<section class="resource-tools"><details id="resources-panel" open><summary>Biblioteca de recursos</summary><h2>Disfraces y sonidos</h2>
+<p>Los recursos viajan con tu proyecto. Imágenes SVG/PNG y sonido WAV PCM16 de hasta 2 segundos, sujetos al límite de bytes.</p>
+<div class="resource-grid"><div><label for="import-media">Añadir imagen o sonido</label><input id="import-media" type="file" accept=".svg,.png,.wav" disabled>
+<label for="resource-list">Recurso y propietario</label><select id="resource-list" disabled></select>
+<label for="resource-name">Nombre</label><input id="resource-name" maxlength="80"><button id="rename-resource">Guardar nombre</button>
+<label for="replace-resource">Reemplazar el medio seleccionado</label><input id="replace-resource" type="file" accept=".svg,.png,.wav"></div>
+<div class="resource-preview"><img id="resource-image" alt="Vista previa del disfraz seleccionado" hidden><button id="resource-audio" hidden>Escuchar vista previa</button>
+<fieldset><legend>Centro del disfraz · píxeles del medio</legend><label for="center-x">X</label><input id="center-x" type="number" step="any"><label for="center-y">Y</label><input id="center-y" type="number" step="any"><button id="set-resource-center">Guardar centro</button></fieldset></div></div>
+<details><summary>Recortar PNG</summary><div class="resource-edit-fields"><label for="crop-x">X</label><input id="crop-x" type="number" value="0" min="0"><label for="crop-y">Y</label><input id="crop-y" type="number" value="0" min="0"><label for="crop-width">Ancho</label><input id="crop-width" type="number" value="1" min="1"><label for="crop-height">Alto</label><input id="crop-height" type="number" value="1" min="1"><button id="crop-resource">Recortar</button></div></details>
+<details><summary>Recortar o ajustar sonido WAV</summary><output id="resource-audio-info" aria-live="polite"></output><div class="resource-edit-fields"><label for="audio-start">Muestra inicial por canal</label><input id="audio-start" type="number" value="0" min="0"><label for="audio-end">Muestra final por canal · exclusiva</label><input id="audio-end" type="number" value="1" min="1"><label for="audio-gain">Ganancia · 0 a 4</label><input id="audio-gain" type="number" value="1" min="0" max="4" step="0.1"><button id="edit-resource-audio">Aplicar al sonido</button></div></details>
+<button id="export-sb3" disabled>Exportar bloques GG como Scratch</button><div id="resource-feedback-home"><div id="resource-feedback"><button id="cancel-resource-work" hidden>Cancelar preparación</button><output id="resources-status" aria-live="polite">Sin cambios de recursos</output><output id="resources-error" role="alert"></output></div></div></details></section>
+</div>
+<div role="tabpanel" id="dock-help" aria-labelledby="tab-help">
+<section id="workspace-help" aria-labelledby="workspace-help-heading">
+<div class="bar"><h2 id="workspace-help-heading" tabindex="-1">Ayuda y herramientas · 2D</h2></div>
+<p id="workspace-guidance"></p><p id="activity-pointer"></p><nav id="context-tools" aria-label="Herramientas del contexto"></nav><button id="restore-editor">Restaurar ejemplo</button><details id="advanced-tools"><summary>Herramientas avanzadas</summary>
+<div class="scene-transport"><label for="fixture">Ejemplos técnicos del corpus</label><select id="fixture"><option value="repeat">Tres movimientos</option><option value="events">Espera, teclado y clic</option><option value="messages">Enviar mensaje y esperar</option><option value="clones">Crear y eliminar clon</option><option value="variables">Contador y decisiones</option><option value="audio">Sonido y espera</option><option value="audioStop">Detener sonidos</option></select><button id="run" disabled>Ejecutar ejemplo</button></div>
+<p id="scene-help">Al iniciar → repetir 3 veces → mover 5 pasos</p>
+<fieldset class="gg-controls"><legend>Control de la escena con GG</legend>
+<button id="gg-move">Mover +10</button>
+<label for="gg-score">Valor de score</label><input id="gg-score" type="number" value="4" min="-1000000" max="1000000"><button id="gg-set">Aplicar variable</button><button id="gg-emit">Enviar boost</button><button id="gg-read">Consultar escena</button>
+<output id="gg-result" aria-live="polite">Ejecuta los bloques para probar el control externo.</output>
+</fieldset>
+</details>
+</section>
+</div>
+</div></aside>
+</div>
+</main>
+<footer class="release-footer"><span>GuateGeeks Code Studio · Alpha</span><a href="./export-templates/release/index.html">Fuente, licencias y procedencia</a></footer>
+</body></html>

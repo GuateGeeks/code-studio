@@ -1,0 +1,873 @@
+{
+  "version": 1,
+  "limits": {
+    "projectBytes": 131072,
+    "blocks": 1000,
+    "hats": 64,
+    "sprites": 8,
+    "clones": 64,
+    "threads": 64,
+    "listItems": 1024,
+    "aggregateItems": 4096,
+    "stringBytes": 1024,
+    "dataBytes": 65536
+  },
+  "default": "unsupported",
+  "extensions": "unsupported",
+  "opcodes": [
+    {
+      "opcode": "control_create_clone_of",
+      "inputs": [
+        "CLONE_OPTION"
+      ],
+      "fields": [],
+      "kind": "statement",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "control_create_clone_of_menu",
+      "inputs": [],
+      "fields": [
+        "CLONE_OPTION"
+      ],
+      "kind": "menu",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "control_delete_this_clone",
+      "inputs": [],
+      "fields": [],
+      "kind": "statement",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "control_forever",
+      "inputs": [
+        "SUBSTACK"
+      ],
+      "fields": [],
+      "kind": "statement",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "control_if",
+      "inputs": [
+        "CONDITION",
+        "SUBSTACK"
+      ],
+      "fields": [],
+      "kind": "statement",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "control_if_else",
+      "inputs": [
+        "CONDITION",
+        "SUBSTACK",
+        "SUBSTACK2"
+      ],
+      "fields": [],
+      "kind": "statement",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "control_repeat",
+      "inputs": [
+        "TIMES",
+        "SUBSTACK"
+      ],
+      "fields": [],
+      "kind": "statement",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "control_repeat_until",
+      "inputs": [
+        "CONDITION",
+        "SUBSTACK"
+      ],
+      "fields": [],
+      "kind": "statement",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "control_start_as_clone",
+      "inputs": [],
+      "fields": [],
+      "kind": "hat",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "control_wait",
+      "inputs": [
+        "DURATION"
+      ],
+      "fields": [],
+      "kind": "statement",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "control_wait_until",
+      "inputs": [
+        "CONDITION"
+      ],
+      "fields": [],
+      "kind": "statement",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "data_addtolist",
+      "inputs": [
+        "ITEM"
+      ],
+      "fields": [
+        "LIST"
+      ],
+      "kind": "statement",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "data_changevariableby",
+      "inputs": [
+        "VALUE"
+      ],
+      "fields": [
+        "VARIABLE"
+      ],
+      "kind": "statement",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "data_deletealloflist",
+      "inputs": [],
+      "fields": [
+        "LIST"
+      ],
+      "kind": "statement",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "data_deleteoflist",
+      "inputs": [
+        "INDEX"
+      ],
+      "fields": [
+        "LIST"
+      ],
+      "kind": "statement",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "data_insertatlist",
+      "inputs": [
+        "ITEM",
+        "INDEX"
+      ],
+      "fields": [
+        "LIST"
+      ],
+      "kind": "statement",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "data_itemnumoflist",
+      "inputs": [
+        "ITEM"
+      ],
+      "fields": [
+        "LIST"
+      ],
+      "kind": "reporter",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "data_itemoflist",
+      "inputs": [
+        "INDEX"
+      ],
+      "fields": [
+        "LIST"
+      ],
+      "kind": "reporter",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "data_lengthoflist",
+      "inputs": [],
+      "fields": [
+        "LIST"
+      ],
+      "kind": "reporter",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "data_listcontainsitem",
+      "inputs": [
+        "ITEM"
+      ],
+      "fields": [
+        "LIST"
+      ],
+      "kind": "reporter",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "data_listcontents",
+      "inputs": [],
+      "fields": [
+        "LIST"
+      ],
+      "kind": "reporter",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "data_replaceitemoflist",
+      "inputs": [
+        "INDEX",
+        "ITEM"
+      ],
+      "fields": [
+        "LIST"
+      ],
+      "kind": "statement",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "data_setvariableto",
+      "inputs": [
+        "VALUE"
+      ],
+      "fields": [
+        "VARIABLE"
+      ],
+      "kind": "statement",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "data_variable",
+      "inputs": [],
+      "fields": [
+        "VARIABLE"
+      ],
+      "kind": "reporter",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "event_broadcast",
+      "inputs": [
+        "BROADCAST_INPUT"
+      ],
+      "fields": [],
+      "kind": "statement",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "event_broadcastandwait",
+      "inputs": [
+        "BROADCAST_INPUT"
+      ],
+      "fields": [],
+      "kind": "statement",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "event_whenbroadcastreceived",
+      "inputs": [],
+      "fields": [
+        "BROADCAST_OPTION"
+      ],
+      "kind": "hat",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "event_whenflagclicked",
+      "inputs": [],
+      "fields": [],
+      "kind": "hat",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "event_whenkeypressed",
+      "inputs": [],
+      "fields": [
+        "KEY_OPTION"
+      ],
+      "kind": "hat",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "event_whenstageclicked",
+      "inputs": [],
+      "fields": [],
+      "kind": "hat",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "event_whenthisspriteclicked",
+      "inputs": [],
+      "fields": [],
+      "kind": "hat",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "looks_changeeffectby",
+      "inputs": [
+        "CHANGE"
+      ],
+      "fields": [
+        "EFFECT"
+      ],
+      "kind": "statement",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "looks_changesizeby",
+      "inputs": [
+        "CHANGE"
+      ],
+      "fields": [],
+      "kind": "statement",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "looks_cleargraphiceffects",
+      "inputs": [],
+      "fields": [],
+      "kind": "statement",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "looks_costume",
+      "inputs": [],
+      "fields": [
+        "COSTUME"
+      ],
+      "kind": "menu",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "looks_hide",
+      "inputs": [],
+      "fields": [],
+      "kind": "statement",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "looks_nextcostume",
+      "inputs": [],
+      "fields": [],
+      "kind": "statement",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "looks_seteffectto",
+      "inputs": [
+        "VALUE"
+      ],
+      "fields": [
+        "EFFECT"
+      ],
+      "kind": "statement",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "looks_setsizeto",
+      "inputs": [
+        "SIZE"
+      ],
+      "fields": [],
+      "kind": "statement",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "looks_show",
+      "inputs": [],
+      "fields": [],
+      "kind": "statement",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "looks_size",
+      "inputs": [],
+      "fields": [],
+      "kind": "reporter",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "looks_switchcostumeto",
+      "inputs": [
+        "COSTUME"
+      ],
+      "fields": [],
+      "kind": "statement",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "math_angle",
+      "inputs": [],
+      "fields": [
+        "NUM"
+      ],
+      "kind": "literal",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "math_integer",
+      "inputs": [],
+      "fields": [
+        "NUM"
+      ],
+      "kind": "literal",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "math_number",
+      "inputs": [],
+      "fields": [
+        "NUM"
+      ],
+      "kind": "literal",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "math_positive_number",
+      "inputs": [],
+      "fields": [
+        "NUM"
+      ],
+      "kind": "literal",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "math_whole_number",
+      "inputs": [],
+      "fields": [
+        "NUM"
+      ],
+      "kind": "literal",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "motion_changexby",
+      "inputs": [
+        "DX"
+      ],
+      "fields": [],
+      "kind": "statement",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "motion_changeyby",
+      "inputs": [
+        "DY"
+      ],
+      "fields": [],
+      "kind": "statement",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "motion_direction",
+      "inputs": [],
+      "fields": [],
+      "kind": "reporter",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "motion_gotoxy",
+      "inputs": [
+        "X",
+        "Y"
+      ],
+      "fields": [],
+      "kind": "statement",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "motion_movesteps",
+      "inputs": [
+        "STEPS"
+      ],
+      "fields": [],
+      "kind": "statement",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "motion_pointindirection",
+      "inputs": [
+        "DIRECTION"
+      ],
+      "fields": [],
+      "kind": "statement",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "motion_setx",
+      "inputs": [
+        "X"
+      ],
+      "fields": [],
+      "kind": "statement",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "motion_sety",
+      "inputs": [
+        "Y"
+      ],
+      "fields": [],
+      "kind": "statement",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "motion_turnleft",
+      "inputs": [
+        "DEGREES"
+      ],
+      "fields": [],
+      "kind": "statement",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "motion_turnright",
+      "inputs": [
+        "DEGREES"
+      ],
+      "fields": [],
+      "kind": "statement",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "motion_xposition",
+      "inputs": [],
+      "fields": [],
+      "kind": "reporter",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "motion_yposition",
+      "inputs": [],
+      "fields": [],
+      "kind": "reporter",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "operator_add",
+      "inputs": [
+        "NUM1",
+        "NUM2"
+      ],
+      "fields": [],
+      "kind": "reporter",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "operator_and",
+      "inputs": [
+        "OPERAND1",
+        "OPERAND2"
+      ],
+      "fields": [],
+      "kind": "reporter",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "operator_contains",
+      "inputs": [
+        "STRING1",
+        "STRING2"
+      ],
+      "fields": [],
+      "kind": "reporter",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "operator_divide",
+      "inputs": [
+        "NUM1",
+        "NUM2"
+      ],
+      "fields": [],
+      "kind": "reporter",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "operator_equals",
+      "inputs": [
+        "OPERAND1",
+        "OPERAND2"
+      ],
+      "fields": [],
+      "kind": "reporter",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "operator_gt",
+      "inputs": [
+        "OPERAND1",
+        "OPERAND2"
+      ],
+      "fields": [],
+      "kind": "reporter",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "operator_join",
+      "inputs": [
+        "STRING1",
+        "STRING2"
+      ],
+      "fields": [],
+      "kind": "reporter",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "operator_length",
+      "inputs": [
+        "STRING"
+      ],
+      "fields": [],
+      "kind": "reporter",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "operator_letter_of",
+      "inputs": [
+        "LETTER",
+        "STRING"
+      ],
+      "fields": [],
+      "kind": "reporter",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "operator_lt",
+      "inputs": [
+        "OPERAND1",
+        "OPERAND2"
+      ],
+      "fields": [],
+      "kind": "reporter",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "operator_mod",
+      "inputs": [
+        "NUM1",
+        "NUM2"
+      ],
+      "fields": [],
+      "kind": "reporter",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "operator_multiply",
+      "inputs": [
+        "NUM1",
+        "NUM2"
+      ],
+      "fields": [],
+      "kind": "reporter",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "operator_not",
+      "inputs": [
+        "OPERAND"
+      ],
+      "fields": [],
+      "kind": "reporter",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "operator_or",
+      "inputs": [
+        "OPERAND1",
+        "OPERAND2"
+      ],
+      "fields": [],
+      "kind": "reporter",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "operator_random",
+      "inputs": [
+        "FROM",
+        "TO"
+      ],
+      "fields": [],
+      "kind": "reporter",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "operator_round",
+      "inputs": [
+        "NUM"
+      ],
+      "fields": [],
+      "kind": "reporter",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "operator_subtract",
+      "inputs": [
+        "NUM1",
+        "NUM2"
+      ],
+      "fields": [],
+      "kind": "reporter",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "sound_changevolumeby",
+      "inputs": [
+        "VOLUME"
+      ],
+      "fields": [],
+      "kind": "statement",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "sound_play",
+      "inputs": [
+        "SOUND_MENU"
+      ],
+      "fields": [],
+      "kind": "statement",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "sound_playuntildone",
+      "inputs": [
+        "SOUND_MENU"
+      ],
+      "fields": [],
+      "kind": "statement",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "sound_setvolumeto",
+      "inputs": [
+        "VOLUME"
+      ],
+      "fields": [],
+      "kind": "statement",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "sound_sounds_menu",
+      "inputs": [],
+      "fields": [
+        "SOUND_MENU"
+      ],
+      "kind": "menu",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "sound_stopallsounds",
+      "inputs": [],
+      "fields": [],
+      "kind": "statement",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "sound_volume",
+      "inputs": [],
+      "fields": [],
+      "kind": "reporter",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    },
+    {
+      "opcode": "text",
+      "inputs": [],
+      "fields": [
+        "TEXT"
+      ],
+      "kind": "literal",
+      "status": "vm-compatible",
+      "editable": "Requiere traducción completa y roundtrip del proyecto; no se decide por opcode aislado."
+    }
+  ]
+}

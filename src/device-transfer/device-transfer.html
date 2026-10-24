@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Transferir a micro:bit · GuateGeeks</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./app/device-transfer/transfer.css">
+  <script type="module" src="./app/device-transfer/transfer-page.mjs"></script>
+</head>
+<body>
+  <header><strong>GuateGeeks <span>Code Studio</span></strong></header>
+  <main>
+    <h1>Transferir a micro:bit</h1>
+    <p>Conecta tu micro:bit con un cable USB de datos. Primero elige la placa; después confirma la transferencia del programa.</p>
+    <dl id="artifact-details" hidden>
+      <dt>Firmware</dt><dd id="artifact-variant"></dd>
+      <dt>SHA-256</dt><dd id="artifact-hash"></dd>
+      <dt>Placa conectada</dt><dd id="board-details">Ninguna</dd>
+    </dl>
+    <p id="usb-support"></p>
+    <div class="actions">
+      <button id="connect-device" disabled>Conectar placa</button>
+      <button id="flash-device" disabled>Transferir HEX</button>
+      <button id="cancel-transfer">Cancelar</button>
+    </div>
+    <p id="transfer-status" role="status" aria-live="polite">Esperando el firmware de Studio…</p>
+    <progress id="transfer-progress" max="1" value="0" aria-label="Progreso de transferencia" hidden></progress>
+    <p id="transfer-error" role="alert"></p>
+    <p class="help">Si WebUSB no está disponible, vuelve a Studio y descarga el archivo HEX. Cancelar detiene nuevas órdenes; no restaura el firmware previo ni corta una escritura que la placa ya aceptó.</p>
+    <p class="help">La transferencia por USB no valida por sí sola el funcionamiento autónomo de la placa.</p>
+  </main>
+</body>
+</html>

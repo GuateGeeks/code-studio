@@ -1,0 +1,3286 @@
+{
+  "schemaVersion": 1,
+  "status": "software-approved",
+  "scope": "Combined stable F6+F7 software gate; physical, school and human evidence remains pending",
+  "full": {
+    "profile": "full",
+    "selection": "full",
+    "startedAt": "2026-10-22T19:21:38.272Z",
+    "steps": [
+      {
+        "name": "integration",
+        "startedAt": "2026-10-22T19:21:38.272Z",
+        "durationMs": 12024.061349,
+        "exitCode": 0
+      },
+      {
+        "name": "tools",
+        "startedAt": "2026-10-22T19:21:50.297Z",
+        "durationMs": 15140.738040999997,
+        "exitCode": 0
+      },
+      {
+        "name": "build",
+        "startedAt": "2026-10-22T19:22:05.438Z",
+        "durationMs": 2717.4981380000027,
+        "exitCode": 0
+      },
+      {
+        "name": "smoke",
+        "startedAt": "2026-10-22T19:22:08.155Z",
+        "durationMs": 24077.725932,
+        "exitCode": 0
+      },
+      {
+        "name": "browser",
+        "startedAt": "2026-10-22T19:22:32.233Z",
+        "durationMs": 1348752.275133,
+        "exitCode": 0
+      },
+      {
+        "name": "specs",
+        "startedAt": "2026-10-22T19:45:00.985Z",
+        "durationMs": 390.31371200014837,
+        "exitCode": 0
+      },
+      {
+        "name": "upstream-preservation",
+        "startedAt": "2026-10-22T19:45:01.376Z",
+        "durationMs": 114.91690599988215,
+        "exitCode": 0
+      }
+    ],
+    "baselineWritten": true,
+    "exitCode": 0,
+    "finishedAt": "2026-10-22T19:45:02.793Z"
+  },
+  "counts": {
+    "integration": 390,
+    "tools": 62,
+    "smoke": 3,
+    "regression": 125,
+    "e2e": 128,
+    "openspecChanges": 13
+  },
+  "build": {
+    "recordedAt": "2026-10-22T19:22:08.126Z",
+    "forced": false,
+    "totalMs": 2651.482734,
+    "stages": [
+      {
+        "name": "static-sync",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 71.358089,
+        "inputsCount": 161,
+        "outputsCount": 871
+      },
+      {
+        "name": "runtime-notices",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 3.543459999999982,
+        "inputsCount": 20,
+        "outputsCount": 1
+      },
+      {
+        "name": "release-materials",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 348.1371610000001,
+        "inputsCount": 10698,
+        "outputsCount": 6
+      },
+      {
+        "name": "language-assets",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 28.93348500000002,
+        "inputsCount": 14,
+        "outputsCount": 6
+      },
+      {
+        "name": "fixtures",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 35.07593300000008,
+        "inputsCount": 1125,
+        "outputsCount": 6
+      },
+      {
+        "name": "pxt-pack",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 20.347458999999844,
+        "inputsCount": 15,
+        "outputsCount": 8
+      },
+      {
+        "name": "renderer-storage",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 6.593128999999863,
+        "inputsCount": 12,
+        "outputsCount": 6
+      },
+      {
+        "name": "webpack-vm",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 124.97794700000009,
+        "inputsCount": 3561,
+        "outputsCount": 1
+      },
+      {
+        "name": "webpack-audio",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 78.62201900000036,
+        "inputsCount": 2683,
+        "outputsCount": 1
+      },
+      {
+        "name": "webpack-editor",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 76.89049999999997,
+        "inputsCount": 2691,
+        "outputsCount": 1
+      },
+      {
+        "name": "webpack-language",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 81.81346399999984,
+        "inputsCount": 2676,
+        "outputsCount": 6
+      },
+      {
+        "name": "webpack-babylon",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 104.81834900000013,
+        "inputsCount": 3438,
+        "outputsCount": 71
+      },
+      {
+        "name": "webpack-assets",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 70.94409700000006,
+        "inputsCount": 2684,
+        "outputsCount": 4
+      },
+      {
+        "name": "webpack-device-transfer",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 79.0285899999999,
+        "inputsCount": 2685,
+        "outputsCount": 2
+      }
+    ]
+  },
+  "preservation": [
+    {
+      "repository": "raspberrypi-blockly",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    },
+    {
+      "repository": "xcratch-scratch-editor",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    },
+    {
+      "repository": "pxt-microbit",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    }
+  ],
+  "sourceFreeze": {
+    "path": "source.tar.gz",
+    "bytes": 16143820,
+    "sha256": "b549b0d4f9e753f685f53d258bfb9a749e1127f51d587fa400fd7d08ed7156b1",
+    "expandedBytes": 77316608
+  },
+  "frozenMaterials": "artifacts/cuts/phase-7-accessibility-release/frozen-full-materials/",
+  "approvedReports": "artifacts/cuts/phase-7-accessibility-release/approved-full/",
+  "documentaryCloseout": "Documentation and task checkboxes updated only after this approved full; no product source changes. Current distribution identity is in its external source-manifest and post-documentation reproduction report.",
+  "localPerformance": {
+    "startup": {
+      "recordedAt": "2026-10-22T18:56:05.288Z",
+      "environment": {
+        "browser": "156.0.8078.4",
+        "node": "v22.23.4",
+        "platform": "linux",
+        "osRelease": "6.18.54.1-microsoft-standard-WSL2",
+        "cpu": "AMD Ryzen 7 3700X 8-Core Processor",
+        "logicalCpus": 16,
+        "reportedSystemRamBytes": 16720486400,
+        "gpu": {
+          "devices": [
+            {
+              "vendorId": 65535,
+              "deviceId": 65535,
+              "vendorString": "Google Inc. (Google)",
+              "deviceString": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver-5.0.0)",
+              "driverVendor": "SwANGLE",
+              "driverVersion": "5.0.0"
+            }
+          ],
+          "auxAttributes": {
+            "amdSwitchable": false,
+            "canSupportThreadedTextureMailbox": false,
+            "directRenderingVersion": "",
+            "displayType": "ANGLE_SWIFTSHADER",
+            "glExtensions": "GL_AMD_performance_monitor GL_ANGLE_base_vertex_base_instance_shader_builtin GL_ANGLE_blob_cache GL_ANGLE_client_arrays GL_ANGLE_clip_cull_distance GL_ANGLE_compressed_texture_etc GL_ANGLE_copy_texture_3d GL_ANGLE_depth_texture GL_ANGLE_framebuffer_blit GL_ANGLE_framebuffer_multisample GL_ANGLE_get_image GL_ANGLE_get_serialized_context_string GL_ANGLE_get_tex_level_parameter GL_ANGLE_instanced_arrays GL_ANGLE_memory_object_flags GL_ANGLE_memory_size GL_ANGLE_multi_draw GL_ANGLE_pack_reverse_row_order GL_ANGLE_polygon_mode GL_ANGLE_program_binary_readiness_query GL_ANGLE_program_cache_control GL_ANGLE_read_only_depth_stencil_feedback_loops GL_ANGLE_relaxed_vertex_attribute_type GL_ANGLE_renderability_validation GL_ANGLE_request_extension GL_ANGLE_rgbx_internal_format GL_ANGLE_robust_client_memory GL_ANGLE_robust_fragment_shader_output GL_ANGLE_robust_resource_initialization GL_ANGLE_shader_pixel_local_storage GL_ANGLE_shader_pixel_local_storage_coherent GL_ANGLE_stencil_texturing GL_ANGLE_texture_compression_dxt3 GL_ANGLE_texture_compression_dxt5 GL_ANGLE_texture_multisample GL_ANGLE_texture_usage GL_ANGLE_translated_shader_source GL_ANGLE_vulkan_image GL_ANGLE_yuv_internal_format GL_APPLE_clip_distance GL_ARM_rgba8 GL_ARM_shader_framebuffer_fetch GL_CHROMIUM_bind_generates_resource GL_CHROMIUM_bind_uniform_location GL_CHROMIUM_copy_compressed_texture GL_CHROMIUM_copy_texture GL_CHROMIUM_lose_context GL_EXT_EGL_image_array GL_EXT_EGL_image_external_wrap_modes GL_EXT_EGL_image_storage GL_EXT_base_instance GL_EXT_blend_minmax GL_EXT_buffer_storage GL_EXT_clear_texture GL_EXT_clip_control GL_EXT_clip_cull_distance GL_EXT_color_buffer_float GL_EXT_color_buffer_half_float GL_EXT_compressed_ETC1_RGB8_sub_texture GL_EXT_conservative_depth GL_EXT_copy_image GL_EXT_debug_label GL_EXT_debug_marker GL_EXT_depth_clamp GL_EXT_discard_framebuffer GL_EXT_disjoint_timer_query GL_EXT_draw_buffers GL_EXT_draw_buffers_indexed GL_EXT_draw_elements_base_vertex GL_EXT_float_blend GL_EXT_frag_depth GL_EXT_instanced_arrays GL_EXT_map_buffer_range GL_EXT_memory_object GL_EXT_memory_object_fd GL_EXT_occlusion_query_boolean GL_EXT_polygon_offset_clamp GL_EXT_read_format_bgra GL_EXT_robustness GL_EXT_sRGB GL_EXT_sRGB_write_control GL_EXT_semaphore GL_EXT_semaphore_fd GL_EXT_separate_shader_objects GL_EXT_shader_framebuffer_fetch GL_EXT_shader_framebuffer_fetch_non_coherent GL_EXT_shader_non_constant_global_initializers GL_EXT_shader_texture_lod GL_EXT_shadow_samplers GL_EXT_texture_border_clamp GL_EXT_texture_compression_bptc GL_EXT_texture_compression_dxt1 GL_EXT_texture_compression_rgtc GL_EXT_texture_compression_s3tc_srgb GL_EXT_texture_filter_anisotropic GL_EXT_texture_format_BGRA8888 GL_EXT_texture_lod_bias GL_EXT_texture_mirror_clamp_to_edge GL_EXT_texture_rg GL_EXT_texture_sRGB_R8 GL_EXT_texture_sRGB_RG8 GL_EXT_texture_sRGB_decode GL_EXT_texture_shadow_lod GL_EXT_texture_storage GL_EXT_texture_type_2_10_10_10_REV GL_EXT_unpack_subimage GL_KHR_blend_equation_advanced GL_KHR_debug GL_KHR_robust_buffer_access_behavior GL_KHR_robustness GL_KHR_texture_compression_astc_ldr GL_NV_fence GL_NV_framebuffer_blit GL_NV_pack_subimage GL_NV_pixel_buffer_object GL_NV_polygon_mode GL_NV_read_depth GL_NV_read_depth_stencil GL_NV_read_stencil GL_NV_shader_noperspective_interpolation GL_OES_EGL_image GL_OES_EGL_image_external GL_OES_EGL_image_external_essl3 GL_OES_EGL_sync GL_OES_compressed_ETC1_RGB8_texture GL_OES_compressed_paletted_texture GL_OES_copy_image GL_OES_depth24 GL_OES_depth32 GL_OES_depth_texture GL_OES_depth_texture_cube_map GL_OES_draw_buffers_indexed GL_OES_draw_elements_base_vertex GL_OES_element_index_uint GL_OES_fbo_render_mipmap GL_OES_get_program_binary GL_OES_mapbuffer GL_OES_packed_depth_stencil GL_OES_required_internalformat GL_OES_rgb8_rgba8 GL_OES_sample_shading GL_OES_sample_variables GL_OES_shader_multisample_interpolation GL_OES_standard_derivatives GL_OES_surfaceless_context GL_OES_texture_3D GL_OES_texture_border_clamp GL_OES_texture_float GL_OES_texture_float_linear GL_OES_texture_half_float GL_OES_texture_half_float_linear GL_OES_texture_npot GL_OES_texture_stencil8 GL_OES_texture_storage_multisample_2d_array GL_OES_vertex_array_object GL_OES_vertex_half_float GL_OES_vertex_type_10_10_10_2 GL_OVR_multiview GL_OVR_multiview2 GL_QCOM_texture_lod_bias ",
+            "glImplementationParts": "(gl=egl-angle,angle=swiftshader)",
+            "glRenderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver-5.0.0)",
+            "glResetNotificationStrategy": 33362,
+            "glVendor": "Google Inc. (Google)",
+            "glVersion": "OpenGL ES 3.0 (ANGLE 2.1.28967 git hash: dfeede58b618)",
+            "glWsExtensions": "EGL_EXT_create_context_robustness EGL_ANGLE_surface_orientation EGL_KHR_create_context EGL_KHR_image EGL_KHR_image_base EGL_EXT_image_gl_colorspace EGL_KHR_gl_colorspace EGL_KHR_gl_texture_2D_image EGL_KHR_gl_texture_cubemap_image EGL_KHR_gl_renderbuffer_image EGL_KHR_get_all_proc_addresses EGL_KHR_fence_sync EGL_KHR_wait_sync EGL_ANGLE_create_context_webgl_compatibility EGL_CHROMIUM_create_context_bind_generates_resource EGL_KHR_swap_buffers_with_damage EGL_EXT_pixel_format_float EGL_KHR_surfaceless_context EGL_ANGLE_display_texture_share_group EGL_ANGLE_display_semaphore_share_group EGL_ANGLE_create_context_client_arrays EGL_ANGLE_program_cache_control EGL_ANGLE_robust_resource_initialization EGL_ANGLE_create_context_extensions_enabled EGL_ANDROID_blob_cache EGL_ANDROID_recordable EGL_ANGLE_create_context_backwards_compatible EGL_KHR_no_config_context EGL_IMG_context_priority EGL_KHR_create_context_no_error EGL_KHR_reusable_sync EGL_EXT_buffer_age EGL_ANGLE_create_surface_swap_interval EGL_ANGLE_vulkan_image EGL_KHR_partial_update EGL_ANGLE_global_fence_sync EGL_ANGLE_memory_usage_report ",
+            "glWsVendor": "Google Inc. (Google)",
+            "glWsVersion": "1.5 (ANGLE 2.1.28967 git hash: dfeede58b618)",
+            "hardwareSupportsVulkan": false,
+            "inProcessGpu": false,
+            "initializationTime": 0.014568,
+            "isAsan": false,
+            "isClangCoverage": false,
+            "jpegDecodeAcceleratorSupported": false,
+            "maxMsaaSamples": "4",
+            "optimus": false,
+            "passthroughCmdDecoder": true,
+            "pixelShaderVersion": "3.00",
+            "processCrashCount": 0,
+            "sandboxed": false,
+            "skiaBackendType": "None",
+            "subpixelFontRendering": true,
+            "targetCpuBits": 64,
+            "vertexShaderVersion": "3.00",
+            "visibilityCallbackCallCount": 0
+          },
+          "featureStatus": {
+            "2d_canvas": "unavailable_software",
+            "direct_rendering_display_compositor": "disabled_off_ok",
+            "gpu_compositing": "disabled_software",
+            "multiple_raster_threads": "enabled_on",
+            "opengl": "disabled_off",
+            "rasterization": "disabled_software",
+            "raw_draw": "disabled_off_ok",
+            "skia_graphite": "disabled_off",
+            "trees_in_viz": "disabled_off",
+            "video_decode": "disabled_software",
+            "video_encode": "disabled_software",
+            "vulkan": "disabled_off",
+            "webgl": "unavailable_software",
+            "webgpu": "unavailable_software",
+            "webgpu_on_vk_via_gl_interop": "disabled_off",
+            "webnn": "unavailable_software"
+          },
+          "driverBugWorkarounds": [],
+          "videoDecoding": [],
+          "videoEncoding": []
+        },
+        "flag": "--enable-unsafe-swiftshader",
+        "schoolHardware": false
+      },
+      "startupMs": {
+        "contextCold": {
+          "samples": [
+            427.7999999821186,
+            409.09999999403954,
+            408.90000000596046
+          ],
+          "median": 409.09999999403954,
+          "p95": 427.7999999821186,
+          "max": 427.7999999821186
+        },
+        "warmReload": {
+          "samples": [
+            411,
+            438.40000000596046,
+            417.59999999403954
+          ],
+          "median": 417.59999999403954,
+          "p95": 438.40000000596046,
+          "max": 438.40000000596046
+        }
+      },
+      "startupMethod": "Navigation start to rendered runner Run enabled and authoring project ready, recorded by MutationObserver in page. Three fresh contexts in one browser, each followed by one same-context reload. Cache-Control:no-store means both fetch assets again. This is context-cold / OS-and-engine-warm reload, not cold OS/browser process, offline cache, or production bundle startup.",
+      "memory": [
+        {
+          "shellTarget": {
+            "JSHeapUsedSize": 7523048,
+            "JSHeapTotalSize": 8265728,
+            "dom": {
+              "documents": 5,
+              "nodes": 5907,
+              "jsEventListeners": 464
+            }
+          },
+          "runnerTarget": {
+            "JSHeapUsedSize": 13281200,
+            "JSHeapTotalSize": 14233600,
+            "dom": {
+              "documents": 6,
+              "nodes": 143,
+              "jsEventListeners": 24
+            }
+          }
+        },
+        {
+          "shellTarget": {
+            "JSHeapUsedSize": 7575592,
+            "JSHeapTotalSize": 8790016,
+            "dom": {
+              "documents": 5,
+              "nodes": 5893,
+              "jsEventListeners": 464
+            }
+          },
+          "runnerTarget": {
+            "JSHeapUsedSize": 13271116,
+            "JSHeapTotalSize": 14233600,
+            "dom": {
+              "documents": 6,
+              "nodes": 132,
+              "jsEventListeners": 24
+            }
+          }
+        },
+        {
+          "shellTarget": {
+            "JSHeapUsedSize": 7576808,
+            "JSHeapTotalSize": 8790016,
+            "dom": {
+              "documents": 5,
+              "nodes": 5933,
+              "jsEventListeners": 464
+            }
+          },
+          "runnerTarget": {
+            "JSHeapUsedSize": 13270456,
+            "JSHeapTotalSize": 14233600,
+            "dom": {
+              "documents": 6,
+              "nodes": 132,
+              "jsEventListeners": 24
+            }
+          }
+        }
+      ],
+      "memoryScope": "Post-GC CDP Performance.getMetrics per shell and runner target. Targets can share an isolate; do not sum their heaps. Excludes worker heaps, WebGL/GPU, audio native allocations and browser/OS process RSS.",
+      "rolePayloads": {
+        "shell": {
+          "bytes": 24490289,
+          "files": 175
+        },
+        "runner": {
+          "bytes": 27989054,
+          "files": 161
+        },
+        "simulator": {
+          "bytes": 1662654,
+          "files": 146
+        },
+        "language": {
+          "bytes": 15846697,
+          "files": 152
+        },
+        "scene3d": {
+          "bytes": 4351995,
+          "files": 213
+        },
+        "webapp": {
+          "bytes": 935759,
+          "files": 142
+        }
+      },
+      "rolePayloadScope": "Raw six browser trees including corresponding source archive/notices in shell, no compression or transfer measurement.",
+      "staticBuild": {
+        "builtAt": "2026-10-22T18:43:47.605Z",
+        "files": [
+          {
+            "file": "vendor/typescript.js",
+            "bytes": 1548990,
+            "sha256": "556939b102e5c420fad2eb7d0692dcaf9682a437511ef2e990674e6aaa0695ab"
+          },
+          {
+            "file": "vendor/pxtworker.js",
+            "bytes": 2482200,
+            "sha256": "ce88b5f45f212b2a0eb9371e35a40e436dfe9e1b0957e74f20e9a39708aa1b4e"
+          },
+          {
+            "file": "vendor/microbit-compiler.js",
+            "bytes": 5597,
+            "sha256": "be9af26759448c021b01e028fffba5aeba55d24ae472dc7afc68eb444b015e97"
+          },
+          {
+            "file": "vendor/lzma.js",
+            "bytes": 111982,
+            "sha256": "b2704cc4536d113ba9d4badfb4b262ec878b16824e300596895c0a1080fbdc50"
+          },
+          {
+            "file": "vendor/scratch-vm.js",
+            "bytes": 13989557,
+            "sha256": "c60de5f95ee4bb5b5fc61f9d928b07f3b497b20a899c2b6c9182c4edf6484fc2"
+          },
+          {
+            "file": "vendor/scratch-render.js",
+            "bytes": 3061945,
+            "sha256": "40253eeee30919628a3915a49ceaca462db212d322c46471920d49e61e3da90f"
+          },
+          {
+            "file": "vendor/scratch-storage.js",
+            "bytes": 186078,
+            "sha256": "17d1d1054e06fba2c3ba71d35ef6739771c22b3ec374a066edcfbda8ca3ffc66"
+          },
+          {
+            "file": "vendor/scratch-audio.js",
+            "bytes": 108319,
+            "sha256": "b5b68d3dbb3b0fffbd96dffce99a0e43df339f09e98e9728c06444d9a48f8e6c"
+          },
+          {
+            "file": "simulator/vendor/pxtsim.js",
+            "bytes": 210381,
+            "sha256": "566938713d8405705ac13b0b1e6e5ffb500b9a71aefe9b6a28649fbfdccf63c3"
+          },
+          {
+            "file": "simulator/vendor/microbit-sim.js",
+            "bytes": 561529,
+            "sha256": "2d527dbee4b6a384eb501a2c6129414a0f642af20d4291a2165e1c23576f3335"
+          },
+          {
+            "file": "shell/editor.bundle.js",
+            "bytes": 1226323,
+            "sha256": "0459d23450435fe8d41644ede645995d310aabca796ff1f8f1e0895bb406f9a1"
+          },
+          {
+            "file": "language/vendor/c15adfc67124ac7a8a60.wasm",
+            "bytes": 503134,
+            "sha256": "105c3bed22d457e43e3d1c3c1c6959fda62a8fe06f0fc8a985303c3a2be72232"
+          },
+          {
+            "file": "language/vendor/pyodide/pyodide-lock.json",
+            "bytes": 119077,
+            "sha256": "5dc2fc119108bc148c7457dc86e7675b5c87e1cafd420b9c34c1eaef7b36c010"
+          },
+          {
+            "file": "language/vendor/pyodide/pyodide.asm.mjs",
+            "bytes": 1250344,
+            "sha256": "f7cdc8ece80678ceb712f8e65ebe6d3a83203a180c399865f49612a051693635"
+          },
+          {
+            "file": "language/vendor/pyodide/pyodide.asm.wasm",
+            "bytes": 9598218,
+            "sha256": "cc36e3cab04fdfc9a63ff13eb52eae2b911bf46c025cc7b281f394bd3de1d5e6"
+          },
+          {
+            "file": "language/vendor/pyodide/pyodide.mjs",
+            "bytes": 17931,
+            "sha256": "6f1d60f7bf529beb300f0f47983c921d3982363640ba20af0e38efdddbc66109"
+          },
+          {
+            "file": "language/vendor/pyodide/python_stdlib.zip",
+            "bytes": 2545637,
+            "sha256": "fa1957e5777068fc4f7437f96d860ae2fbe9c19732ba06c84e004ec16dd7dd7a"
+          },
+          {
+            "file": "language/vendor/quickjs-engine.bundle.mjs",
+            "bytes": 398747,
+            "sha256": "998d3cdd33de2833153b40eea2245cc54efe168ba707ea5e86928b1a22de64d1"
+          },
+          {
+            "file": "language/vendor/quickjs-node_modules_jitl_quickjs-wasmfile-release-sync_dist_emscripten-module_browser_mjs.chunk.mjs",
+            "bytes": 11054,
+            "sha256": "627308bb4ddb072f9056dfe8d40c9b29a352b58554478ac9dec68ec96516e1a8"
+          },
+          {
+            "file": "language/vendor/quickjs-node_modules_jitl_quickjs-wasmfile-release-sync_dist_ffi_mjs.chunk.mjs",
+            "bytes": 7205,
+            "sha256": "fbebd70bcaf793d0f236f25c672a109715bd264367b6d47348f4c31fee1fd728"
+          },
+          {
+            "file": "language/vendor/quickjs-node_modules_quickjs-emscripten-core_dist_module-ES6BEMUI_mjs.chunk.mjs",
+            "bytes": 1622,
+            "sha256": "64c245347c85b7d7a118e5e6d0503de2735f7369670e7a559613b094c60aedb3"
+          },
+          {
+            "file": "language/vendor/quickjs-node_modules_quickjs-emscripten-core_dist_module-asyncify-2EFITU5U_mjs.chunk.mjs",
+            "bytes": 1235,
+            "sha256": "d3f22ebf980bd9411a4a3c1e65749359f20ac4632e16714ca66a6e9cd2e72b0c"
+          },
+          {
+            "file": "language/vendor/quickjs/emscripten-module.wasm",
+            "bytes": 503134,
+            "sha256": "105c3bed22d457e43e3d1c3c1c6959fda62a8fe06f0fc8a985303c3a2be72232"
+          },
+          {
+            "file": "shell/vendor/pako.bundle.mjs",
+            "bytes": 45567,
+            "sha256": "620c3b3cf5111af6e467ce2060260ecbd72d648e8b143d30f27377399f2e043e"
+          },
+          {
+            "file": "runner/vendor/pako.bundle.mjs",
+            "bytes": 45567,
+            "sha256": "620c3b3cf5111af6e467ce2060260ecbd72d648e8b143d30f27377399f2e043e"
+          },
+          {
+            "file": "scene3d/vendor/babylon-1318.chunk.mjs",
+            "bytes": 3560,
+            "sha256": "a83fda55857ee4a1b20f7109c48d86bd41c301baeef46304d24ab23d46172f24"
+          },
+          {
+            "file": "scene3d/vendor/babylon-1442.chunk.mjs",
+            "bytes": 11108,
+            "sha256": "f59dd452cc1fd7fe51d1a950a6fcbff91f8e7d2396d8eeab043d10a702a68395"
+          },
+          {
+            "file": "scene3d/vendor/babylon-1448.chunk.mjs",
+            "bytes": 32862,
+            "sha256": "eb9c890215ad0ec6e8be248248b0e34cf8f18f58112453a99693d859e3a1f40c"
+          },
+          {
+            "file": "scene3d/vendor/babylon-1650.chunk.mjs",
+            "bytes": 1554,
+            "sha256": "140a2359360e3d368e6ef32317accf1304d5bfbe672b5dd30fb0dc7c66fbf15a"
+          },
+          {
+            "file": "scene3d/vendor/babylon-2083.chunk.mjs",
+            "bytes": 709,
+            "sha256": "c45bb86600b40621c2987e7059ece1808b3b5e9f27f63cff96328569f98f2a53"
+          },
+          {
+            "file": "scene3d/vendor/babylon-256.chunk.mjs",
+            "bytes": 101854,
+            "sha256": "1a63217e89da1f63cb0f8a7d9ab1d796b0a6e567b203a307a3131e2501aac3f6"
+          },
+          {
+            "file": "scene3d/vendor/babylon-2564.chunk.mjs",
+            "bytes": 11764,
+            "sha256": "f24584361220f22cc5be17df8591c09408b5024946523a8f3e68084e7285332b"
+          },
+          {
+            "file": "scene3d/vendor/babylon-2646.chunk.mjs",
+            "bytes": 7535,
+            "sha256": "90256619fadc16d5a23c43ceb88642624a1eb1aff72fbb4d4871720fc57961ed"
+          },
+          {
+            "file": "scene3d/vendor/babylon-2695.chunk.mjs",
+            "bytes": 744,
+            "sha256": "3f3faaddc5c4233dfe4dc1dd5e914f094010c4a16ac7a24cc36dbd7baf23ee11"
+          },
+          {
+            "file": "scene3d/vendor/babylon-2836.chunk.mjs",
+            "bytes": 115969,
+            "sha256": "d05f3df6268eb781cf0c0d5ceb33dc9c4c94c29987a22f417360b07ad9e4486e"
+          },
+          {
+            "file": "scene3d/vendor/babylon-2905.chunk.mjs",
+            "bytes": 1131,
+            "sha256": "b4ca836cd5bc7f1d273ce869bb24ec8c0778fc0cc0cabbc464d158d709738605"
+          },
+          {
+            "file": "scene3d/vendor/babylon-3005.chunk.mjs",
+            "bytes": 42333,
+            "sha256": "dd88c864c8a93679890bfa4840976d26f8060b5b1e80f4c3a4071aa5ea7abd8c"
+          },
+          {
+            "file": "scene3d/vendor/babylon-303.chunk.mjs",
+            "bytes": 31805,
+            "sha256": "dc02f9bb3ec7ad69e47008d256751dbd44347f3c5ce25e4931c8431e140e3145"
+          },
+          {
+            "file": "scene3d/vendor/babylon-3474.chunk.mjs",
+            "bytes": 50984,
+            "sha256": "ce95176328ed9b0373f7c529ab8d8254b2be2c0917a78de79944ef1c5ac54e70"
+          },
+          {
+            "file": "scene3d/vendor/babylon-3613.chunk.mjs",
+            "bytes": 789,
+            "sha256": "4bf84465d0212cc8afc7f1dbed643f255e5927dbc4b666cec31994df9f10ae52"
+          },
+          {
+            "file": "scene3d/vendor/babylon-371.chunk.mjs",
+            "bytes": 7325,
+            "sha256": "be29554077f3bb78dec7d7c4845825e29357869d57ff92822069e55c8346a5a2"
+          },
+          {
+            "file": "scene3d/vendor/babylon-4005.chunk.mjs",
+            "bytes": 737,
+            "sha256": "6e55cadafb95817e8455fee003ca8a08e1449de52010868ddba261079efff91c"
+          },
+          {
+            "file": "scene3d/vendor/babylon-4109.chunk.mjs",
+            "bytes": 58777,
+            "sha256": "f01ba9f2723017f5580d447595294e21634027a15b4ff8f36a70d2a75b5cc9a9"
+          },
+          {
+            "file": "scene3d/vendor/babylon-437.chunk.mjs",
+            "bytes": 4642,
+            "sha256": "eee1b7663fecbe0b13ba85d332dec847c1643fe6e7bf9031a6b023acd1df2b60"
+          },
+          {
+            "file": "scene3d/vendor/babylon-4511.chunk.mjs",
+            "bytes": 962,
+            "sha256": "fbd9e211422a730e9b18a2d7809b57a8e0538cee6582e204592f9c6fd0c45c61"
+          },
+          {
+            "file": "scene3d/vendor/babylon-4821.chunk.mjs",
+            "bytes": 23936,
+            "sha256": "cb887cc7b41f185f5d29fd910c84e478de7ff496ff5c747990d20cb2230438d7"
+          },
+          {
+            "file": "scene3d/vendor/babylon-49.chunk.mjs",
+            "bytes": 111999,
+            "sha256": "9d7a081c7f755f74abd9c5d3db057daf809f32cf896b39a89ee5361803109072"
+          },
+          {
+            "file": "scene3d/vendor/babylon-4935.chunk.mjs",
+            "bytes": 13988,
+            "sha256": "dcff953be8231196e360440507411d7c7b08cbc9dbaf3409a59c42b124044ee2"
+          },
+          {
+            "file": "scene3d/vendor/babylon-5007.chunk.mjs",
+            "bytes": 65071,
+            "sha256": "7f7c32391980def7e450dd3b67401a708a506a791cb29c35885757c77356e96b"
+          },
+          {
+            "file": "scene3d/vendor/babylon-5035.chunk.mjs",
+            "bytes": 7319,
+            "sha256": "5b05cda6497b8df98f719ce392a358eb5b9801c81926418aa21a21f52a53b8ae"
+          },
+          {
+            "file": "scene3d/vendor/babylon-5043.chunk.mjs",
+            "bytes": 64055,
+            "sha256": "e298477599ae0a3e27523888eaddddef791da01b6a3568e8cfe142a086540393"
+          },
+          {
+            "file": "scene3d/vendor/babylon-5216.chunk.mjs",
+            "bytes": 12734,
+            "sha256": "d7fe834a8a2f154e213dd069c3a40521673573fb3f5c0b53a3c9acacc0618788"
+          },
+          {
+            "file": "scene3d/vendor/babylon-5349.chunk.mjs",
+            "bytes": 143198,
+            "sha256": "d2e0ae6315bd6f528e2216a9aa2327216e6fed19f04fc9e20a82f869fd9a03ac"
+          },
+          {
+            "file": "scene3d/vendor/babylon-5450.chunk.mjs",
+            "bytes": 3426,
+            "sha256": "355263d7edd6d20f268b0a710968d44b81c3a543468d1ab20951e974ba24a848"
+          },
+          {
+            "file": "scene3d/vendor/babylon-552.chunk.mjs",
+            "bytes": 98421,
+            "sha256": "62c460913c3934eb6fb6a7ff7a1ea674cae3b07b8968d5fb0337bb53028b98e6"
+          },
+          {
+            "file": "scene3d/vendor/babylon-5608.chunk.mjs",
+            "bytes": 4569,
+            "sha256": "b6bc13ce12dcbe23f0f1ebe61722ba51e2507779eba8b181ac9a68aa592806fb"
+          },
+          {
+            "file": "scene3d/vendor/babylon-5762.chunk.mjs",
+            "bytes": 24890,
+            "sha256": "3b6bdbc7c92d789ec8adb247ed8cd19a1a49412986a7ccc8011fe8c33151a74f"
+          },
+          {
+            "file": "scene3d/vendor/babylon-648.chunk.mjs",
+            "bytes": 3750,
+            "sha256": "82fe6a27d0610804accb851dbb9c600674a0da356a7d89a76471caaf6f2bc019"
+          },
+          {
+            "file": "scene3d/vendor/babylon-6612.chunk.mjs",
+            "bytes": 583,
+            "sha256": "5c974ed7ccebc5d52da6f71c7e8cc6ca5c75094605027063d358b198a0bc8d63"
+          },
+          {
+            "file": "scene3d/vendor/babylon-6739.chunk.mjs",
+            "bytes": 24954,
+            "sha256": "82513b2c941f0dc0c6594dc9aa758c3134909f35cdd5f3f49e6ef0ec0d358205"
+          },
+          {
+            "file": "scene3d/vendor/babylon-6747.chunk.mjs",
+            "bytes": 18160,
+            "sha256": "a41c8536b8b0c47b753b6951649803b5eb915637baeceaf0ec42725611fb51fd"
+          },
+          {
+            "file": "scene3d/vendor/babylon-6871.chunk.mjs",
+            "bytes": 33238,
+            "sha256": "a3ea22e358ba249117f67b212d488df6c79b1b5657cbc3234c44cea45a4dcdbd"
+          },
+          {
+            "file": "scene3d/vendor/babylon-7156.chunk.mjs",
+            "bytes": 596,
+            "sha256": "a0e6948534bd7ff0c7e16fe74c3beb1547e6167f4a4763f56f36717e3b8ccb0c"
+          },
+          {
+            "file": "scene3d/vendor/babylon-7441.chunk.mjs",
+            "bytes": 14518,
+            "sha256": "8b7418f5ddfba338682f7fd5550f0c76a0587e30a8378b4fb591f87814edb558"
+          },
+          {
+            "file": "scene3d/vendor/babylon-7478.chunk.mjs",
+            "bytes": 1924,
+            "sha256": "7abbbba9d292b542a32c5795818bc151b4ddd8682603afd9d08110767ca651c9"
+          },
+          {
+            "file": "scene3d/vendor/babylon-7564.chunk.mjs",
+            "bytes": 7802,
+            "sha256": "255a7053dce783c91798067230ce68955990409ff5ccdd0348c654ed2a3ad4e8"
+          },
+          {
+            "file": "scene3d/vendor/babylon-7642.chunk.mjs",
+            "bytes": 10149,
+            "sha256": "408ff519d1dfe28b8856835e3a6c5d8f7428586d57a929b7888af896c617c682"
+          },
+          {
+            "file": "scene3d/vendor/babylon-7682.chunk.mjs",
+            "bytes": 1271,
+            "sha256": "4103be0df579d5ae0407ce2e9db9495fabafb3bf2459a4f762ebaf938e669c99"
+          },
+          {
+            "file": "scene3d/vendor/babylon-7878.chunk.mjs",
+            "bytes": 35262,
+            "sha256": "0def42a921bab1b370eb7286354e224c197125fe7bd9d3dd3e6ac17d28c30503"
+          },
+          {
+            "file": "scene3d/vendor/babylon-788.chunk.mjs",
+            "bytes": 16604,
+            "sha256": "4b343f4cb59631e5738fd21c29e169795aab516e559d0aeedc8e4079d6e0f9c2"
+          },
+          {
+            "file": "scene3d/vendor/babylon-7991.chunk.mjs",
+            "bytes": 20052,
+            "sha256": "cb4e4ed2be977d29de2443ce93acd5eb48d89ab31df488401319e0b7edd5ac41"
+          },
+          {
+            "file": "scene3d/vendor/babylon-8138.chunk.mjs",
+            "bytes": 10855,
+            "sha256": "7d5b18e105b111901f892d9d598bb458cc1a71678d966293c810f5c98b9bef7d"
+          },
+          {
+            "file": "scene3d/vendor/babylon-8189.chunk.mjs",
+            "bytes": 2605,
+            "sha256": "7c72865d521ac970c3ed3dbc5efd4ff85e4902b71f7e184f650ab8fd89f69cba"
+          },
+          {
+            "file": "scene3d/vendor/babylon-8308.chunk.mjs",
+            "bytes": 55071,
+            "sha256": "602a97a30e180cefabaa7a1b43f8e719e28f083f4fb4d14d0e98531432fc34d1"
+          },
+          {
+            "file": "scene3d/vendor/babylon-8444.chunk.mjs",
+            "bytes": 140552,
+            "sha256": "a9bce5853359bc9a616a846d5f1b4a7d4d8a6df5a9d14403f777a61a69f3d04b"
+          },
+          {
+            "file": "scene3d/vendor/babylon-8537.chunk.mjs",
+            "bytes": 31178,
+            "sha256": "d96459ff1b9fb32f76028a16c14b5a8fbbd5ea6c7fb8a8676623e9bebb1399c3"
+          },
+          {
+            "file": "scene3d/vendor/babylon-8558.chunk.mjs",
+            "bytes": 12571,
+            "sha256": "50831fdf4e903abea1710b9c87b1364bde5cc92f0ebc9381b706d0fb97700a8c"
+          },
+          {
+            "file": "scene3d/vendor/babylon-8574.chunk.mjs",
+            "bytes": 49195,
+            "sha256": "0ab878f21839915b35ad6911880e07400d3bd09df5260ec75371ba3c10c2860c"
+          },
+          {
+            "file": "scene3d/vendor/babylon-8575.chunk.mjs",
+            "bytes": 1095,
+            "sha256": "ff247c64a3d919337e5136c7bf177c09174d55353387f188a067b71e9b1ea07e"
+          },
+          {
+            "file": "scene3d/vendor/babylon-8590.chunk.mjs",
+            "bytes": 70798,
+            "sha256": "5492e6dce37597c86463b6e4561e3eb013593bf6aeb0fb413dd83f094a0762a9"
+          },
+          {
+            "file": "scene3d/vendor/babylon-861.chunk.mjs",
+            "bytes": 3761,
+            "sha256": "4dfa47d00c0d490f093c23b9ef5d71ca8e0a5f675a6b4998ef3d2081630669e6"
+          },
+          {
+            "file": "scene3d/vendor/babylon-8648.chunk.mjs",
+            "bytes": 886,
+            "sha256": "f130c2902fff0385df3858713774b548af190de4b31f8f356a2b460f1cd47c00"
+          },
+          {
+            "file": "scene3d/vendor/babylon-8685.chunk.mjs",
+            "bytes": 13329,
+            "sha256": "4aedc0581c036397afa1a3d4f17ed9bced52f19864d000adee7cc708f711f61d"
+          },
+          {
+            "file": "scene3d/vendor/babylon-872.chunk.mjs",
+            "bytes": 27016,
+            "sha256": "8d06b187a4caf65d6f56af3b233f5464a94801f4419bd4c464a967a392b0722c"
+          },
+          {
+            "file": "scene3d/vendor/babylon-8721.chunk.mjs",
+            "bytes": 31406,
+            "sha256": "88e60947f5ab247b0beec13db699740b69bf060c929525dad70a13cc9b6ebda2"
+          },
+          {
+            "file": "scene3d/vendor/babylon-9174.chunk.mjs",
+            "bytes": 19228,
+            "sha256": "89021e1b24f16546e8b31eb841ec11a79efd6c4ccbad410147d03ede11bfc2c9"
+          },
+          {
+            "file": "scene3d/vendor/babylon-9235.chunk.mjs",
+            "bytes": 19077,
+            "sha256": "c7fc63e04ab73a3040e2e32b18133e2f5c3b8c0606bdf6cc67e28bdf93750310"
+          },
+          {
+            "file": "scene3d/vendor/babylon-9278.chunk.mjs",
+            "bytes": 699,
+            "sha256": "44e5720fd03257a72ed2227a660140db491c26c54023678b3f7fd33f212077ef"
+          },
+          {
+            "file": "scene3d/vendor/babylon-9395.chunk.mjs",
+            "bytes": 28262,
+            "sha256": "079ed7aca064a8524b037e80b8e9e083f25e154d2a83b716b52d64faaeb1a6e4"
+          },
+          {
+            "file": "scene3d/vendor/babylon-9502.chunk.mjs",
+            "bytes": 30576,
+            "sha256": "a7000ac6ab45294a4e4c4f442bbf195d17800e809f75915fb24b5206959f7cce"
+          },
+          {
+            "file": "scene3d/vendor/babylon-9505.chunk.mjs",
+            "bytes": 37889,
+            "sha256": "13a5bfdc3f8ecd7b9278996efd68ac1153f652f28847893d0c01bcf0e7427999"
+          },
+          {
+            "file": "scene3d/vendor/babylon-9682.chunk.mjs",
+            "bytes": 7543,
+            "sha256": "5efa0e1a25b9b1f62c0839f3f7938330e5539d00b104ca392604eab0d592f6db"
+          },
+          {
+            "file": "scene3d/vendor/babylon-9820.chunk.mjs",
+            "bytes": 438,
+            "sha256": "55aa75747e4754c39aef12a67f5db1e63505edfc41e5b3cf25bcb9e25c16cb7c"
+          },
+          {
+            "file": "scene3d/vendor/babylon-994.chunk.mjs",
+            "bytes": 12128,
+            "sha256": "945b5086aadf098e77afb282ef8697586f3a96c894c691cfae08ff513abbb82e"
+          },
+          {
+            "file": "scene3d/vendor/babylon-9965.chunk.mjs",
+            "bytes": 572,
+            "sha256": "8e577066dba599588d50bf1a93bbd4f7f483a55aa4fbd83e6a569d6903441e85"
+          },
+          {
+            "file": "scene3d/vendor/babylon-adapter.bundle.mjs",
+            "bytes": 1559893,
+            "sha256": "14f7d04ec3c1d5f7f95e11bbed43ad0bb8fe48dcd18c45888659a0d38330f4b8"
+          },
+          {
+            "file": "scene3d/vendor/pako.bundle.mjs",
+            "bytes": 45567,
+            "sha256": "620c3b3cf5111af6e467ce2060260ecbd72d648e8b143d30f27377399f2e043e"
+          },
+          {
+            "file": "shell/vendor/dapjs.bundle.mjs",
+            "bytes": 37924,
+            "sha256": "daec0cce65cc89129eb84b0da30fc5f64e35aab31b0ee9ce0d98c2be4a902449"
+          }
+        ],
+        "listedBundleBytes": 42041100,
+        "compilerPackBytes": 5221168,
+        "compression": "Raw on-disk bytes from development build, not gzip/brotli transfer bytes."
+      }
+    },
+    "stability": {
+      "recordedAt": "2026-10-22T18:56:37.265Z",
+      "cycles": [
+        {
+          "cycle": 1,
+          "stop": {
+            "feedbackMs": 3.800000011920929,
+            "disabled": true,
+            "sessionInvalidated": true,
+            "removedMs": 9.5,
+            "readyMs": 804.1999999880791
+          },
+          "playing": {
+            "rms": 0.17667774784250717,
+            "contextState": "running"
+          },
+          "contexts": [
+            "c9584daf-7cc9-47e9-8d70-6fbc8b0cd0a8"
+          ],
+          "closed": [
+            "c9584daf-7cc9-47e9-8d70-6fbc8b0cd0a8"
+          ],
+          "destroyed": [],
+          "oldFrameDetached": true,
+          "remainingFramesIncludingShell": 2,
+          "activeWorkersBeforeStop": [
+            "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+            "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js",
+            "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/compiler-worker.js"
+          ],
+          "oldWorkerIds": [
+            2,
+            3,
+            4
+          ],
+          "allOldWorkersClosed": true,
+          "remainingWorkers": [
+            {
+              "id": 5,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            }
+          ],
+          "remainingProgramWorkers": 0,
+          "afterStop": {
+            "threads": 0,
+            "audioAvailable": false
+          },
+          "authoringPreserved": true,
+          "shellTargetHeap": {
+            "JSHeapUsedSize": 8538576,
+            "JSHeapTotalSize": 9314304,
+            "dom": {
+              "documents": 5,
+              "nodes": 5891,
+              "jsEventListeners": 464
+            }
+          }
+        },
+        {
+          "cycle": 2,
+          "stop": {
+            "feedbackMs": 5.4000000059604645,
+            "disabled": true,
+            "sessionInvalidated": true,
+            "removedMs": 9.900000005960464,
+            "readyMs": 732.6999999880791
+          },
+          "playing": {
+            "rms": 0.17695059586330156,
+            "contextState": "running"
+          },
+          "contexts": [
+            "fbf74a8c-1669-4c52-8926-3bc74c552fe4"
+          ],
+          "closed": [
+            "fbf74a8c-1669-4c52-8926-3bc74c552fe4"
+          ],
+          "destroyed": [],
+          "oldFrameDetached": true,
+          "remainingFramesIncludingShell": 2,
+          "activeWorkersBeforeStop": [
+            "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+            "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js"
+          ],
+          "oldWorkerIds": [
+            6,
+            7
+          ],
+          "allOldWorkersClosed": true,
+          "remainingWorkers": [
+            {
+              "id": 8,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            }
+          ],
+          "remainingProgramWorkers": 0,
+          "afterStop": {
+            "threads": 0,
+            "audioAvailable": false
+          },
+          "authoringPreserved": true,
+          "shellTargetHeap": {
+            "JSHeapUsedSize": 8643868,
+            "JSHeapTotalSize": 9314304,
+            "dom": {
+              "documents": 5,
+              "nodes": 5891,
+              "jsEventListeners": 464
+            }
+          }
+        },
+        {
+          "cycle": 3,
+          "stop": {
+            "feedbackMs": 4.200000017881393,
+            "disabled": true,
+            "sessionInvalidated": true,
+            "removedMs": 11.700000017881393,
+            "readyMs": 850.5
+          },
+          "playing": {
+            "rms": 0.16906881703122834,
+            "contextState": "running"
+          },
+          "contexts": [
+            "e27eaa83-cbb6-4ddd-bd5b-ec93366a91bd"
+          ],
+          "closed": [
+            "e27eaa83-cbb6-4ddd-bd5b-ec93366a91bd"
+          ],
+          "destroyed": [],
+          "oldFrameDetached": true,
+          "remainingFramesIncludingShell": 2,
+          "activeWorkersBeforeStop": [
+            "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+            "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js"
+          ],
+          "oldWorkerIds": [
+            9,
+            10
+          ],
+          "allOldWorkersClosed": true,
+          "remainingWorkers": [
+            {
+              "id": 11,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            }
+          ],
+          "remainingProgramWorkers": 0,
+          "afterStop": {
+            "threads": 0,
+            "audioAvailable": false
+          },
+          "authoringPreserved": true,
+          "shellTargetHeap": {
+            "JSHeapUsedSize": 8694380,
+            "JSHeapTotalSize": 9314304,
+            "dom": {
+              "documents": 5,
+              "nodes": 5891,
+              "jsEventListeners": 464
+            }
+          }
+        },
+        {
+          "cycle": 4,
+          "stop": {
+            "feedbackMs": 4,
+            "disabled": true,
+            "sessionInvalidated": true,
+            "removedMs": 9.300000011920929,
+            "readyMs": 788.4000000059605
+          },
+          "playing": {
+            "rms": 0.14415340906052498,
+            "contextState": "running"
+          },
+          "contexts": [
+            "6b24e35c-bbf7-4ef9-83de-403430fd3bd2"
+          ],
+          "closed": [
+            "6b24e35c-bbf7-4ef9-83de-403430fd3bd2"
+          ],
+          "destroyed": [],
+          "oldFrameDetached": true,
+          "remainingFramesIncludingShell": 2,
+          "activeWorkersBeforeStop": [
+            "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+            "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js"
+          ],
+          "oldWorkerIds": [
+            12,
+            13
+          ],
+          "allOldWorkersClosed": true,
+          "remainingWorkers": [
+            {
+              "id": 14,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            }
+          ],
+          "remainingProgramWorkers": 0,
+          "afterStop": {
+            "threads": 0,
+            "audioAvailable": false
+          },
+          "authoringPreserved": true,
+          "shellTargetHeap": {
+            "JSHeapUsedSize": 8730436,
+            "JSHeapTotalSize": 9314304,
+            "dom": {
+              "documents": 5,
+              "nodes": 5891,
+              "jsEventListeners": 464
+            }
+          }
+        },
+        {
+          "cycle": 5,
+          "stop": {
+            "feedbackMs": 6.0999999940395355,
+            "disabled": true,
+            "sessionInvalidated": true,
+            "removedMs": 10.099999994039536,
+            "readyMs": 733.5
+          },
+          "playing": {
+            "rms": 0.16906881703122834,
+            "contextState": "running"
+          },
+          "contexts": [
+            "62b83d5f-76eb-4547-9402-7e5400146086"
+          ],
+          "closed": [
+            "62b83d5f-76eb-4547-9402-7e5400146086"
+          ],
+          "destroyed": [],
+          "oldFrameDetached": true,
+          "remainingFramesIncludingShell": 2,
+          "activeWorkersBeforeStop": [
+            "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+            "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js"
+          ],
+          "oldWorkerIds": [
+            15,
+            16
+          ],
+          "allOldWorkersClosed": true,
+          "remainingWorkers": [
+            {
+              "id": 17,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            }
+          ],
+          "remainingProgramWorkers": 0,
+          "afterStop": {
+            "threads": 0,
+            "audioAvailable": false
+          },
+          "authoringPreserved": true,
+          "shellTargetHeap": {
+            "JSHeapUsedSize": 8761576,
+            "JSHeapTotalSize": 9314304,
+            "dom": {
+              "documents": 5,
+              "nodes": 5891,
+              "jsEventListeners": 464
+            }
+          }
+        },
+        {
+          "cycle": 6,
+          "stop": {
+            "feedbackMs": 3.300000011920929,
+            "disabled": true,
+            "sessionInvalidated": true,
+            "removedMs": 9.600000023841858,
+            "readyMs": 780
+          },
+          "playing": {
+            "rms": 0.17695059586330156,
+            "contextState": "running"
+          },
+          "contexts": [
+            "2320051f-abef-46fc-b800-dd235d87746b"
+          ],
+          "closed": [
+            "2320051f-abef-46fc-b800-dd235d87746b"
+          ],
+          "destroyed": [],
+          "oldFrameDetached": true,
+          "remainingFramesIncludingShell": 2,
+          "activeWorkersBeforeStop": [
+            "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+            "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js"
+          ],
+          "oldWorkerIds": [
+            18,
+            19
+          ],
+          "allOldWorkersClosed": true,
+          "remainingWorkers": [
+            {
+              "id": 20,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            }
+          ],
+          "remainingProgramWorkers": 0,
+          "afterStop": {
+            "threads": 0,
+            "audioAvailable": false
+          },
+          "authoringPreserved": true,
+          "shellTargetHeap": {
+            "JSHeapUsedSize": 8778880,
+            "JSHeapTotalSize": 9314304,
+            "dom": {
+              "documents": 5,
+              "nodes": 5891,
+              "jsEventListeners": 464
+            }
+          }
+        },
+        {
+          "cycle": 7,
+          "stop": {
+            "feedbackMs": 4.9000000059604645,
+            "disabled": true,
+            "sessionInvalidated": true,
+            "removedMs": 8.699999988079071,
+            "readyMs": 765.0999999940395
+          },
+          "playing": {
+            "rms": 0.15155683210103946,
+            "contextState": "running"
+          },
+          "contexts": [
+            "9fde4e23-24e4-43d0-af4c-ad901bd64ad5"
+          ],
+          "closed": [
+            "9fde4e23-24e4-43d0-af4c-ad901bd64ad5"
+          ],
+          "destroyed": [],
+          "oldFrameDetached": true,
+          "remainingFramesIncludingShell": 2,
+          "activeWorkersBeforeStop": [
+            "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+            "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js"
+          ],
+          "oldWorkerIds": [
+            21,
+            22
+          ],
+          "allOldWorkersClosed": true,
+          "remainingWorkers": [
+            {
+              "id": 23,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            }
+          ],
+          "remainingProgramWorkers": 0,
+          "afterStop": {
+            "threads": 0,
+            "audioAvailable": false
+          },
+          "authoringPreserved": true,
+          "shellTargetHeap": {
+            "JSHeapUsedSize": 8787820,
+            "JSHeapTotalSize": 9314304,
+            "dom": {
+              "documents": 5,
+              "nodes": 5891,
+              "jsEventListeners": 464
+            }
+          }
+        },
+        {
+          "cycle": 8,
+          "stop": {
+            "feedbackMs": 4.299999982118607,
+            "disabled": true,
+            "sessionInvalidated": true,
+            "removedMs": 10.199999988079071,
+            "readyMs": 782.1999999880791
+          },
+          "playing": {
+            "rms": 0.16906881703122834,
+            "contextState": "running"
+          },
+          "contexts": [
+            "3bc9ae7a-ea6d-4632-a7d7-ae947600fe5f"
+          ],
+          "closed": [
+            "3bc9ae7a-ea6d-4632-a7d7-ae947600fe5f"
+          ],
+          "destroyed": [],
+          "oldFrameDetached": true,
+          "remainingFramesIncludingShell": 2,
+          "activeWorkersBeforeStop": [
+            "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+            "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js"
+          ],
+          "oldWorkerIds": [
+            24,
+            25
+          ],
+          "allOldWorkersClosed": true,
+          "remainingWorkers": [
+            {
+              "id": 26,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            }
+          ],
+          "remainingProgramWorkers": 0,
+          "afterStop": {
+            "threads": 0,
+            "audioAvailable": false
+          },
+          "authoringPreserved": true,
+          "shellTargetHeap": {
+            "JSHeapUsedSize": 8837276,
+            "JSHeapTotalSize": 9576448,
+            "dom": {
+              "documents": 5,
+              "nodes": 5891,
+              "jsEventListeners": 464
+            }
+          }
+        },
+        {
+          "cycle": 9,
+          "stop": {
+            "feedbackMs": 4.5999999940395355,
+            "disabled": true,
+            "sessionInvalidated": true,
+            "removedMs": 8.5,
+            "readyMs": 736.1999999880791
+          },
+          "playing": {
+            "rms": 0.16906881703122834,
+            "contextState": "running"
+          },
+          "contexts": [
+            "063579ca-d83a-4a64-848f-7eca6b261f6d"
+          ],
+          "closed": [
+            "063579ca-d83a-4a64-848f-7eca6b261f6d"
+          ],
+          "destroyed": [],
+          "oldFrameDetached": true,
+          "remainingFramesIncludingShell": 2,
+          "activeWorkersBeforeStop": [
+            "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+            "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js"
+          ],
+          "oldWorkerIds": [
+            27,
+            28
+          ],
+          "allOldWorkersClosed": true,
+          "remainingWorkers": [
+            {
+              "id": 29,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            }
+          ],
+          "remainingProgramWorkers": 0,
+          "afterStop": {
+            "threads": 0,
+            "audioAvailable": false
+          },
+          "authoringPreserved": true,
+          "shellTargetHeap": {
+            "JSHeapUsedSize": 8866760,
+            "JSHeapTotalSize": 9576448,
+            "dom": {
+              "documents": 5,
+              "nodes": 5891,
+              "jsEventListeners": 464
+            }
+          }
+        },
+        {
+          "cycle": 10,
+          "stop": {
+            "feedbackMs": 3.800000011920929,
+            "disabled": true,
+            "sessionInvalidated": true,
+            "removedMs": 9,
+            "readyMs": 815.8000000119209
+          },
+          "playing": {
+            "rms": 0.17695059586330156,
+            "contextState": "running"
+          },
+          "contexts": [
+            "687cee76-1b3d-4eaf-b56b-a81515ff23c4"
+          ],
+          "closed": [
+            "687cee76-1b3d-4eaf-b56b-a81515ff23c4"
+          ],
+          "destroyed": [],
+          "oldFrameDetached": true,
+          "remainingFramesIncludingShell": 2,
+          "activeWorkersBeforeStop": [
+            "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+            "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js",
+            "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/compiler-worker.js"
+          ],
+          "oldWorkerIds": [
+            30,
+            31,
+            32
+          ],
+          "allOldWorkersClosed": true,
+          "remainingWorkers": [
+            {
+              "id": 33,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            }
+          ],
+          "remainingProgramWorkers": 0,
+          "afterStop": {
+            "threads": 0,
+            "audioAvailable": false
+          },
+          "authoringPreserved": true,
+          "shellTargetHeap": {
+            "JSHeapUsedSize": 8873732,
+            "JSHeapTotalSize": 9576448,
+            "dom": {
+              "documents": 5,
+              "nodes": 5891,
+              "jsEventListeners": 464
+            }
+          }
+        }
+      ],
+      "workers": [
+        {
+          "id": 1,
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+          "closed": true,
+          "createdPhase": "opening",
+          "createdAt": 13932.057481,
+          "closedPhase": "cycle-1-run",
+          "closedAt": 15204.078359
+        },
+        {
+          "id": 2,
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+          "closed": true,
+          "createdPhase": "cycle-1-run",
+          "createdAt": 15968.36318,
+          "closedPhase": "cycle-1-before-stop",
+          "closedAt": 17756.460358
+        },
+        {
+          "id": 3,
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js",
+          "closed": true,
+          "createdPhase": "cycle-1-run",
+          "createdAt": 16770.216878,
+          "closedPhase": "cycle-1-before-stop",
+          "closedAt": 17756.535308
+        },
+        {
+          "id": 4,
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/compiler-worker.js",
+          "closed": true,
+          "createdPhase": "cycle-1-run",
+          "createdAt": 16797.565868,
+          "closedPhase": "cycle-1-before-stop",
+          "closedAt": 17745.282827
+        },
+        {
+          "id": 5,
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+          "closed": true,
+          "createdPhase": "cycle-1-before-stop",
+          "createdAt": 18512.865371,
+          "closedPhase": "cycle-2-run",
+          "closedAt": 18818.540065
+        },
+        {
+          "id": 6,
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+          "closed": true,
+          "createdPhase": "cycle-2-run",
+          "createdAt": 19569.264187,
+          "closedPhase": "cycle-2-before-stop",
+          "closedAt": 20669.279307
+        },
+        {
+          "id": 7,
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js",
+          "closed": true,
+          "createdPhase": "cycle-2-run",
+          "createdAt": 20351.58343,
+          "closedPhase": "cycle-2-before-stop",
+          "closedAt": 20668.774885
+        },
+        {
+          "id": 8,
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+          "closed": true,
+          "createdPhase": "cycle-2-before-stop",
+          "createdAt": 21349.985387,
+          "closedPhase": "cycle-3-run",
+          "closedAt": 21614.726815
+        },
+        {
+          "id": 9,
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+          "closed": true,
+          "createdPhase": "cycle-3-run",
+          "createdAt": 22308.14972,
+          "closedPhase": "cycle-3-before-stop",
+          "closedAt": 23421.133446
+        },
+        {
+          "id": 10,
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js",
+          "closed": true,
+          "createdPhase": "cycle-3-run",
+          "createdAt": 23119.62465,
+          "closedPhase": "cycle-3-before-stop",
+          "closedAt": 23420.98028
+        },
+        {
+          "id": 11,
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+          "closed": true,
+          "createdPhase": "cycle-3-before-stop",
+          "createdAt": 24215.004572,
+          "closedPhase": "cycle-4-run",
+          "closedAt": 24536.74504
+        },
+        {
+          "id": 12,
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+          "closed": true,
+          "createdPhase": "cycle-4-run",
+          "createdAt": 25286.117057,
+          "closedPhase": "cycle-4-before-stop",
+          "closedAt": 25930.218319
+        },
+        {
+          "id": 13,
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js",
+          "closed": true,
+          "createdPhase": "cycle-4-run",
+          "createdAt": 25641.620581,
+          "closedPhase": "cycle-4-before-stop",
+          "closedAt": 25933.993842
+        },
+        {
+          "id": 14,
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+          "closed": true,
+          "createdPhase": "cycle-4-before-stop",
+          "createdAt": 26693.499708,
+          "closedPhase": "cycle-5-run",
+          "closedAt": 26952.190122
+        },
+        {
+          "id": 15,
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+          "closed": true,
+          "createdPhase": "cycle-5-run",
+          "createdAt": 27697.422537,
+          "closedPhase": "cycle-5-before-stop",
+          "closedAt": 28780.613164
+        },
+        {
+          "id": 16,
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js",
+          "closed": true,
+          "createdPhase": "cycle-5-run",
+          "createdAt": 28472.249951,
+          "closedPhase": "cycle-5-before-stop",
+          "closedAt": 28780.351106
+        },
+        {
+          "id": 17,
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+          "closed": true,
+          "createdPhase": "cycle-5-before-stop",
+          "createdAt": 29467.906429,
+          "closedPhase": "cycle-6-run",
+          "closedAt": 29751.661341
+        },
+        {
+          "id": 18,
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+          "closed": true,
+          "createdPhase": "cycle-6-run",
+          "createdAt": 30502.068743,
+          "closedPhase": "cycle-6-before-stop",
+          "closedAt": 31582.470528
+        },
+        {
+          "id": 19,
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js",
+          "closed": true,
+          "createdPhase": "cycle-6-run",
+          "createdAt": 31259.646851,
+          "closedPhase": "cycle-6-before-stop",
+          "closedAt": 31583.564749
+        },
+        {
+          "id": 20,
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+          "closed": true,
+          "createdPhase": "cycle-6-before-stop",
+          "createdAt": 32318.957555,
+          "closedPhase": "cycle-7-run",
+          "closedAt": 32738.412799
+        },
+        {
+          "id": 21,
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+          "closed": true,
+          "createdPhase": "cycle-7-run",
+          "createdAt": 33546.192339,
+          "closedPhase": "cycle-7-before-stop",
+          "closedAt": 34530.449614
+        },
+        {
+          "id": 22,
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js",
+          "closed": true,
+          "createdPhase": "cycle-7-run",
+          "createdAt": 34254.722717,
+          "closedPhase": "cycle-7-before-stop",
+          "closedAt": 34530.065848
+        },
+        {
+          "id": 23,
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+          "closed": true,
+          "createdPhase": "cycle-7-before-stop",
+          "createdAt": 35250.351425,
+          "closedPhase": "cycle-8-run",
+          "closedAt": 35531.895434
+        },
+        {
+          "id": 24,
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+          "closed": true,
+          "createdPhase": "cycle-8-run",
+          "createdAt": 36246.978382,
+          "closedPhase": "cycle-8-before-stop",
+          "closedAt": 37436.605384
+        },
+        {
+          "id": 25,
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js",
+          "closed": true,
+          "createdPhase": "cycle-8-run",
+          "createdAt": 37071.693234,
+          "closedPhase": "cycle-8-before-stop",
+          "closedAt": 37436.959294
+        },
+        {
+          "id": 26,
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+          "closed": true,
+          "createdPhase": "cycle-8-before-stop",
+          "createdAt": 38174.588978,
+          "closedPhase": "cycle-9-run",
+          "closedAt": 38448.904003
+        },
+        {
+          "id": 27,
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+          "closed": true,
+          "createdPhase": "cycle-9-run",
+          "createdAt": 39172.917216,
+          "closedPhase": "cycle-9-before-stop",
+          "closedAt": 39846.666897
+        },
+        {
+          "id": 28,
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js",
+          "closed": true,
+          "createdPhase": "cycle-9-run",
+          "createdAt": 39546.365232,
+          "closedPhase": "cycle-9-before-stop",
+          "closedAt": 39846.502691
+        },
+        {
+          "id": 29,
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+          "closed": true,
+          "createdPhase": "cycle-9-before-stop",
+          "createdAt": 40534.903406,
+          "closedPhase": "cycle-10-run",
+          "closedAt": 40797.966323
+        },
+        {
+          "id": 30,
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+          "closed": true,
+          "createdPhase": "cycle-10-run",
+          "createdAt": 41488.897448,
+          "closedPhase": "cycle-10-before-stop",
+          "closedAt": 43224.635052
+        },
+        {
+          "id": 31,
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js",
+          "closed": true,
+          "createdPhase": "cycle-10-run",
+          "createdAt": 42322.190589,
+          "closedPhase": "cycle-10-before-stop",
+          "closedAt": 43224.673674
+        },
+        {
+          "id": 32,
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/compiler-worker.js",
+          "closed": true,
+          "createdPhase": "cycle-10-run",
+          "createdAt": 42341.813006,
+          "closedPhase": "cycle-10-before-stop",
+          "closedAt": 43217.750658
+        },
+        {
+          "id": 33,
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+          "closed": false,
+          "createdPhase": "cycle-10-before-stop",
+          "createdAt": 43994.460931
+        }
+      ],
+      "idleWorkerURLs": [
+        "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+      ],
+      "workerCheckpoints": [
+        {
+          "phase": "bootstrap-ready",
+          "at": 14832.83212,
+          "active": [
+            {
+              "id": 1,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            }
+          ],
+          "frames": [
+            {
+              "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/",
+              "parentURL": null
+            },
+            {
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=f1850cff-2d70-4303-a716-5d8140e4610c",
+              "parentURL": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/"
+            }
+          ],
+          "targets": [
+            {
+              "targetId": "0DA1698FAA8247BB4BB4DEF9BC709209",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            },
+            {
+              "targetId": "49377AE9D07309700B97985B1BDA854D",
+              "type": "page",
+              "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/"
+            },
+            {
+              "targetId": "F4FAD6465595A35C9FE80E8717C51770",
+              "type": "iframe",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=f1850cff-2d70-4303-a716-5d8140e4610c"
+            }
+          ]
+        },
+        {
+          "phase": "cycle-1-before-stop",
+          "at": 17681.887661,
+          "active": [
+            {
+              "id": 2,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            },
+            {
+              "id": 3,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js"
+            },
+            {
+              "id": 4,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/compiler-worker.js"
+            }
+          ],
+          "frames": [
+            {
+              "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/",
+              "parentURL": null
+            },
+            {
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=ca2294ed-ea23-492b-8421-ac2b3fe6f01e",
+              "parentURL": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/"
+            }
+          ],
+          "targets": [
+            {
+              "targetId": "A30E693BB8DC28D2FDBD42B96DB236B4",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/compiler-worker.js"
+            },
+            {
+              "targetId": "AB222924980A6C38E6BD6F1DED76689D",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            },
+            {
+              "targetId": "C3276AAEE731F71D1199B81F53BF1B3F",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js"
+            },
+            {
+              "targetId": "49377AE9D07309700B97985B1BDA854D",
+              "type": "page",
+              "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/"
+            },
+            {
+              "targetId": "08A3F6267F2E6D28AC657D9002B1B297",
+              "type": "iframe",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=ca2294ed-ea23-492b-8421-ac2b3fe6f01e"
+            }
+          ]
+        },
+        {
+          "phase": "cycle-1-fresh-ready",
+          "at": 18626.155046,
+          "active": [
+            {
+              "id": 5,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            }
+          ],
+          "frames": [
+            {
+              "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/",
+              "parentURL": null
+            },
+            {
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=082fd501-7c31-4b2f-aeb5-d3b8b05fb04e",
+              "parentURL": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/"
+            }
+          ],
+          "targets": [
+            {
+              "targetId": "FF46F944BAC0F56194B0E88AA282B760",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            },
+            {
+              "targetId": "C3276AAEE731F71D1199B81F53BF1B3F",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js"
+            },
+            {
+              "targetId": "49377AE9D07309700B97985B1BDA854D",
+              "type": "page",
+              "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/"
+            },
+            {
+              "targetId": "6BFE2906F5D8FA482CDE097992D315F0",
+              "type": "iframe",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=082fd501-7c31-4b2f-aeb5-d3b8b05fb04e"
+            }
+          ]
+        },
+        {
+          "phase": "cycle-2-before-stop",
+          "at": 20600.591604,
+          "active": [
+            {
+              "id": 6,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            },
+            {
+              "id": 7,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js"
+            }
+          ],
+          "frames": [
+            {
+              "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/",
+              "parentURL": null
+            },
+            {
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=e54a5d1a-f03b-4d62-bb15-69ae7ea375d1",
+              "parentURL": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/"
+            }
+          ],
+          "targets": [
+            {
+              "targetId": "192C402682240AAA643FF4A514ADA912",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            },
+            {
+              "targetId": "C59648E5877DE2E925C315F5A650AAFF",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js"
+            },
+            {
+              "targetId": "49377AE9D07309700B97985B1BDA854D",
+              "type": "page",
+              "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/"
+            },
+            {
+              "targetId": "A49EE7DA4142A77A532856BCBB7A6CE7",
+              "type": "iframe",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=e54a5d1a-f03b-4d62-bb15-69ae7ea375d1"
+            }
+          ]
+        },
+        {
+          "phase": "cycle-2-fresh-ready",
+          "at": 21458.140335,
+          "active": [
+            {
+              "id": 8,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            }
+          ],
+          "frames": [
+            {
+              "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/",
+              "parentURL": null
+            },
+            {
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=db8d4aae-481e-4349-b95d-420babd0d604",
+              "parentURL": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/"
+            }
+          ],
+          "targets": [
+            {
+              "targetId": "81D8D95BA2E1B9B5344D656CEB9B52B6",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            },
+            {
+              "targetId": "C59648E5877DE2E925C315F5A650AAFF",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js"
+            },
+            {
+              "targetId": "49377AE9D07309700B97985B1BDA854D",
+              "type": "page",
+              "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/"
+            },
+            {
+              "targetId": "7966A5E9F673C191E23BAE457EC75789",
+              "type": "iframe",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=db8d4aae-481e-4349-b95d-420babd0d604"
+            }
+          ]
+        },
+        {
+          "phase": "cycle-3-before-stop",
+          "at": 23346.360444,
+          "active": [
+            {
+              "id": 9,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            },
+            {
+              "id": 10,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js"
+            }
+          ],
+          "frames": [
+            {
+              "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/",
+              "parentURL": null
+            },
+            {
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=110634c9-2924-44e9-84dc-1dbe270c91cd",
+              "parentURL": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/"
+            }
+          ],
+          "targets": [
+            {
+              "targetId": "DE23E8F0A261401587303487A7633C61",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            },
+            {
+              "targetId": "FF0D77F2C1E3B27B941815E2A38900E2",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js"
+            },
+            {
+              "targetId": "49377AE9D07309700B97985B1BDA854D",
+              "type": "page",
+              "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/"
+            },
+            {
+              "targetId": "76F6BF5AA5D9F46508EF35426F408872",
+              "type": "iframe",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=110634c9-2924-44e9-84dc-1dbe270c91cd"
+            }
+          ]
+        },
+        {
+          "phase": "cycle-3-fresh-ready",
+          "at": 24337.778055,
+          "active": [
+            {
+              "id": 11,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            }
+          ],
+          "frames": [
+            {
+              "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/",
+              "parentURL": null
+            },
+            {
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=75390126-e5dd-40fe-9a7d-48d3da24d412",
+              "parentURL": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/"
+            }
+          ],
+          "targets": [
+            {
+              "targetId": "352E384A17F014DD086435A187D08E4C",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            },
+            {
+              "targetId": "FF0D77F2C1E3B27B941815E2A38900E2",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js"
+            },
+            {
+              "targetId": "49377AE9D07309700B97985B1BDA854D",
+              "type": "page",
+              "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/"
+            },
+            {
+              "targetId": "B1C38E34B5117532AF054110AC23366F",
+              "type": "iframe",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=75390126-e5dd-40fe-9a7d-48d3da24d412"
+            }
+          ]
+        },
+        {
+          "phase": "cycle-4-before-stop",
+          "at": 25852.502404,
+          "active": [
+            {
+              "id": 12,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            },
+            {
+              "id": 13,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js"
+            }
+          ],
+          "frames": [
+            {
+              "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/",
+              "parentURL": null
+            },
+            {
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=099c2c7d-978d-42ff-a705-8dab69f47052",
+              "parentURL": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/"
+            }
+          ],
+          "targets": [
+            {
+              "targetId": "A7E40232882A8F00E45112DFAC747CF6",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            },
+            {
+              "targetId": "CB543BFCE7EF5284142DFFE297568CBE",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js"
+            },
+            {
+              "targetId": "49377AE9D07309700B97985B1BDA854D",
+              "type": "page",
+              "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/"
+            },
+            {
+              "targetId": "C57179BD86D12CA03FA77C8B2D235475",
+              "type": "iframe",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=099c2c7d-978d-42ff-a705-8dab69f47052"
+            }
+          ]
+        },
+        {
+          "phase": "cycle-4-fresh-ready",
+          "at": 26782.741812,
+          "active": [
+            {
+              "id": 14,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            }
+          ],
+          "frames": [
+            {
+              "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/",
+              "parentURL": null
+            },
+            {
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=d59e1ddb-8186-4ede-ad42-726708900e75",
+              "parentURL": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/"
+            }
+          ],
+          "targets": [
+            {
+              "targetId": "A80628666F6FF10E1E2DA29C33BCE00D",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            },
+            {
+              "targetId": "CB543BFCE7EF5284142DFFE297568CBE",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js"
+            },
+            {
+              "targetId": "49377AE9D07309700B97985B1BDA854D",
+              "type": "page",
+              "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/"
+            },
+            {
+              "targetId": "360B10B18A86C2E9B936D962E4751D06",
+              "type": "iframe",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=d59e1ddb-8186-4ede-ad42-726708900e75"
+            }
+          ]
+        },
+        {
+          "phase": "cycle-5-before-stop",
+          "at": 28703.549837,
+          "active": [
+            {
+              "id": 15,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            },
+            {
+              "id": 16,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js"
+            }
+          ],
+          "frames": [
+            {
+              "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/",
+              "parentURL": null
+            },
+            {
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=8db906e0-291a-4d5b-b016-e3af836a9d8b",
+              "parentURL": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/"
+            }
+          ],
+          "targets": [
+            {
+              "targetId": "38992F1764D6B9267B03FB8F6484E9D6",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            },
+            {
+              "targetId": "EAA440F942D2E3260C505E34E72D293F",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js"
+            },
+            {
+              "targetId": "49377AE9D07309700B97985B1BDA854D",
+              "type": "page",
+              "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/"
+            },
+            {
+              "targetId": "12AB7C24C8FFB50F7354B091149BF03C",
+              "type": "iframe",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=8db906e0-291a-4d5b-b016-e3af836a9d8b"
+            }
+          ]
+        },
+        {
+          "phase": "cycle-5-fresh-ready",
+          "at": 29573.541923,
+          "active": [
+            {
+              "id": 17,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            }
+          ],
+          "frames": [
+            {
+              "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/",
+              "parentURL": null
+            },
+            {
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=6b8c6012-f258-46fa-ac0f-09d5931d31dd",
+              "parentURL": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/"
+            }
+          ],
+          "targets": [
+            {
+              "targetId": "8F6DD297DEE86E34B68DE8E9172DD87B",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            },
+            {
+              "targetId": "EAA440F942D2E3260C505E34E72D293F",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js"
+            },
+            {
+              "targetId": "49377AE9D07309700B97985B1BDA854D",
+              "type": "page",
+              "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/"
+            },
+            {
+              "targetId": "7C7344AB517CA44C0577E48883CF2925",
+              "type": "iframe",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=6b8c6012-f258-46fa-ac0f-09d5931d31dd"
+            }
+          ]
+        },
+        {
+          "phase": "cycle-6-before-stop",
+          "at": 31501.947197,
+          "active": [
+            {
+              "id": 18,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            },
+            {
+              "id": 19,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js"
+            }
+          ],
+          "frames": [
+            {
+              "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/",
+              "parentURL": null
+            },
+            {
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=42fb478b-aedb-4a4a-be72-2be9d7eba60a",
+              "parentURL": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/"
+            }
+          ],
+          "targets": [
+            {
+              "targetId": "31D4C23FD1ED0AE46CD4BBF3E73D6412",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            },
+            {
+              "targetId": "D8938605B101369CD8E12F0F840662DE",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js"
+            },
+            {
+              "targetId": "49377AE9D07309700B97985B1BDA854D",
+              "type": "page",
+              "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/"
+            },
+            {
+              "targetId": "CAB459BEC77717D6D45145105981C80D",
+              "type": "iframe",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=42fb478b-aedb-4a4a-be72-2be9d7eba60a"
+            }
+          ]
+        },
+        {
+          "phase": "cycle-6-fresh-ready",
+          "at": 32463.115094,
+          "active": [
+            {
+              "id": 20,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            }
+          ],
+          "frames": [
+            {
+              "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/",
+              "parentURL": null
+            },
+            {
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=c72514d5-2142-4c17-a87d-15c280066277",
+              "parentURL": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/"
+            }
+          ],
+          "targets": [
+            {
+              "targetId": "1775D0763F04141EEF6BF991DC7EB0F6",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            },
+            {
+              "targetId": "D8938605B101369CD8E12F0F840662DE",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js"
+            },
+            {
+              "targetId": "49377AE9D07309700B97985B1BDA854D",
+              "type": "page",
+              "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/"
+            },
+            {
+              "targetId": "870719E356D076FED7D044532C1371B0",
+              "type": "iframe",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=c72514d5-2142-4c17-a87d-15c280066277"
+            }
+          ]
+        },
+        {
+          "phase": "cycle-7-before-stop",
+          "at": 34442.406486,
+          "active": [
+            {
+              "id": 21,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            },
+            {
+              "id": 22,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js"
+            }
+          ],
+          "frames": [
+            {
+              "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/",
+              "parentURL": null
+            },
+            {
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=9e3b27f0-0dfa-480a-a0ac-bbcee2c833d1",
+              "parentURL": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/"
+            }
+          ],
+          "targets": [
+            {
+              "targetId": "A6EADC8C3F4A2BF78CD1C5AAF3C3A1BF",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            },
+            {
+              "targetId": "ECDA8B4D5459FF310B7D1826B084EDE6",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js"
+            },
+            {
+              "targetId": "49377AE9D07309700B97985B1BDA854D",
+              "type": "page",
+              "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/"
+            },
+            {
+              "targetId": "4C7604D01A54ACA6B81C71FE3E8004BA",
+              "type": "iframe",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=9e3b27f0-0dfa-480a-a0ac-bbcee2c833d1"
+            }
+          ]
+        },
+        {
+          "phase": "cycle-7-fresh-ready",
+          "at": 35363.15077,
+          "active": [
+            {
+              "id": 23,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            }
+          ],
+          "frames": [
+            {
+              "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/",
+              "parentURL": null
+            },
+            {
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=447e72af-a005-44b5-8fe4-3a089e4ad372",
+              "parentURL": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/"
+            }
+          ],
+          "targets": [
+            {
+              "targetId": "902D0509BF9EE1E2D807A0C65129FC17",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            },
+            {
+              "targetId": "ECDA8B4D5459FF310B7D1826B084EDE6",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js"
+            },
+            {
+              "targetId": "49377AE9D07309700B97985B1BDA854D",
+              "type": "page",
+              "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/"
+            },
+            {
+              "targetId": "FBA9E14250EF4F320B9478DD8E1BF41F",
+              "type": "iframe",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=447e72af-a005-44b5-8fe4-3a089e4ad372"
+            }
+          ]
+        },
+        {
+          "phase": "cycle-8-before-stop",
+          "at": 37330.923268,
+          "active": [
+            {
+              "id": 24,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            },
+            {
+              "id": 25,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js"
+            }
+          ],
+          "frames": [
+            {
+              "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/",
+              "parentURL": null
+            },
+            {
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=918b7cfa-005e-40de-89d6-784828114489",
+              "parentURL": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/"
+            }
+          ],
+          "targets": [
+            {
+              "targetId": "38B078DF5002D0810ADDC6EFF79AFED5",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            },
+            {
+              "targetId": "26E8D00B78EF6E88E7575506A0C13E93",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js"
+            },
+            {
+              "targetId": "49377AE9D07309700B97985B1BDA854D",
+              "type": "page",
+              "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/"
+            },
+            {
+              "targetId": "0389A87314F3CCF3E13277676FD32517",
+              "type": "iframe",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=918b7cfa-005e-40de-89d6-784828114489"
+            }
+          ]
+        },
+        {
+          "phase": "cycle-8-fresh-ready",
+          "at": 38283.317066,
+          "active": [
+            {
+              "id": 26,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            }
+          ],
+          "frames": [
+            {
+              "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/",
+              "parentURL": null
+            },
+            {
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=c2d5aee5-9d79-48d2-9bea-58d20a8f0141",
+              "parentURL": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/"
+            }
+          ],
+          "targets": [
+            {
+              "targetId": "7AB93F3E5C77D1C5B287D1C0F288169F",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            },
+            {
+              "targetId": "26E8D00B78EF6E88E7575506A0C13E93",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js"
+            },
+            {
+              "targetId": "49377AE9D07309700B97985B1BDA854D",
+              "type": "page",
+              "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/"
+            },
+            {
+              "targetId": "BF2AB71F4DA6BFEFDB97A320AC9F6916",
+              "type": "iframe",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=c2d5aee5-9d79-48d2-9bea-58d20a8f0141"
+            }
+          ]
+        },
+        {
+          "phase": "cycle-9-before-stop",
+          "at": 39770.815729,
+          "active": [
+            {
+              "id": 27,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            },
+            {
+              "id": 28,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js"
+            }
+          ],
+          "frames": [
+            {
+              "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/",
+              "parentURL": null
+            },
+            {
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=1fa3fb6c-b076-461b-86ee-49f951232051",
+              "parentURL": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/"
+            }
+          ],
+          "targets": [
+            {
+              "targetId": "8CBC0A2375DE731124851E9DD571C6F0",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            },
+            {
+              "targetId": "146B7B449EE0365A7036B1852F51996B",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js"
+            },
+            {
+              "targetId": "49377AE9D07309700B97985B1BDA854D",
+              "type": "page",
+              "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/"
+            },
+            {
+              "targetId": "609B02E707A897880AA501398439C5A6",
+              "type": "iframe",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=1fa3fb6c-b076-461b-86ee-49f951232051"
+            }
+          ]
+        },
+        {
+          "phase": "cycle-9-fresh-ready",
+          "at": 40640.212125,
+          "active": [
+            {
+              "id": 29,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            }
+          ],
+          "frames": [
+            {
+              "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/",
+              "parentURL": null
+            },
+            {
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=adde69fd-c637-4dd4-8303-7f6bc61e6dae",
+              "parentURL": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/"
+            }
+          ],
+          "targets": [
+            {
+              "targetId": "F55A8EC58B7085D13B876B0017456891",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            },
+            {
+              "targetId": "146B7B449EE0365A7036B1852F51996B",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js"
+            },
+            {
+              "targetId": "49377AE9D07309700B97985B1BDA854D",
+              "type": "page",
+              "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/"
+            },
+            {
+              "targetId": "18A9F285ABA594F01FFDB09E06A745F3",
+              "type": "iframe",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=adde69fd-c637-4dd4-8303-7f6bc61e6dae"
+            }
+          ]
+        },
+        {
+          "phase": "cycle-10-before-stop",
+          "at": 43138.527952,
+          "active": [
+            {
+              "id": 30,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            },
+            {
+              "id": 31,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js"
+            },
+            {
+              "id": 32,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/compiler-worker.js"
+            }
+          ],
+          "frames": [
+            {
+              "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/",
+              "parentURL": null
+            },
+            {
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=c28c9581-2946-4b81-a453-e0b9cc51dcad",
+              "parentURL": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/"
+            }
+          ],
+          "targets": [
+            {
+              "targetId": "93ED8EA281360D9AFEF23215DF5D9048",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/compiler-worker.js"
+            },
+            {
+              "targetId": "B81924422291329E3AD1CC672CFE8CEC",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            },
+            {
+              "targetId": "E1F6EF983F250B2C92B24FB5E40B5AB4",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js"
+            },
+            {
+              "targetId": "49377AE9D07309700B97985B1BDA854D",
+              "type": "page",
+              "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/"
+            },
+            {
+              "targetId": "5AA0E3B482566E9657989192466BC563",
+              "type": "iframe",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=c28c9581-2946-4b81-a453-e0b9cc51dcad"
+            }
+          ]
+        },
+        {
+          "phase": "cycle-10-fresh-ready",
+          "at": 44110.607986,
+          "active": [
+            {
+              "id": 33,
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            }
+          ],
+          "frames": [
+            {
+              "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/",
+              "parentURL": null
+            },
+            {
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=1893526a-8d2d-4d15-b3a8-cc10314a3427",
+              "parentURL": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/"
+            }
+          ],
+          "targets": [
+            {
+              "targetId": "BF46B6652F5DE27CE8E14AB691951EA5",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/vendor/chunks/fetch-worker.c813c32be403f91001ba.js"
+            },
+            {
+              "targetId": "E1F6EF983F250B2C92B24FB5E40B5AB4",
+              "type": "worker",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/loop-worker.js"
+            },
+            {
+              "targetId": "49377AE9D07309700B97985B1BDA854D",
+              "type": "page",
+              "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/"
+            },
+            {
+              "targetId": "0B5A3BC2527DEA8D8BE5B6B29D28EF1D",
+              "type": "iframe",
+              "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=1893526a-8d2d-4d15-b3a8-cc10314a3427"
+            }
+          ]
+        }
+      ],
+      "frameHistory": [
+        {
+          "event": "navigated",
+          "phase": "opening",
+          "url": "http://127.0.0.1:4193/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/",
+          "at": 12337.562041
+        },
+        {
+          "event": "attached",
+          "phase": "opening",
+          "url": "",
+          "at": 12691.556328
+        },
+        {
+          "event": "navigated",
+          "phase": "opening",
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=f1850cff-2d70-4303-a716-5d8140e4610c",
+          "at": 12719.015523
+        },
+        {
+          "event": "attached",
+          "phase": "cycle-1-run",
+          "url": "",
+          "at": 15203.275029
+        },
+        {
+          "event": "navigated",
+          "phase": "cycle-1-run",
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=ca2294ed-ea23-492b-8421-ac2b3fe6f01e",
+          "at": 15213.283822
+        },
+        {
+          "event": "detached",
+          "phase": "cycle-1-run",
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=f1850cff-2d70-4303-a716-5d8140e4610c",
+          "at": 15215.219021
+        },
+        {
+          "event": "attached",
+          "phase": "cycle-1-before-stop",
+          "url": "",
+          "at": 17746.770121
+        },
+        {
+          "event": "detached",
+          "phase": "cycle-1-before-stop",
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=ca2294ed-ea23-492b-8421-ac2b3fe6f01e",
+          "at": 17762.342392
+        },
+        {
+          "event": "navigated",
+          "phase": "cycle-1-before-stop",
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=082fd501-7c31-4b2f-aeb5-d3b8b05fb04e",
+          "at": 17766.158421
+        },
+        {
+          "event": "attached",
+          "phase": "cycle-2-run",
+          "url": "",
+          "at": 18817.46544
+        },
+        {
+          "event": "navigated",
+          "phase": "cycle-2-run",
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=e54a5d1a-f03b-4d62-bb15-69ae7ea375d1",
+          "at": 18831.371512
+        },
+        {
+          "event": "detached",
+          "phase": "cycle-2-run",
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=082fd501-7c31-4b2f-aeb5-d3b8b05fb04e",
+          "at": 18834.554269
+        },
+        {
+          "event": "attached",
+          "phase": "cycle-2-before-stop",
+          "url": "",
+          "at": 20661.879981
+        },
+        {
+          "event": "detached",
+          "phase": "cycle-2-before-stop",
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=e54a5d1a-f03b-4d62-bb15-69ae7ea375d1",
+          "at": 20677.107591
+        },
+        {
+          "event": "navigated",
+          "phase": "cycle-2-before-stop",
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=db8d4aae-481e-4349-b95d-420babd0d604",
+          "at": 20677.844946
+        },
+        {
+          "event": "attached",
+          "phase": "cycle-3-run",
+          "url": "",
+          "at": 21611.879572
+        },
+        {
+          "event": "detached",
+          "phase": "cycle-3-run",
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=db8d4aae-481e-4349-b95d-420babd0d604",
+          "at": 21625.279844
+        },
+        {
+          "event": "navigated",
+          "phase": "cycle-3-run",
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=110634c9-2924-44e9-84dc-1dbe270c91cd",
+          "at": 21628.27365
+        },
+        {
+          "event": "attached",
+          "phase": "cycle-3-before-stop",
+          "url": "",
+          "at": 23416.212244
+        },
+        {
+          "event": "navigated",
+          "phase": "cycle-3-before-stop",
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=75390126-e5dd-40fe-9a7d-48d3da24d412",
+          "at": 23429.675242
+        },
+        {
+          "event": "detached",
+          "phase": "cycle-3-before-stop",
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=110634c9-2924-44e9-84dc-1dbe270c91cd",
+          "at": 23434.25116
+        },
+        {
+          "event": "attached",
+          "phase": "cycle-4-run",
+          "url": "",
+          "at": 24533.909544
+        },
+        {
+          "event": "navigated",
+          "phase": "cycle-4-run",
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=099c2c7d-978d-42ff-a705-8dab69f47052",
+          "at": 24551.696711
+        },
+        {
+          "event": "detached",
+          "phase": "cycle-4-run",
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=75390126-e5dd-40fe-9a7d-48d3da24d412",
+          "at": 24561.498499
+        },
+        {
+          "event": "attached",
+          "phase": "cycle-4-before-stop",
+          "url": "",
+          "at": 25929.726151
+        },
+        {
+          "event": "navigated",
+          "phase": "cycle-4-before-stop",
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=d59e1ddb-8186-4ede-ad42-726708900e75",
+          "at": 25944.084346
+        },
+        {
+          "event": "detached",
+          "phase": "cycle-4-before-stop",
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=099c2c7d-978d-42ff-a705-8dab69f47052",
+          "at": 25945.219644
+        },
+        {
+          "event": "attached",
+          "phase": "cycle-5-run",
+          "url": "",
+          "at": 26948.482536
+        },
+        {
+          "event": "navigated",
+          "phase": "cycle-5-run",
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=8db906e0-291a-4d5b-b016-e3af836a9d8b",
+          "at": 26961.556565
+        },
+        {
+          "event": "detached",
+          "phase": "cycle-5-run",
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=d59e1ddb-8186-4ede-ad42-726708900e75",
+          "at": 26964.575157
+        },
+        {
+          "event": "attached",
+          "phase": "cycle-5-before-stop",
+          "url": "",
+          "at": 28777.289324
+        },
+        {
+          "event": "detached",
+          "phase": "cycle-5-before-stop",
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=8db906e0-291a-4d5b-b016-e3af836a9d8b",
+          "at": 28794.353855
+        },
+        {
+          "event": "navigated",
+          "phase": "cycle-5-before-stop",
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=6b8c6012-f258-46fa-ac0f-09d5931d31dd",
+          "at": 28796.563537
+        },
+        {
+          "event": "attached",
+          "phase": "cycle-6-run",
+          "url": "",
+          "at": 29749.362401
+        },
+        {
+          "event": "detached",
+          "phase": "cycle-6-run",
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=6b8c6012-f258-46fa-ac0f-09d5931d31dd",
+          "at": 29760.457437
+        },
+        {
+          "event": "navigated",
+          "phase": "cycle-6-run",
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=42fb478b-aedb-4a4a-be72-2be9d7eba60a",
+          "at": 29765.094668
+        },
+        {
+          "event": "attached",
+          "phase": "cycle-6-before-stop",
+          "url": "",
+          "at": 31580.347388
+        },
+        {
+          "event": "detached",
+          "phase": "cycle-6-before-stop",
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=42fb478b-aedb-4a4a-be72-2be9d7eba60a",
+          "at": 31593.046235
+        },
+        {
+          "event": "navigated",
+          "phase": "cycle-6-before-stop",
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=c72514d5-2142-4c17-a87d-15c280066277",
+          "at": 31596.379092
+        },
+        {
+          "event": "attached",
+          "phase": "cycle-7-run",
+          "url": "",
+          "at": 32735.924288
+        },
+        {
+          "event": "detached",
+          "phase": "cycle-7-run",
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=c72514d5-2142-4c17-a87d-15c280066277",
+          "at": 32755.258742
+        },
+        {
+          "event": "navigated",
+          "phase": "cycle-7-run",
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=9e3b27f0-0dfa-480a-a0ac-bbcee2c833d1",
+          "at": 32756.493405
+        },
+        {
+          "event": "attached",
+          "phase": "cycle-7-before-stop",
+          "url": "",
+          "at": 34527.312622
+        },
+        {
+          "event": "detached",
+          "phase": "cycle-7-before-stop",
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=9e3b27f0-0dfa-480a-a0ac-bbcee2c833d1",
+          "at": 34543.660486
+        },
+        {
+          "event": "navigated",
+          "phase": "cycle-7-before-stop",
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=447e72af-a005-44b5-8fe4-3a089e4ad372",
+          "at": 34546.750651
+        },
+        {
+          "event": "attached",
+          "phase": "cycle-8-run",
+          "url": "",
+          "at": 35527.520853
+        },
+        {
+          "event": "navigated",
+          "phase": "cycle-8-run",
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=918b7cfa-005e-40de-89d6-784828114489",
+          "at": 35545.918337
+        },
+        {
+          "event": "detached",
+          "phase": "cycle-8-run",
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=447e72af-a005-44b5-8fe4-3a089e4ad372",
+          "at": 35548.95353
+        },
+        {
+          "event": "attached",
+          "phase": "cycle-8-before-stop",
+          "url": "",
+          "at": 37433.927327
+        },
+        {
+          "event": "detached",
+          "phase": "cycle-8-before-stop",
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=918b7cfa-005e-40de-89d6-784828114489",
+          "at": 37448.89374
+        },
+        {
+          "event": "navigated",
+          "phase": "cycle-8-before-stop",
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=c2d5aee5-9d79-48d2-9bea-58d20a8f0141",
+          "at": 37452.546485
+        },
+        {
+          "event": "attached",
+          "phase": "cycle-9-run",
+          "url": "",
+          "at": 38447.218142
+        },
+        {
+          "event": "detached",
+          "phase": "cycle-9-run",
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=c2d5aee5-9d79-48d2-9bea-58d20a8f0141",
+          "at": 38462.81918
+        },
+        {
+          "event": "navigated",
+          "phase": "cycle-9-run",
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=1fa3fb6c-b076-461b-86ee-49f951232051",
+          "at": 38466.43191
+        },
+        {
+          "event": "attached",
+          "phase": "cycle-9-before-stop",
+          "url": "",
+          "at": 39844.009299
+        },
+        {
+          "event": "detached",
+          "phase": "cycle-9-before-stop",
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=1fa3fb6c-b076-461b-86ee-49f951232051",
+          "at": 39854.378736
+        },
+        {
+          "event": "navigated",
+          "phase": "cycle-9-before-stop",
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=adde69fd-c637-4dd4-8303-7f6bc61e6dae",
+          "at": 39858.884421
+        },
+        {
+          "event": "attached",
+          "phase": "cycle-10-run",
+          "url": "",
+          "at": 40797.30545
+        },
+        {
+          "event": "detached",
+          "phase": "cycle-10-run",
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=adde69fd-c637-4dd4-8303-7f6bc61e6dae",
+          "at": 40814.818925
+        },
+        {
+          "event": "navigated",
+          "phase": "cycle-10-run",
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=c28c9581-2946-4b81-a453-e0b9cc51dcad",
+          "at": 40819.239123
+        },
+        {
+          "event": "attached",
+          "phase": "cycle-10-before-stop",
+          "url": "",
+          "at": 43219.691119
+        },
+        {
+          "event": "detached",
+          "phase": "cycle-10-before-stop",
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=c28c9581-2946-4b81-a453-e0b9cc51dcad",
+          "at": 43242.447741
+        },
+        {
+          "event": "navigated",
+          "phase": "cycle-10-before-stop",
+          "url": "http://127.0.0.1:4194/releases/b29ff672ff1a5d5086b49c89b0b19425f84606bf4ce4ef26336a1544ab8259f8/?session=1893526a-8d2d-4d15-b3a8-cc10314a3427",
+          "at": 43245.29389
+        }
+      ],
+      "errors": [],
+      "initialHeap": {
+        "JSHeapUsedSize": 7923132,
+        "JSHeapTotalSize": 8527872,
+        "dom": {
+          "documents": 5,
+          "nodes": 5891,
+          "jsEventListeners": 464
+        }
+      },
+      "stopMs": {
+        "feedback": {
+          "samples": [
+            3.800000011920929,
+            5.4000000059604645,
+            4.200000017881393,
+            4,
+            6.0999999940395355,
+            3.300000011920929,
+            4.9000000059604645,
+            4.299999982118607,
+            4.5999999940395355,
+            3.800000011920929
+          ],
+          "median": 4.200000017881393,
+          "p95": 6.0999999940395355,
+          "max": 6.0999999940395355
+        },
+        "frameRemoved": {
+          "samples": [
+            9.5,
+            9.900000005960464,
+            11.700000017881393,
+            9.300000011920929,
+            10.099999994039536,
+            9.600000023841858,
+            8.699999988079071,
+            10.199999988079071,
+            8.5,
+            9
+          ],
+          "median": 9.5,
+          "p95": 11.700000017881393,
+          "max": 11.700000017881393
+        },
+        "freshRunnerReady": {
+          "samples": [
+            804.1999999880791,
+            732.6999999880791,
+            850.5,
+            788.4000000059605,
+            733.5,
+            780,
+            765.0999999940395,
+            782.1999999880791,
+            736.1999999880791,
+            815.8000000119209
+          ],
+          "median": 780,
+          "p95": 850.5,
+          "max": 850.5
+        }
+      },
+      "proposedBudgets": {
+        "feedbackMs": 100,
+        "forcedCancellationMs": 1000
+      },
+      "budgetObserved": {
+        "feedbackUnder100ms": true,
+        "oldFrameRemovedUnder1000ms": true
+      },
+      "memoryScope": "Shell CDP target post forced GC each cycle; target/isolate scope can include co-resident frame contexts. Does not include dedicated workers/native audio/GPU/RSS. Ten finite cycles do not prove absence of all leaks.",
+      "stopMethod": "Real Stop click capture timestamp; next rAF checks disabled Run and invalidated session. MutationObserver timestamps old iframe removal (upper bound for forced cancellation); ready measures new rendered runner ready, separately from cancellation.",
+      "resourceMethod": "Real WebAudio CDP context lifecycle on old iframe, Playwright dedicated-worker object identity and close events, detached frame, one fresh runner, zero fresh VM threads, no fresh audio context. Every worker active before Stop must close, including old storage fetch worker. Fresh runner workers must equal the observed bootstrap baseline exactly: one new Scratch Storage fetch-worker, zero loop/compiler workers. Worker/frame histories and CDP targets are recorded; no growth is allowed across ten cycles. Audio signal observed before each Stop; loop worker every cycle; PXT compiler worker in cycles 1 and 10."
+    },
+    "sprites": {
+      "recordedAt": "2026-10-22T18:56:45.316Z",
+      "samples": [
+        {
+          "spriteCount": 100,
+          "nativeTargetCount": 100,
+          "frames": 126,
+          "durationMs": 2002.699999988079,
+          "completedDrawsPerSecond": 62.915064663079846,
+          "frameIntervalMs": {
+            "median": 16,
+            "p95": 18.900000005960464,
+            "max": 23.19999998807907
+          },
+          "drawMs": {
+            "median": 0.5,
+            "p95": 1,
+            "max": 3.800000011920929
+          },
+          "gpu": {
+            "vendor": "Google Inc. (Google)",
+            "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+          },
+          "method": "Native Scratch VM timer; 1 original + 99 native clones; reposition 100 targets before each scheduled renderer.draw; gl.finish confirms WebGL completion. This is draw throughput, not display compositor FPS or arbitrary-script throughput."
+        },
+        {
+          "spriteCount": 100,
+          "nativeTargetCount": 100,
+          "frames": 125,
+          "durationMs": 2000.2999999821186,
+          "completedDrawsPerSecond": 62.49062640659772,
+          "frameIntervalMs": {
+            "median": 16,
+            "p95": 19.80000001192093,
+            "max": 23
+          },
+          "drawMs": {
+            "median": 0.5,
+            "p95": 0.7000000178813934,
+            "max": 0.9000000059604645
+          },
+          "gpu": {
+            "vendor": "Google Inc. (Google)",
+            "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+          },
+          "method": "Native Scratch VM timer; 1 original + 99 native clones; reposition 100 targets before each scheduled renderer.draw; gl.finish confirms WebGL completion. This is draw throughput, not display compositor FPS or arbitrary-script throughput."
+        },
+        {
+          "spriteCount": 100,
+          "nativeTargetCount": 100,
+          "frames": 125,
+          "durationMs": 2000.0999999940395,
+          "completedDrawsPerSecond": 62.49687515642843,
+          "frameIntervalMs": {
+            "median": 16,
+            "p95": 19.900000005960464,
+            "max": 24
+          },
+          "drawMs": {
+            "median": 0.5,
+            "p95": 0.699999988079071,
+            "max": 0.800000011920929
+          },
+          "gpu": {
+            "vendor": "Google Inc. (Google)",
+            "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+          },
+          "method": "Native Scratch VM timer; 1 original + 99 native clones; reposition 100 targets before each scheduled renderer.draw; gl.finish confirms WebGL completion. This is draw throughput, not display compositor FPS or arbitrary-script throughput."
+        }
+      ],
+      "completedDrawsPerSecond": {
+        "samples": [
+          62.915064663079846,
+          62.49062640659772,
+          62.49687515642843
+        ],
+        "median": 62.49687515642843,
+        "p95": 62.915064663079846,
+        "max": 62.915064663079846
+      },
+      "proposedSchoolBudgetFps": 30,
+      "localSamplesMeet30Fps": true,
+      "schoolHardwareValidated": false,
+      "schoolPerformanceGate": "pending; WSL headless software WebGL is not the agreed school hardware profile. Do not treat this smoke benchmark as acceptance of the school >=30 FPS requirement."
+    },
+    "event-latency": {
+      "recordedAt": "2026-10-22T18:56:50.460Z",
+      "eventToObservedStateMs": {
+        "samples": [
+          53.6107370000027,
+          60.05154799999582,
+          89.2146320000029,
+          53.27531799999997,
+          53.53872900000715,
+          53.39040099999693,
+          52.975266000001284,
+          67.82349799999793,
+          64.13270600000396,
+          57.39258799999516
+        ],
+        "median": 53.6107370000027,
+        "p95": 89.2146320000029,
+        "max": 89.2146320000029
+      },
+      "method": "Node monotonic timestamp before real Playwright Space key input to native stage; shell snapshot RPC polling at nominal 10ms until x changes by 7. Includes automation, scheduler, MessagePort and observation overhead; upper-bound end-to-end observation, not display latency or internal VM-only time.",
+      "schoolHardwareValidated": false
+    }
+  },
+  "reproducibility": {
+    "independentRebuild": {
+      "schemaVersion": 1,
+      "recordedAt": "2026-10-22T19:01:02.193Z",
+      "sourceArchiveSha256": "82ac64f8d74b36e134b07f991829addb219ebfa1f7e0dc004b112be70b4e72b7",
+      "toolchain": {
+        "node": "v22.23.4",
+        "platform": "linux",
+        "arch": "x64"
+      },
+      "method": "Two independent extracted source directories; pinned installed dependencies reused as hard-linked files in distinct package trees. Native SVG/render and all browser build stages rebuilt. No npm installation, clean C/WASM/C++ rebuild, cold machine or offline dependency installation claim.",
+      "samePayloads": true,
+      "sameCohort": true,
+      "sameDistributedPayload": true,
+      "distributedDifferences": [],
+      "sameManifest": true
+    },
+    "frozenHarnessRefresh": {
+      "schemaVersion": 1,
+      "recordedAt": "2026-10-22T19:23:43.854Z",
+      "mode": "harness",
+      "sourceArchiveSha256": "b549b0d4f9e753f685f53d258bfb9a749e1127f51d587fa400fd7d08ed7156b1",
+      "sourceArchiveBytes": 16143820,
+      "sourceEntries": 6843,
+      "method": "Verified allowlisted harness delta applied to both independently extracted and previously fully rebuilt source trees. Incremental browser build in both trees; payload/cohort/manifest compared to current distribution. Shared pinned installed dependency files as in original proof; no fresh dependency installation or native C/WASM rebuild claim.",
+      "changes": [
+        {
+          "label": "source-a",
+          "delta": [
+            "workspace/guategeeks-code-studio/tests/browser/project-persistence.spec.mjs"
+          ]
+        },
+        {
+          "label": "source-b",
+          "delta": [
+            "workspace/guategeeks-code-studio/tests/browser/project-persistence.spec.mjs"
+          ]
+        }
+      ],
+      "samePayloads": true,
+      "sameCohort": true,
+      "sameManifest": true
+    }
+  }
+}

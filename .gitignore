@@ -1,0 +1,9 @@
+node_modules/
+.codegraph/
+.cache/
+artifacts/
+test-results/
+playwright-report/
+.impeccable/review/
+*.log
+.codex/config.toml

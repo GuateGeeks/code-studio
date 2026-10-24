@@ -1,0 +1,153 @@
+{
+  "change": "studio-educational-activities",
+  "date": "2026-10-22",
+  "timeZone": "America/Guatemala",
+  "environment": {
+    "node": "v22.23.4",
+    "platform": "linux",
+    "architecture": "x64",
+    "browser": "Pinned Playwright Chromium on Linux/WSL"
+  },
+  "gate": {
+    "profile": "full",
+    "selection": "full",
+    "startedAt": "2026-10-23T03:33:22.389Z",
+    "steps": [
+      {
+        "name": "integration",
+        "startedAt": "2026-10-23T03:33:22.389Z",
+        "durationMs": 11644.782372999998,
+        "exitCode": 0
+      },
+      {
+        "name": "tools",
+        "startedAt": "2026-10-23T03:33:34.035Z",
+        "durationMs": 17627.179820999998,
+        "exitCode": 0
+      },
+      {
+        "name": "build",
+        "startedAt": "2026-10-23T03:33:51.663Z",
+        "durationMs": 3551.0067259999996,
+        "exitCode": 0
+      },
+      {
+        "name": "smoke",
+        "startedAt": "2026-10-23T03:33:55.214Z",
+        "durationMs": 24337.602534000005,
+        "exitCode": 0
+      },
+      {
+        "name": "browser",
+        "startedAt": "2026-10-23T03:34:19.551Z",
+        "durationMs": 1574475.565799,
+        "exitCode": 0
+      },
+      {
+        "name": "specs",
+        "startedAt": "2026-10-23T04:00:34.028Z",
+        "durationMs": 605.6489750000183,
+        "exitCode": 0
+      },
+      {
+        "name": "upstream-preservation",
+        "startedAt": "2026-10-23T04:00:34.633Z",
+        "durationMs": 159.43741900008172,
+        "exitCode": 0
+      }
+    ],
+    "baselineWritten": true,
+    "exitCode": 0,
+    "finishedAt": "2026-10-23T04:00:40.186Z"
+  },
+  "node": {
+    "tests": 400,
+    "pass": 400,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "tools": {
+    "tests": 63,
+    "pass": 63,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "browser": {
+    "startTime": "2026-10-23T03:34:20.064Z",
+    "duration": 1573866.14,
+    "expected": 144,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "smoke": {
+    "startTime": "2026-10-23T03:33:55.770Z",
+    "duration": 23762.976,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "runtimeSources": {
+    "files": 142,
+    "sha256": "6cb689904ad723958c415cf3d174cc320dbbc82fa788f77a62de43d2774ef277",
+    "matchApprovedFull": true
+  },
+  "upstream": [
+    {
+      "repository": "raspberrypi-blockly",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    },
+    {
+      "repository": "xcratch-scratch-editor",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    },
+    {
+      "repository": "pxt-microbit",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    }
+  ],
+  "offline": {
+    "evidence": "artifacts/offline-second-visit.json",
+    "coldBrowserAndSixServersStopped": true,
+    "educationalActivity": {
+      "mode": "variant",
+      "checkedStepIds": [
+        "story-variant"
+      ],
+      "hintsRevealed": 1,
+      "position": 80
+    }
+  },
+  "snapshots": {
+    "before": "artifacts/e3-baseline/manifest.json",
+    "changes": "artifacts/e3-changes.json"
+  },
+  "validationLimits": {
+    "teacherReview": false,
+    "studentUnderstandingObserved": false,
+    "humanScreenReader": false,
+    "classroomPilot": false,
+    "physicalBoard": false,
+    "physicalMobileDevices": false
+  },
+  "otherReports": [
+    "artifacts/e3-model-node.tap",
+    "artifacts/e3-quick-final.log",
+    "artifacts/e3-focal.json",
+    "artifacts/e3-final-focal.json",
+    "artifacts/e3-accessible-hints.json",
+    "artifacts/e3-codegraph-query.json",
+    "artifacts/e3-codegraph-sync.json"
+  ]
+}

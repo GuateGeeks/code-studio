@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="es">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GuateGeeks · Laboratorio de integración</title><link rel="icon" href="data:,"><link rel="stylesheet" href="/style.css"><script defer src="/editor.bundle.js"></script><script type="module" src="/shell.js"></script></head>
+<body>
+<header><strong>GuateGeeks <span>Code Studio</span></strong><span>Fase 1 · Proyectos locales</span></header>
+<main>
+<section class="project-files" aria-labelledby="project-heading">
+<div class="bar"><h2 id="project-heading">Tu proyecto</h2><output id="project-status" aria-live="polite">Buscando una copia local…</output></div>
+<div class="project-actions"><div class="project-name"><label for="project-name">Nombre del proyecto</label><input id="project-name" value="Mi proyecto" maxlength="80" autocomplete="off"></div><button id="save-project" disabled>Descargar proyecto</button><div class="project-open"><label for="open-project">Abrir archivo GGPROJ</label><input id="open-project" type="file" accept=".ggproj,application/zip" disabled></div></div>
+<p>Los cambios se guardan en este navegador. Descarga el archivo para llevar tu proyecto a otro equipo.</p>
+<output id="recovery-notice" aria-live="polite"></output>
+<output id="project-error" role="alert"></output>
+<button id="save-new-copy" hidden>Guardar este proyecto como copia nueva</button>
+</section>
+<section class="authoring" aria-labelledby="editor-heading">
+<div class="bar"><h1 id="editor-heading">Programa 2D</h1><output id="editor-status" aria-live="polite">Preparando bloques…</output></div>
+<div id="blockly-editor" aria-label="Editor Blockly"></div>
+<div class="controls"><button id="run-editor" disabled>Ejecutar bloques</button><button id="stop">Detener y reiniciar</button><button id="restore-editor">Restaurar ejemplo</button></div>
+<output id="editor-error" role="alert"></output>
+<p>Edita los pasos del movimiento y ejecuta tus bloques. El receptor <strong>boost</strong> usa el valor actual de <strong>score</strong>.</p>
+<section class="scene-inspector" aria-labelledby="inspector-heading">
+<div class="bar"><h2 id="inspector-heading">Inspector</h2><output id="inspector-status" aria-live="polite">Sin lectura</output></div>
+<div class="inspection-actions"><div><label for="inspector-object">Objeto a inspeccionar</label><select id="inspector-object"><option value="hero">hero · Sprite</option><option value="scene">Escena 2D</option></select></div><button id="refresh-inspector">Actualizar lectura</button></div>
+<details><summary>Estado inicial del proyecto</summary><dl id="inspector-initial"></dl></details>
+<h3>Última lectura de ejecución</h3><dl id="inspector-runtime"></dl>
+<h3>Variables locales de hero</h3><ul id="inspector-variables"></ul>
+<p>La lectura no cambia tu proyecto. Actualiza para consultar los valores después de un evento.</p>
+</section>
+<section class="code-console" aria-label="Código y diagnósticos">
+<div class="generated-panel"><div class="bar"><h2 id="generated-heading">Código generado</h2><output id="generated-status" aria-live="polite">Preparando…</output></div>
+<p id="generated-help">IR 2D · Listado educativo no ejecutable. Se actualiza desde tus bloques; la ejecución usa la IR validada.</p>
+<label for="generated-code">Lectura del programa 2D</label><textarea id="generated-code" readonly spellcheck="false" aria-describedby="generated-help" wrap="off"></textarea></div>
+<div class="console-panel" aria-labelledby="console-heading"><div class="bar"><h2 id="console-heading">Consola</h2><button id="clear-console" disabled>Limpiar consola</button></div>
+<output id="console-summary" aria-live="polite" aria-atomic="true">Sin mensajes</output><p>Máximo 100 mensajes. Los enlaces apuntan a los bloques de la autoría ejecutada.</p>
+<ol id="console-entries" aria-label="Mensajes de consola" tabindex="0"></ol><output id="console-selection" aria-live="polite"></output></div>
+</section>
+</section>
+<section class="scene" aria-labelledby="scene-heading">
+<div class="bar"><h2 id="scene-heading">Escenario</h2><output id="status" aria-live="polite">Preparando…</output></div>
+<div class="scene-transport"><label for="fixture">Ejemplos del corpus</label><select id="fixture"><option value="repeat">Tres movimientos</option><option value="events">Espera, teclado y clic</option><option value="messages">Enviar mensaje y esperar</option><option value="clones">Crear y eliminar clon</option><option value="variables">Contador y decisiones</option><option value="audio">Sonido y espera</option><option value="audioStop">Detener sonidos</option></select><button id="run" disabled>Ejecutar</button></div>
+<p id="scene-help">Al iniciar → repetir 3 veces → mover 5 pasos</p>
+<div id="runner-slot"></div>
+<div class="controls"><output id="position">x = 0</output></div>
+<fieldset class="gg-controls"><legend>Control de la escena con GG</legend>
+<button id="gg-move">Mover +10</button>
+<label for="gg-score">Valor de score</label><input id="gg-score" type="number" value="4" min="-1000000" max="1000000"><button id="gg-set">Aplicar variable</button><button id="gg-emit">Enviar boost</button><button id="gg-read">Consultar escena</button>
+<output id="gg-result" aria-live="polite">Ejecuta los bloques para probar el control externo.</output>
+</fieldset>
+</section>
+<section class="code"><h2>micro:bit</h2><label for="source">Programa de dispositivo</label><textarea id="source" spellcheck="false">basic.showIcon(IconNames.Heart)</textarea><div class="controls"><button id="simulate" disabled>Ver simulador</button><button id="compile" disabled>Compilar firmware</button></div><output id="compile-result" aria-live="polite">Compilador bajo demanda</output><p>El firmware generado requiere una prueba en placa.</p></section>
+</main>
+</body></html>

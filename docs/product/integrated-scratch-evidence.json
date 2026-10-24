@@ -1,0 +1,159 @@
+{
+  "change": "studio-integrated-scratch-workspace",
+  "date": "2026-10-23",
+  "timeZone": "America/Guatemala",
+  "scope": "Scratch importado integrado: original y cobertura de solo lectura, transporte común, resultado y consulta Original y copia; 3D/web conservan sus recorridos",
+  "environment": {
+    "node": "v22.23.4",
+    "platform": "linux",
+    "architecture": "x64",
+    "browser": "Pinned Playwright Chromium on Linux/WSL"
+  },
+  "gate": {
+    "profile": "full",
+    "selection": "full",
+    "startedAt": "2026-10-23T18:11:26.684Z",
+    "steps": [
+      {
+        "name": "integration",
+        "startedAt": "2026-10-23T18:11:26.684Z",
+        "durationMs": 11486.357213,
+        "exitCode": 0
+      },
+      {
+        "name": "tools",
+        "startedAt": "2026-10-23T18:11:38.171Z",
+        "durationMs": 16463.579299999998,
+        "exitCode": 0
+      },
+      {
+        "name": "build",
+        "startedAt": "2026-10-23T18:11:54.635Z",
+        "durationMs": 17353.282855,
+        "exitCode": 0
+      },
+      {
+        "name": "smoke",
+        "startedAt": "2026-10-23T18:12:11.988Z",
+        "durationMs": 27703.242441000002,
+        "exitCode": 0
+      },
+      {
+        "name": "browser",
+        "startedAt": "2026-10-23T18:12:39.691Z",
+        "durationMs": 1888316.795882,
+        "exitCode": 0
+      },
+      {
+        "name": "specs",
+        "startedAt": "2026-10-23T18:44:08.009Z",
+        "durationMs": 586.2133740000427,
+        "exitCode": 0
+      },
+      {
+        "name": "upstream-preservation",
+        "startedAt": "2026-10-23T18:44:08.596Z",
+        "durationMs": 173.26184100005776,
+        "exitCode": 0
+      }
+    ],
+    "baselineWritten": true,
+    "exitCode": 0,
+    "finishedAt": "2026-10-23T18:44:13.972Z"
+  },
+  "node": {
+    "tests": 400,
+    "pass": 400,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "tools": {
+    "tests": 63,
+    "pass": 63,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "browser": {
+    "startTime": "2026-10-23T18:12:40.287Z",
+    "duration": 1887404.684,
+    "expected": 157,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "smoke": {
+    "startTime": "2026-10-23T18:12:12.553Z",
+    "duration": 27118.553,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "runtimeSources": {
+    "files": 142,
+    "sha256": "6791821a7307f60c12e8e6fec1c6c15ff49df73621ccf2163d7ad554155a339c",
+    "matchApprovedFull": true
+  },
+  "upstream": [
+    {
+      "repository": "raspberrypi-blockly",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    },
+    {
+      "repository": "xcratch-scratch-editor",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    },
+    {
+      "repository": "pxt-microbit",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    }
+  ],
+  "offline": {
+    "evidence": "artifacts/offline-second-visit.json",
+    "coldBrowserAndSixServersStopped": true,
+    "educationalActivity": {
+      "mode": "variant",
+      "checkedStepIds": [
+        "story-variant"
+      ],
+      "hintsRevealed": 1,
+      "position": 80
+    }
+  },
+  "snapshots": {
+    "before": "artifacts/e4sb-baseline/manifest.json",
+    "changes": "artifacts/e4sb-changes.json",
+    "approvedMicrobitGate": "artifacts/e4mb-approved-gate"
+  },
+  "design": {
+    "review": "artifacts/e4sb-finish-review.md",
+    "detector": "artifacts/e4sb-detector.json",
+    "documentation": "artifacts/e4sb-documentation.md"
+  },
+  "validationLimits": {
+    "teacherReview": false,
+    "studentUnderstandingObserved": false,
+    "humanScreenReader": false,
+    "classroomPilot": false,
+    "physicalBoard": false,
+    "physicalMobileDevices": false
+  },
+  "reports": [
+    "artifacts/e4sb-quick.log",
+    "artifacts/e4sb-focal.log",
+    "artifacts/e4sb-affected.log",
+    "artifacts/e4sb-full.log",
+    "artifacts/e4sb-codegraph-before.json",
+    "artifacts/e4sb-codegraph-sync.log"
+  ]
+}

@@ -1,0 +1,212 @@
+{
+  "change": "studio-integrated-web-workspace",
+  "date": "2026-10-23",
+  "timeZone": "America/Guatemala",
+  "scope": "Espacio integrado web: bloques o documento independiente, transporte común, resultado interactivo aislado, componentes iniciales y código/exportación; se preservan las integraciones anteriores",
+  "environment": {
+    "node": "v22.23.4",
+    "platform": "linux",
+    "architecture": "x64",
+    "browser": "Pinned Playwright Chromium on Linux/WSL"
+  },
+  "gate": {
+    "profile": "full",
+    "selection": "full",
+    "startedAt": "2026-10-23T22:14:51.092Z",
+    "steps": [
+      {
+        "name": "integration",
+        "startedAt": "2026-10-23T22:14:51.092Z",
+        "durationMs": 11979.518680999998,
+        "exitCode": 0
+      },
+      {
+        "name": "tools",
+        "startedAt": "2026-10-23T22:15:03.073Z",
+        "durationMs": 16857.701497,
+        "exitCode": 0
+      },
+      {
+        "name": "build",
+        "startedAt": "2026-10-23T22:15:19.930Z",
+        "durationMs": 15767.298718999999,
+        "exitCode": 0
+      },
+      {
+        "name": "smoke",
+        "startedAt": "2026-10-23T22:15:35.698Z",
+        "durationMs": 25221.346344999998,
+        "exitCode": 0
+      },
+      {
+        "name": "browser",
+        "startedAt": "2026-10-23T22:16:00.919Z",
+        "durationMs": 2006074.861264,
+        "exitCode": 0
+      },
+      {
+        "name": "specs",
+        "startedAt": "2026-10-23T22:49:26.995Z",
+        "durationMs": 601.056939000031,
+        "exitCode": 0
+      },
+      {
+        "name": "upstream-preservation",
+        "startedAt": "2026-10-23T22:49:27.596Z",
+        "durationMs": 284.0502400000114,
+        "exitCode": 0
+      }
+    ],
+    "baselineWritten": true,
+    "exitCode": 0,
+    "finishedAt": "2026-10-23T22:49:32.967Z"
+  },
+  "node": {
+    "tests": 400,
+    "pass": 400,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "tools": {
+    "tests": 63,
+    "pass": 63,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "browser": {
+    "startTime": "2026-10-23T22:16:01.537Z",
+    "duration": 2005394.616,
+    "expected": 165,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "smoke": {
+    "startTime": "2026-10-23T22:15:36.230Z",
+    "duration": 24665.823,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "affected": {
+    "gate": {
+      "profile": "affected",
+      "selection": "affected",
+      "startedAt": "2026-10-23T22:02:54.153Z",
+      "steps": [
+        {
+          "name": "integration",
+          "startedAt": "2026-10-23T22:02:54.153Z",
+          "durationMs": 12061.271139,
+          "exitCode": 0
+        },
+        {
+          "name": "tools",
+          "startedAt": "2026-10-23T22:03:06.215Z",
+          "durationMs": 17611.792824,
+          "exitCode": 0
+        },
+        {
+          "name": "build",
+          "startedAt": "2026-10-23T22:03:23.827Z",
+          "durationMs": 15614.735638000002,
+          "exitCode": 0
+        },
+        {
+          "name": "browser",
+          "startedAt": "2026-10-23T22:03:39.442Z",
+          "durationMs": 654152.313149,
+          "exitCode": 0
+        },
+        {
+          "name": "specs",
+          "startedAt": "2026-10-23T22:14:33.594Z",
+          "durationMs": 491.32104100007564,
+          "exitCode": 0
+        }
+      ],
+      "baselineWritten": false,
+      "exitCode": 0,
+      "finishedAt": "2026-10-23T22:14:34.085Z"
+    },
+    "browser": {
+      "startTime": "2026-10-23T22:03:39.974Z",
+      "duration": 653589.7999999999,
+      "expected": 46,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    }
+  },
+  "runtimeSources": {
+    "files": 142,
+    "sha256": "217ee33ef3205b6a5f8a2917cc0c891ffc4da5b1bc004b8330629322d82d4c95",
+    "matchApprovedFull": true
+  },
+  "upstream": [
+    {
+      "repository": "raspberrypi-blockly",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    },
+    {
+      "repository": "xcratch-scratch-editor",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    },
+    {
+      "repository": "pxt-microbit",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    }
+  ],
+  "offline": {
+    "evidence": "artifacts/offline-second-visit.json",
+    "coldBrowserAndSixServersStopped": true,
+    "educationalActivity": {
+      "mode": "variant",
+      "checkedStepIds": [
+        "story-variant"
+      ],
+      "hintsRevealed": 1,
+      "position": 80
+    }
+  },
+  "snapshots": {
+    "before": "artifacts/e4web-baseline/manifest.json",
+    "changes": "artifacts/e4web-changes.json",
+    "approved3DGate": "artifacts/e4web-approved-3d-gate"
+  },
+  "design": {
+    "review": "artifacts/e4web-finish-review.md",
+    "verdict": "artifacts/e4web-finish-verdict.md",
+    "verdictScope": "One documentation fix scored resolved; software gate separate",
+    "detector": "artifacts/e4web-detector.json",
+    "documentation": "artifacts/e4web-documentation.md"
+  },
+  "validationLimits": {
+    "teacherReview": false,
+    "studentUnderstandingObserved": false,
+    "humanScreenReader": false,
+    "classroomPilot": false,
+    "physicalBoard": false,
+    "physicalMobileDevices": false
+  },
+  "reports": [
+    "artifacts/e4web-quick.log",
+    "artifacts/e4web-focal-attempt1.log",
+    "artifacts/e4web-focal-final.log",
+    "artifacts/e4web-affected.log",
+    "artifacts/e4web-full.log",
+    "artifacts/e4web-codegraph-before.json",
+    "artifacts/e4web-codegraph-sync.log"
+  ]
+}

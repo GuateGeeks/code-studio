@@ -1,0 +1,127 @@
+# Pruebas por impacto y build incremental
+
+**22 de octubre de 2026 · Flujo de desarrollo de GuateGeeks Code Studio.**
+
+Durante la edición se busca feedback corto del área modificada. Al consolidar un cambio se conserva una puerta completa. Los perfiles rápidos informan su alcance y no sustituyen esa puerta. La [entrega F1](../phase-1/RESULTS.md) conserva su corrida histórica de 44 Node y 33 E2E; sus tiempos no se presentan como mediciones de estas herramientas nuevas.
+
+## Comandos
+
+Desde Ubuntu/WSL, dentro del producto, con dependencias y target preparados según [README](../../README.md):
+
+```bash
+source ../scripts/env.sh
+npm run test:quick
+npm run test:affected -- --files src/project-format.mjs --list
+npm run test:affected -- --files src/project-format.mjs
+npm run test:full
+```
+
+| Perfil | Comprobación | Uso |
+|---|---|---|
+| `test:quick` | Node, pruebas de herramientas, build incremental y tres smoke Chromium | Feedback general breve durante edición |
+| `test:affected` | Plan por impacto; Node/herramientas para código y E2E del área | Verificación del cambio concreto |
+| `test:full` | Node/herramientas, build incremental, tres smoke previos y después la regresión funcional completa del inventario tests/browser (incluye inspector y lenguajes), OpenSpec y preservación upstream | Puerta completa antes de cerrar |
+| Affected solo documental | Validación OpenSpec, sin build ni Chromium | Prosa y especificaciones |
+| Affected sin cambios detectados | Plan vacío explicado, sin ejecutar pruebas | Confirmar que sigue vigente la referencia completa |
+
+`--list` y `--dry-run` imprimen y guardan el plan sin ejecutar build ni pruebas. `--files` se admite en affected y declara explícitamente las rutas que quieres evaluar; no significa que se hayan detectado automáticamente todos los cambios del checkout. Admite rutas relativas al producto, absolutas WSL y UNC del workspace Ubuntu. Los argumentos desconocidos y rutas fuera de los roots admitidos fallan; los nombres de archivo no se interpretan como comandos de shell.
+
+Para inspeccionar la selección sin esperar E2E:
+
+```bash
+npm run test:affected -- --files src/autosave-store.mjs --dry-run
+npm run test:affected -- --files spikes/browser/shell/style.css --list
+npm run test:affected -- --files docs/phase-1/GGPROJ.md --list
+npm run test:affected -- --files package-lock.json --list
+```
+
+## Reglas de impacto
+
+| Cambio | Selección conservadora |
+|---|---|
+| Formato/archivo/autosave y controlador de proyecto | Persistencia GGPROJ y recuperación |
+| HTML/CSS del shell | Persistencia, bindings, audio, inspector, código/consola y lenguajes; incluye clic real y móvil |
+| Editor Blockly, IR o traducción Scratch | Corpus 2D y persistencia relacionados |
+| Bindings/cliente GG | Bindings y persistencia |
+| Worker PXT o simulador | Compilación y simulación micro:bit |
+| Documentos/target textual/protocolo de lenguajes | Intérpretes reales, persistencia textual, diagnósticos y Stop |
+| Archivo de prueba | Su suite, con ampliación si también cambian fuentes compartidas |
+| Runner/protocolo, servidor, build/selector, configuración, dependencias o upstream | Full |
+| Ruta de código desconocida | Full |
+| Solo documentación/especificaciones | Validación de especificaciones |
+
+Las selecciones se unen cuando cambian varias áreas; el mayor alcance requerido prevalece. El plan muestra los motivos y comandos resultantes. Agregar una ruta nueva sin una regla no permite omitir pruebas: amplía la cobertura. Las reglas son mantenidas y verificadas mediante pruebas de herramientas; el mapa de CodeGraph complementa el análisis de fronteras, no sustituye la política conservadora.
+
+## Referencia automática
+
+Sin `--files`, affected compara contenido contra `artifacts/test-runs/baseline.json`, generado por el último full exitoso. El inventario incluye archivos nuevos y eliminados y no requiere HEAD ni commits previos. La primera ejecución, una referencia inválida o una configuración de referencia incompatible obligan a cobertura completa.
+
+Solo full puede avanzar esa referencia, después de que todas sus comprobaciones finalizan con éxito. Quick/affected y un full fallido la conservan. Si el contenido cambia durante la corrida, no se certifican esas modificaciones posteriores mediante una referencia nueva. La herramienta vuelve a detectar el cambio pendiente. El inventario excluye dependencias generales, reportes, cachés y productos generados, pero incluye explícitamente los artefactos consumidos relevantes: bundles y recursos PXT, renderer, Scratch Storage con sus chunks y fuentes instaladas de audio/SVG, además de los locks. Un cambio de esos recursos instalados amplía la selección a full.
+
+Esto permite trabajar con el checkout actual todavía sin commits. Git sigue siendo útil para revisión y versionado, pero no es una condición para que la selección detecte cambios reales. Una lista explícita `--files` es una ayuda de desarrollo; al cerrar se usa full para cubrir el conjunto.
+
+## Build incremental
+
+```bash
+npm run browser:build
+npm run browser:build -- --force
+npm run test:full -- --force-build
+```
+
+El build separa sincronización estática, fixtures/catálogo, recursos PXT, packs de lenguajes y compilación de VM, audio, editor y QuickJS/parser. Cada etapa compara contenido de entradas y dependencias transitivas, configuración/locks/toolchain relevantes y salidas generadas. Una etapa se reutiliza solo si sus salidas siguen presentes y conservan hashes. La antigüedad del archivo o el commit por sí solos no bastan.
+
+Una edición HTML/CSS actualiza las copias estáticas sin reconstruir VM/audio/editor no afectados. Cambios del editor/IR, motores o paquetes invalidan sus etapas. Chunks, medios Blockly y recursos PXT también son salidas verificadas. Si desaparece o se corrompe una salida, se reconstruye; una etapa fallida no se registra como reutilizable. Las eliminaciones retiran solo las copias conocidas dentro del output generado.
+
+`--force` omite reutilización para recuperar o comparar el build. `--force-build` transmite esa intención desde los perfiles. El reporte `artifacts/browser/build-report.json` identifica qué se ejecutó/reutilizó, motivos y tiempos. Los metadatos de caché son locales; no forman parte del proyecto del alumno ni sustituyen los artefactos reproducibles.
+
+## Reportes y evidencia
+
+| Artefacto | Alcance |
+|---|---|
+| `artifacts/test-runs/<perfil>-plan.json` | Archivos, motivos y comandos seleccionados |
+| `artifacts/test-runs/<perfil>-results.json` | Resultado y duración del perfil ejecutado |
+| `artifacts/test-runs/<perfil>-integration.tap` | Node del perfil |
+| `artifacts/test-runs/<perfil>-tools.tap` | Pruebas de selección/caché |
+| `artifacts/test-runs/quick-browser.json` | Smoke Chromium |
+| `artifacts/test-runs/full-smoke-browser.json` | Tres smoke previos a la regresión full; si fallan, no se lanza la suite larga |
+| Reporte propio affected | E2E seleccionados; separado de la regresión completa |
+| `artifacts/browser-results.json` | Regresión funcional completa de full |
+| `artifacts/test-runs/baseline.json` | Referencia de impacto después de full exitoso |
+| `artifacts/browser/build-report.json` | Etapas y medición incremental |
+
+El corte de código/consola amplía full a 42 casos E2E en dos reportes: tres smoke y 39 de regresión (incluidos seis casos nuevos). Las cifras 36/33 de la entrega del flujo de herramientas son históricas. Los reportes quick/affected no sobreescriben el resultado full. Ningún perfil regenera automáticamente `docs/phase-0/browser-evidence.json` o `docs/phase-1/browser-evidence.json`: esos documentos identifican entregas históricas con su propia receta y conteos. Una ejecución exitosa parcial se mantiene identificada como parcial.
+
+## Estrategia de trabajo
+
+1. Consultar el plan affected cuando el alcance no sea obvio.
+2. Durante una corrección, ejecutar primero la prueba que la reproduce y el grupo afectado.
+3. Al cambiar HTML/CSS, verificar controles reales y móvil además de la apariencia.
+4. Ejecutar full una vez al consolidar fuentes estables. Si falla, reproducir el caso concreto y el grupo afectado antes de repetir full.
+5. Después de una puerta aprobada, repetir suites amplias solo por cambios nuevos, fallos o inquietudes concretas pendientes. La prosa posterior requiere validación de especificaciones.
+
+Las mediciones de rendimiento y ciclos prolongados permanecen separadas de otras suites simultáneas. El flujo no aumenta workers por defecto para audio ni cambia expectativas, timeouts o reintentos para obtener un aprobado. No promete una aceleración numérica hasta medir no-op, cambios representativos y perfiles completos en el entorno registrado.
+
+## Validación de este cambio
+
+La consolidación aprobó 44 Node, 23 pruebas de herramientas, tres smoke y 33 regresiones E2E. Los [resultados y mediciones](TEST-WORKFLOW-RESULTS.md) y la [evidencia estable](test-workflow-evidence.json) registran selección, reutilización/invalidez, reportes aislados y referencia de impacto. Son mediciones nuevas y no se infieren de los tiempos históricos de F1.
+
+
+## F5: recursos y Scratch
+
+El build añade una etapa webpack-assets con Pako2.1.0 fijado y copias locales shell/runner. El corpus propio de20SB3 identifica cobertura, SHA, licencia y comportamiento. Las pruebas de recursos incluyen píxeles PNG y muestras WAV reales, copia completa IR→Blockly, exportación desde autoría inicial y preservación del original. Compatibilidad VM y editabilidad son resultados distintos.
+
+La segunda visita fría también importa/decodifica un SB3 con PNG mediante el worker preparado, ejecuta, exporta/reabre GGPROJ y vuelve a ejecutar sin HTTP. Los reportes de pruebas focales conservan su alcance; los conteos consolidados se registran en docs/phase-5/RESULTS.md.
+
+## F3: prueba offline con cierre real
+
+La regresión incluye packs/lecciones y una prueba offline con perfil Chromium persistente y servidor propio en4177–4180. No ocupa los puertos normales4173–4176, manuales4183–4186 ni rendimiento4193–4196. La prueba cierra todos los procesos que ella crea, reinicia Chromium y verifica que los cuatro servidores estén apagados antes de la segunda visita. Los snapshots y copias de build de prueba quedan en artifacts; no modifica fuentes para fabricar la actualización.
+
+## Pruebas F7 de zoom y distribución
+
+El recorrido de zoom usa Chromium completo del paquete Playwright (channel chromium), no sólo chromium-headless-shell. Prepararlo con npx playwright install chromium. La extensión MV3 propia tests/fixtures/browser-zoom se carga únicamente en perfiles temporales de prueba con permisos localhost; no se instala en el perfil del usuario ni forma parte del runtime/exportación. Se comprueban chrome.tabs.setZoom/getZoom a 200/400 %, sin sustituir zoom por DPR o CSS.
+
+Las pruebas nuevas viven en accessibility-runner, accessibility-shell y accessibility-zoom. La exportación comprueba también las seis piezas de fuente/avisos en las cuatro combinaciones 3D/web × JavaScript/Python. Ejecutar casos concretos antes de ampliar a grupos.
+
+La medida local F7 usa npx playwright test --config=playwright.release-performance.config.mjs y escribe artifacts/f7-performance-*.json. No ejecutar el publicador histórico F0 para documentar F7. Medir sin otras cargas de navegador/build concurrentes; los heaps por target y los draws WebGL no equivalen a RAM total o rendimiento escolar.
+
+La reproducción manual usa node tools/release/reproduce.mjs [NUEVA_CARPETA]. Restaura dos árboles de fuente y reutiliza las dependencias instaladas mediante hardlinks en directorios distintos, recompila SVG/render y el producto y compara payload/cohort con iguales orígenes. Rechaza destinos existentes y rutas locales emitidas. No demuestra instalación desconectada de dependencias ni recompilación nativa C++/WASM.

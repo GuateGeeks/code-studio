@@ -1,0 +1,428 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-24T00:32:28.242Z",
+  "title": "Design System: GuateGeeks Code Studio",
+  "extensions": {
+    "colorMeta": {
+      "ink": {
+        "role": "neutral",
+        "displayName": "Tinta",
+        "canonical": "#263c37",
+        "tonalRamp": [
+          "oklch(15.00% 0.02922 178.61)",
+          "oklch(26.43% 0.02922 178.61)",
+          "oklch(37.86% 0.02922 178.61)",
+          "oklch(49.29% 0.02922 178.61)",
+          "oklch(60.71% 0.02922 178.61)",
+          "oklch(72.14% 0.02922 178.61)",
+          "oklch(83.57% 0.02922 178.61)",
+          "oklch(95.00% 0.02922 178.61)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Texto secundario",
+        "canonical": "#4d6658",
+        "tonalRamp": [
+          "oklch(15.00% 0.03729 160.10)",
+          "oklch(26.43% 0.03729 160.10)",
+          "oklch(37.86% 0.03729 160.10)",
+          "oklch(49.29% 0.03729 160.10)",
+          "oklch(60.71% 0.03729 160.10)",
+          "oklch(72.14% 0.03729 160.10)",
+          "oklch(83.57% 0.03729 160.10)",
+          "oklch(95.00% 0.03729 160.10)"
+        ]
+      },
+      "action": {
+        "role": "primary",
+        "displayName": "Verde de acción",
+        "canonical": "#236146",
+        "tonalRamp": [
+          "oklch(15.00% 0.07823 161.74)",
+          "oklch(26.43% 0.07823 161.74)",
+          "oklch(37.86% 0.07823 161.74)",
+          "oklch(49.29% 0.07823 161.74)",
+          "oklch(60.71% 0.07823 161.74)",
+          "oklch(72.14% 0.07823 161.74)",
+          "oklch(83.57% 0.07823 161.74)",
+          "oklch(95.00% 0.07823 161.74)"
+        ]
+      },
+      "action-strong": {
+        "role": "primary",
+        "displayName": "Verde de acción intenso",
+        "canonical": "#1b4e38",
+        "tonalRamp": [
+          "oklch(15.00% 0.06672 162.04)",
+          "oklch(26.43% 0.06672 162.04)",
+          "oklch(37.86% 0.06672 162.04)",
+          "oklch(49.29% 0.06672 162.04)",
+          "oklch(60.71% 0.06672 162.04)",
+          "oklch(72.14% 0.06672 162.04)",
+          "oklch(83.57% 0.06672 162.04)",
+          "oklch(95.00% 0.06672 162.04)"
+        ]
+      },
+      "on-action": {
+        "role": "neutral",
+        "displayName": "Texto sobre acción",
+        "canonical": "#fff",
+        "tonalRamp": [
+          "oklch(15.00% 0.00000 89.88)",
+          "oklch(26.43% 0.00000 89.88)",
+          "oklch(37.86% 0.00000 89.88)",
+          "oklch(49.29% 0.00000 89.88)",
+          "oklch(60.71% 0.00000 89.88)",
+          "oklch(72.14% 0.00000 89.88)",
+          "oklch(83.57% 0.00000 89.88)",
+          "oklch(95.00% 0.00000 89.88)"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Superficie",
+        "canonical": "#fff",
+        "tonalRamp": [
+          "oklch(15.00% 0.00000 89.88)",
+          "oklch(26.43% 0.00000 89.88)",
+          "oklch(37.86% 0.00000 89.88)",
+          "oklch(49.29% 0.00000 89.88)",
+          "oklch(60.71% 0.00000 89.88)",
+          "oklch(72.14% 0.00000 89.88)",
+          "oklch(83.57% 0.00000 89.88)",
+          "oklch(95.00% 0.00000 89.88)"
+        ]
+      },
+      "ground": {
+        "role": "neutral",
+        "displayName": "Fondo de página",
+        "canonical": "#f2f5f2",
+        "tonalRamp": [
+          "oklch(15.00% 0.00507 145.54)",
+          "oklch(26.43% 0.00507 145.54)",
+          "oklch(37.86% 0.00507 145.54)",
+          "oklch(49.29% 0.00507 145.54)",
+          "oklch(60.71% 0.00507 145.54)",
+          "oklch(72.14% 0.00507 145.54)",
+          "oklch(83.57% 0.00507 145.54)",
+          "oklch(95.00% 0.00507 145.54)"
+        ]
+      },
+      "toolbar": {
+        "role": "neutral",
+        "displayName": "Barra de transporte y pestañas",
+        "canonical": "#e5eee7",
+        "tonalRamp": [
+          "oklch(15.00% 0.01334 152.60)",
+          "oklch(26.43% 0.01334 152.60)",
+          "oklch(37.86% 0.01334 152.60)",
+          "oklch(49.29% 0.01334 152.60)",
+          "oklch(60.71% 0.01334 152.60)",
+          "oklch(72.14% 0.01334 152.60)",
+          "oklch(83.57% 0.01334 152.60)",
+          "oklch(95.00% 0.01334 152.60)"
+        ]
+      },
+      "selected": {
+        "role": "neutral",
+        "displayName": "Hover de pestaña",
+        "canonical": "#d5e6da",
+        "tonalRamp": [
+          "oklch(15.00% 0.02424 155.12)",
+          "oklch(26.43% 0.02424 155.12)",
+          "oklch(37.86% 0.02424 155.12)",
+          "oklch(49.29% 0.02424 155.12)",
+          "oklch(60.71% 0.02424 155.12)",
+          "oklch(72.14% 0.02424 155.12)",
+          "oklch(83.57% 0.02424 155.12)",
+          "oklch(95.00% 0.02424 155.12)"
+        ]
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "Borde de control",
+        "canonical": "#c6d4cb",
+        "tonalRamp": [
+          "oklch(15.00% 0.01950 157.81)",
+          "oklch(26.43% 0.01950 157.81)",
+          "oklch(37.86% 0.01950 157.81)",
+          "oklch(49.29% 0.01950 157.81)",
+          "oklch(60.71% 0.01950 157.81)",
+          "oklch(72.14% 0.01950 157.81)",
+          "oklch(83.57% 0.01950 157.81)",
+          "oklch(95.00% 0.01950 157.81)"
+        ]
+      },
+      "divider": {
+        "role": "neutral",
+        "displayName": "Divisor",
+        "canonical": "#dce4df",
+        "tonalRamp": [
+          "oklch(15.00% 0.01088 158.83)",
+          "oklch(26.43% 0.01088 158.83)",
+          "oklch(37.86% 0.01088 158.83)",
+          "oklch(49.29% 0.01088 158.83)",
+          "oklch(60.71% 0.01088 158.83)",
+          "oklch(72.14% 0.01088 158.83)",
+          "oklch(83.57% 0.01088 158.83)",
+          "oklch(95.00% 0.01088 158.83)"
+        ]
+      },
+      "focus": {
+        "role": "accent",
+        "displayName": "Coral de foco",
+        "canonical": "#bc4935",
+        "tonalRamp": [
+          "oklch(15.00% 0.15266 32.03)",
+          "oklch(26.43% 0.15266 32.03)",
+          "oklch(37.86% 0.15266 32.03)",
+          "oklch(49.29% 0.15266 32.03)",
+          "oklch(60.71% 0.15266 32.03)",
+          "oklch(72.14% 0.15266 32.03)",
+          "oklch(83.57% 0.15266 32.03)",
+          "oklch(95.00% 0.15266 32.03)"
+        ]
+      },
+      "error": {
+        "role": "semantic",
+        "displayName": "Error",
+        "canonical": "#9f3127",
+        "tonalRamp": [
+          "oklch(15.00% 0.14727 28.93)",
+          "oklch(26.43% 0.14727 28.93)",
+          "oklch(37.86% 0.14727 28.93)",
+          "oklch(49.29% 0.14727 28.93)",
+          "oklch(60.71% 0.14727 28.93)",
+          "oklch(72.14% 0.14727 28.93)",
+          "oklch(83.57% 0.14727 28.93)",
+          "oklch(95.00% 0.14727 28.93)"
+        ]
+      },
+      "error-surface": {
+        "role": "semantic",
+        "displayName": "Fondo de validación",
+        "canonical": "#fbefed",
+        "tonalRamp": [
+          "oklch(15.00% 0.01329 28.87)",
+          "oklch(26.43% 0.01329 28.87)",
+          "oklch(37.86% 0.01329 28.87)",
+          "oklch(49.29% 0.01329 28.87)",
+          "oklch(60.71% 0.01329 28.87)",
+          "oklch(72.14% 0.01329 28.87)",
+          "oklch(83.57% 0.01329 28.87)",
+          "oklch(95.00% 0.01329 28.87)"
+        ]
+      },
+      "note-surface": {
+        "role": "neutral",
+        "displayName": "Fondo de nota",
+        "canonical": "#eef5f0",
+        "tonalRamp": [
+          "oklch(15.00% 0.00992 155.10)",
+          "oklch(26.43% 0.00992 155.10)",
+          "oklch(37.86% 0.00992 155.10)",
+          "oklch(49.29% 0.00992 155.10)",
+          "oklch(60.71% 0.00992 155.10)",
+          "oklch(72.14% 0.00992 155.10)",
+          "oklch(83.57% 0.00992 155.10)",
+          "oklch(95.00% 0.00992 155.10)"
+        ]
+      },
+      "derived-surface": {
+        "role": "neutral",
+        "displayName": "Fondo de solo lectura",
+        "canonical": "#f4f6f5",
+        "tonalRamp": [
+          "oklch(15.00% 0.00250 165.08)",
+          "oklch(26.43% 0.00250 165.08)",
+          "oklch(37.86% 0.00250 165.08)",
+          "oklch(49.29% 0.00250 165.08)",
+          "oklch(60.71% 0.00250 165.08)",
+          "oklch(72.14% 0.00250 165.08)",
+          "oklch(83.57% 0.00250 165.08)",
+          "oklch(95.00% 0.00250 165.08)"
+        ]
+      },
+      "selection": {
+        "role": "accent",
+        "displayName": "Selección de texto",
+        "canonical": "#f8c3b6",
+        "tonalRamp": [
+          "oklch(15.00% 0.06373 34.13)",
+          "oklch(26.43% 0.06373 34.13)",
+          "oklch(37.86% 0.06373 34.13)",
+          "oklch(49.29% 0.06373 34.13)",
+          "oklch(60.71% 0.06373 34.13)",
+          "oklch(72.14% 0.06373 34.13)",
+          "oklch(83.57% 0.06373 34.13)",
+          "oklch(95.00% 0.06373 34.13)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "title": {
+        "displayName": "Título",
+        "purpose": "Título del programa en la barra de autoría."
+      },
+      "section": {
+        "displayName": "Sección",
+        "purpose": "Títulos de paneles de consulta."
+      },
+      "body": {
+        "displayName": "Cuerpo",
+        "purpose": "Lectura y guías hasta 75ch."
+      },
+      "label": {
+        "displayName": "Etiqueta",
+        "purpose": "Etiquetas, botones y estados."
+      },
+      "meta": {
+        "displayName": "Meta",
+        "purpose": "Solo detalle técnico."
+      },
+      "code": {
+        "displayName": "Código",
+        "purpose": "Documentos, código derivado y rutas técnicas."
+      }
+    },
+    "shadows": [
+      {
+        "name": "menu",
+        "value": "0 10px 28px rgb(38 60 55 / .24)",
+        "purpose": "Única elevación: menús desplegables de la cabecera."
+      }
+    ],
+    "motion": [
+      {
+        "name": "duration-fast",
+        "value": "120ms",
+        "purpose": "Hover y cambios de estado de controles."
+      },
+      {
+        "name": "duration-panel",
+        "value": "200ms",
+        "purpose": "Máximo para paneles; nada supera 300ms."
+      },
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(.2, .8, .2, 1)",
+        "purpose": "Entradas; con movimiento reducido no hay transición."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "station",
+        "value": "1024px × 640px",
+        "purpose": "Desde aquí: dos columnas sin desplazamiento global."
+      },
+      {
+        "name": "narrow",
+        "value": "600px"
+      },
+      {
+        "name": "tiny",
+        "value": "360px"
+      }
+    ],
+    "focusRing": "3px solid #bc4935, offset 2px"
+  },
+  "components": [
+    {
+      "name": "Ejecutar",
+      "kind": "button",
+      "refersTo": "button-run",
+      "description": "Ejecuta la autoría seleccionada; nombra su objeto.",
+      "html": "<button class=\"ds-run\"><svg viewBox=\"0 0 16 16\" width=\"14\" height=\"14\" aria-hidden=\"true\"><path fill=\"currentColor\" d=\"M4.5 2.6v10.8a.6.6 0 0 0 .9.5l8.4-5.4a.6.6 0 0 0 0-1L5.4 2.1a.6.6 0 0 0-.9.5z\"/></svg>Ejecutar bloques</button>",
+      "css": ".ds-run { font: 600 13px/1.3 system-ui, sans-serif; min-height: 44px; padding: 8px 16px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; background: #236146; color: #fff; border: 1px solid #236146; transition: background-color 120ms cubic-bezier(.2,.8,.2,1); } .ds-run:hover { background: #1b4e38; } .ds-run:focus-visible { outline: 3px solid #bc4935; outline-offset: 2px; }"
+    },
+    {
+      "name": "Detener",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Única detención del resultado activo; conserva la autoría.",
+      "html": "<button class=\"ds-stop\"><svg viewBox=\"0 0 16 16\" width=\"14\" height=\"14\" aria-hidden=\"true\"><rect fill=\"currentColor\" x=\"3.5\" y=\"3.5\" width=\"9\" height=\"9\" rx=\"1.5\"/></svg>Detener</button>",
+      "css": ".ds-stop { font: 600 13px/1.3 system-ui, sans-serif; min-height: 44px; padding: 8px 16px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; background: #fff; color: #263c37; border: 1px solid #c6d4cb; } .ds-stop:hover { background: #e5eee7; } .ds-stop:focus-visible { outline: 3px solid #bc4935; outline-offset: 2px; }"
+    },
+    {
+      "name": "Modo del programa",
+      "kind": "custom",
+      "refersTo": "mode-switch-selected",
+      "description": "Radios nativos Bloques · JavaScript · Python presentados como segmentos.",
+      "html": "<fieldset class=\"ds-mode\"><legend>Programa</legend><label class=\"on\"><input type=\"radio\" name=\"m\" checked>Bloques</label><label><input type=\"radio\" name=\"m\">JavaScript</label><label><input type=\"radio\" name=\"m\">Python</label></fieldset>",
+      "css": ".ds-mode { border: 0; padding: 0; display: flex; align-items: center; gap: 0; font: 600 13px system-ui, sans-serif; color: #263c37; } .ds-mode legend { float: left; margin-right: 8px; } .ds-mode label { position: relative; padding: 8px 12px; border: 1px solid #c6d4cb; background: #fff; margin-left: -1px; } .ds-mode label:first-of-type { border-radius: 6px 0 0 6px; } .ds-mode label:last-of-type { border-radius: 0 6px 6px 0; } .ds-mode input { position: absolute; inset: 0; opacity: 0; margin: 0; } .ds-mode label.on, .ds-mode label:has(input:checked) { background: #236146; color: #fff; border-color: #236146; z-index: 1; } .ds-mode label:has(input:focus-visible) { outline: 3px solid #bc4935; outline-offset: 2px; z-index: 2; }"
+    },
+    {
+      "name": "Pestañas de consulta",
+      "kind": "nav",
+      "refersTo": "consultation-tab-selected",
+      "description": "tablist real sobre paneles montados; selección recordada por contexto.",
+      "html": "<div class=\"ds-tabs\" role=\"tablist\"><button role=\"tab\" aria-selected=\"false\">Propiedades</button><button role=\"tab\" aria-selected=\"true\">Código</button><button role=\"tab\" aria-selected=\"false\">Ayuda</button></div>",
+      "css": ".ds-tabs { display: flex; background: #e5eee7; border-bottom: 1px solid #c6d4cb; } .ds-tabs [role=tab] { font: 600 13px system-ui, sans-serif; min-height: 44px; padding: 6px 9px; border: 0; border-bottom: 3px solid transparent; background: transparent; color: #263c37; cursor: pointer; } .ds-tabs [role=tab]:hover { background: #d5e6da; } .ds-tabs [aria-selected=true] { background: #fff; color: #236146; border-bottom-color: #236146; } .ds-tabs [role=tab]:focus-visible { outline: 3px solid #bc4935; outline-offset: -3px; }"
+    },
+    {
+      "name": "Nota educativa",
+      "kind": "custom",
+      "refersTo": "note",
+      "description": "Resultado de otro contexto, cambios sin ejecutar, destino de actividad o documento independiente.",
+      "html": "<div class=\"ds-note\"><p>Cambiaste el programa después de ejecutarlo. El resultado muestra la versión anterior.</p><button>Ejecutar con tus cambios</button></div>",
+      "css": ".ds-note { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 8px 12px; border: 1px solid #c6d4cb; border-radius: 6px; background: #eef5f0; color: #263c37; font: 13px/1.5 system-ui, sans-serif; } .ds-note p { margin: 0; flex: 1 1 220px; } .ds-note button { font: 600 13px system-ui; min-height: 36px; padding: 4px 12px; border: 1px solid #c6d4cb; border-radius: 6px; background: #fff; }"
+    },
+    {
+      "name": "Validación junto al formulario",
+      "kind": "custom",
+      "refersTo": "form-feedback",
+      "description": "Causa, siguiente paso y detalle técnico; el borrador sigue editable.",
+      "html": "<div class=\"ds-feedback\" role=\"alert\"><strong>Ya existe otro componente con el identificador «web-form».</strong><p>Escribe un identificador distinto, por ejemplo «web-form-2», y vuelve a aplicar.</p><details><summary>Detalle técnico</summary><p>GG capability: identificador duplicado</p></details></div>",
+      "css": ".ds-feedback { padding: 8px 12px; border: 1px solid #9f3127; border-radius: 6px; background: #fbefed; color: #263c37; font: 13px/1.5 system-ui, sans-serif; } .ds-feedback strong { display: block; color: #9f3127; } .ds-feedback p { margin: 4px 0; } .ds-feedback details { font-size: 12px; }"
+    },
+    {
+      "name": "Campo de proyecto",
+      "kind": "input",
+      "refersTo": "app-bar",
+      "description": "Nombre del proyecto en la cabecera verde.",
+      "html": "<div class=\"ds-bar\"><label for=\"ds-name\">Nombre del proyecto</label><input id=\"ds-name\" value=\"Mi proyecto\"><span>Guardado en este navegador</span></div>",
+      "css": ".ds-bar { display: flex; align-items: center; gap: 8px; padding: 6px 16px; background: #236146; color: #fff; font: 13px system-ui, sans-serif; } .ds-bar label { font-weight: 600; } .ds-bar input { font: 14px system-ui; min-height: 36px; padding: 4px 8px; border: 1px solid transparent; border-radius: 6px; } .ds-bar input:focus-visible { outline: 3px solid #bc4935; outline-offset: 2px; } .ds-bar span { color: #e5eee7; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Estación de creación acompañada",
+    "overview": "Estación educativa en modo Operate para principiantes acompañados por un docente, en la familia de Scratch y MakeCode sin heredar su marca. Programa a la izquierda; transporte, resultado y consulta a la derecha. Identidad existente refinada; no es una marca institucional aprobada.",
+    "keyCharacteristics": [
+      "Programa y resultado juntos a 1280×720",
+      "Una ejecución nombrada y una única detención",
+      "Editando… y Resultado de… siempre visibles",
+      "Español educativo con detalle técnico disponible",
+      "Superficies planas y foco coral"
+    ],
+    "rules": [
+      {
+        "name": "The Estado legible Rule",
+        "body": "Un estado se comunica con texto accesible; el color lo acompaña.",
+        "section": "colors"
+      },
+      {
+        "name": "The Derived Rule",
+        "body": "Código derivado y campos de solo lectura usan derived-surface; un documento independiente lo dice con texto.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Stop Rule",
+        "body": "Detener está junto al resultado y actúa sobre cualquier ejecución activa sin borrar autoría.",
+        "section": "components"
+      }
+    ],
+    "dos": [
+      "Do nombrar la autoría que se ejecutará y el origen del resultado.",
+      "Do mantener una sola instancia de cada editor, documento y detención.",
+      "Do conservar foco visible y enlaces directos al reducir el espacio.",
+      "Do medir el canvas dentro del resultado."
+    ],
+    "donts": [
+      "Don't ejecutar al navegar, consultar, cambiar de modo, importar o reabrir.",
+      "Don't prometer sincronización bloques↔texto.",
+      "Don't usar glifos Unicode como iconos, bordes laterales gruesos ni tarjetas anidadas.",
+      "Don't presentar esta dirección como marca oficial."
+    ]
+  }
+}

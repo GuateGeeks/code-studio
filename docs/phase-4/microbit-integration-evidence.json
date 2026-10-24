@@ -1,0 +1,192 @@
+{
+  "cut": "phase-4-microbit-integration",
+  "recordedAt": "2026-10-22T14:06:37.909296+00:00",
+  "full": {
+    "profile": "full",
+    "selection": "full",
+    "startedAt": "2026-10-22T13:52:04.962Z",
+    "steps": [
+      {
+        "name": "integration",
+        "startedAt": "2026-10-22T13:52:04.962Z",
+        "durationMs": 4328.873383,
+        "exitCode": 0
+      },
+      {
+        "name": "tools",
+        "startedAt": "2026-10-22T13:52:09.292Z",
+        "durationMs": 4188.374232,
+        "exitCode": 0
+      },
+      {
+        "name": "build",
+        "startedAt": "2026-10-22T13:52:13.481Z",
+        "durationMs": 634.0707180000009,
+        "exitCode": 0
+      },
+      {
+        "name": "smoke",
+        "startedAt": "2026-10-22T13:52:14.115Z",
+        "durationMs": 18428.09951,
+        "exitCode": 0
+      },
+      {
+        "name": "browser",
+        "startedAt": "2026-10-22T13:52:32.543Z",
+        "durationMs": 779506.2773859999,
+        "exitCode": 0
+      },
+      {
+        "name": "specs",
+        "startedAt": "2026-10-22T14:05:32.049Z",
+        "durationMs": 353.8637050000252,
+        "exitCode": 0
+      },
+      {
+        "name": "upstream-preservation",
+        "startedAt": "2026-10-22T14:05:32.403Z",
+        "durationMs": 94.83844199997839,
+        "exitCode": 0
+      }
+    ],
+    "baselineWritten": true,
+    "exitCode": 0,
+    "finishedAt": "2026-10-22T14:05:33.361Z"
+  },
+  "counts": {
+    "node": 221,
+    "tools": 38,
+    "smoke": 3,
+    "regression": 88,
+    "e2eTotal": 91
+  },
+  "browserStats": {
+    "startTime": "2026-10-22T13:52:33.065Z",
+    "duration": 778951.0399999999,
+    "expected": 88,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "smokeStats": {
+    "startTime": "2026-10-22T13:52:14.623Z",
+    "duration": 17902.588000000003,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "build": {
+    "recordedAt": "2026-10-22T13:52:14.095Z",
+    "forced": false,
+    "totalMs": 581.37801,
+    "stages": [
+      {
+        "name": "static-sync",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 37.130897000000004,
+        "inputsCount": 105,
+        "outputsCount": 366
+      },
+      {
+        "name": "language-assets",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 32.90802099999999,
+        "inputsCount": 14,
+        "outputsCount": 6
+      },
+      {
+        "name": "fixtures",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 43.95771300000001,
+        "inputsCount": 1107,
+        "outputsCount": 6
+      },
+      {
+        "name": "pxt-pack",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 25.548541,
+        "inputsCount": 15,
+        "outputsCount": 8
+      },
+      {
+        "name": "renderer-storage",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 12.090505000000007,
+        "inputsCount": 12,
+        "outputsCount": 6
+      },
+      {
+        "name": "webpack-vm",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 142.608326,
+        "inputsCount": 3561,
+        "outputsCount": 1
+      },
+      {
+        "name": "webpack-audio",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 76.262518,
+        "inputsCount": 2683,
+        "outputsCount": 1
+      },
+      {
+        "name": "webpack-editor",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 17.269316000000003,
+        "inputsCount": 562,
+        "outputsCount": 1
+      },
+      {
+        "name": "webpack-language",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 74.91403200000002,
+        "inputsCount": 2671,
+        "outputsCount": 6
+      },
+      {
+        "name": "webpack-device-transfer",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 70.24228599999998,
+        "inputsCount": 2685,
+        "outputsCount": 2
+      }
+    ]
+  },
+  "preservation": [
+    {
+      "repository": "raspberrypi-blockly",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    },
+    {
+      "repository": "xcratch-scratch-editor",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    },
+    {
+      "repository": "pxt-microbit",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    }
+  ],
+  "pendingExternal": [
+    "physical autonomous microbit V1/V2",
+    "human screenreader evaluation",
+    "school-device budgets and teacher pilot"
+  ],
+  "artifactDirectory": "artifacts/cuts/phase-4-microbit-integration"
+}

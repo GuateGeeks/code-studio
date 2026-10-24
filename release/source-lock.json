@@ -1,0 +1,223 @@
+{
+  "schemaVersion": 1,
+  "toolchain": {
+    "node": "v22.23.4",
+    "npm": "10.9.9"
+  },
+  "repositories": [
+    {
+      "id": "xcratch",
+      "root": "xcratch-scratch-editor",
+      "origin": "https://github.com/xcratch/scratch-editor",
+      "revision": "cb153ab6611bdb6ca872b52099c5d34709a4410b",
+      "version": "12.3.1",
+      "treeSha256": "7571b5d46510ae962e57429c9513c8f0548a51f7ccf416222cc942274c80054d"
+    },
+    {
+      "id": "microbit",
+      "root": "pxt-microbit",
+      "origin": "https://github.com/microsoft/pxt-microbit",
+      "revision": "f71ff5743537fa52b9156712969be2c226ce8d71",
+      "version": "9.1.1",
+      "treeSha256": "042e2679aa38c1a73e5b596a30eb7cb17e3342ae10a89b09bf604449efb2889f"
+    },
+    {
+      "id": "pxt-core",
+      "root": ".tools/pxt-core-source",
+      "origin": "https://github.com/microsoft/pxt",
+      "revision": "af4bcc89fd2114b6ec232860ce0458cb9aa0dd28",
+      "version": "13.0.1",
+      "treeSha256": "58caad3fe9e64ee0b3ad452f6363c48c49cc4aefee271a07fb1b0e341927612d"
+    }
+  ],
+  "originalPxtArchive": {
+    "origin": "https://codeload.github.com/microsoft/pxt/tar.gz/af4bcc89fd2114b6ec232860ce0458cb9aa0dd28",
+    "sha256": "5cc386dc2c9a9a62e0ee85b656196d48db97ffaf99d23dc22399eeac49d27b35",
+    "bytes": 212823269
+  },
+  "patch": {
+    "path": "release/patches/pxt-microbit-prior.patch",
+    "bytes": 55134,
+    "sha256": "b0e4ad5313c8ba45035f365043c76a6395345a3b07034ffefbc5714ff0bb2df0"
+  },
+  "prebuilts": [
+    {
+      "source": "pxt-microbit/built/target.json",
+      "path": "workspace/pxt-microbit/built/target.json",
+      "bytes": 3564542,
+      "sha256": "993f04e92e412b8328ac4022bc09cc1c457d95a65e486300037ecd9e8908b399",
+      "origin": "https://github.com/microsoft/pxt-microbit",
+      "recipe": "workspace/guategeeks-code-studio/docs/release/BUILD.md",
+      "limitation": "Pinned precompiled input; verify before packaging."
+    },
+    {
+      "source": "pxt-microbit/built/compiler.js",
+      "path": "workspace/pxt-microbit/built/compiler.js",
+      "bytes": 5597,
+      "sha256": "be9af26759448c021b01e028fffba5aeba55d24ae472dc7afc68eb444b015e97",
+      "origin": "https://github.com/microsoft/pxt-microbit",
+      "recipe": "workspace/guategeeks-code-studio/docs/release/BUILD.md",
+      "limitation": "Pinned precompiled input; verify before packaging."
+    },
+    {
+      "source": "pxt-microbit/built/common-sim.js",
+      "path": "workspace/pxt-microbit/built/common-sim.js",
+      "bytes": 264825,
+      "sha256": "9d6437b40a164dd08f73890c0901dbd60bcabbaaf56aef1d16cddf93e4ac9eeb",
+      "origin": "https://github.com/microsoft/pxt-microbit",
+      "recipe": "workspace/guategeeks-code-studio/docs/release/BUILD.md",
+      "limitation": "Pinned precompiled input; verify before packaging."
+    },
+    {
+      "source": "pxt-microbit/built/sim.js",
+      "path": "workspace/pxt-microbit/built/sim.js",
+      "bytes": 296703,
+      "sha256": "91f5557855d3594280d323fb086341e2622b297f87f5a65c5991c6b69ba924fc",
+      "origin": "https://github.com/microsoft/pxt-microbit",
+      "recipe": "workspace/guategeeks-code-studio/docs/release/BUILD.md",
+      "limitation": "Pinned precompiled input; verify before packaging."
+    },
+    {
+      "source": "pxt-microbit/built/hexcache/354b97da4696027afdaa3977420ec181bfc88a2faa2d2c0174842767718551e7.hex",
+      "path": "workspace/pxt-microbit/built/hexcache/354b97da4696027afdaa3977420ec181bfc88a2faa2d2c0174842767718551e7.hex",
+      "bytes": 868118,
+      "sha256": "648fece987592f8530ec321b91c562c93379d2a59e2e601374629417c8f35ef1",
+      "origin": "https://github.com/microsoft/pxt-microbit",
+      "recipe": "workspace/guategeeks-code-studio/docs/release/BUILD.md",
+      "limitation": "Verified native cache; no fresh C++ rebuild claim."
+    },
+    {
+      "source": "pxt-microbit/built/hexcache/4cc31a5b0ac4adb3d5f3ad2b5b0b6910e433f8916877817a868a9fac43374baf.hex",
+      "path": "workspace/pxt-microbit/built/hexcache/4cc31a5b0ac4adb3d5f3ad2b5b0b6910e433f8916877817a868a9fac43374baf.hex",
+      "bytes": 639500,
+      "sha256": "72b52b93ac20d0d7e2e54873333cb9da374a4bb2a9a280315e96a24bdc35bea0",
+      "origin": "https://github.com/microsoft/pxt-microbit",
+      "recipe": "workspace/guategeeks-code-studio/docs/release/BUILD.md",
+      "limitation": "Verified native cache; no fresh C++ rebuild claim."
+    },
+    {
+      "source": "pxt-microbit/built/hexcache/8b83cd59cf0f3a3492a7dae238295225690d07132e61396c74a600de815e5dc2.hex",
+      "path": "workspace/pxt-microbit/built/hexcache/8b83cd59cf0f3a3492a7dae238295225690d07132e61396c74a600de815e5dc2.hex",
+      "bytes": 894562,
+      "sha256": "a5c187b6772222173376ca5ce42e003c59f21563c95ce12fe2b4eb13984313d8",
+      "origin": "https://github.com/microsoft/pxt-microbit",
+      "recipe": "workspace/guategeeks-code-studio/docs/release/BUILD.md",
+      "limitation": "Verified native cache; no fresh C++ rebuild claim."
+    },
+    {
+      "source": "pxt-microbit/built/hexcache/949fbd03bf2de1d4bf409bb1e68613a9d8745ca0bbafef44aa472a60ef9c0f73.hex",
+      "path": "workspace/pxt-microbit/built/hexcache/949fbd03bf2de1d4bf409bb1e68613a9d8745ca0bbafef44aa472a60ef9c0f73.hex",
+      "bytes": 616224,
+      "sha256": "bb04445c25e8c1cba8d291de1c646fa22608276673625aedc6941787a73245c0",
+      "origin": "https://github.com/microsoft/pxt-microbit",
+      "recipe": "workspace/guategeeks-code-studio/docs/release/BUILD.md",
+      "limitation": "Verified native cache; no fresh C++ rebuild claim."
+    },
+    {
+      "source": "pxt-microbit/node_modules/pxt-core/built/web/typescript.js",
+      "path": "workspace/prebuilt/pxt-core/built/web/typescript.js",
+      "bytes": 1548990,
+      "sha256": "556939b102e5c420fad2eb7d0692dcaf9682a437511ef2e990674e6aaa0695ab",
+      "origin": "https://github.com/microsoft/pxt-microbit",
+      "recipe": "workspace/guategeeks-code-studio/docs/release/BUILD.md",
+      "limitation": "Pinned precompiled input; verify before packaging."
+    },
+    {
+      "source": "pxt-microbit/node_modules/pxt-core/built/web/pxtworker.js",
+      "path": "workspace/prebuilt/pxt-core/built/web/pxtworker.js",
+      "bytes": 2482200,
+      "sha256": "ce88b5f45f212b2a0eb9371e35a40e436dfe9e1b0957e74f20e9a39708aa1b4e",
+      "origin": "https://github.com/microsoft/pxt-microbit",
+      "recipe": "workspace/guategeeks-code-studio/docs/release/BUILD.md",
+      "limitation": "Pinned precompiled input; verify before packaging."
+    },
+    {
+      "source": "pxt-microbit/node_modules/pxt-core/built/web/pxtsim.js",
+      "path": "workspace/prebuilt/pxt-core/built/web/pxtsim.js",
+      "bytes": 210381,
+      "sha256": "566938713d8405705ac13b0b1e6e5ffb500b9a71aefe9b6a28649fbfdccf63c3",
+      "origin": "https://github.com/microsoft/pxt-microbit",
+      "recipe": "workspace/guategeeks-code-studio/docs/release/BUILD.md",
+      "limitation": "Pinned precompiled input; verify before packaging."
+    },
+    {
+      "source": "pxt-microbit/node_modules/lzma/src/lzma_worker.js",
+      "path": "workspace/prebuilt/lzma/src/lzma_worker.js",
+      "bytes": 111982,
+      "sha256": "b2704cc4536d113ba9d4badfb4b262ec878b16824e300596895c0a1080fbdc50",
+      "origin": "https://github.com/microsoft/pxt-microbit",
+      "recipe": "workspace/guategeeks-code-studio/docs/release/BUILD.md",
+      "limitation": "Pinned precompiled input; verify before packaging."
+    }
+  ],
+  "runtimeSources": [
+    {
+      "id": "product:blockly",
+      "sha256": "cc4f09de4fd54695f51be22cadbea207e4cc58a43fc2d5fb42d56bfa7fa49c2f"
+    },
+    {
+      "id": "product:dapjs",
+      "sha256": "ca9de52d57d1b3dae9c29489f81ac1e846c8df8e30ffb22a657057f7cb91c069"
+    },
+    {
+      "id": "product:pako",
+      "sha256": "063ee661dab57fd65a94290b0b6681faef421845c8729f7b89b80c911cc9da42"
+    },
+    {
+      "id": "product:@babylonjs/core",
+      "sha256": "a5eb9dd43e92e9ebe4b2307dda187c26c1882520aa61b111edf4cd464ce77e7f"
+    },
+    {
+      "id": "product:@babylonjs/loaders",
+      "sha256": "ec734466a2f1101df86536040e986bf7dd01f226aecccd46c7fb062305f7c56a"
+    },
+    {
+      "id": "product:quickjs-emscripten-core",
+      "sha256": "0c4e08144ed5b2378537ece02dc8850681679d7b5bb3ea75042b6653f25ce484"
+    },
+    {
+      "id": "product:@jitl/quickjs-wasmfile-release-sync",
+      "sha256": "de67a7a095ac6ccd33500696dc586b87b2f11eca7fee5092d8ff2b9562b226f3",
+      "sourceOrigin": "https://github.com/justjake/quickjs-emscripten/tree/df4efb9ef2cb25c417ecb57986da462d11b244ed",
+      "sourceRevision": "df4efb9ef2cb25c417ecb57986da462d11b244ed"
+    },
+    {
+      "id": "product:pyodide",
+      "sha256": "c8320c2d527aba52052656d5d2851b672ab739e03480672172f0ece1822d3ad0",
+      "sourceOrigin": "https://github.com/pyodide/pyodide/tree/b1e4fcc2488962f6360a97f19b9982d6fdb5d16f",
+      "sourceRevision": "b1e4fcc2488962f6360a97f19b9982d6fdb5d16f"
+    },
+    {
+      "id": "xcratch:scratch-storage",
+      "sha256": "7be65314663eb9f04d03c1bbd3e5828b894efd5341533de28c6337c24ff7b1dd"
+    },
+    {
+      "id": "xcratch:scratch-audio",
+      "sha256": "a53042216a442ffc80e5e1266fd04de8e0ad0781564b875db09f7739299201dc"
+    },
+    {
+      "id": "xcratch:scratch-parser",
+      "sha256": "f8b8bd067306125480028b67cee536a754d5846fd7b46c22854489cfae8d6c21"
+    },
+    {
+      "id": "xcratch:scratch-sb1-converter",
+      "sha256": "2b7777e6a7fc5a216b77ec4db624725d311e123d592a0b898152f09063c7961b"
+    },
+    {
+      "id": "xcratch:scratch-render-fonts",
+      "sha256": "575fee30fb7770b667a465c91a86a921b4219db11535bf77a38ef151553a6d71"
+    },
+    {
+      "id": "microbit:pxt-core",
+      "sha256": "d27995b4198abc1287eded8cc4d03faacfe6b240cbda1137e018f8cc74139d39"
+    },
+    {
+      "id": "microbit:pxt-common-packages",
+      "sha256": "3182f1c86f63a20d959bba88b70bc5804b6f3f2f1c07d6bf31fe1251a9ea00d6"
+    },
+    {
+      "id": "microbit:lzma",
+      "sha256": "a64a398d425f73a984da3b0f7c2c0a86fad9e71831cbbe44db95aa4f1b60a880"
+    }
+  ]
+}

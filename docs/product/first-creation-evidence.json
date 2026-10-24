@@ -1,0 +1,121 @@
+{
+  "change": "studio-guided-first-creation",
+  "date": "2026-10-22",
+  "timeZone": "America/Guatemala",
+  "environment": {
+    "node": "v22.23.4",
+    "platform": "linux",
+    "architecture": "x64",
+    "browser": "Pinned Playwright Chromium on Linux/WSL"
+  },
+  "gate": {
+    "profile": "full",
+    "selection": "full",
+    "startedAt": "2026-10-22T21:34:19.947Z",
+    "steps": [
+      {
+        "name": "integration",
+        "startedAt": "2026-10-22T21:34:19.947Z",
+        "durationMs": 11663.866925000002,
+        "exitCode": 0
+      },
+      {
+        "name": "tools",
+        "startedAt": "2026-10-22T21:34:31.612Z",
+        "durationMs": 19209.405414999997,
+        "exitCode": 0
+      },
+      {
+        "name": "build",
+        "startedAt": "2026-10-22T21:34:50.821Z",
+        "durationMs": 16570.113792999997,
+        "exitCode": 0
+      },
+      {
+        "name": "smoke",
+        "startedAt": "2026-10-22T21:35:07.391Z",
+        "durationMs": 24537.96162400001,
+        "exitCode": 0
+      },
+      {
+        "name": "browser",
+        "startedAt": "2026-10-22T21:35:31.929Z",
+        "durationMs": 1639588.28211,
+        "exitCode": 0
+      },
+      {
+        "name": "specs",
+        "startedAt": "2026-10-22T22:02:51.522Z",
+        "durationMs": 748.6376389998477,
+        "exitCode": 0
+      },
+      {
+        "name": "upstream-preservation",
+        "startedAt": "2026-10-22T22:02:52.271Z",
+        "durationMs": 169.34863799996674,
+        "exitCode": 0
+      }
+    ],
+    "baselineWritten": true,
+    "exitCode": 0,
+    "finishedAt": "2026-10-22T22:02:59.066Z"
+  },
+  "node": {
+    "tests": 390,
+    "pass": 390,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "tools": {
+    "tests": 63,
+    "pass": 63,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "browser": {
+    "startTime": "2026-10-22T21:35:32.600Z",
+    "duration": 1638780.732,
+    "expected": 133,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "smoke": {
+    "startTime": "2026-10-22T21:35:08.129Z",
+    "duration": 23775.669,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "runtimeSources": {
+    "files": 140,
+    "sha256": "7c9d28b49407f7e33e8593193922adab84b8c3f5ac71e724a64ce607ea1738bd",
+    "matchApprovedFull": true
+  },
+  "offline": {
+    "evidence": "artifacts/offline-second-visit.json",
+    "coldBrowserAndSixServersStopped": true,
+    "entryContinueCovered": true
+  },
+  "snapshots": {
+    "before": "artifacts/e1-baseline/manifest.json",
+    "changes": "artifacts/e1-changes.json"
+  },
+  "validationLimits": {
+    "physicalBoard": false,
+    "humanScreenReader": false,
+    "classroomPilot": false,
+    "physicalMobileDevices": false
+  },
+  "otherReports": [
+    "artifacts/e1-entry-results.json",
+    "artifacts/e1-zoom-2-results.json",
+    "artifacts/e1-regression-2-results.json",
+    "artifacts/e1-final-affected-plan.log"
+  ]
+}

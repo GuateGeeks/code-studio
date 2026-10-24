@@ -1,0 +1,1089 @@
+diff --git a/docs/projects.md b/docs/projects.md
+index 3bad358..a6ea411 100644
+--- a/docs/projects.md
++++ b/docs/projects.md
+@@ -81,7 +81,7 @@
+     {
+         "name": "CreateAI",
+         "url": "/microbit-org/createai",
+-        "imageUrl": "/static/microbit-org/createai/storytelling-friend.png"
++        "imageUrl": "/static/mb/projects/sports-trainer/ai-sports-trainer-thumb.png"
+     },
+     {
+         "name": "Courses",
+diff --git a/docs/projects/SUMMARY.md b/docs/projects/SUMMARY.md
+index b779c02..27deea4 100644
+--- a/docs/projects/SUMMARY.md
++++ b/docs/projects/SUMMARY.md
+@@ -146,6 +146,7 @@
+   * [Nightlight](https://microbit.org/teach/lessons/nightlight/)
+   * [Rock, paper, scissors](https://microbit.org/teach/lessons/rock-paper-scissors/)
+ * [CreateAI](/microbit-org/createai)
++  * [AI Sports Trainer](/projects/sports-trainer)
+   * [AI storytelling friend](https://microbit.org/projects/make-it-code-it/ai-storytelling-friend/)
+   * [Simple AI exercise timer](https://microbit.org/projects/make-it-code-it/simple-ai-exercise-timer/)
+   * [AI activity timer](https://microbit.org/projects/make-it-code-it/ai-activity-timer/)
+diff --git a/libs/audio-recording/_locales/audio-recording-strings.json b/libs/audio-recording/_locales/audio-recording-strings.json
+index d910bff..c9399ad 100644
+--- a/libs/audio-recording/_locales/audio-recording-strings.json
++++ b/libs/audio-recording/_locales/audio-recording-strings.json
+@@ -22,6 +22,7 @@
+   "record.playAudio|block": "play audio clip $mode",
+   "record.setMicGain|block": "set microphone sensitivity to $gain",
+   "record.setSampleRate|block": "set sample rate to $hz || for $scope",
++  "record.setSampleRate|param|hz|label": "sample rate",
+   "record.startRecording|block": "record audio clip $mode",
+   "record|block": "Record",
+   "{id:category}Record": "Record"
+diff --git a/libs/bluetooth/_locales/bluetooth-strings.json b/libs/bluetooth/_locales/bluetooth-strings.json
+index 0bdbd8f..070d04e 100644
+--- a/libs/bluetooth/_locales/bluetooth-strings.json
++++ b/libs/bluetooth/_locales/bluetooth-strings.json
+@@ -1,11 +1,20 @@
+ {
+   "bluetooth.advertiseUid|block": "bluetooth advertise UID|namespace (bytes 6-9)%ns|instance (bytes 2-6)%instance|with power %power|connectable %connectable",
++  "bluetooth.advertiseUid|param|connectable|label": "connectable",
++  "bluetooth.advertiseUid|param|instance|label": "instance",
++  "bluetooth.advertiseUid|param|ns|label": "namespace",
++  "bluetooth.advertiseUid|param|power|label": "power",
+   "bluetooth.advertiseUrl|block": "bluetooth advertise url %url|with power %power|connectable %connectable",
++  "bluetooth.advertiseUrl|param|connectable|label": "connectable",
++  "bluetooth.advertiseUrl|param|power|label": "power",
+   "bluetooth.advertiseUrl|param|url|defl": "https://makecode.com",
++  "bluetooth.advertiseUrl|param|url|label": "url",
+   "bluetooth.onBluetoothConnected|block": "on bluetooth connected",
+   "bluetooth.onBluetoothDisconnected|block": "on bluetooth disconnected",
+   "bluetooth.onUartDataReceived|block": "bluetooth|on data received %delimiters=serial_delimiter_conv",
++  "bluetooth.onUartDataReceived|param|delimiters|label": "delimiter",
+   "bluetooth.setTransmitPower|block": "bluetooth set transmit power %power",
++  "bluetooth.setTransmitPower|param|power|label": "value",
+   "bluetooth.startAccelerometerService|block": "bluetooth accelerometer service",
+   "bluetooth.startButtonService|block": "bluetooth button service",
+   "bluetooth.startIOPinService|block": "bluetooth io pin service",
+@@ -15,11 +24,17 @@
+   "bluetooth.startUartService|block": "bluetooth uart service",
+   "bluetooth.stopAdvertising|block": "bluetooth stop advertising",
+   "bluetooth.uartReadUntil|block": "bluetooth uart|read until %del=serial_delimiter_conv",
++  "bluetooth.uartReadUntil|param|del|label": "delimiter",
+   "bluetooth.uartWriteLine|block": "bluetooth uart|write line %data",
++  "bluetooth.uartWriteLine|param|data|label": "value",
+   "bluetooth.uartWriteNumber|block": "bluetooth uart|write number %value",
++  "bluetooth.uartWriteNumber|param|value|label": "value",
+   "bluetooth.uartWriteString|block": "bluetooth uart|write string %data",
++  "bluetooth.uartWriteString|param|data|label": "value",
+   "bluetooth.uartWriteValue|block": "bluetooth uart|write value %name|= %value",
+   "bluetooth.uartWriteValue|param|name|defl": "x",
++  "bluetooth.uartWriteValue|param|name|label": "name",
++  "bluetooth.uartWriteValue|param|value|label": "value",
+   "bluetooth|block": "bluetooth",
+   "{id:category}Bluetooth": "Bluetooth"
+ }
+\ No newline at end of file
+diff --git a/libs/bluetooth/shims.d.ts b/libs/bluetooth/shims.d.ts
+index 5493e3e..e4d363f 100644
+--- a/libs/bluetooth/shims.d.ts
++++ b/libs/bluetooth/shims.d.ts
+@@ -80,7 +80,8 @@ declare namespace bluetooth {
+      * @param delimiters the characters to match received characters against.
+      */
+     //% help=bluetooth/on-uart-data-received
+-    //% weight=18 blockId=bluetooth_on_data_received block="bluetooth|on data received %delimiters=serial_delimiter_conv" shim=bluetooth::onUartDataReceived
++    //% weight=18 blockId=bluetooth_on_data_received block="bluetooth|on data received %delimiters=serial_delimiter_conv"
++    //% delimiters.label="delimiter" shim=bluetooth::onUartDataReceived
+     function onUartDataReceived(delimiters: string, body: () => void): void;
+ 
+     /**
+@@ -108,6 +109,7 @@ declare namespace bluetooth {
+      * @param connectable true to keep bluetooth connectable for other services, false otherwise.
+      */
+     //% blockId=eddystone_advertise_url block="bluetooth advertise url %url|with power %power|connectable %connectable"
++    //% url.label="url" power.label="power" connectable.label="connectable"
+     //% parts=bluetooth weight=11 blockGap=8
+     //% help=bluetooth/advertise-url blockExternalInputs=1
+     //% hidden=1 deprecated=1 shim=bluetooth::advertiseUrl
+@@ -127,7 +129,8 @@ declare namespace bluetooth {
+      * @param power power level between 0 (minimal) and 7 (maximum), eg: 7.
+      */
+     //% parts=bluetooth weight=5 help=bluetooth/set-transmit-power advanced=true
+-    //% blockId=bluetooth_settransmitpower block="bluetooth set transmit power %power" shim=bluetooth::setTransmitPower
++    //% blockId=bluetooth_settransmitpower block="bluetooth set transmit power %power"
++    //% power.label="value" shim=bluetooth::setTransmitPower
+     function setTransmitPower(power: int32): void;
+ 
+     /**
+@@ -140,4 +143,4 @@ declare namespace bluetooth {
+     function stopAdvertising(): void;
+ }
+ 
+-// Auto-generated. Do not edit. Really.
+\ No newline at end of file
++// Auto-generated. Do not edit. Really.
+diff --git a/libs/color/_locales/color-strings.json b/libs/color/_locales/color-strings.json
+index 59d4fe5..e5310ac 100644
+--- a/libs/color/_locales/color-strings.json
++++ b/libs/color/_locales/color-strings.json
+@@ -22,8 +22,16 @@
+   "color.ColorBufferLayout.ARGB": "32bit RGB color with alpha",
+   "color.ColorBufferLayout.RGB": "24bit RGB color",
+   "color.fade|block": "fade %color=neopixel_colors|by %brightness",
++  "color.fade|param|brightness|label": "brightness",
++  "color.fade|param|color|label": "color",
+   "color.hsv|block": "hue %hue|sat %sat|val %val",
++  "color.hsv|param|hue|label": "hue",
++  "color.hsv|param|sat|label": "saturation",
++  "color.hsv|param|val|label": "brightness",
+   "color.rgb|block": "red %red|green %green|blue %blue",
++  "color.rgb|param|blue|label": "blue",
++  "color.rgb|param|green|label": "green",
++  "color.rgb|param|red|label": "red",
+   "color.wellKnown|block": "%color",
+   "color|block": "color",
+   "{id:category}Color": "Color",
+diff --git a/libs/core/_locales/core-strings.json b/libs/core/_locales/core-strings.json
+index 8da45ef..b28b3a2 100644
+--- a/libs/core/_locales/core-strings.json
++++ b/libs/core/_locales/core-strings.json
+@@ -8,19 +8,40 @@
+   "AcceleratorRange.TwoG": "The accelerator measures forces up to 2 gravity",
+   "AcceleratorRange.TwoG|block": "2g",
+   "Array._pickRandom|block": "get random value from %list",
++  "Array._pickRandom|param|this|label": "list to check",
+   "Array._popStatement|block": "remove last value from %list",
++  "Array._popStatement|param|this|label": "list to change",
+   "Array._removeAtStatement|block": "%list| remove value at %index",
++  "Array._removeAtStatement|param|index|label": "position within list",
++  "Array._removeAtStatement|param|this|label": "list to change",
+   "Array._shiftStatement|block": "remove first value from %list",
++  "Array._shiftStatement|param|this|label": "list to change",
+   "Array._unshiftStatement|block": "%list| insert %value| at beginning",
++  "Array._unshiftStatement|param|this|label": "list to change",
++  "Array._unshiftStatement|param|value|label": "value to add",
+   "Array.indexOf|block": "%list| find index of %value",
++  "Array.indexOf|param|item|label": "value to find",
++  "Array.indexOf|param|this|label": "list to check",
+   "Array.insertAt|block": "%list| insert at %index| value %value",
++  "Array.insertAt|param|index|label": "position within list",
++  "Array.insertAt|param|this|label": "list to change",
++  "Array.insertAt|param|value|label": "value to add",
+   "Array.length|block": "length of %VALUE",
+   "Array.pop|block": "get and remove last value from %list",
++  "Array.pop|param|this|label": "list to change",
+   "Array.push|block": "%list| add value %value| to end",
++  "Array.push|param|item|label": "value to add",
++  "Array.push|param|this|label": "list to change",
+   "Array.removeAt|block": "%list| get and remove value at %index",
++  "Array.removeAt|param|index|label": "position within list",
++  "Array.removeAt|param|this|label": "list to change",
+   "Array.reverse|block": "reverse %list",
++  "Array.reverse|param|this|label": "list to change",
+   "Array.shift|block": "get and remove first value from %list",
++  "Array.shift|param|this|label": "list to change",
+   "Array.unshift|block": "%list| insert %value| at beginning",
++  "Array.unshift|param|this|label": "list to change",
++  "Array.unshift|param|value|label": "value to add",
+   "Array|block": "Array",
+   "ArrowNames.East|block": "East",
+   "ArrowNames.NorthEast|block": "North East",
+@@ -139,7 +160,12 @@
+   "IconNames.Umbrella|block": "umbrella",
+   "IconNames.Yes|block": "yes",
+   "Image.scrollImage|block": "scroll image %sprite(myImage)|with offset %frameoffset|and interval (ms) %delay",
++  "Image.scrollImage|param|frameOffset|label": "offset",
++  "Image.scrollImage|param|interval|label": "interval",
+   "Image.showImage|block": "show image %sprite(myImage)|at offset %offset ||and interval (ms) %interval",
++  "Image.showImage|param|interval|label": "interval",
++  "Image.showImage|param|this|label": "image",
++  "Image.showImage|param|xOffset|label": "offset",
+   "InterpolationCurve.Curve|block": "curve",
+   "InterpolationCurve.Linear|block": "linear",
+   "InterpolationCurve.Logarithmic|block": "logarithmic",
+@@ -159,10 +185,21 @@
+   "Math.SQRT2|block": "√2",
+   "Math._constant|block": "$MEMBER",
+   "Math.constrain|block": "constrain %value|between %low|and %high",
++  "Math.constrain|param|high|label": "maximum",
++  "Math.constrain|param|low|label": "minimum",
++  "Math.constrain|param|value|label": "value",
+   "Math.convert|block": "convert $value|from $type",
++  "Math.convert|param|value|label": "value",
+   "Math.map|block": "map %value|from low %fromLow|high %fromHigh|to low %toLow|high %toHigh",
++  "Math.map|param|fromHigh|label": "from high",
++  "Math.map|param|fromLow|label": "from low",
++  "Math.map|param|toHigh|label": "to high",
++  "Math.map|param|toLow|label": "to low",
++  "Math.map|param|value|label": "value",
+   "Math.randomBoolean|block": "pick random true or false",
+   "Math.randomRange|block": "pick random %min|to %limit",
++  "Math.randomRange|param|max|label": "maximum",
++  "Math.randomRange|param|min|label": "minimum",
+   "Math|block": "Math",
+   "Melodies.BaDing|block": "ba ding",
+   "Melodies.Baddy|block": "baddy",
+@@ -247,7 +284,9 @@
+   "Rotation.Pitch|block": "pitch",
+   "Rotation.Roll|block": "roll",
+   "SoundExpression.playUntilDone|block": "play sound $this until done",
++  "SoundExpression.playUntilDone|param|this|label": "sound",
+   "SoundExpression.play|block": "play sound $this",
++  "SoundExpression.play|param|this|label": "sound",
+   "SoundExpressionEffect.None|block": "none",
+   "SoundExpressionEffect.Tremolo|block": "tremolo",
+   "SoundExpressionEffect.Vibrato|block": "vibrato",
+@@ -255,15 +294,32 @@
+   "SoundExpressionPlayMode.InBackground|block": "in background",
+   "SoundExpressionPlayMode.UntilDone|block": "until done",
+   "String.charAt|block": "char from %this=text|at %pos",
++  "String.charAt|param|index|label": "position within text",
++  "String.charAt|param|this|label": "value",
+   "String.charCodeAt|block": "char code from $this=text|at $index",
++  "String.charCodeAt|param|index|label": "position within text",
++  "String.charCodeAt|param|this|label": "value",
+   "String.compare|block": "compare %this=text| to %that",
++  "String.compare|param|that|label": "other value",
++  "String.compare|param|this|label": "value",
+   "String.fromCharCode|block": "text from char code %code",
++  "String.fromCharCode|param|code|label": "value",
+   "String.includes|block": "%this=text|includes %searchValue",
++  "String.includes|param|searchValue|label": "text to find",
++  "String.includes|param|this|label": "value",
+   "String.indexOf|block": "%this=text|find index of %searchValue",
++  "String.indexOf|param|searchValue|label": "text to find",
++  "String.indexOf|param|this|label": "value",
+   "String.isEmpty|block": "%this=text| is empty",
++  "String.isEmpty|param|this|label": "value",
+   "String.length|block": "length of %VALUE",
+   "String.split|block": "split %this=text|at %separator",
++  "String.split|param|separator|label": "separator",
++  "String.split|param|this|label": "value",
+   "String.substr|block": "substring of $this|from $start||of length $length",
++  "String.substr|param|length|label": "length",
++  "String.substr|param|start|label": "start position",
++  "String.substr|param|this|label": "value",
+   "String|block": "String",
+   "TouchButtonEvent.LongPressed|block": "long pressed",
+   "TouchButtonEvent.Pressed|block": "pressed",
+@@ -288,12 +344,16 @@
+   "basic.clearScreen|block": "clear screen",
+   "basic.forever|block": "forever",
+   "basic.pause|block": "pause (ms) %pause",
++  "basic.pause|param|ms|label": "value",
+   "basic.showArrow|block": "show arrow %i=device_arrow",
++  "basic.showArrow|param|direction|label": "direction",
+   "basic.showIcon|block": "show icon %i",
+   "basic.showLeds|block": "show leds",
+   "basic.showNumber|block": "show|number %number",
++  "basic.showNumber|param|value|label": "value",
+   "basic.showString|block": "show|string %text",
+   "basic.showString|param|text|defl": "Hello!",
++  "basic.showString|param|text|label": "value",
+   "basic|block": "basic",
+   "colorHelpers|block": "colorHelpers",
+   "console|block": "console",
+@@ -306,36 +366,67 @@
+   "control.inBackground|block": "run in background",
+   "control.millis|block": "millis (ms)",
+   "control.onEvent|block": "on event|from %src=control_event_source_id|with value %value=control_event_value_id",
++  "control.onEvent|param|src|label": "source",
++  "control.onEvent|param|value|label": "value",
+   "control.raiseEvent|block": "raise event|from source %src=control_event_source_id|with value %value=control_event_value_id",
++  "control.raiseEvent|param|src|label": "source",
++  "control.raiseEvent|param|value|label": "value",
+   "control.reset|block": "reset",
+   "control.waitForEvent|block": "wait for event|from %src|with value %value",
++  "control.waitForEvent|param|src|label": "source",
++  "control.waitForEvent|param|value|label": "value",
+   "control.waitMicros|block": "wait (µs)%micros",
++  "control.waitMicros|param|micros|label": "microseconds",
+   "control|block": "control",
+   "convertToText|block": "convert $value=math_number to text",
++  "convertToText|param|value|label": "value",
+   "game.LedSprite.change|block": "%sprite|change %property|by %value",
++  "game.LedSprite.change|param|this|label": "sprite",
++  "game.LedSprite.change|param|value|label": "value",
+   "game.LedSprite.delete|block": "delete %this(sprite)",
++  "game.LedSprite.delete|param|this|label": "sprite",
+   "game.LedSprite.get|block": "%sprite|%property",
++  "game.LedSprite.get|param|this|label": "sprite",
+   "game.LedSprite.ifOnEdgeBounce|block": "%sprite|if on edge, bounce",
++  "game.LedSprite.ifOnEdgeBounce|param|this|label": "sprite",
+   "game.LedSprite.isDeleted|block": "is %sprite|deleted",
++  "game.LedSprite.isDeleted|param|this|label": "sprite",
+   "game.LedSprite.isTouchingEdge|block": "is %sprite|touching edge",
++  "game.LedSprite.isTouchingEdge|param|this|label": "sprite",
+   "game.LedSprite.isTouching|block": "is %sprite|touching %other",
++  "game.LedSprite.isTouching|param|other|label": "other sprite",
++  "game.LedSprite.isTouching|param|this|label": "sprite",
+   "game.LedSprite.move|block": "%sprite|move by %leds",
++  "game.LedSprite.move|param|leds|label": "LEDs",
++  "game.LedSprite.move|param|this|label": "sprite",
+   "game.LedSprite.set|block": "%sprite|set %property|to %value",
++  "game.LedSprite.set|param|this|label": "sprite",
++  "game.LedSprite.set|param|value|label": "value",
+   "game.LedSprite.turn|block": "%sprite|turn %direction|by (°) %degrees",
++  "game.LedSprite.turn|param|degrees|label": "degrees",
++  "game.LedSprite.turn|param|this|label": "sprite",
+   "game.addLife|block": "add life %lives",
++  "game.addLife|param|lives|label": "value",
+   "game.addScore|block": "change score by|%points",
++  "game.addScore|param|points|label": "value",
+   "game.createSprite|block": "create sprite at|x: %x|y: %y",
++  "game.createSprite|param|x|label": "x",
++  "game.createSprite|param|y|label": "y",
+   "game.gameOver|block": "game over",
+   "game.isGameOver|block": "is game over",
+   "game.isPaused|block": "is paused",
+   "game.isRunning|block": "is running",
+   "game.pause|block": "pause",
+   "game.removeLife|block": "remove life %life",
++  "game.removeLife|param|life|label": "value",
+   "game.resume|block": "resume",
+   "game.score|block": "score",
+   "game.setLife|block": "set life %value",
++  "game.setLife|param|value|label": "value",
+   "game.setScore|block": "set score %points",
++  "game.setScore|param|value|label": "value",
+   "game.startCountdown|block": "start countdown|(ms) %duration",
++  "game.startCountdown|param|ms|label": "value",
+   "game|block": "game",
+   "images.arrowImage|block": "arrow image %i",
+   "images.arrowNumber|block": "%arrow",
+@@ -365,58 +456,107 @@
+   "input|block": "input",
+   "led.brightness|block": "brightness",
+   "led.enable|block": "led enable %on",
++  "led.enable|param|on|label": "value",
+   "led.plotBarGraph|block": "plot bar graph of $value up to $high|| serial write $valueToConsole",
++  "led.plotBarGraph|param|high|label": "maximum",
++  "led.plotBarGraph|param|valueToConsole|label": "serial write",
++  "led.plotBarGraph|param|value|label": "value",
+   "led.plotBrightness|block": "plot|x %x|y %y|brightness %brightness",
++  "led.plotBrightness|param|brightness|label": "brightness",
++  "led.plotBrightness|param|x|label": "x",
++  "led.plotBrightness|param|y|label": "y",
+   "led.plot|block": "plot|x %x|y %y",
++  "led.plot|param|x|label": "x",
++  "led.plot|param|y|label": "y",
+   "led.pointBrightness|block": "point|x %x|y %y brightness",
++  "led.pointBrightness|param|x|label": "x",
++  "led.pointBrightness|param|y|label": "y",
+   "led.point|block": "point|x %x|y %y",
++  "led.point|param|x|label": "x",
++  "led.point|param|y|label": "y",
+   "led.setBrightness|block": "set brightness %value",
++  "led.setBrightness|param|value|label": "value",
+   "led.setDisplayMode|block": "set display mode $mode",
+   "led.stopAnimation|block": "stop animation",
+   "led.toggle|block": "toggle|x %x|y %y",
++  "led.toggle|param|x|label": "x",
++  "led.toggle|param|y|label": "y",
+   "led.unplot|block": "unplot|x %x|y %y",
++  "led.unplot|param|x|label": "x",
++  "led.unplot|param|y|label": "y",
+   "led|block": "LED",
+   "light|block": "light",
+   "loops.everyInterval|block": "every $interval ms",
++  "loops.everyInterval|param|interval|label": "value",
+   "loops|block": "loops",
+   "msgpack|block": "msgpack",
+   "music.PlaybackMode.InBackground|block": "in background",
+   "music.PlaybackMode.LoopingInBackground|block": "looping in background",
+   "music.PlaybackMode.UntilDone|block": "until done",
+   "music._playDefaultBackground|block": "play $toPlay $playbackMode",
++  "music._playDefaultBackground|param|toPlay|label": "sound",
+   "music.beat|block": "%fraction|beat",
+   "music.builtInMelody|block": "%melody",
+   "music.builtInPlayableMelody|block": "melody|$melody",
+   "music.builtinPlayableSoundEffect|block": "$soundExpression",
+   "music.builtinSoundEffect|block": "$soundExpression",
+   "music.changeTempoBy|block": "change tempo by (bpm)|%value",
++  "music.changeTempoBy|param|bpm|label": "value",
+   "music.createSoundEffect|block": "$waveShape|| start frequency $startFrequency end frequency $endFrequency duration $duration start volume $startVolume end volume $endVolume effect $effect interpolation $interpolation",
++  "music.createSoundEffect|param|duration|label": "duration",
++  "music.createSoundEffect|param|endFrequency|label": "end frequency",
++  "music.createSoundEffect|param|endVolume|label": "end volume",
++  "music.createSoundEffect|param|startFrequency|label": "start frequency",
++  "music.createSoundEffect|param|startVolume|label": "start volume",
+   "music.createSoundExpression|block": "$waveShape|| start frequency $startFrequency end frequency $endFrequency duration $duration start volume $startVolume end volume $endVolume effect $effect interpolation $interpolation",
++  "music.createSoundExpression|param|duration|label": "duration",
++  "music.createSoundExpression|param|endFrequency|label": "end frequency",
++  "music.createSoundExpression|param|endVolume|label": "end volume",
++  "music.createSoundExpression|param|startFrequency|label": "start frequency",
++  "music.createSoundExpression|param|startVolume|label": "start volume",
+   "music.isSoundPlaying|block": "sound is playing",
+   "music.melodyEditor|block": "$melody",
+   "music.noteFrequency|block": "%name",
+   "music.onEvent|block": "music on %value",
+   "music.playMelody|block": "play melody $melody at tempo $tempo|(bpm)",
++  "music.playMelody|param|melody|label": "melody",
++  "music.playMelody|param|tempo|label": "tempo",
+   "music.playSoundEffect|block": "play sound $sound $mode",
++  "music.playSoundEffect|param|sound|label": "sound",
+   "music.playTone|block": "play|tone %note=device_note|for %duration=device_beat",
++  "music.playTone|param|frequency|label": "note",
++  "music.playTone|param|ms|label": "duration",
+   "music.play|block": "play $toPlay $playbackMode",
++  "music.play|param|toPlay|label": "sound",
+   "music.rest|block": "rest for |%duration=device_beat",
++  "music.rest|param|ms|label": "value",
+   "music.ringTone|block": "ring tone (Hz)|%note=device_note",
++  "music.ringTone|param|frequency|label": "note",
+   "music.setBuiltInSpeakerEnabled|block": "set built-in speaker $enabled",
++  "music.setBuiltInSpeakerEnabled|param|enabled|label": "value",
+   "music.setTempo|block": "set tempo to (bpm)|%value",
++  "music.setTempo|param|bpm|label": "value",
+   "music.setVolume|block": "set volume %volume",
++  "music.setVolume|param|volume|label": "value",
+   "music.startMelody|block": "start melody %melody=device_builtin_melody| repeating %options",
++  "music.startMelody|param|melodyArray|label": "melody",
+   "music.stopAllSounds|block": "stop all sounds",
+   "music.stopMelody|block": "stop melody $options",
+   "music.stringPlayable|block": "melody $melody at tempo $bpm|(bpm)",
++  "music.stringPlayable|param|bpm|label": "tempo",
++  "music.stringPlayable|param|melody|label": "melody",
+   "music.tempo|block": "tempo (bpm)",
+   "music.tonePlayable|block": "tone $note for $duration",
++  "music.tonePlayable|param|duration|label": "duration",
++  "music.tonePlayable|param|note|label": "note",
+   "music.volume|block": "volume",
+   "music|block": "music",
+   "parseFloat|block": "parse to number %text",
+   "parseFloat|param|text|defl": "123",
++  "parseFloat|param|text|label": "value",
+   "parseInt|block": "parse to integer %text",
+   "parseInt|param|text|defl": "123",
++  "parseInt|param|text|label": "value",
+   "pins._analogPinShadow|block": "$pin",
+   "pins._analogPin|block": "analog pin $pin",
+   "pins._analogReadWritePinShadow|block": "$pin",
+@@ -424,52 +564,107 @@
+   "pins._digitalPin|block": "digital pin $pin",
+   "pins.analogPitchVolume|block": "analog pitch volume",
+   "pins.analogPitch|block": "analog pitch %frequency|for (ms) %ms",
++  "pins.analogPitch|param|frequency|label": "frequency",
++  "pins.analogPitch|param|ms|label": "duration",
+   "pins.analogReadPin|block": "analog read|pin %name",
++  "pins.analogReadPin|param|name|label": "value",
+   "pins.analogSetPeriod|block": "analog set period|pin %pin|to (µs)%micros",
++  "pins.analogSetPeriod|param|micros|label": "microseconds",
++  "pins.analogSetPeriod|param|name|label": "pin",
+   "pins.analogSetPitchPin|block": "analog set pitch pin %name",
++  "pins.analogSetPitchPin|param|name|label": "value",
+   "pins.analogSetPitchVolume|block": "analog set pitch volume $volume",
++  "pins.analogSetPitchVolume|param|volume|label": "value",
+   "pins.analogWritePin|block": "analog write|pin %name|to %value",
++  "pins.analogWritePin|param|name|label": "pin",
++  "pins.analogWritePin|param|value|label": "value",
+   "pins.digitalReadPin|block": "digital read|pin %name",
++  "pins.digitalReadPin|param|name|label": "value",
+   "pins.digitalWritePin|block": "digital write|pin %name|to %value",
++  "pins.digitalWritePin|param|name|label": "pin",
++  "pins.digitalWritePin|param|value|label": "value",
+   "pins.i2cReadNumber|block": "i2c read number|at address %address|of format %format|repeated %repeat",
++  "pins.i2cReadNumber|param|address|label": "address",
++  "pins.i2cReadNumber|param|repeated|label": "repeated",
+   "pins.i2cWriteNumber|block": "i2c write number|at address %address|with value %value|of format %format|repeated %repeat",
++  "pins.i2cWriteNumber|param|address|label": "address",
++  "pins.i2cWriteNumber|param|repeated|label": "repeated",
++  "pins.i2cWriteNumber|param|value|label": "value",
+   "pins.map|block": "map %value|from low %fromLow|from high %fromHigh|to low %toLow|to high %toHigh",
++  "pins.map|param|fromHigh|label": "from high",
++  "pins.map|param|fromLow|label": "from low",
++  "pins.map|param|toHigh|label": "to high",
++  "pins.map|param|toLow|label": "to low",
++  "pins.map|param|value|label": "value",
+   "pins.onPulsed|block": "on|pin %pin|pulsed %pulse",
+   "pins.pulseDuration|block": "pulse duration (µs)",
+   "pins.pulseIn|block": "pulse in (µs)|pin %name|pulsed %value",
++  "pins.pulseIn|param|name|label": "pin",
+   "pins.servoSetPulse|block": "servo set pulse|pin %value|to (µs) %micros",
++  "pins.servoSetPulse|param|micros|label": "microseconds",
++  "pins.servoSetPulse|param|name|label": "pin",
+   "pins.servoWritePin|block": "servo write|pin %name|to %value",
++  "pins.servoWritePin|param|name|label": "pin",
++  "pins.servoWritePin|param|value|label": "angle",
+   "pins.setAudioPinEnabled|block": "set audio pin enabled $enabled",
++  "pins.setAudioPinEnabled|param|enabled|label": "value",
+   "pins.setAudioPin|block": "set audio pin $name",
++  "pins.setAudioPin|param|name|label": "value",
+   "pins.setEvents|block": "set pin %pin|to emit %type|events",
++  "pins.setEvents|param|name|label": "pin",
+   "pins.setMatrixWidth|block": "neopixel matrix width|pin %pin %width",
++  "pins.setMatrixWidth|param|pin|label": "pin",
++  "pins.setMatrixWidth|param|width|label": "width",
+   "pins.setPull|block": "set pull|pin %pin|to %pull",
++  "pins.setPull|param|name|label": "pin",
+   "pins.spiFormat|block": "spi format|bits %bits|mode %mode",
++  "pins.spiFormat|param|bits|label": "bits",
++  "pins.spiFormat|param|mode|label": "mode",
+   "pins.spiFrequency|block": "spi frequency %frequency",
++  "pins.spiFrequency|param|frequency|label": "value",
+   "pins.spiPins|block": "spi set pins|MOSI %mosi|MISO %miso|SCK %sck",
++  "pins.spiPins|param|miso|label": "MISO pin",
++  "pins.spiPins|param|mosi|label": "MOSI pin",
++  "pins.spiPins|param|sck|label": "SCK pin",
+   "pins.spiWrite|block": "spi write %value",
++  "pins.spiWrite|param|value|label": "value",
+   "pins.touchSetMode|block": "set %name to touch mode %mode",
+   "pins|block": "pins",
+   "randint|block": "pick random %min|to %limit",
++  "randint|param|max|label": "maximum",
++  "randint|param|min|label": "minimum",
+   "serial.delimiters|block": "%del",
+   "serial.onDataReceived|block": "serial|on data received %delimiters=serial_delimiter_conv",
++  "serial.onDataReceived|param|delimiters|label": "delimiter",
+   "serial.readBuffer|block": "serial|read buffer %length",
++  "serial.readBuffer|param|length|label": "value",
+   "serial.readLine|block": "serial|read line",
+   "serial.readString|block": "serial|read string",
+   "serial.readUntil|block": "serial|read until %delimiter=serial_delimiter_conv",
++  "serial.readUntil|param|delimiter|label": "delimiter",
+   "serial.redirectToUSB|block": "serial|redirect to USB",
+   "serial.redirect|block": "serial|redirect to|TX %tx|RX %rx|at baud rate %rate",
+   "serial.setBaudRate|block": "serial|set baud rate %rate",
+   "serial.setRxBufferSize|block": "serial set rx buffer size to $size",
++  "serial.setRxBufferSize|param|size|label": "value",
+   "serial.setTxBufferSize|block": "serial set tx buffer size to $size",
++  "serial.setTxBufferSize|param|size|label": "value",
+   "serial.setWriteLinePadding|block": "serial set write line padding to $length",
++  "serial.setWriteLinePadding|param|length|label": "value",
+   "serial.writeBuffer|block": "serial|write buffer %buffer=serial_readbuffer",
++  "serial.writeBuffer|param|buffer|label": "value",
+   "serial.writeLine|block": "serial|write line %text",
++  "serial.writeLine|param|text|label": "value",
+   "serial.writeNumbers|block": "serial|write numbers %values",
++  "serial.writeNumbers|param|values|label": "value",
+   "serial.writeNumber|block": "serial|write number %value",
++  "serial.writeNumber|param|value|label": "value",
+   "serial.writeString|block": "serial|write string %text",
++  "serial.writeString|param|text|label": "value",
+   "serial.writeValue|block": "serial|write value %name|= %value",
+   "serial.writeValue|param|name|defl": "x",
++  "serial.writeValue|param|name|label": "name",
++  "serial.writeValue|param|value|label": "value",
+   "serial|block": "serial",
+   "soundExpression.giggle|block": "{id:soundexpression}giggle",
+   "soundExpression.happy|block": "{id:soundexpression}happy",
+diff --git a/libs/core/shims.d.ts b/libs/core/shims.d.ts
+index 6d4cdaa..3ab8357 100644
+--- a/libs/core/shims.d.ts
++++ b/libs/core/shims.d.ts
+@@ -41,6 +41,7 @@ declare interface Image {
+      */
+     //% help=images/show-image weight=80 blockNamespace=images
+     //% blockId=device_show_image_offset block="show image %sprite(myImage)|at offset %offset ||and interval (ms) %interval"
++    //% sprite.label="image" xOffset.label="offset" interval.label="interval"
+     //%
+     //% blockGap=8 parts="ledmatrix" async interval.defl=400 shim=ImageMethods::showImage
+     showImage(xOffset: int32, interval?: int32): void;
+@@ -61,6 +62,7 @@ declare interface Image {
+     //% help=images/scroll-image weight=79 async blockNamespace=images
+     //% blockId=device_scroll_image
+     //% block="scroll image %sprite(myImage)|with offset %frameoffset|and interval (ms) %delay"
++    //% id.label="image" frameOffset.label="offset" interval.label="interval"
+     //% blockGap=8 parts="ledmatrix" shim=ImageMethods::scrollImage
+     scrollImage(frameOffset: int32, interval: int32): void;
+ 
+@@ -153,6 +155,7 @@ declare namespace basic {
+     //% help=basic/show-string
+     //% weight=87 blockGap=16
+     //% block="show|string %text"
++    //% text.label="value"
+     //% async
+     //% blockId=device_print_message
+     //% parts="ledmatrix"
+@@ -198,6 +201,7 @@ declare namespace basic {
+      */
+     //% help=basic/pause weight=54
+     //% async block="pause (ms) %pause" blockGap=16
++    //% ms.label="value"
+     //% blockId=device_pause icon="\uf110"
+     //% pause.shadow=timePicker shim=basic::pause
+     function pause(ms: int32): void;
+@@ -382,7 +386,8 @@ declare namespace control {
+      * Blocks the calling thread until the specified event is raised.
+      */
+     //% help=control/wait-for-event async
+-    //% blockId=control_wait_for_event block="wait for event|from %src|with value %value" shim=control::waitForEvent
++    //% blockId=control_wait_for_event block="wait for event|from %src|with value %value"
++    //% src.label="source" value.label="value" shim=control::waitForEvent
+     function waitForEvent(src: int32, value: int32): void;
+ 
+     /**
+@@ -398,6 +403,7 @@ declare namespace control {
+      */
+     //% help=control/wait-micros weight=29 async
+     //% blockId="control_wait_us" block="wait (µs)%micros"
++    //% micros.label="microseconds"
+     //% micros.min=0 micros.max=6000 shim=control::waitMicros
+     function waitMicros(micros: int32): void;
+ 
+@@ -408,6 +414,7 @@ declare namespace control {
+      * @param mode optional definition of how the event should be processed after construction (default is CREATE_AND_FIRE).
+      */
+     //% weight=21 blockGap=12 blockId="control_raise_event" block="raise event|from source %src=control_event_source_id|with value %value=control_event_value_id" blockExternalInputs=1
++    //% src.label="source" value.label="value"
+     //% help=control/raise-event
+     //% mode.defl=1 shim=control::raiseEvent
+     function raiseEvent(src: int32, value: int32, mode?: EventCreationMode): void;
+@@ -416,6 +423,7 @@ declare namespace control {
+      * Registers an event handler.
+      */
+     //% weight=20 blockGap=8 blockId="control_on_event" block="on event|from %src=control_event_source_id|with value %value=control_event_value_id"
++    //% src.label="source" value.label="value"
+     //% help=control/on-event
+     //% blockExternalInputs=1 flags.defl=0 shim=control::onEvent
+     function onEvent(src: int32, value: int32, handler: () => void, flags?: int32): void;
+@@ -537,6 +545,7 @@ declare namespace led {
+      */
+     //% help=led/plot weight=78
+     //% blockId=device_plot block="plot|x %x|y %y" blockGap=8
++    //% x.label="x" y.label="y"
+     //% parts="ledmatrix"
+     //% x.min=0 x.max=4 y.min=0 y.max=4
+     //% x.fieldOptions.precision=1 y.fieldOptions.precision=1 shim=led::plot
+@@ -550,6 +559,7 @@ declare namespace led {
+      */
+     //% help=led/plot-brightness weight=78
+     //% blockId=device_plot_brightness block="plot|x %x|y %y|brightness %brightness" blockGap=8
++    //% x.label="x" y.label="y" brightness.label="brightness"
+     //% parts="ledmatrix"
+     //% x.min=0 x.max=4 y.min=0 y.max=4 brightness.min=0 brightness.max=255
+     //% x.fieldOptions.precision=1 y.fieldOptions.precision=1
+@@ -563,6 +573,7 @@ declare namespace led {
+      */
+     //% help=led/unplot weight=77
+     //% blockId=device_unplot block="unplot|x %x|y %y" blockGap=8
++    //% x.label="x" y.label="y"
+     //% parts="ledmatrix"
+     //% x.min=0 x.max=4 y.min=0 y.max=4
+     //% x.fieldOptions.precision=1 y.fieldOptions.precision=1 shim=led::unplot
+@@ -575,6 +586,7 @@ declare namespace led {
+      */
+     //% help=led/point-brightness weight=76
+     //% blockId=device_point_brightness block="point|x %x|y %y brightness"
++    //% x.label="x" y.label="y"
+     //% parts="ledmatrix"
+     //% x.min=0 x.max=4 y.min=0 y.max=4
+     //% x.fieldOptions.precision=1 y.fieldOptions.precision=1
+@@ -596,6 +608,7 @@ declare namespace led {
+      */
+     //% help=led/set-brightness weight=59
+     //% blockId=device_set_brightness block="set brightness %value"
++    //% value.label="value"
+     //% parts="ledmatrix"
+     //% advanced=true
+     //% value.min=0 value.max=255 shim=led::setBrightness
+@@ -629,6 +642,7 @@ declare namespace led {
+      * Turns on or off the display
+      */
+     //% help=led/enable blockId=device_led_enable block="led enable %on"
++    //% on.label="value"
+     //% advanced=true parts="ledmatrix" shim=led::enable
+     function enable(on: boolean): void;
+ 
+@@ -646,6 +660,7 @@ declare namespace music {
+      * @param volume the volume 0...255
+      */
+     //% blockId=synth_set_volume block="set volume %volume"
++    //% volume.label="value"
+     //% volume.min=0 volume.max=255
+     //%
+     //% help=music/set-volume
+@@ -670,6 +685,7 @@ declare namespace music {
+      * @param enabled whether the built-in speaker is enabled in addition to the sound pin
+      */
+     //% blockId=music_set_built_in_speaker_enable block="set built-in speaker $enabled"
++    //% enabled.label="value"
+     //% group="micro:bit (V2)"
+     //% parts=builtinspeaker
+     //% help=music/set-built-in-speaker-enabled
+@@ -705,6 +721,7 @@ declare namespace pins {
+      */
+     //% help=pins/digital-read-pin weight=30
+     //% blockId=device_get_digital_pin block="digital read|pin %name" blockGap=8
++    //% name.label="value"
+     //% name.shadow=digital_pin_shadow shim=pins::digitalReadPin
+     function digitalReadPin(name: int32): int32;
+ 
+@@ -715,6 +732,7 @@ declare namespace pins {
+      */
+     //% help=pins/digital-write-pin weight=29
+     //% blockId=device_set_digital_pin block="digital write|pin %name|to %value"
++    //% name.label="pin" value.label="value"
+     //% value.min=0 value.max=1
+     //% name.shadow=digital_pin_shadow shim=pins::digitalWritePin
+     function digitalWritePin(name: int32, value: int32): void;
+@@ -725,6 +743,7 @@ declare namespace pins {
+      */
+     //% help=pins/analog-read-pin weight=25
+     //% blockId=device_get_analog_pin block="analog read|pin %name" blockGap="8"
++    //% name.label="value"
+     //% name.shadow=analog_read_write_pin_shadow shim=pins::analogReadPin
+     function analogReadPin(name: int32): int32;
+ 
+@@ -735,6 +754,7 @@ declare namespace pins {
+      */
+     //% help=pins/analog-write-pin weight=24
+     //% blockId=device_set_analog_pin block="analog write|pin %name|to %value" blockGap=8
++    //% name.label="pin" value.label="value"
+     //% value.min=0 value.max=1023
+     //% name.shadow=analog_pin_shadow shim=pins::analogWritePin
+     function analogWritePin(name: int32, value: int32): void;
+@@ -747,6 +767,7 @@ declare namespace pins {
+      */
+     //% help=pins/analog-set-period weight=23 blockGap=8
+     //% blockId=device_set_analog_period block="analog set period|pin %pin|to (µs)%micros"
++    //% name.label="pin" micros.label="microseconds"
+     //% pin.shadow=analog_pin_shadow shim=pins::analogSetPeriod
+     function analogSetPeriod(name: int32, micros: int32): void;
+ 
+@@ -781,6 +802,7 @@ declare namespace pins {
+      * @param maximum duration in microseconds
+      */
+     //% blockId="pins_pulse_in" block="pulse in (µs)|pin %name|pulsed %value"
++    //% name.label="pin"
+     //% advanced=true
+     //% help=pins/pulse-in
+     //% name.shadow=digital_pin_shadow
+@@ -796,6 +818,7 @@ declare namespace pins {
+      */
+     //% help=pins/servo-write-pin weight=20
+     //% blockId=device_set_servo_pin block="servo write|pin %name|to %value" blockGap=8
++    //% name.label="pin" value.label="angle"
+     //% parts=microservo trackArgs=0
+     //% value.min=0 value.max=180
+     //% name.shadow=analog_pin_shadow
+@@ -815,6 +838,7 @@ declare namespace pins {
+      */
+     //% help=pins/servo-set-pulse weight=19
+     //% blockId=device_set_servo_pulse block="servo set pulse|pin %value|to (µs) %micros"
++    //% name.label="pin" micros.label="microseconds"
+     //% value.shadow=analog_pin_shadow
+     //% group="Servo" shim=pins::servoSetPulse
+     function servoSetPulse(name: int32, micros: int32): void;
+@@ -824,6 +848,7 @@ declare namespace pins {
+      * @param name pin to modulate pitch from
+      */
+     //% blockId=device_analog_set_pitch_pin block="analog set pitch pin %name"
++    //% name.label="value"
+     //% help=pins/analog-set-pitch-pin advanced=true
+     //% name.shadow=analog_pin_shadow
+     //% group="Pins"
+@@ -836,6 +861,7 @@ declare namespace pins {
+      * @param volume the intensity of the sound from 0..255
+      */
+     //% blockId=device_analog_set_pitch_volume block="analog set pitch volume $volume"
++    //% volume.label="value"
+     //% help=pins/analog-set-pitch-volume weight=3 advanced=true
+     //% volume.min=0 volume.max=255
+     //% deprecated shim=pins::analogSetPitchVolume
+@@ -855,6 +881,7 @@ declare namespace pins {
+      * @param ms duration of the pitch in milliseconds.
+      */
+     //% blockId=device_analog_pitch block="analog pitch %frequency|for (ms) %ms"
++    //% frequency.label="frequency" ms.label="duration"
+     //% help=pins/analog-pitch async advanced=true
+     //% group="Pins"
+     //% weight=14
+@@ -868,6 +895,7 @@ declare namespace pins {
+      */
+     //% help=pins/set-pull advanced=true
+     //% blockId=device_set_pull block="set pull|pin %pin|to %pull"
++    //% name.label="pin"
+     //% pin.shadow=digital_pin_shadow
+     //% group="Pins"
+     //% weight=15
+@@ -882,6 +910,7 @@ declare namespace pins {
+      */
+     //% help=pins/set-events advanced=true
+     //% blockId=device_set_pin_events block="set pin %pin|to emit %type|events"
++    //% name.label="pin"
+     //% pin.shadow=digital_pin_shadow
+     //% group="Pins"
+     //% weight=13
+@@ -903,6 +932,7 @@ declare namespace pins {
+      */
+     //% help=pins/neopixel-matrix-width advanced=true
+     //% blockId=pin_neopixel_matrix_width block="neopixel matrix width|pin %pin %width"
++    //% pin.label="pin" width.label="width"
+     //% pin.shadow=digital_pin_shadow
+     //% width.min=2
+     //% group="Pins"
+@@ -928,6 +958,7 @@ declare namespace pins {
+      */
+     //% help=pins/spi-write advanced=true
+     //% blockId=spi_write block="spi write %value"
++    //% value.label="value"
+     //% group="SPI"
+     //% blockGap=8
+     //% weight=53 shim=pins::spiWrite
+@@ -947,6 +978,7 @@ declare namespace pins {
+      */
+     //% help=pins/spi-frequency advanced=true
+     //% blockId=spi_frequency block="spi frequency %frequency"
++    //% frequency.label="value"
+     //% group="SPI"
+     //% blockGap=8
+     //% weight=55 shim=pins::spiFrequency
+@@ -959,6 +991,7 @@ declare namespace pins {
+      */
+     //% help=pins/spi-format advanced=true
+     //% blockId=spi_format block="spi format|bits %bits|mode %mode"
++    //% bits.label="bits" mode.label="mode"
+     //% group="SPI"
+     //% blockGap=8
+     //% weight=54 shim=pins::spiFormat
+@@ -970,6 +1003,7 @@ declare namespace pins {
+      */
+     //% help=pins/spi-pins advanced=true
+     //% blockId=spi_pins block="spi set pins|MOSI %mosi|MISO %miso|SCK %sck"
++    //% mosi.label="MOSI pin" miso.label="MISO pin" sck.label="SCK pin"
+     //% mosi.shadow=digital_pin_shadow
+     //% miso.shadow=digital_pin_shadow
+     //% sck.shadow=digital_pin_shadow
+@@ -989,6 +1023,7 @@ declare namespace pins {
+      * @param name pin to modulate pitch from
+      */
+     //% blockId=pin_set_audio_pin block="set audio pin $name"
++    //% name.label="value"
+     //% help=pins/set-audio-pin
+     //% name.shadow=digital_pin_shadow
+     //% weight=1
+@@ -1001,6 +1036,7 @@ declare namespace pins {
+      */
+     //% blockId=pin_set_audio_pin_enabled
+     //% block="set audio pin enabled $enabled"
++    //% enabled.label="value"
+     //% weight=0 help=pins/set-audio-pin-enabled shim=pins::setAudioPinEnabled
+     function setAudioPinEnabled(enabled: boolean): void;
+ }
+@@ -1017,6 +1053,7 @@ declare namespace serial {
+      */
+     //% help=serial/read-until
+     //% blockId=serial_read_until block="serial|read until %delimiter=serial_delimiter_conv"
++    //% delimiter.label="delimiter"
+     //% weight=19 shim=serial::readUntil
+     function readUntil(delimiter: string): string;
+ 
+@@ -1033,7 +1070,8 @@ declare namespace serial {
+      * @param delimiters the characters to match received characters against.
+      */
+     //% help=serial/on-data-received
+-    //% weight=18 blockId=serial_on_data_received block="serial|on data received %delimiters=serial_delimiter_conv" shim=serial::onDataReceived
++    //% weight=18 blockId=serial_on_data_received block="serial|on data received %delimiters=serial_delimiter_conv"
++    //% delimiters.label="delimiter" shim=serial::onDataReceived
+     function onDataReceived(delimiters: string, body: () => void): void;
+ 
+     /**
+@@ -1042,6 +1080,7 @@ declare namespace serial {
+     //% help=serial/write-string
+     //% weight=87 blockGap=8
+     //% blockId=serial_writestring block="serial|write string %text"
++    //% text.label="value"
+     //% text.shadowOptions.toString=true shim=serial::writeString
+     function writeString(text: string): void;
+ 
+@@ -1049,6 +1088,7 @@ declare namespace serial {
+      * Send a buffer through serial connection
+      */
+     //% blockId=serial_writebuffer block="serial|write buffer %buffer=serial_readbuffer"
++    //% buffer.label="value"
+     //% help=serial/write-buffer advanced=true weight=6 shim=serial::writeBuffer
+     function writeBuffer(buffer: Buffer): void;
+ 
+@@ -1058,6 +1098,7 @@ declare namespace serial {
+      * @param length default buffer length
+      */
+     //% blockId=serial_readbuffer block="serial|read buffer %length"
++    //% length.label="value"
+     //% help=serial/read-buffer advanced=true weight=5 shim=serial::readBuffer
+     function readBuffer(length: int32): Buffer;
+ 
+@@ -1101,6 +1142,7 @@ declare namespace serial {
+      */
+     //% help=serial/set-rx-buffer-size
+     //% blockId=serialSetRxBufferSize block="serial set rx buffer size to $size"
++    //% size.label="value"
+     //% advanced=true shim=serial::setRxBufferSize
+     function setRxBufferSize(size: uint8): void;
+ 
+@@ -1110,6 +1152,7 @@ declare namespace serial {
+      */
+     //% help=serial/set-tx-buffer-size
+     //% blockId=serialSetTxBufferSize block="serial set tx buffer size to $size"
++    //% size.label="value"
+     //% advanced=true shim=serial::setTxBufferSize
+     function setTxBufferSize(size: uint8): void;
+ 
+diff --git a/libs/datalogger/_locales/datalogger-strings.json b/libs/datalogger/_locales/datalogger-strings.json
+index 2c1399f..0b387a4 100644
+--- a/libs/datalogger/_locales/datalogger-strings.json
++++ b/libs/datalogger/_locales/datalogger-strings.json
+@@ -3,14 +3,39 @@
+   "datalogger.DeleteType.Full|block": "full",
+   "datalogger._columnField|block": "$column",
+   "datalogger.createCV|block": "column $column value $value",
++  "datalogger.createCV|param|column|label": "column",
++  "datalogger.createCV|param|value|label": "value",
+   "datalogger.deleteLog|block": "delete log||$deleteType",
+   "datalogger.includeTimestamp|block": "set timestamp $format",
+   "datalogger.logData|block": "log data array $data",
++  "datalogger.logData|param|data|label": "value",
+   "datalogger.log|block": "log data $data1||$data2 $data3 $data4 $data5 $data6 $data7 $data8 $data9 $data10",
++  "datalogger.log|param|data10|label": "data 10",
++  "datalogger.log|param|data1|label": "data 1",
++  "datalogger.log|param|data2|label": "data 2",
++  "datalogger.log|param|data3|label": "data 3",
++  "datalogger.log|param|data4|label": "data 4",
++  "datalogger.log|param|data5|label": "data 5",
++  "datalogger.log|param|data6|label": "data 6",
++  "datalogger.log|param|data7|label": "data 7",
++  "datalogger.log|param|data8|label": "data 8",
++  "datalogger.log|param|data9|label": "data 9",
+   "datalogger.mirrorToSerial|block": "mirror data to serial $on",
++  "datalogger.mirrorToSerial|param|on|label": "value",
+   "datalogger.onLogFull|block": "on log full",
+   "datalogger.setColumnTitles|block": "set columns $col1||$col2 $col3 $col4 $col5 $col6 $col7 $col8 $col9 $col10",
++  "datalogger.setColumnTitles|param|col10|label": "column 10",
++  "datalogger.setColumnTitles|param|col1|label": "column 1",
++  "datalogger.setColumnTitles|param|col2|label": "column 2",
++  "datalogger.setColumnTitles|param|col3|label": "column 3",
++  "datalogger.setColumnTitles|param|col4|label": "column 4",
++  "datalogger.setColumnTitles|param|col5|label": "column 5",
++  "datalogger.setColumnTitles|param|col6|label": "column 6",
++  "datalogger.setColumnTitles|param|col7|label": "column 7",
++  "datalogger.setColumnTitles|param|col8|label": "column 8",
++  "datalogger.setColumnTitles|param|col9|label": "column 9",
+   "datalogger.setColumns|block": "set columns $cols",
++  "datalogger.setColumns|param|cols|label": "value",
+   "datalogger|block": "Data Logger",
+   "{id:category}Datalogger": "Datalogger",
+   "{id:group}micro:bit (V2)": "micro:bit (V2)"
+diff --git a/libs/microphone/_locales/microphone-strings.json b/libs/microphone/_locales/microphone-strings.json
+index 788890d..38ea4e3 100644
+--- a/libs/microphone/_locales/microphone-strings.json
++++ b/libs/microphone/_locales/microphone-strings.json
+@@ -5,6 +5,7 @@
+   "SoundThreshold.Quiet|block": "quiet",
+   "input.onSound|block": "on %sound sound",
+   "input.setSoundThreshold|block": "set %sound sound threshold to %value",
++  "input.setSoundThreshold|param|threshold|label": "threshold",
+   "input.soundLevel|block": "sound level",
+   "input|block": "input",
+   "{id:category}Input": "Input",
+diff --git a/libs/microphone/shims.d.ts b/libs/microphone/shims.d.ts
+index 54bae85..b69d6e5 100644
+--- a/libs/microphone/shims.d.ts
++++ b/libs/microphone/shims.d.ts
+@@ -26,6 +26,7 @@ declare namespace input {
+      */
+     //% help=input/set-sound-threshold
+     //% blockId=input_set_sound_threshold block="set %sound sound threshold to %value"
++    //% threshold.label="threshold"
+     //% parts="microphone"
+     //% threshold.min=0 threshold.max=255
+     //% weight=14 blockGap=8
+diff --git a/libs/radio-broadcast/_locales/radio-broadcast-strings.json b/libs/radio-broadcast/_locales/radio-broadcast-strings.json
+index 6eb2af1..5c85d26 100644
+--- a/libs/radio-broadcast/_locales/radio-broadcast-strings.json
++++ b/libs/radio-broadcast/_locales/radio-broadcast-strings.json
+@@ -1,6 +1,8 @@
+ {
+   "radio.onReceivedMessage|block": "on radio $msg received",
++  "radio.onReceivedMessage|param|msg|label": "message",
+   "radio.sendMessage|block": "radio send $msg",
++  "radio.sendMessage|param|msg|label": "message",
+   "radio|block": "radio",
+   "{id:category}Radio": "Radio",
+   "{id:group}Broadcast": "Broadcast"
+diff --git a/libs/radio/_locales/radio-strings.json b/libs/radio/_locales/radio-strings.json
+index 580966d..d704a4f 100644
+--- a/libs/radio/_locales/radio-strings.json
++++ b/libs/radio/_locales/radio-strings.json
+@@ -24,18 +24,29 @@
+   "radio.onReceivedValue|handlerParam|name": "name",
+   "radio.onReceivedValue|handlerParam|value": "value",
+   "radio.raiseEvent|block": "radio raise event|from source %src=control_event_source_id|with value %value=control_event_value_id",
++  "radio.raiseEvent|param|src|label": "source",
++  "radio.raiseEvent|param|value|label": "value",
+   "radio.receiveNumber|block": "radio receive number",
+   "radio.receiveString|block": "radio receive string",
+   "radio.receivedPacket|block": "received packet %type=radio_packet_property",
++  "radio.receivedPacket|param|type|label": "property",
+   "radio.receivedSignalStrength|block": "radio received signal strength",
+   "radio.sendNumber|block": "radio send number %value",
++  "radio.sendNumber|param|value|label": "value",
+   "radio.sendString|block": "radio send string %msg",
++  "radio.sendString|param|value|label": "value",
+   "radio.sendValue|block": "radio send|value %name|= %value",
+   "radio.sendValue|param|name|defl": "name",
++  "radio.sendValue|param|name|label": "name",
++  "radio.sendValue|param|value|label": "value",
+   "radio.setFrequencyBand|block": "radio set frequency band %band",
++  "radio.setFrequencyBand|param|band|label": "value",
+   "radio.setGroup|block": "radio set group %ID",
++  "radio.setGroup|param|id|label": "value",
+   "radio.setTransmitPower|block": "radio set transmit power %power",
++  "radio.setTransmitPower|param|power|label": "value",
+   "radio.setTransmitSerialNumber|block": "radio set transmit serial number %transmit",
++  "radio.setTransmitSerialNumber|param|transmit|label": "value",
+   "radio.writeReceivedPacketToSerial|block": "radio write received packet to serial",
+   "radio.writeValueToSerial|block": "radio write value to serial",
+   "radio|block": "radio",
+diff --git a/libs/radio/shims.d.ts b/libs/radio/shims.d.ts
+index 6df6da4..688c6af 100644
+--- a/libs/radio/shims.d.ts
++++ b/libs/radio/shims.d.ts
+@@ -23,6 +23,7 @@ declare namespace radio {
+      * Sends an event over radio to neigboring devices
+      */
+     //% blockId=radioRaiseEvent block="radio raise event|from source %src=control_event_source_id|with value %value=control_event_value_id"
++    //% src.label="source" value.label="value"
+     //% blockExternalInputs=1
+     //% advanced=true
+     //% weight=1
+@@ -58,6 +59,7 @@ declare namespace radio {
+     //% help=radio/set-group
+     //% weight=100
+     //% blockId=radio_set_group block="radio set group %ID"
++    //% id.label="value"
+     //% id.min=0 id.max=255
+     //% group="Group" shim=radio::setGroup
+     function setGroup(id: int32): void;
+@@ -69,6 +71,7 @@ declare namespace radio {
+     //% help=radio/set-transmit-power
+     //% weight=9 blockGap=8
+     //% blockId=radio_set_transmit_power block="radio set transmit power %power"
++    //% power.label="value"
+     //% power.min=0 power.max=7
+     //% advanced=true shim=radio::setTransmitPower
+     function setTransmitPower(power: int32): void;
+@@ -80,6 +83,7 @@ declare namespace radio {
+     //% help=radio/set-frequency-band
+     //% weight=8 blockGap=8
+     //% blockId=radio_set_frequency_band block="radio set frequency band %band"
++    //% band.label="value"
+     //% band.min=0 band.max=83
+     //% advanced=true shim=radio::setFrequencyBand
+     function setFrequencyBand(band: int32): void;
+diff --git a/libs/servo/_locales/servo-strings.json b/libs/servo/_locales/servo-strings.json
+index 0c0ebb0..5f6ead8 100644
+--- a/libs/servo/_locales/servo-strings.json
++++ b/libs/servo/_locales/servo-strings.json
+@@ -3,10 +3,16 @@
+   "servos.P1|block": "servo P1",
+   "servos.P2|block": "servo P2",
+   "servos.Servo.run|block": "continuous %servo run at %speed=speedPicker \\%",
++  "servos.Servo.run|param|speed|label": "speed",
+   "servos.Servo.setAngle|block": "set %servo angle to %degrees=protractorPicker °",
++  "servos.Servo.setAngle|param|degrees|label": "angle",
+   "servos.Servo.setPulse|block": "set %servo pulse to %micros μs",
++  "servos.Servo.setPulse|param|micros|label": "microseconds",
+   "servos.Servo.setRange|block": "set %servo range from %minAngle to %maxAngle",
++  "servos.Servo.setRange|param|maxAngle|label": "maximum angle",
++  "servos.Servo.setRange|param|minAngle|label": "minimum angle",
+   "servos.Servo.setStopOnNeutral|block": "set %servo stop on neutral %enabled",
++  "servos.Servo.setStopOnNeutral|param|enabled|label": "on",
+   "servos.Servo.stop|block": "stop %servo",
+   "{id:category}Servos": "Servos",
+   "{id:group}Configuration": "Configuration",

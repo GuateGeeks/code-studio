@@ -1,0 +1,4 @@
+{
+  "exclude": ["docs/", "**/translations/", "**/lib/libraries/", "**/dist/", "**/build/", "**/node_modules/"],
+  "deprioritize": ["packages/scratch-gui/test/", "packages/scratch-vm/test/", "scripts/"]
+}

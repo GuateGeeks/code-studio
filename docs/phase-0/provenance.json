@@ -1,0 +1,60 @@
+{
+  "recordedAt": "2026-10-22T06:54:05.455Z",
+  "node": "v22.23.4",
+  "upstream": {
+    "raspberrypi-blockly": {
+      "commit": "4bcb4344cfaef1419e1684862d3a1db5c5d5c9c4",
+      "packageVersion": "0.0.0",
+      "lockSha256": "582fa8fac80d85cdb6d1ff32ddf47822b28a2d850754ee8070454739c7a4689b",
+      "priorTrackedChanges": 0,
+      "priorDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "xcratch-scratch-editor": {
+      "commit": "cb153ab6611bdb6ca872b52099c5d34709a4410b",
+      "packageVersion": "12.3.1",
+      "lockSha256": "78388a73cf9c6c3c6d2376d68dd1c1eb4c154f937939767345458858d7859d97",
+      "priorTrackedChanges": 0,
+      "priorDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "pxt-microbit": {
+      "commit": "f71ff5743537fa52b9156712969be2c226ce8d71",
+      "packageVersion": "9.1.1",
+      "lockSha256": "33458b2a0a3bd37c97de3e5dfe1e223e4008a476bb005bc40541d518e0f72e7d",
+      "priorTrackedChanges": 15,
+      "priorDiffSha256": "b0e4ad5313c8ba45035f365043c76a6395345a3b07034ffefbc5714ff0bb2df0"
+    }
+  },
+  "pxtCore": {
+    "version": "13.0.1",
+    "sourceCommit": "af4bcc89fd2114b6ec232860ce0458cb9aa0dd28",
+    "sourceArchiveSha256": "5cc386dc2c9a9a62e0ee85b656196d48db97ffaf99d23dc22399eeac49d27b35"
+  },
+  "scratchStorage": {
+    "version": "5.0.3",
+    "sourceCommit": "5d05111a988917da5e79419e52af1f8bad7c1e3b"
+  },
+  "scratchAudio": {
+    "version": "2.0.268",
+    "entrySha256": "d724433c3ab7afe8314e016fa3d9119c50ce727ad7447c0815129069aff182b4"
+  },
+  "tools": {
+    "@fission-ai/openspec": "1.14.3",
+    "@colbymchenry/codegraph": "1.6.2",
+    "@playwright/test": "1.64.1",
+    "blockly": "13.4.0"
+  },
+  "assets": {
+    "built/target.json": "993f04e92e412b8328ac4022bc09cc1c457d95a65e486300037ecd9e8908b399",
+    "built/compiler.js": "be9af26759448c021b01e028fffba5aeba55d24ae472dc7afc68eb444b015e97",
+    "built/sim.js": "91f5557855d3594280d323fb086341e2622b297f87f5a65c5991c6b69ba924fc",
+    "built/common-sim.js": "9d6437b40a164dd08f73890c0901dbd60bcabbaaf56aef1d16cddf93e4ac9eeb",
+    "node_modules/pxt-core/built/web/pxtsim.js": "566938713d8405705ac13b0b1e6e5ffb500b9a71aefe9b6a28649fbfdccf63c3",
+    "targetconfig.json": "45bd8d62a3c649500fdc0beea2475b08091331c105ecd0243f3a66114a750e07",
+    "built/hexcache/354b97da4696027afdaa3977420ec181bfc88a2faa2d2c0174842767718551e7.hex": "648fece987592f8530ec321b91c562c93379d2a59e2e601374629417c8f35ef1",
+    "built/hexcache/4cc31a5b0ac4adb3d5f3ad2b5b0b6910e433f8916877817a868a9fac43374baf.hex": "72b52b93ac20d0d7e2e54873333cb9da374a4bb2a9a280315e96a24bdc35bea0",
+    "built/hexcache/8b83cd59cf0f3a3492a7dae238295225690d07132e61396c74a600de815e5dc2.hex": "a5c187b6772222173376ca5ce42e003c59f21563c95ce12fe2b4eb13984313d8",
+    "built/hexcache/949fbd03bf2de1d4bf409bb1e68613a9d8745ca0bbafef44aa472a60ef9c0f73.hex": "bb04445c25e8c1cba8d291de1c646fa22608276673625aedc6941787a73245c0"
+  },
+  "sourceArchiveVersion": "13.0.1",
+  "python": "Python 3.14.4"
+}

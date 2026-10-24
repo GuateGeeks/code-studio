@@ -1,0 +1,44 @@
+{
+  "phase": "phase-5-sb3-resources",
+  "status": "software-approved",
+  "startedAt": "2026-10-22T15:26:54.089Z",
+  "finishedAt": "2026-10-22T15:44:32.500Z",
+  "durationSeconds": 1058.411,
+  "node": 295,
+  "tools": 38,
+  "smoke": 3,
+  "regression": 100,
+  "openspec": 11,
+  "build": {
+    "forced": false,
+    "stages": 11,
+    "reused": 11,
+    "milliseconds": 801.347019
+  },
+  "baselineWritten": true,
+  "upstreamsPreserved": [
+    "raspberrypi-blockly",
+    "xcratch-scratch-editor",
+    "pxt-microbit"
+  ],
+  "corpus": {
+    "total": 20,
+    "editable": 10,
+    "vmCompatible": 7,
+    "unsupported": 3,
+    "allEditableCopiesExecuted": true
+  },
+  "offline": {
+    "browserFullyRestarted": true,
+    "serversStopped": 4,
+    "sb3PngImportedExecutedReopened": true
+  },
+  "evidenceDirectory": "artifacts/cuts/phase-5-sb3-resources",
+  "historicalFailedFull": "failed-local-blob-classification",
+  "externalPending": [
+    "physical micro:bit",
+    "school hardware budgets",
+    "human screen reader review",
+    "classroom pilot"
+  ]
+}

@@ -1,0 +1,541 @@
+{
+  "cut": "phase-2-textual-equivalence",
+  "recordedAt": "2026-10-22T11:03:37.452Z",
+  "full": {
+    "profile": "full",
+    "selection": "full",
+    "startedAt": "2026-10-22T10:54:56.484Z",
+    "steps": [
+      {
+        "name": "integration",
+        "startedAt": "2026-10-22T10:54:56.484Z",
+        "durationMs": 3435.51947,
+        "exitCode": 0
+      },
+      {
+        "name": "tools",
+        "startedAt": "2026-10-22T10:54:59.921Z",
+        "durationMs": 330.1273429999983,
+        "exitCode": 0
+      },
+      {
+        "name": "build",
+        "startedAt": "2026-10-22T10:55:00.251Z",
+        "durationMs": 1435.9670240000014,
+        "exitCode": 0
+      },
+      {
+        "name": "smoke",
+        "startedAt": "2026-10-22T10:55:01.687Z",
+        "durationMs": 14688.373189,
+        "exitCode": 0
+      },
+      {
+        "name": "browser",
+        "startedAt": "2026-10-22T10:55:16.375Z",
+        "durationMs": 499419.138596,
+        "exitCode": 0
+      },
+      {
+        "name": "specs",
+        "startedAt": "2026-10-22T11:03:35.794Z",
+        "durationMs": 489.9276330000139,
+        "exitCode": 0
+      },
+      {
+        "name": "upstream-preservation",
+        "startedAt": "2026-10-22T11:03:36.284Z",
+        "durationMs": 131.46372700005304,
+        "exitCode": 0
+      }
+    ],
+    "baselineWritten": true,
+    "exitCode": 0,
+    "finishedAt": "2026-10-22T11:03:37.452Z"
+  },
+  "counts": {
+    "node": 123,
+    "tools": 33,
+    "smoke": 3,
+    "regression": 67,
+    "e2eTotal": 70
+  },
+  "browserStats": {
+    "startTime": "2026-10-22T10:55:16.907Z",
+    "duration": 498861.061,
+    "expected": 67,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "smokeStats": {
+    "startTime": "2026-10-22T10:55:02.188Z",
+    "duration": 14167.003,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "build": {
+    "recordedAt": "2026-10-22T10:55:01.671Z",
+    "forced": false,
+    "totalMs": 1383.144482,
+    "stages": [
+      {
+        "name": "static-sync",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 73.740435,
+        "inputsCount": 70,
+        "outputsCount": 213
+      },
+      {
+        "name": "language-assets",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 47.796105999999995,
+        "inputsCount": 17,
+        "outputsCount": 6
+      },
+      {
+        "name": "fixtures",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 58.947348000000005,
+        "inputsCount": 1095,
+        "outputsCount": 6
+      },
+      {
+        "name": "pxt-pack",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 50.090907999999985,
+        "inputsCount": 18,
+        "outputsCount": 8
+      },
+      {
+        "name": "renderer-storage",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 16.884446999999966,
+        "inputsCount": 15,
+        "outputsCount": 6
+      },
+      {
+        "name": "webpack-vm",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 891.663367,
+        "inputsCount": 3563,
+        "outputsCount": 1
+      },
+      {
+        "name": "webpack-audio",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 86.75554499999998,
+        "inputsCount": 2685,
+        "outputsCount": 1
+      },
+      {
+        "name": "webpack-editor",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 51.59014400000001,
+        "inputsCount": 1622,
+        "outputsCount": 1
+      },
+      {
+        "name": "webpack-language",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 50.826098,
+        "inputsCount": 1637,
+        "outputsCount": 6
+      }
+    ]
+  },
+  "upstreamPreservation": [
+    {
+      "repository": "raspberrypi-blockly",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    },
+    {
+      "repository": "xcratch-scratch-editor",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    },
+    {
+      "repository": "pxt-microbit",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    }
+  ],
+  "fullBaselineIntegrity": "1b3a213194bf00a09737214cd05fea200000d88f480c93f935499654840b5984",
+  "sourceHashes": {
+    "src/adapters/scratch/browser-scene.mjs": "598cc33e0616f3c2f21d77c1dffe8736c4e730aac810ae38195d45749021c856",
+    "src/adapters/scratch/gg-bindings.mjs": "9ad362d386e053feb2bf73e09781e2c9eb765433decca274dd3ae46132a391af",
+    "src/adapters/scratch/performance-probe.mjs": "2dd1855c8a525ea9f00ef3314ea0f0f797e5c123030af3d9547d33c312bdbc06",
+    "src/adapters/scratch/scratch-project.mjs": "d514cd55d398a94a12a50b5939a2c25a5a95832c08d386786b3ff61a398d56cc",
+    "src/adapters/scratch/text-program.mjs": "3538feb3924d8237389e3f9507a2d5eef9bdfe3633f14f110ff761fbfa35d92d",
+    "src/assets/hero-alt.svg": "9225c6ae7e0b6deeb9bec112b4b5079153e46e4a182558583845b21b16cc3f5c",
+    "src/assets/hero.svg": "9fe11c27f8fc3474d15f88acaba0bb8c54eee06c4cb311a34be1be24b67cdc6e",
+    "src/assets/stage.svg": "d538cf36f02e5939cc4c040f43d8cbbae4e38d55fcfcd9ce960a62d6c1bcec36",
+    "src/autosave-store.mjs": "43b2d6fc366ecdae014c4edac426d76fae559e14f37e19fcb312317b641e76f3",
+    "src/contracts/gg-client.mjs": "507803b6a7b7a878db88879ba9da7c27dd692306a598f881854a87ca51f4cd27",
+    "src/contracts/language-runtime.mjs": "52b517df25d8ab7e28cfa3f0b2418b84e61187b8139fb77d57f7af99247e3261",
+    "src/contracts/program-contract.mjs": "9f10ace51863aa75762b7e4f279553eb12cc93c88deb794d58153c409ba0b5e9",
+    "src/contracts/text-program.mjs": "e9d6ac005e350122ec9572086d4bab56eacb6da589eaa536d14004f7a7fb3f71",
+    "src/diagnostic-console.mjs": "703bb10e6469d4ac57fa3f442f00232c7609492460d24f7e3b7990e78779a3eb",
+    "src/editor/block-program.mjs": "684fc9edfe078e522410f4457e5d87c0b6130250d9b721f1bd0a55e576e3f316",
+    "src/editor/editor-entry.mjs": "12d9701a1f94c0af9e7345a2eff13e3f772a24135f011883cdd888e84583c132",
+    "src/generated-code.mjs": "4d449ea33127eabdb446b847a1823268bab9a3f5bb1d9e76881b3bd6a06800af",
+    "src/generated-program-source.mjs": "db0c0ae0e4dd6a2d5e0ced94494c4f675a9907ce9c9d712f9797d058b640729c",
+    "src/project-archive.mjs": "f100562a344cbf51fa37351eeb7d53e2b6f1f6c2ea838803fe4cb3707a416791",
+    "src/project-format.mjs": "403376bc7fdf9a410f22625872524f8ef9bbd8f9f7604feb3bdc1dababf900c9",
+    "src/runtime/index.html": "a6e0b750ce61b7246afe21ea66972248c0284b0c94c3f97bf47e6e36c13f74f4",
+    "src/runtime/loop-worker.js": "333750fd35053352a35fad84fe0bc8af65768a681fe9a6d1cdcc552d665ffda8",
+    "src/runtime/runner.js": "87e7bc6f44e0cf64dc9520d76dc182b4e4301ecac4148d44e133006a4880a01f",
+    "src/runtime/stage.css": "a3fa3ea594077b195135553ba4b44e830bc9f652cd2a6c01bbb5e7a23fca0bf5",
+    "src/scene-inspection.mjs": "fc2624f526fb6cd54f611012e5795f8d7fc9107cb925ac3b9bf6903ba43b0c84",
+    "src/studio/code-console-ui.mjs": "c44cfdcb41fed473742d0fa23e0dba1d95d9ae550c5841816eb35a571a724486",
+    "src/studio/index.html": "50054bc32fd4d38297ec3ede3128fc822db5eec43f7006641b2ecfaa3bb32f6b",
+    "src/studio/language-controller.mjs": "abd3f0140cb89bc29361f08ec0ab7d8c17f79527c8fb7e3d4d350104357a85b8",
+    "src/studio/project-ui.mjs": "f51b41a19af1036a3d8de808ccdd1d57437334dd17c5d9070e10df4a2a339ffe",
+    "src/studio/scene-inspector-ui.mjs": "30edbabcfc899f218c795d5a3245122a6c34352285b699848dc0febc6bc0af81",
+    "src/studio/shell.js": "3543d0fe429be68615189cf675d46ffb7e4157a42270643f3d3e515ae3f101c4",
+    "src/studio/style.css": "d85fb6cb469c8ce3a8b91df8807fbdaf4d0ae6755af7176f99928a073591347d",
+    "src/studio/text-documents-ui.mjs": "33cfba4253e604a972000b6b80c605812f163453c5e3d78b41e9aa7e206b4b3b",
+    "src/targets/microbit/compiler-worker.js": "5f1751987265605d4aa103434e9415b221a514342bc5534f27c09550bf81d3c5",
+    "src/targets/microbit/simulator/disable-embed.js": "06a1f4eb2ebe861fd56dee92ab3c7d160ef836e82dc6c6c598c7bbb275e31713",
+    "src/targets/microbit/simulator/index.html": "6d060cd37325226a2344a322033207fa64c33fe21c2801db0401868fe8ab989c",
+    "src/targets/microbit/simulator/simulator.css": "f7113add66e9e540d1ed6536e061b53e714c290fe87be1619c7f16248b7ade9c",
+    "src/targets/microbit/simulator/simulator.js": "a228a4a227218d219cb092c0268ed7f85608be3f7ef72774deef8355294f9922",
+    "src/targets/text/index.html": "184c70bbc0eb9e7c7dfd103296e6343ac1195ff83da69c0ecfa80e92578094cd",
+    "src/targets/text/invocation-queue.mjs": "1abd7c9710350829c01c6bb8907a2fe8a8d5210b1e541cd92f35d630c0b860d9",
+    "src/targets/text/language-host.mjs": "1f036add917bfa0dc720b2cf05b0a9cf4afab4e86b6037f8babe137e9c91986e",
+    "src/targets/text/language-worker.mjs": "49f7046f08b4eb7e710668ce44a50d077065861e0006a23b4ded6f3ab0a7f70a",
+    "src/targets/text/program-session.mjs": "0757b815128accdaa3ea571e7c3cc95dd41d95f2b03531d5c2e7637c167ad590",
+    "src/targets/text/python-engine.mjs": "ebdae111094310655fba572aaeb6eeafbf7a8836c3ba0e2bd5e15cb251ae1b23",
+    "src/targets/text/quickjs-engine.mjs": "3c8cb38f76fb46d207f5570418f8838b54a66eea56a7f9aa0f66f6815c2a812e",
+    "src/text-documents.mjs": "8f87733563090abfe62c41a174c6cc315552b771ee7135a0f13a86c6c6157398"
+  },
+  "packageLockSHA256": "df16e2e2dcdb499bae6ac0b3493518c8c35dec716afabe246108a7329920fd50",
+  "historicalEvidenceSHA256": {
+    "docs/phase-1/code-console-evidence.json": "f059a09ddb41e0cc73c5d9af69395a62c0e53af86577cf89705013daf203a3b6",
+    "docs/phase-1/f1-completion-evidence.json": "339236f974efb2ca94b37f8fe3a4b75083db9fec992146ae1927681270d2351d",
+    "docs/phase-2/language-foundations-evidence.json": "25e84ebd9073e4cbe3bf8ca6437feed080e9e4f6897184c72f5f08d5cd08f065"
+  },
+  "artifacts": "artifacts/cuts/phase-2-textual-equivalence",
+  "metrics": {
+    "recordedAt": "2026-10-22T10:39:58.908Z",
+    "scope": "Local WSL/Chromium diagnostic; not a school device acceptance measurement",
+    "environment": {
+      "node": "v22.23.4",
+      "platform": "linux",
+      "release": "6.18.54.1-microsoft-standard-WSL2",
+      "cpu": "AMD Ryzen 7 3700X 8-Core Processor",
+      "chromium": "156.0.8078.4"
+    },
+    "cycles": 10,
+    "metrics": {
+      "javascript": {
+        "baselineRSS": {
+          "bytes": 685854720,
+          "processes": 6
+        },
+        "runs": [
+          {
+            "cycle": 1,
+            "runMs": 571.0542059999998,
+            "stopMs": 344.58803799999987,
+            "runningRSS": {
+              "bytes": 843825152,
+              "processes": 7
+            },
+            "stoppedRSS": {
+              "bytes": 892538880,
+              "processes": 7
+            }
+          },
+          {
+            "cycle": 2,
+            "runMs": 489.9513619999998,
+            "stopMs": 343.15271500000017,
+            "runningRSS": {
+              "bytes": 957698048,
+              "processes": 7
+            },
+            "stoppedRSS": {
+              "bytes": 870285312,
+              "processes": 7
+            }
+          },
+          {
+            "cycle": 3,
+            "runMs": 458.74892299999965,
+            "stopMs": 327.40118899999925,
+            "runningRSS": {
+              "bytes": 923729920,
+              "processes": 7
+            },
+            "stoppedRSS": {
+              "bytes": 971448320,
+              "processes": 7
+            }
+          },
+          {
+            "cycle": 4,
+            "runMs": 524.2452160000003,
+            "stopMs": 328.8822030000001,
+            "runningRSS": {
+              "bytes": 874737664,
+              "processes": 7
+            },
+            "stoppedRSS": {
+              "bytes": 917995520,
+              "processes": 7
+            }
+          },
+          {
+            "cycle": 5,
+            "runMs": 441.7727240000004,
+            "stopMs": 363.05521599999975,
+            "runningRSS": {
+              "bytes": 973795328,
+              "processes": 7
+            },
+            "stoppedRSS": {
+              "bytes": 896462848,
+              "processes": 7
+            }
+          },
+          {
+            "cycle": 6,
+            "runMs": 468.56304199999977,
+            "stopMs": 328.04614200000015,
+            "runningRSS": {
+              "bytes": 934821888,
+              "processes": 7
+            },
+            "stoppedRSS": {
+              "bytes": 978329600,
+              "processes": 7
+            }
+          },
+          {
+            "cycle": 7,
+            "runMs": 491.7802300000003,
+            "stopMs": 329.0320019999999,
+            "runningRSS": {
+              "bytes": 1031532544,
+              "processes": 7
+            },
+            "stoppedRSS": {
+              "bytes": 913137664,
+              "processes": 7
+            }
+          },
+          {
+            "cycle": 8,
+            "runMs": 441.56076700000085,
+            "stopMs": 329.2382659999985,
+            "runningRSS": {
+              "bytes": 939470848,
+              "processes": 7
+            },
+            "stoppedRSS": {
+              "bytes": 987439104,
+              "processes": 7
+            }
+          },
+          {
+            "cycle": 9,
+            "runMs": 490.4690019999998,
+            "stopMs": 345.2894319999996,
+            "runningRSS": {
+              "bytes": 1039056896,
+              "processes": 7
+            },
+            "stoppedRSS": {
+              "bytes": 916553728,
+              "processes": 7
+            }
+          },
+          {
+            "cycle": 10,
+            "runMs": 457.2732019999985,
+            "stopMs": 328.0477039999987,
+            "runningRSS": {
+              "bytes": 946225152,
+              "processes": 7
+            },
+            "stoppedRSS": {
+              "bytes": 992370688,
+              "processes": 7
+            }
+          }
+        ]
+      },
+      "python": {
+        "baselineRSS": {
+          "bytes": 687136768,
+          "processes": 6
+        },
+        "runs": [
+          {
+            "cycle": 1,
+            "runMs": 3208.9374659999994,
+            "stopMs": 392.2806529999998,
+            "runningRSS": {
+              "bytes": 877481984,
+              "processes": 7
+            },
+            "stoppedRSS": {
+              "bytes": 923639808,
+              "processes": 7
+            }
+          },
+          {
+            "cycle": 2,
+            "runMs": 3239.7620419999985,
+            "stopMs": 326.7580300000009,
+            "runningRSS": {
+              "bytes": 884822016,
+              "processes": 7
+            },
+            "stoppedRSS": {
+              "bytes": 929529856,
+              "processes": 7
+            }
+          },
+          {
+            "cycle": 3,
+            "runMs": 2708.4665380000006,
+            "stopMs": 309.12836100000277,
+            "runningRSS": {
+              "bytes": 901742592,
+              "processes": 7
+            },
+            "stoppedRSS": {
+              "bytes": 929280000,
+              "processes": 7
+            }
+          },
+          {
+            "cycle": 4,
+            "runMs": 2908.8924119999974,
+            "stopMs": 326.3970960000006,
+            "runningRSS": {
+              "bytes": 891600896,
+              "processes": 7
+            },
+            "stoppedRSS": {
+              "bytes": 936886272,
+              "processes": 7
+            }
+          },
+          {
+            "cycle": 5,
+            "runMs": 2756.830854,
+            "stopMs": 328.2825739999971,
+            "runningRSS": {
+              "bytes": 941711360,
+              "processes": 7
+            },
+            "stoppedRSS": {
+              "bytes": 926273536,
+              "processes": 7
+            }
+          },
+          {
+            "cycle": 6,
+            "runMs": 2891.121426999998,
+            "stopMs": 308.57601200000136,
+            "runningRSS": {
+              "bytes": 941690880,
+              "processes": 7
+            },
+            "stoppedRSS": {
+              "bytes": 944570368,
+              "processes": 7
+            }
+          },
+          {
+            "cycle": 7,
+            "runMs": 2808.8650570000027,
+            "stopMs": 327.17568700000265,
+            "runningRSS": {
+              "bytes": 944803840,
+              "processes": 7
+            },
+            "stoppedRSS": {
+              "bytes": 929406976,
+              "processes": 7
+            }
+          },
+          {
+            "cycle": 8,
+            "runMs": 2806.9190610000005,
+            "stopMs": 327.8169960000014,
+            "runningRSS": {
+              "bytes": 922009600,
+              "processes": 7
+            },
+            "stoppedRSS": {
+              "bytes": 948023296,
+              "processes": 7
+            }
+          },
+          {
+            "cycle": 9,
+            "runMs": 2925.884211999997,
+            "stopMs": 376.3342849999972,
+            "runningRSS": {
+              "bytes": 965578752,
+              "processes": 7
+            },
+            "stoppedRSS": {
+              "bytes": 921874432,
+              "processes": 7
+            }
+          },
+          {
+            "cycle": 10,
+            "runMs": 3105.5147979999965,
+            "stopMs": 344.60862199999974,
+            "runningRSS": {
+              "bytes": 895897600,
+              "processes": 7
+            },
+            "stoppedRSS": {
+              "bytes": 893902848,
+              "processes": 7
+            }
+          }
+        ]
+      }
+    },
+    "servedBytes": {
+      "shell": 1328445,
+      "runner": 27315746,
+      "simulator": 1038959,
+      "language": 15170750
+    },
+    "limitations": [
+      "RSS sums Chromium processes and may count shared pages more than once; it is not private heap or a WASM-only measurement.",
+      "Run includes fresh runner/interpreter bootstrap and one GG command; first run is cold within a fresh browser process.",
+      "No RAM/loading threshold is certified for school hardware."
+    ]
+  },
+  "initialFullFailure": "Test readiness race (studioProbe used before initialization); explicit wait added and costume case passed before final full. First log retained under failed-first-full.",
+  "externalEvidencePending": [
+    "Target school hardware/memory measurements",
+    "Human screen reader and school pilot",
+    "Physical micro:bit"
+  ]
+}

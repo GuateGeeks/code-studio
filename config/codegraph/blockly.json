@@ -1,0 +1,4 @@
+{
+  "exclude": ["packages/docs/", "**/msg/", "**/build/", "**/dist/", "**/node_modules/"],
+  "deprioritize": ["packages/blockly/tests/", "packages/blockly/scripts/"]
+}

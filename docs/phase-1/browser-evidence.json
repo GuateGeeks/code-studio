@@ -1,0 +1,488 @@
+{
+  "recordedAt": "2026-10-22T07:37:59.418Z",
+  "phase": "F1: primer corte de persistencia, autosave y recuperación",
+  "command": "npm run browser:build && npm test > artifacts/f1-integration.tap && npm run test:browser && node tools/f0/verify-baseline.mjs && node tools/f1/evidence.mjs",
+  "environment": {
+    "playwright": "1.64.1",
+    "browser": "156.0.8078.4",
+    "revision": "1248",
+    "node": "v22.23.4",
+    "softwareWebGLFlag": "--enable-unsafe-swiftshader"
+  },
+  "tests": {
+    "node": {
+      "tests": 44,
+      "pass": 44,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0,
+      "duration_ms": 2560.408319
+    },
+    "chromium": {
+      "startTime": "2026-10-22T07:34:40.873Z",
+      "duration": 156131.449,
+      "expected": 33,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "functionalF0RegressionCount": 25,
+    "persistenceBrowserCount": 8,
+    "retries": 0
+  },
+  "reports": [
+    {
+      "file": "artifacts/f1-integration.tap",
+      "bytes": 20484,
+      "sha256": "96efde6cc982522de01febb63c50a6e5e9ab120bc425d7a9167836cafd773eaf"
+    },
+    {
+      "file": "artifacts/browser-results.json",
+      "bytes": 40201,
+      "sha256": "1a3f3521da219a729f2f0f9463f27dcf563daea704674d3637412ed7f9a2f166"
+    }
+  ],
+  "cases": {
+    "portable": {
+      "filename": "Mi robot viajero.ggproj",
+      "localArtifact": "artifacts/f1-example.ggproj",
+      "bytes": 61908,
+      "sha256": "1d566f243c7bc9ca701186ed0f33f2152ebe2680276e607af878ed39e7da7dd8",
+      "entries": [
+        "manifest.json",
+        "assets/9914b450768c3d6d928554036b46f589.svg",
+        "assets/a8baacdb9f80c26d1844a91d9ba5f33d.svg",
+        "assets/d55950c893909411262a738a26cbba58.svg",
+        "assets/52abebc172d254ab1174125953b88bf8.wav"
+      ],
+      "projectId": "e3eb0d33-f728-47a8-ba42-24f07c72dab0",
+      "authoringPreserved": true,
+      "sourcePreserved": true,
+      "initialX": 0,
+      "runtimeX": 18,
+      "freshContext": true
+    },
+    "autosave": {
+      "project": {
+        "id": "8ffdad04-8049-4465-b9af-bda7ded07b2b",
+        "name": "Proyecto recuperable",
+        "revision": 1,
+        "createdAt": "2026-10-22T07:35:58.621Z",
+        "updatedAt": "2026-10-22T07:36:00.653Z"
+      },
+      "authoringPreserved": true,
+      "recoveredX": 0,
+      "rerunAndMessageX": 20,
+      "finalX": 0
+    },
+    "atomic-rejections": {
+      "rejected": [
+        {
+          "case": "truncated-json",
+          "error": "GGPROJ: JSON inválido o archivo truncado"
+        },
+        {
+          "case": "unsupported-version",
+          "error": "GGPROJ: formato o versión no soportada"
+        },
+        {
+          "case": "missing-resource",
+          "error": "GGPROJ: recursos desconocidos, ausentes o modificados"
+        },
+        {
+          "case": "foreign-resource",
+          "error": "GGPROJ: recursos desconocidos, ausentes o modificados"
+        },
+        {
+          "case": "extensions",
+          "error": "GGPROJ: documento: propiedades ausentes o no permitidas"
+        },
+        {
+          "case": "oversized-workspace",
+          "error": "GGPROJ: metadatos de workspace no soportados"
+        },
+        {
+          "case": "unsupported-block",
+          "error": "Unsupported block text (foreign-block)"
+        }
+      ],
+      "invalidArchives": [
+        "truncated.ggproj",
+        "not-a-zip.ggproj",
+        "missing-asset.ggproj",
+        "future-version.ggproj"
+      ],
+      "authoringPreserved": true,
+      "originalSessionStillValid": true,
+      "finalX": 19
+    },
+    "recovery": {
+      "fallbackProject": "Copia anterior válida",
+      "backupPreserved": true,
+      "corruptRecordsPreserved": true,
+      "diagnostic": "No se pudo recuperar una copia válida. Las copias locales se conservaron; puedes abrir un archivo GGPROJ."
+    },
+    "storage-unavailable": {
+      "faultInjection": "IDBFactory.open throws SecurityError before boot; editing, runner and ZIP download remain real",
+      "diagnostic": "No se pudo acceder al guardado local. Puedes seguir editando y exportar GGPROJ.",
+      "runtimeX": 18,
+      "portableBytes": 61930
+    },
+    "quota": {
+      "faultInjection": "IDBObjectStore.put throws QuotaExceededError only after a real successful commit; IndexedDB transaction and later retry remain real",
+      "lastDurableName": "Última revisión confirmada",
+      "failedWritePreservedRecords": true,
+      "unsavedExportName": "Edición que aún no está guardada",
+      "laterCommitName": "Edición que aún no está guardada"
+    },
+    "stop-reopen": {
+      "authoringPreserved": true,
+      "previousFrameDetached": true,
+      "workers": [
+        {
+          "url": "http://127.0.0.1:4174/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+          "closed": true
+        },
+        {
+          "url": "http://127.0.0.1:4174/loop-worker.js",
+          "closed": true
+        },
+        {
+          "url": "http://127.0.0.1:4174/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+          "closed": true
+        },
+        {
+          "url": "http://127.0.0.1:4174/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+          "closed": true
+        },
+        {
+          "url": "http://127.0.0.1:4174/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+          "closed": true
+        }
+      ],
+      "staleReferenceError": "Stale GG session or program revision",
+      "reopenedInitialX": 0,
+      "rerunX": 5
+    },
+    "overlapping-recovery": {
+      "flushStartedBeforeRecovery": true,
+      "restoredCheckpoint": "Checkpoint antes de recuperar",
+      "outcomes": [
+        {
+          "settled": true
+        },
+        {
+          "settled": true
+        }
+      ],
+      "savedImportedName": "Importación conservada durante Stop",
+      "authoringPreserved": true,
+      "runtimeX": 18
+    }
+  },
+  "portableFile": {
+    "file": "artifacts/f1-example.ggproj",
+    "bytes": 61908,
+    "sha256": "1d566f243c7bc9ca701186ed0f33f2152ebe2680276e607af878ed39e7da7dd8"
+  },
+  "format": {
+    "document": "GGPROJ v1 JSON de autoría para IndexedDB",
+    "archive": "GGPROJ v1 ZIP STORE con manifest.json y assets propios",
+    "projectLimits": {
+      "bytes": 2097152,
+      "workspaceBytes": 65536,
+      "sourceBytes": 65536,
+      "nameLength": 80
+    },
+    "archiveLimits": {
+      "bytes": 2097152,
+      "expandedBytes": 2097152,
+      "entries": 16,
+      "manifestBytes": 524288,
+      "assetBytes": 262144
+    },
+    "catalog": {
+      "file": "artifacts/browser/shell/project-catalog.json",
+      "bytes": 73380,
+      "sha256": "c7156495a6d5f36905be24276541b4206825a42be3746b56ef9eda126c5447b9",
+      "locks": {
+        "blockly": "13.4.0",
+        "ir": 0,
+        "adapter": "scratch-2d-v0",
+        "scratch": "12.3.1",
+        "scratchAudio": "2.0.268"
+      },
+      "integrity": {
+        "9914b450768c3d6d928554036b46f589": {
+          "bytes": 207,
+          "sha256": "d538cf36f02e5939cc4c040f43d8cbbae4e38d55fcfcd9ce960a62d6c1bcec36"
+        },
+        "a8baacdb9f80c26d1844a91d9ba5f33d": {
+          "bytes": 477,
+          "sha256": "9fe11c27f8fc3474d15f88acaba0bb8c54eee06c4cb311a34be1be24b67cdc6e"
+        },
+        "d55950c893909411262a738a26cbba58": {
+          "bytes": 370,
+          "sha256": "9225c6ae7e0b6deeb9bec112b4b5079153e46e4a182558583845b21b16cc3f5c"
+        },
+        "52abebc172d254ab1174125953b88bf8": {
+          "bytes": 52964,
+          "sha256": "2e1b9910a2fc4be916f6b2211f2a3a1eaf7ae275102e5d69ec089262e678ad9d"
+        }
+      }
+    }
+  },
+  "persistence": {
+    "database": "gg-studio-projects",
+    "version": 1,
+    "objectStore": "snapshots",
+    "keys": [
+      "current",
+      "previous"
+    ],
+    "record": [
+      "serialized",
+      "savedAt"
+    ],
+    "byteLimit": 2097152,
+    "debounceMs": 400,
+    "confirmation": "Solo después de transaction.complete; revisión actual/anterior atómicas. La cola conserva orden de validación y commit.",
+    "recovery": "Validar current; si falla, previous. Ambas inválidas se conservan sin autosave hasta decisión explícita o importación válida."
+  },
+  "staticBuild": {
+    "builtAt": "2026-10-22T07:34:37.327Z",
+    "files": [
+      {
+        "file": "vendor/typescript.js",
+        "bytes": 1548990,
+        "sha256": "556939b102e5c420fad2eb7d0692dcaf9682a437511ef2e990674e6aaa0695ab"
+      },
+      {
+        "file": "vendor/pxtworker.js",
+        "bytes": 2482200,
+        "sha256": "ce88b5f45f212b2a0eb9371e35a40e436dfe9e1b0957e74f20e9a39708aa1b4e"
+      },
+      {
+        "file": "vendor/microbit-compiler.js",
+        "bytes": 5597,
+        "sha256": "be9af26759448c021b01e028fffba5aeba55d24ae472dc7afc68eb444b015e97"
+      },
+      {
+        "file": "vendor/lzma.js",
+        "bytes": 111982,
+        "sha256": "b2704cc4536d113ba9d4badfb4b262ec878b16824e300596895c0a1080fbdc50"
+      },
+      {
+        "file": "vendor/scratch-vm.js",
+        "bytes": 13989557,
+        "sha256": "c60de5f95ee4bb5b5fc61f9d928b07f3b497b20a899c2b6c9182c4edf6484fc2"
+      },
+      {
+        "file": "vendor/scratch-render.js",
+        "bytes": 3061945,
+        "sha256": "40253eeee30919628a3915a49ceaca462db212d322c46471920d49e61e3da90f"
+      },
+      {
+        "file": "vendor/scratch-storage.js",
+        "bytes": 186078,
+        "sha256": "17d1d1054e06fba2c3ba71d35ef6739771c22b3ec374a066edcfbda8ca3ffc66"
+      },
+      {
+        "file": "vendor/scratch-audio.js",
+        "bytes": 108319,
+        "sha256": "b5b68d3dbb3b0fffbd96dffce99a0e43df339f09e98e9728c06444d9a48f8e6c"
+      },
+      {
+        "file": "simulator/vendor/pxtsim.js",
+        "bytes": 210381,
+        "sha256": "566938713d8405705ac13b0b1e6e5ffb500b9a71aefe9b6a28649fbfdccf63c3"
+      },
+      {
+        "file": "simulator/vendor/microbit-sim.js",
+        "bytes": 561529,
+        "sha256": "2d527dbee4b6a384eb501a2c6129414a0f642af20d4291a2165e1c23576f3335"
+      },
+      {
+        "file": "shell/editor.bundle.js",
+        "bytes": 957913,
+        "sha256": "25c2b30ef65305dea6535fb4bf0d7747c2c6ae47ce6eedadf120ffef201df050"
+      }
+    ],
+    "audioFixture": {
+      "assetId": "52abebc172d254ab1174125953b88bf8",
+      "sha256": "2e1b9910a2fc4be916f6b2211f2a3a1eaf7ae275102e5d69ec089262e678ad9d",
+      "bytes": 52964,
+      "rate": 22050,
+      "sampleCount": 26460,
+      "frequencyHz": 440
+    },
+    "catalog": {
+      "file": "artifacts/browser/shell/project-catalog.json",
+      "bytes": 73380,
+      "sha256": "c7156495a6d5f36905be24276541b4206825a42be3746b56ef9eda126c5447b9"
+    },
+    "builtCopies": [
+      {
+        "file": "artifacts/browser/shell/project/autosave-store.mjs",
+        "bytes": 8467,
+        "sha256": "43b2d6fc366ecdae014c4edac426d76fae559e14f37e19fcb312317b641e76f3",
+        "source": "src/autosave-store.mjs",
+        "sourceMatches": true
+      },
+      {
+        "file": "artifacts/browser/shell/project/project-archive.mjs",
+        "bytes": 10212,
+        "sha256": "e944ac200e78b5d86291f4d109f47d31b8cdd7fc86d74776c27c47d8bd99e518",
+        "source": "src/project-archive.mjs",
+        "sourceMatches": true
+      },
+      {
+        "file": "artifacts/browser/shell/project/project-format.mjs",
+        "bytes": 8092,
+        "sha256": "110513eb4601686c8094b311b2d9cc9bfaa4aa192cfb6fbe195015c2495dd185",
+        "source": "src/project-format.mjs",
+        "sourceMatches": true
+      },
+      {
+        "file": "artifacts/browser/shell/project-ui.mjs",
+        "bytes": 9107,
+        "sha256": "31b4e8d25531bb560c1bbc9013355f08142b74bf67c0d99befc0e740ddb4c42d",
+        "source": "spikes/browser/shell/project-ui.mjs",
+        "sourceMatches": true
+      },
+      {
+        "file": "artifacts/browser/shell/shell.js",
+        "bytes": 11281,
+        "sha256": "d3f14ec89ff4020eedb7edc0024f05d6a9da005882803657967537cc77e8411c",
+        "source": "spikes/browser/shell/shell.js",
+        "sourceMatches": true
+      },
+      {
+        "file": "artifacts/browser/shell/index.html",
+        "bytes": 3924,
+        "sha256": "ff98988ae095eeabec335a9613e9ca1ca9ffadc9796fe5c142a6adda03175c45",
+        "source": "spikes/browser/shell/index.html",
+        "sourceMatches": true
+      },
+      {
+        "file": "artifacts/browser/shell/style.css",
+        "bytes": 5522,
+        "sha256": "aef6ff56f979e85a3e9e3d4d690bff8dd358583fa8a643ff583322565edf7ff8",
+        "source": "spikes/browser/shell/style.css",
+        "sourceMatches": true
+      },
+      {
+        "file": "artifacts/browser/runner/runner.js",
+        "bytes": 17510,
+        "sha256": "1e0840cac3a044cf02d30e546382377f50940074dee937d3e8fa44fc30917bc2",
+        "source": "spikes/browser/runner/runner.js",
+        "sourceMatches": true
+      },
+      {
+        "file": "artifacts/browser/runner/index.html",
+        "bytes": 669,
+        "sha256": "a6e0b750ce61b7246afe21ea66972248c0284b0c94c3f97bf47e6e36c13f74f4",
+        "source": "spikes/browser/runner/index.html",
+        "sourceMatches": true
+      }
+    ]
+  },
+  "sources": [
+    {
+      "file": "src/autosave-store.mjs",
+      "bytes": 8467,
+      "sha256": "43b2d6fc366ecdae014c4edac426d76fae559e14f37e19fcb312317b641e76f3"
+    },
+    {
+      "file": "src/project-archive.mjs",
+      "bytes": 10212,
+      "sha256": "e944ac200e78b5d86291f4d109f47d31b8cdd7fc86d74776c27c47d8bd99e518"
+    },
+    {
+      "file": "src/project-format.mjs",
+      "bytes": 8092,
+      "sha256": "110513eb4601686c8094b311b2d9cc9bfaa4aa192cfb6fbe195015c2495dd185"
+    },
+    {
+      "file": "spikes/browser/shell/project-ui.mjs",
+      "bytes": 9107,
+      "sha256": "31b4e8d25531bb560c1bbc9013355f08142b74bf67c0d99befc0e740ddb4c42d"
+    },
+    {
+      "file": "spikes/browser/shell/shell.js",
+      "bytes": 11281,
+      "sha256": "d3f14ec89ff4020eedb7edc0024f05d6a9da005882803657967537cc77e8411c"
+    },
+    {
+      "file": "spikes/browser/shell/index.html",
+      "bytes": 3924,
+      "sha256": "ff98988ae095eeabec335a9613e9ca1ca9ffadc9796fe5c142a6adda03175c45"
+    },
+    {
+      "file": "spikes/browser/shell/style.css",
+      "bytes": 5522,
+      "sha256": "aef6ff56f979e85a3e9e3d4d690bff8dd358583fa8a643ff583322565edf7ff8"
+    },
+    {
+      "file": "spikes/browser/runner/runner.js",
+      "bytes": 17510,
+      "sha256": "1e0840cac3a044cf02d30e546382377f50940074dee937d3e8fa44fc30917bc2"
+    },
+    {
+      "file": "spikes/browser/runner/index.html",
+      "bytes": 669,
+      "sha256": "a6e0b750ce61b7246afe21ea66972248c0284b0c94c3f97bf47e6e36c13f74f4"
+    },
+    {
+      "file": "spikes/browser/shell/editor-entry.mjs",
+      "bytes": 3338,
+      "sha256": "e89f2107ec1846f23e4fa4a3930e10d65d8a17d9d6a52c214fb8c6b281c7a8f6"
+    },
+    {
+      "file": "tools/f0/build-browser.mjs",
+      "bytes": 9730,
+      "sha256": "e741fd7e99ba07052e10b1c6ec52a17d973f938cb681d73e3470ad66885854b9"
+    },
+    {
+      "file": "tools/f1/build-project-catalog.mjs",
+      "bytes": 903,
+      "sha256": "fad745dd3af1b1824389bf7eb8a833b1e45965718831a2fdd66a3bced6446583"
+    },
+    {
+      "file": "tools/f1/evidence.mjs",
+      "bytes": 9510,
+      "sha256": "a406f222373d9a12ee2caa518387be481ab464c24faf78924b744a2c65c58e1d"
+    }
+  ],
+  "sourcePreservation": [
+    {
+      "repository": "raspberrypi-blockly",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    },
+    {
+      "repository": "xcratch-scratch-editor",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    },
+    {
+      "repository": "pxt-microbit",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    }
+  ],
+  "limits": [
+    "La garantía de reapertura cubre la última revisión confirmada, no cambios pendientes del debounce al terminar el navegador.",
+    "IndexedDB pertenece al origen/perfil del navegador; el archivo GGPROJ permite traslado a otra página o navegador de versión compatible.",
+    "ZIP STORE solamente, catálogo propio fijado y locks compatibles; no editor/importador general de assets, SB3, compresión, cifrado o extensiones remotas.",
+    "No se valida una segunda visita offline/PWA, fusión de pestañas, otros navegadores ni ausencia de fugas a largo plazo.",
+    "Estas pruebas funcionales no repiten ni amplían las mediciones de rendimiento de F0."
+  ],
+  "physicalBoardValidated": false,
+  "schoolValidation": false,
+  "historicalF0EvidenceModified": false
+}

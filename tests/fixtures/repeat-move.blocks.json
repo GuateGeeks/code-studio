@@ -1,0 +1,18 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [{
+      "type": "gg_when_start", "id": "start", "x": 20, "y": 20,
+      "inputs": {"DO": {"block": {
+        "type": "controls_repeat_ext", "id": "repeat",
+        "inputs": {
+          "TIMES": {"shadow": {"type": "math_number", "id": "times", "fields": {"NUM": 3}}},
+          "DO": {"block": {
+            "type": "gg_move", "id": "move",
+            "inputs": {"STEPS": {"shadow": {"type": "math_number", "id": "steps", "fields": {"NUM": 5}}}}
+          }}
+        }
+      }}}
+    }]
+  }
+}

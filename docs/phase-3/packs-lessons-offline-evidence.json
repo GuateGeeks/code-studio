@@ -1,0 +1,207 @@
+{
+  "cut": "phase-3-packs-lessons-offline",
+  "recordedAt": "2026-10-22T12:10:52.929038+00:00",
+  "full": {
+    "profile": "full",
+    "selection": "full",
+    "startedAt": "2026-10-22T11:58:21.166Z",
+    "steps": [
+      {
+        "name": "integration",
+        "startedAt": "2026-10-22T11:58:21.166Z",
+        "durationMs": 4281.00126,
+        "exitCode": 0
+      },
+      {
+        "name": "tools",
+        "startedAt": "2026-10-22T11:58:25.448Z",
+        "durationMs": 4132.6905289999995,
+        "exitCode": 0
+      },
+      {
+        "name": "build",
+        "startedAt": "2026-10-22T11:58:29.580Z",
+        "durationMs": 1550.4352350000008,
+        "exitCode": 0
+      },
+      {
+        "name": "smoke",
+        "startedAt": "2026-10-22T11:58:31.131Z",
+        "durationMs": 19346.007522,
+        "exitCode": 0
+      },
+      {
+        "name": "browser",
+        "startedAt": "2026-10-22T11:58:50.477Z",
+        "durationMs": 650963.630999,
+        "exitCode": 0
+      },
+      {
+        "name": "specs",
+        "startedAt": "2026-10-22T12:09:41.441Z",
+        "durationMs": 392.2822950000409,
+        "exitCode": 0
+      },
+      {
+        "name": "upstream-preservation",
+        "startedAt": "2026-10-22T12:09:41.833Z",
+        "durationMs": 127.00708300003316,
+        "exitCode": 0
+      }
+    ],
+    "baselineWritten": true,
+    "exitCode": 0,
+    "finishedAt": "2026-10-22T12:09:42.902Z"
+  },
+  "counts": {
+    "node": 171,
+    "tools": 38,
+    "smoke": 3,
+    "regression": 77,
+    "e2eTotal": 80
+  },
+  "browserStats": {
+    "startTime": "2026-10-22T11:58:51.004Z",
+    "duration": 650406.359,
+    "expected": 77,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "smokeStats": {
+    "startTime": "2026-10-22T11:58:31.683Z",
+    "duration": 18774.107,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "build": {
+    "recordedAt": "2026-10-22T11:58:31.112Z",
+    "forced": false,
+    "totalMs": 1491.9272839999999,
+    "stages": [
+      {
+        "name": "static-sync",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 44.783604000000004,
+        "inputsCount": 89,
+        "outputsCount": 301
+      },
+      {
+        "name": "language-assets",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 47.73394900000001,
+        "inputsCount": 14,
+        "outputsCount": 6
+      },
+      {
+        "name": "fixtures",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 47.50640200000001,
+        "inputsCount": 1102,
+        "outputsCount": 6
+      },
+      {
+        "name": "pxt-pack",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 28.842647,
+        "inputsCount": 15,
+        "outputsCount": 8
+      },
+      {
+        "name": "renderer-storage",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 14.174833000000007,
+        "inputsCount": 12,
+        "outputsCount": 6
+      },
+      {
+        "name": "webpack-vm",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 1011.4811830000001,
+        "inputsCount": 3561,
+        "outputsCount": 1
+      },
+      {
+        "name": "webpack-audio",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 103.64702500000021,
+        "inputsCount": 2683,
+        "outputsCount": 1
+      },
+      {
+        "name": "webpack-editor",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 56.661853000000065,
+        "inputsCount": 1629,
+        "outputsCount": 1
+      },
+      {
+        "name": "webpack-language",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 80.12810000000013,
+        "inputsCount": 2671,
+        "outputsCount": 6
+      }
+    ]
+  },
+  "upstreamPreservation": [
+    {
+      "repository": "raspberrypi-blockly",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    },
+    {
+      "repository": "xcratch-scratch-editor",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    },
+    {
+      "repository": "pxt-microbit",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    }
+  ],
+  "artifactsSha256": {
+    "full-results.json": "63d1bcdfe3a1aeca1c4abf3cc442b7103d7421cefce0c17c591adcaa8d2cf915",
+    "full-plan.json": "461ecd105742913c9b4faf4a83530e26efeebe14d03857dd0ba2b3fdaeb329f7",
+    "full-integration.tap": "d97c8491058acf9433b1a3b371f10b2870da912373852c49a6b5a7e8843d9160",
+    "full-tools.tap": "779da7c124d079cea5ec159da31647911600764d151956512d4e1cb287f0ef79",
+    "full-smoke-browser.json": "99251051293f2c4cce74895776e75ca0827496b9824c9e3edf72070cc67e0c76",
+    "baseline.json": "b07152538dd0b251870fac5f49d1eebcd29763723b98071d5e48b1e7a86562de",
+    "browser-results.json": "9e0f63a62b2ac3b2e87fbefee879692704b9db5e32c1a4a713f1db27270d81c3",
+    "build-report.json": "4237958bc435c044cd7b88aa63a531b3740209f9556ec104e89b3359fd7c748f",
+    "verification.json": "c8e1adca7c82b35368452f78bfcd2a5cd0958649f08998fb799fdaf9921ca6b9",
+    "f3-full.log": "787d7f627dec638af74a9adb3b26f19ecf39262b5a5abffc47fb85fe7c011861",
+    "f3-quick.log": "288cad1a20e64c05718a5ef8efb59295c3f1e2d552b915f53570da1b9c0c472e",
+    "f3-compact-lessons-browser.log": "3dce350fb6cd08ffc0e22aade0452af324a583e21b8fdfada168559a0f361c68",
+    "f3-compact-offline-browser.log": "6d415c5f41e06b78ed0e0be620c0d8c0ae07ea542e72eb5ff394cc10a1559730",
+    "f3-global-layout.json": "a3855e13afe735204478bb2e33ec590632e1ae8ec446ba5e1fde5fc4efa66bb1",
+    "f3-global-desktop.png": "9852d56b874cc5f236d3e3653fb61fce879646ed73528a1a49c20ae5441ce40d",
+    "f3-global-mobile.png": "9b560f63ac66bc80b8494a51ae82afe720b320dcce3da9db0395e66502300b14",
+    "f3-mobile-scene-visible.png": "21838df90c2d9a13e7f50720996d3c9f1d8c6d71772adb69c1a34aad506f058c",
+    "offline-second-visit.json": "2e9fc113d54796f26efe64fc514d27c50339a3fbb632a9a2cddc555aff848ad3",
+    "offline-second-visit.png": "b94efaa40b630c6cf97f479e8663b372aaad63ff6b20647a5e85bd7ff2fb13e8",
+    "f3-codegraph-sync.log": "5c06f28944c760f4999e41d9c87e57c91a342d0ce6a3efb03d36fb2951d0b722"
+  },
+  "externalPending": [
+    "physical microbit",
+    "human screen reader",
+    "school hardware budgets",
+    "teacher pilot"
+  ],
+  "codegraph": "artifacts/f3-codegraph-sync.log"
+}

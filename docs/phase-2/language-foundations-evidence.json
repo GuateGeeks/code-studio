@@ -1,0 +1,235 @@
+{
+  "cut": "phase-2-language-foundations",
+  "recordedAt": "2026-10-22T09:59:37.411Z",
+  "full": {
+    "profile": "full",
+    "selection": "full",
+    "startedAt": "2026-10-22T09:53:33.477Z",
+    "steps": [
+      {
+        "name": "integration",
+        "startedAt": "2026-10-22T09:53:33.477Z",
+        "durationMs": 2769.580313,
+        "exitCode": 0
+      },
+      {
+        "name": "tools",
+        "startedAt": "2026-10-22T09:53:36.248Z",
+        "durationMs": 305.10275,
+        "exitCode": 0
+      },
+      {
+        "name": "build",
+        "startedAt": "2026-10-22T09:53:36.553Z",
+        "durationMs": 580.49269,
+        "exitCode": 0
+      },
+      {
+        "name": "smoke",
+        "startedAt": "2026-10-22T09:53:37.133Z",
+        "durationMs": 15564.718547999999,
+        "exitCode": 0
+      },
+      {
+        "name": "browser",
+        "startedAt": "2026-10-22T09:53:52.698Z",
+        "durationMs": 343264.668853,
+        "exitCode": 0
+      },
+      {
+        "name": "specs",
+        "startedAt": "2026-10-22T09:59:35.963Z",
+        "durationMs": 342.1693620000151,
+        "exitCode": 0
+      },
+      {
+        "name": "upstream-preservation",
+        "startedAt": "2026-10-22T09:59:36.305Z",
+        "durationMs": 81.94798500003526,
+        "exitCode": 0
+      }
+    ],
+    "baselineWritten": true,
+    "exitCode": 0,
+    "finishedAt": "2026-10-22T09:59:37.411Z"
+  },
+  "counts": {
+    "node": 86,
+    "tools": 33,
+    "smoke": 3,
+    "regression": 53,
+    "e2eTotal": 56
+  },
+  "browserStats": {
+    "startTime": "2026-10-22T09:53:53.301Z",
+    "duration": 342637.225,
+    "expected": 53,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "smokeStats": {
+    "startTime": "2026-10-22T09:53:37.688Z",
+    "duration": 14992.726999999999,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "build": {
+    "recordedAt": "2026-10-22T09:53:37.116Z",
+    "forced": false,
+    "totalMs": 525.644614,
+    "stages": [
+      {
+        "name": "static-sync",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 23.813693999999998,
+        "inputsCount": 65,
+        "outputsCount": 193
+      },
+      {
+        "name": "language-assets",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 37.07932,
+        "inputsCount": 17,
+        "outputsCount": 6
+      },
+      {
+        "name": "fixtures",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 47.371971,
+        "inputsCount": 1095,
+        "outputsCount": 6
+      },
+      {
+        "name": "pxt-pack",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 28.24719300000001,
+        "inputsCount": 18,
+        "outputsCount": 8
+      },
+      {
+        "name": "renderer-storage",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 10.936741999999981,
+        "inputsCount": 15,
+        "outputsCount": 6
+      },
+      {
+        "name": "webpack-vm",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 150.995599,
+        "inputsCount": 3563,
+        "outputsCount": 1
+      },
+      {
+        "name": "webpack-audio",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 80.68671699999999,
+        "inputsCount": 2685,
+        "outputsCount": 1
+      },
+      {
+        "name": "webpack-editor",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 51.32960400000002,
+        "inputsCount": 1622,
+        "outputsCount": 1
+      },
+      {
+        "name": "webpack-language",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 46.94482400000004,
+        "inputsCount": 1635,
+        "outputsCount": 6
+      }
+    ]
+  },
+  "upstreamPreservation": [
+    {
+      "repository": "raspberrypi-blockly",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    },
+    {
+      "repository": "xcratch-scratch-editor",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    },
+    {
+      "repository": "pxt-microbit",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    }
+  ],
+  "fullBaselineIntegrity": "3ccb3a7a2ce278e6e084fcf83813b72dbff4a6439541e35ca74c63648c8455b6",
+  "sourceHashes": {
+    "src/adapters/scratch/browser-scene.mjs": "7b5b4014387ce89372bc5bb302c30bdc90eef31bfdbb58f732635321909cfbb6",
+    "src/adapters/scratch/gg-bindings.mjs": "9ad362d386e053feb2bf73e09781e2c9eb765433decca274dd3ae46132a391af",
+    "src/adapters/scratch/performance-probe.mjs": "2dd1855c8a525ea9f00ef3314ea0f0f797e5c123030af3d9547d33c312bdbc06",
+    "src/adapters/scratch/scratch-project.mjs": "d514cd55d398a94a12a50b5939a2c25a5a95832c08d386786b3ff61a398d56cc",
+    "src/assets/hero-alt.svg": "9225c6ae7e0b6deeb9bec112b4b5079153e46e4a182558583845b21b16cc3f5c",
+    "src/assets/hero.svg": "9fe11c27f8fc3474d15f88acaba0bb8c54eee06c4cb311a34be1be24b67cdc6e",
+    "src/assets/stage.svg": "d538cf36f02e5939cc4c040f43d8cbbae4e38d55fcfcd9ce960a62d6c1bcec36",
+    "src/autosave-store.mjs": "43b2d6fc366ecdae014c4edac426d76fae559e14f37e19fcb312317b641e76f3",
+    "src/contracts/gg-client.mjs": "507803b6a7b7a878db88879ba9da7c27dd692306a598f881854a87ca51f4cd27",
+    "src/contracts/language-runtime.mjs": "d9a1283e9d232793df66f80615199a90790950166a7f8709c0743926706d9e2d",
+    "src/contracts/program-contract.mjs": "131f469569f0a471a1072c38f998630ce6218dc6f598bd77150b752916ae2719",
+    "src/diagnostic-console.mjs": "703bb10e6469d4ac57fa3f442f00232c7609492460d24f7e3b7990e78779a3eb",
+    "src/editor/block-program.mjs": "684fc9edfe078e522410f4457e5d87c0b6130250d9b721f1bd0a55e576e3f316",
+    "src/editor/editor-entry.mjs": "12d9701a1f94c0af9e7345a2eff13e3f772a24135f011883cdd888e84583c132",
+    "src/generated-code.mjs": "4d449ea33127eabdb446b847a1823268bab9a3f5bb1d9e76881b3bd6a06800af",
+    "src/project-archive.mjs": "f100562a344cbf51fa37351eeb7d53e2b6f1f6c2ea838803fe4cb3707a416791",
+    "src/project-format.mjs": "403376bc7fdf9a410f22625872524f8ef9bbd8f9f7604feb3bdc1dababf900c9",
+    "src/runtime/index.html": "a6e0b750ce61b7246afe21ea66972248c0284b0c94c3f97bf47e6e36c13f74f4",
+    "src/runtime/loop-worker.js": "333750fd35053352a35fad84fe0bc8af65768a681fe9a6d1cdcc552d665ffda8",
+    "src/runtime/runner.js": "9fb26ca1f76284dfc0cb10e6bfaaf223e24ab32bfaae37e8792a29fba790e3f3",
+    "src/runtime/stage.css": "a3fa3ea594077b195135553ba4b44e830bc9f652cd2a6c01bbb5e7a23fca0bf5",
+    "src/scene-inspection.mjs": "fc2624f526fb6cd54f611012e5795f8d7fc9107cb925ac3b9bf6903ba43b0c84",
+    "src/studio/code-console-ui.mjs": "df302e2369ea5c93fa17a362007f41dc0a5f413128f721f007bdb966c24c4739",
+    "src/studio/index.html": "0e30d35af9554ffb38366d149d080c74583cd23067893ce0930e7cd3d35f3087",
+    "src/studio/language-controller.mjs": "f01f968a314386a1495fc9c72e4672e033586182333c80ca0a32a2f9f74f3abd",
+    "src/studio/project-ui.mjs": "f51b41a19af1036a3d8de808ccdd1d57437334dd17c5d9070e10df4a2a339ffe",
+    "src/studio/scene-inspector-ui.mjs": "30edbabcfc899f218c795d5a3245122a6c34352285b699848dc0febc6bc0af81",
+    "src/studio/shell.js": "4a4aca3d45adc1983fab5c1e0c8c3495384b79d0a62ed381445b524d11418449",
+    "src/studio/style.css": "d03bcc1fb9132da35d5f24b729567c96230288ed4b6727bfbe2e660d5cf63efc",
+    "src/studio/text-documents-ui.mjs": "ae6435a0a9a5f61605b12df8640cd61d54465b4cd6d6bd2233837bda6830f486",
+    "src/targets/microbit/compiler-worker.js": "5f1751987265605d4aa103434e9415b221a514342bc5534f27c09550bf81d3c5",
+    "src/targets/microbit/simulator/disable-embed.js": "06a1f4eb2ebe861fd56dee92ab3c7d160ef836e82dc6c6c598c7bbb275e31713",
+    "src/targets/microbit/simulator/index.html": "6d060cd37325226a2344a322033207fa64c33fe21c2801db0401868fe8ab989c",
+    "src/targets/microbit/simulator/simulator.css": "f7113add66e9e540d1ed6536e061b53e714c290fe87be1619c7f16248b7ade9c",
+    "src/targets/microbit/simulator/simulator.js": "a228a4a227218d219cb092c0268ed7f85608be3f7ef72774deef8355294f9922",
+    "src/targets/text/index.html": "184c70bbc0eb9e7c7dfd103296e6343ac1195ff83da69c0ecfa80e92578094cd",
+    "src/targets/text/language-host.mjs": "d0f21617361542f86420400ce9518c7a9a7be35fd4bbf145b24555633f98009b",
+    "src/targets/text/language-worker.mjs": "14164318be73c2aa68cc90fb662fdeab562a4bd0caebbb2d5b73848c58683c8d",
+    "src/targets/text/python-engine.mjs": "97b28e34b23e4827747a251f821fa39fb0cc047b059fca0b3bbd3a5247537ef1",
+    "src/targets/text/quickjs-engine.mjs": "23602cbddecfbc40468f2f9dda2911edee7a064c91a738036c72cbe441372531",
+    "src/text-documents.mjs": "8f87733563090abfe62c41a174c6cc315552b771ee7135a0f13a86c6c6157398"
+  },
+  "packageLockSHA256": "df16e2e2dcdb499bae6ac0b3493518c8c35dec716afabe246108a7329920fd50",
+  "historicalEvidenceSHA256": {
+    "docs/phase-1/code-console-evidence.json": "f059a09ddb41e0cc73c5d9af69395a62c0e53af86577cf89705013daf203a3b6",
+    "docs/phase-1/f1-completion-evidence.json": "339236f974efb2ca94b37f8fe3a4b75083db9fec992146ae1927681270d2351d",
+    "docs/engineering/TEST-WORKFLOW-RESULTS.md": "de6b677f6a03ae4c8887a8925195519418e30090635c7c64025bb899e0ee6c9b"
+  },
+  "artifacts": "artifacts/cuts/phase-2-language-foundations",
+  "scope": "Foundation subset; complete corpus/copy pending next F2 cut",
+  "externalEvidencePending": [
+    "Target school hardware/memory measurements",
+    "Physical micro:bit",
+    "School pilot"
+  ]
+}

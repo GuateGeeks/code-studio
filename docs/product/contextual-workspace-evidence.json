@@ -1,0 +1,149 @@
+{
+  "change": "studio-contextual-workspace",
+  "date": "2026-10-22",
+  "timeZone": "America/Guatemala",
+  "environment": {
+    "node": "v22.23.4",
+    "platform": "linux",
+    "architecture": "x64",
+    "browser": "Pinned Playwright Chromium on Linux/WSL"
+  },
+  "gate": {
+    "profile": "full",
+    "selection": "full",
+    "startedAt": "2026-10-23T01:55:28.762Z",
+    "steps": [
+      {
+        "name": "integration",
+        "startedAt": "2026-10-23T01:55:28.762Z",
+        "durationMs": 10474.63118,
+        "exitCode": 0
+      },
+      {
+        "name": "tools",
+        "startedAt": "2026-10-23T01:55:39.238Z",
+        "durationMs": 14795.493352999998,
+        "exitCode": 0
+      },
+      {
+        "name": "build",
+        "startedAt": "2026-10-23T01:55:54.033Z",
+        "durationMs": 14171.331795999999,
+        "exitCode": 0
+      },
+      {
+        "name": "smoke",
+        "startedAt": "2026-10-23T01:56:08.205Z",
+        "durationMs": 23373.569703,
+        "exitCode": 0
+      },
+      {
+        "name": "browser",
+        "startedAt": "2026-10-23T01:56:31.578Z",
+        "durationMs": 1456976.811082,
+        "exitCode": 0
+      },
+      {
+        "name": "specs",
+        "startedAt": "2026-10-23T02:20:48.555Z",
+        "durationMs": 507.24670599983074,
+        "exitCode": 0
+      },
+      {
+        "name": "upstream-preservation",
+        "startedAt": "2026-10-23T02:20:49.063Z",
+        "durationMs": 124.741965000052,
+        "exitCode": 0
+      }
+    ],
+    "baselineWritten": true,
+    "exitCode": 0,
+    "finishedAt": "2026-10-23T02:20:50.222Z"
+  },
+  "node": {
+    "tests": 392,
+    "pass": 392,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "tools": {
+    "tests": 63,
+    "pass": 63,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "browser": {
+    "startTime": "2026-10-23T01:56:32.068Z",
+    "duration": 1456425.856,
+    "expected": 139,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "smoke": {
+    "startTime": "2026-10-23T01:56:08.731Z",
+    "duration": 22827.984,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "runtimeSources": {
+    "files": 142,
+    "sha256": "74007ac6cf001f3bd767fdf81e032f588b743054754e807eecf8055058481ddd",
+    "matchApprovedFull": true
+  },
+  "offline": {
+    "evidence": "artifacts/offline-second-visit.json",
+    "coldBrowserAndSixServersStopped": true,
+    "entryContinueCovered": true
+  },
+  "upstream": [
+    {
+      "repository": "raspberrypi-blockly",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    },
+    {
+      "repository": "xcratch-scratch-editor",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    },
+    {
+      "repository": "pxt-microbit",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    }
+  ],
+  "snapshots": {
+    "before": "artifacts/e2-baseline/manifest.json",
+    "changes": "artifacts/e2-changes.json"
+  },
+  "validationLimits": {
+    "physicalBoard": false,
+    "humanScreenReader": false,
+    "classroomPilot": false,
+    "physicalMobileDevices": false
+  },
+  "otherReports": [
+    "artifacts/e2-reopen-readiness.json",
+    "artifacts/e2-audio-equivalence.json",
+    "artifacts/e2-nested-input-check.json",
+    "artifacts/e2-visible-input-check.json",
+    "artifacts/e2-validation-node.tap",
+    "artifacts/e2-resource-race.json",
+    "artifacts/e2-browser-diagnostic.json",
+    "artifacts/e2-context-diagnostic.json",
+    "artifacts/e2-focal6.json",
+    "artifacts/e2-quick.log",
+    "artifacts/e2-impact.log",
+    "artifacts/e2-design-detection.json"
+  ]
+}

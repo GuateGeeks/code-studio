@@ -1,0 +1,173 @@
+{
+  "change": "studio-integrated-microbit-workspace",
+  "date": "2026-10-23",
+  "timeZone": "America/Guatemala",
+  "scope": "Extensión integrada micro:bit: bloques y documento TypeScript, simulador y escena, consulta de firmware; SB3/3D/web conservan sus recorridos",
+  "environment": {
+    "node": "v22.23.4",
+    "platform": "linux",
+    "architecture": "x64",
+    "browser": "Pinned Playwright Chromium on Linux/WSL"
+  },
+  "gate": {
+    "profile": "full",
+    "selection": "full",
+    "startedAt": "2026-10-23T16:56:26.163Z",
+    "steps": [
+      {
+        "name": "integration",
+        "startedAt": "2026-10-23T16:56:26.163Z",
+        "durationMs": 10548.009737,
+        "exitCode": 0
+      },
+      {
+        "name": "tools",
+        "startedAt": "2026-10-23T16:56:36.712Z",
+        "durationMs": 15338.989378,
+        "exitCode": 0
+      },
+      {
+        "name": "build",
+        "startedAt": "2026-10-23T16:56:52.051Z",
+        "durationMs": 14926.988034000002,
+        "exitCode": 0
+      },
+      {
+        "name": "smoke",
+        "startedAt": "2026-10-23T16:57:06.978Z",
+        "durationMs": 22862.616638,
+        "exitCode": 0
+      },
+      {
+        "name": "browser",
+        "startedAt": "2026-10-23T16:57:29.841Z",
+        "durationMs": 1653205.644778,
+        "exitCode": 0
+      },
+      {
+        "name": "specs",
+        "startedAt": "2026-10-23T17:25:03.046Z",
+        "durationMs": 652.5360010000877,
+        "exitCode": 0
+      },
+      {
+        "name": "upstream-preservation",
+        "startedAt": "2026-10-23T17:25:03.699Z",
+        "durationMs": 148.56601199996658,
+        "exitCode": 0
+      }
+    ],
+    "baselineWritten": true,
+    "exitCode": 0,
+    "finishedAt": "2026-10-23T17:25:05.704Z"
+  },
+  "node": {
+    "tests": 400,
+    "pass": 400,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "tools": {
+    "tests": 63,
+    "pass": 63,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "browser": {
+    "startTime": "2026-10-23T16:57:30.365Z",
+    "duration": 1652636.611,
+    "expected": 152,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "smoke": {
+    "startTime": "2026-10-23T16:57:07.500Z",
+    "duration": 22321.717,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "runtimeSources": {
+    "files": 142,
+    "sha256": "dea22974e2de684c15250a05b7559c53f6bfee9422afc58c8ff12f5828fa1227",
+    "matchApprovedFull": true
+  },
+  "upstream": [
+    {
+      "repository": "raspberrypi-blockly",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    },
+    {
+      "repository": "xcratch-scratch-editor",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    },
+    {
+      "repository": "pxt-microbit",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    }
+  ],
+  "offline": {
+    "evidence": "artifacts/offline-second-visit.json",
+    "coldBrowserAndSixServersStopped": true,
+    "educationalActivity": {
+      "mode": "variant",
+      "checkedStepIds": [
+        "story-variant"
+      ],
+      "hintsRevealed": 1,
+      "position": 80
+    }
+  },
+  "snapshots": {
+    "before": "artifacts/e4mb-baseline/manifest.json",
+    "changes": "artifacts/e4mb-changes.json",
+    "approved2DGate": "artifacts/e4-2d-approved-gate"
+  },
+  "design": {
+    "review": "artifacts/e4mb-finish-review.md",
+    "verdict": "artifacts/e4mb-finish-verdict.md",
+    "detector": "artifacts/e4mb-detector.json",
+    "documentation": "artifacts/e4mb-documentation.md"
+  },
+  "validationLimits": {
+    "teacherReview": false,
+    "studentUnderstandingObserved": false,
+    "humanScreenReader": false,
+    "classroomPilot": false,
+    "physicalBoard": false,
+    "physicalMobileDevices": false
+  },
+  "reports": [
+    "artifacts/e4mb-quick.log",
+    "artifacts/e4mb-focal.log",
+    "artifacts/e4mb-affected.log",
+    "artifacts/e4mb-layout-final.log",
+    "artifacts/e4mb-legacy-focal.log",
+    "artifacts/e4mb-full.log",
+    "artifacts/e4mb-codegraph-before.json",
+    "artifacts/e4mb-codegraph-stage-before.json",
+    "artifacts/e4mb-codegraph-sync.log"
+  ],
+  "previousFullAttempts": [
+    {
+      "report": "artifacts/e4mb-full-attempt1/results.json",
+      "browser": "artifacts/e4mb-full-attempt1/browser.json",
+      "approved": false,
+      "passed": 150,
+      "failed": 2,
+      "reason": "Dos expectativas antiguas: rol dentro de detalle cerrado y destino de Stop anterior a transporte microbit visible"
+    }
+  ]
+}

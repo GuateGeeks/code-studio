@@ -1,0 +1,173 @@
+{
+  "change": "studio-integrated-2d-editor",
+  "date": "2026-10-23",
+  "timeZone": "America/Guatemala",
+  "scope": "Primer corte integrado 2D; los demás contextos conservan su recorrido existente",
+  "environment": {
+    "node": "v22.23.4",
+    "platform": "linux",
+    "architecture": "x64",
+    "browser": "Pinned Playwright Chromium on Linux/WSL"
+  },
+  "gate": {
+    "profile": "full",
+    "selection": "full",
+    "startedAt": "2026-10-23T14:28:27.209Z",
+    "steps": [
+      {
+        "name": "integration",
+        "startedAt": "2026-10-23T14:28:27.209Z",
+        "durationMs": 11213.708732,
+        "exitCode": 0
+      },
+      {
+        "name": "tools",
+        "startedAt": "2026-10-23T14:28:38.423Z",
+        "durationMs": 18194.159829999997,
+        "exitCode": 0
+      },
+      {
+        "name": "build",
+        "startedAt": "2026-10-23T14:28:56.618Z",
+        "durationMs": 15199.534983999998,
+        "exitCode": 0
+      },
+      {
+        "name": "smoke",
+        "startedAt": "2026-10-23T14:29:11.817Z",
+        "durationMs": 24167.430858000007,
+        "exitCode": 0
+      },
+      {
+        "name": "browser",
+        "startedAt": "2026-10-23T14:29:35.985Z",
+        "durationMs": 1678035.361344,
+        "exitCode": 0
+      },
+      {
+        "name": "specs",
+        "startedAt": "2026-10-23T14:57:34.021Z",
+        "durationMs": 567.5615149999503,
+        "exitCode": 0
+      },
+      {
+        "name": "upstream-preservation",
+        "startedAt": "2026-10-23T14:57:34.588Z",
+        "durationMs": 167.6093899998814,
+        "exitCode": 0
+      }
+    ],
+    "baselineWritten": true,
+    "exitCode": 0,
+    "finishedAt": "2026-10-23T14:57:38.526Z"
+  },
+  "node": {
+    "tests": 400,
+    "pass": 400,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "tools": {
+    "tests": 63,
+    "pass": 63,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "browser": {
+    "startTime": "2026-10-23T14:29:36.541Z",
+    "duration": 1677390.016,
+    "expected": 148,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "smoke": {
+    "startTime": "2026-10-23T14:29:12.327Z",
+    "duration": 23638.793,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "runtimeSources": {
+    "files": 142,
+    "sha256": "0cdbc8619b33f4f7452c1beb257f189a5d862fa9597823c372778d409c4c0ec0",
+    "matchApprovedFull": true
+  },
+  "upstream": [
+    {
+      "repository": "raspberrypi-blockly",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    },
+    {
+      "repository": "xcratch-scratch-editor",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    },
+    {
+      "repository": "pxt-microbit",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    }
+  ],
+  "offline": {
+    "evidence": "artifacts/offline-second-visit.json",
+    "coldBrowserAndSixServersStopped": true,
+    "educationalActivity": {
+      "mode": "variant",
+      "checkedStepIds": [
+        "story-variant"
+      ],
+      "hintsRevealed": 1,
+      "position": 80
+    }
+  },
+  "snapshots": {
+    "before": "artifacts/e4-baseline/manifest.json",
+    "changes": "artifacts/e4-changes.json",
+    "approvedE3Gate": "artifacts/e3-approved-gate"
+  },
+  "design": {
+    "review": "artifacts/e4-finish-review.md",
+    "verdict": "artifacts/e4-finish-verdict.md",
+    "detector": "artifacts/e4-design-detector.json",
+    "documentation": "artifacts/e4-documentation.md"
+  },
+  "validationLimits": {
+    "teacherReview": false,
+    "studentUnderstandingObserved": false,
+    "humanScreenReader": false,
+    "classroomPilot": false,
+    "physicalBoard": false,
+    "physicalMobileDevices": false
+  },
+  "reports": [
+    "artifacts/e4-quick-final.log",
+    "artifacts/e4-focal-attempt3.json",
+    "artifacts/e4-zoom-final.log",
+    "artifacts/e4-sb3-final.log",
+    "artifacts/e4-offline-final.log",
+    "artifacts/e4-codegraph-before.json",
+    "artifacts/e4-codegraph-sync.log"
+  ],
+  "previousFullAttempts": [
+    {
+      "report": "artifacts/e4-full-attempt1-results.json",
+      "approved": false,
+      "reason": "Cálculo de clic sobre canvas completo; interrupción tras el fallo"
+    },
+    {
+      "report": "artifacts/e4-full-attempt2-results.json",
+      "approved": false,
+      "reason": "Fixture B no cambiaba HTML tras añadir atributos a body; 147/148 casos aprobados"
+    }
+  ]
+}

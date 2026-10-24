@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "license": "CC0-1.0",
+  "provenance": "Geometry and PNG created by GuateGeeks for F6, no external assets",
+  "fixtures": [
+    {
+      "file": "triangle.glb",
+      "sha256": "408dc83a22efc12018f185bb7b18442096b2579af4f0a16f3dab28d5a453e041",
+      "bytes": 620,
+      "metadata": {
+        "nodes": 1,
+        "primitives": 1,
+        "vertices": 3,
+        "indices": 3,
+        "images": 0,
+        "imagePixels": 0
+      }
+    },
+    {
+      "file": "triangle-textured.glb",
+      "sha256": "f50dfd7ce18270e058797cf5dab1485a96255ebf30997712421d8b09eb0c59b8",
+      "bytes": 1100,
+      "metadata": {
+        "nodes": 1,
+        "primitives": 1,
+        "vertices": 3,
+        "indices": 3,
+        "images": 1,
+        "imagePixels": 1
+      }
+    }
+  ]
+}

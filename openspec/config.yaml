@@ -1,0 +1,41 @@
+schema: spec-driven
+
+context: |
+  Language: es
+  All artifacts must be written in es.
+  Keep OpenSpec structural headings and SHALL/MUST keywords in English.
+  Producto: GuateGeeks Code Studio, una interfaz de autoría con Blockly.
+  Reutilizar Xcratch VM/renderer y PXT mediante adaptadores con versiones fijadas.
+  El modelo GG no importa internals de Blockly, Scratch ni PXT.
+  Distinguir resultados headless, navegador, offline y placa física.
+  Nunca cargar extensiones remotas de un proyecto sin validación previa.
+  F0–F7 están implementados; conservar sus actas y evidencia histórica.
+  E1 studio-guided-first-creation y E2 studio-contextual-workspace están completos para principiantes con docente.
+  El software E3 studio-educational-activities está completo y verificado; revisión docente pendiente. Conservar compatibilidad de actividades e historial.
+  El primer editor 2D integrado E4 studio-integrated-2d-editor tiene puerta completa aprobada. La extensión micro:bit studio-integrated-microbit-workspace está autorizada e implementada, con validación del incremento en su evidencia. Las extensiones Scratch importado, 3D y web y el rework visual studio-visual-workspace-rework están implementados con puerta completa aprobada; E5–E6 siguen como propuestas.
+  Conservar GGPROJ, autosave, recuperación sin autorun, copias textuales independientes y seis orígenes.
+  Hoja de ruta posterior a E4: docs/product/FEATURE-MATURATION-PLAN.md (olas 0–5, propuesta; decisiones D1–D8 abiertas). Ola 0: repo-baseline-and-spec-consolidation, pack-versioning-and-migrations, test-gate-scaling.
+  ADR-011 (24/10/2026): vistas sincronizadas bloques↔texto dentro del subconjunto bloqueable, API textual legible sin GG visible y packs como tabla de lenguaje; cambios pack-versioning-and-migrations, block-language-contract y synced-code-views. Los proyectos y copias anteriores siguen abriéndose y ejecutándose.
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+# Example:
+#   rules:
+#     proposal:
+#       - Keep proposals under 500 words
+#       - Always state what is out of scope
+#     tasks:
+#       - Break tasks into chunks of max 2 hours
+
+# Per-operation guidance (optional)
+# Add advisory guidance for how apply and archive work should be conducted.
+# This is separate from artifact rules above.
+# Example:
+#   operations:
+#     apply:
+#       guidance:
+#         - Keep test summaries concise
+#     archive:
+#       guidance:
+#         - Summarize the archive outcome before finishing
+

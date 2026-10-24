@@ -1,0 +1,1405 @@
+{
+  "date": "2026-10-23",
+  "timeZone": "America/Guatemala",
+  "scope": "Revisión transversal E4 y preparación del rework; prompt para Claude Opus; sin implementación",
+  "release": "http://127.0.0.1:4983/releases/e5221e6ec67febaa8a93be0c464bb4a80beea978ed4549da44b66d88ba9bab34/",
+  "method": "Native UI actions in isolated temporary Playwright profiles; DOM measurements; no product edits or injected presentation. Probes only await project readiness and read test snapshots.",
+  "contexts": [
+    {
+      "id": "2d",
+      "actions": [
+        "Crear/añadir/importar mediante controles visibles, sin ejecutar implícitamente",
+        "Ejecutar explícitamente y observar resultado",
+        "Consultar Propiedades por enlace real",
+        "Detener mediante transporte contextual"
+      ],
+      "views": 8
+    },
+    {
+      "id": "text",
+      "actions": [
+        "Crear/añadir/importar mediante controles visibles, sin ejecutar implícitamente",
+        "Ejecutar explícitamente y observar resultado",
+        "Consultar Código por enlace real",
+        "Detener mediante transporte contextual"
+      ],
+      "views": 9
+    },
+    {
+      "id": "microbit",
+      "actions": [
+        "Crear/añadir/importar mediante controles visibles, sin ejecutar implícitamente",
+        "Ejecutar explícitamente y observar resultado",
+        "Consultar Firmware por enlace real",
+        "Detener mediante transporte contextual"
+      ],
+      "views": 8
+    },
+    {
+      "id": "sb3",
+      "actions": [
+        "Crear/añadir/importar mediante controles visibles, sin ejecutar implícitamente",
+        "Ejecutar explícitamente y observar resultado",
+        "Consultar Original y copia por enlace real",
+        "Detener mediante transporte contextual"
+      ],
+      "views": 8
+    },
+    {
+      "id": "scene3d",
+      "actions": [
+        "Crear/añadir/importar mediante controles visibles, sin ejecutar implícitamente",
+        "Ejecutar explícitamente y observar resultado",
+        "Consultar Objetos 3D por enlace real",
+        "Detener mediante transporte contextual"
+      ],
+      "views": 9
+    },
+    {
+      "id": "webapp",
+      "actions": [
+        "Crear/añadir/importar mediante controles visibles, sin ejecutar implícitamente",
+        "Ejecutar explícitamente y observar resultado con envío nativo del formulario",
+        "Consultar Componentes web por enlace real",
+        "Detener mediante transporte contextual"
+      ],
+      "views": 9
+    }
+  ],
+  "captures": [
+    {
+      "context": "2d",
+      "state": "entry",
+      "path": "artifacts/e4-cross/2d-entry.png",
+      "sha256": "4c7b31492097adbfc61d0e7d288854939141f19a4c076e59e431fb139cb2ec91",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 954,
+      "workspaceTop": 319.1875,
+      "toolbarHeight": 80,
+      "scrollAreas": [
+        "dock-content",
+        "generated-code"
+      ],
+      "selectedConsultation": [
+        "Ayuda"
+      ],
+      "result": "Resultado: escena 2D inicial · sin ejecutar",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "2d",
+      "state": "ready",
+      "path": "artifacts/e4-cross/2d-ready.png",
+      "sha256": "fde0e34a3e1e85ec59cba47aa2a9dd681fb2cfee97f2f765c3902663555f01da",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 954,
+      "workspaceTop": 342.375,
+      "toolbarHeight": 80,
+      "scrollAreas": [
+        "dock-content"
+      ],
+      "selectedConsultation": [
+        "Ayuda"
+      ],
+      "result": "Resultado: escena 2D inicial · sin ejecutar",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "2d",
+      "state": "running",
+      "path": "artifacts/e4-cross/2d-running.png",
+      "sha256": "6e98eec65f78601bd5f68264dcb3e575595c26d619b29e41cf987528ac54a5b7",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 954,
+      "workspaceTop": 342.375,
+      "toolbarHeight": 80,
+      "scrollAreas": [
+        "dock-content"
+      ],
+      "selectedConsultation": [
+        "Ayuda"
+      ],
+      "result": "Resultado: bloques 2D",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "2d",
+      "state": "consult",
+      "path": "artifacts/e4-cross/2d-consult.png",
+      "sha256": "18584a562d38021ec21843bc42e1963c8863f50fbe783bba67e90a595af6e2bc",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 954,
+      "workspaceTop": 342.375,
+      "toolbarHeight": 80,
+      "scrollAreas": [
+        "dock-content"
+      ],
+      "selectedConsultation": [
+        "Propiedades"
+      ],
+      "result": "Resultado: bloques 2D",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "2d",
+      "state": "short-desktop",
+      "path": "artifacts/e4-cross/2d-short-desktop.png",
+      "sha256": "27a3d308ff4bf0ce5b168de8621a278869321d2e41712b66f74e74a7f171ffbc",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 911,
+      "workspaceTop": 342.375,
+      "toolbarHeight": 80,
+      "scrollAreas": [
+        "dock-content"
+      ],
+      "selectedConsultation": [
+        "Propiedades"
+      ],
+      "result": "Resultado: bloques 2D",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "2d",
+      "state": "narrow-program",
+      "path": "artifacts/e4-cross/2d-narrow-program.png",
+      "sha256": "8abb729d254954f698f47a60d0f42f216ebd1b3b4d398895b48e49b75f4e842e",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 4341,
+      "workspaceTop": 1393.328125,
+      "toolbarHeight": 284,
+      "scrollAreas": [],
+      "selectedConsultation": [
+        "Propiedades"
+      ],
+      "result": "Resultado: bloques 2D",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "2d",
+      "state": "narrow-result",
+      "path": "artifacts/e4-cross/2d-narrow-result.png",
+      "sha256": "4fe06c262288cf95b58b9da3baaf8230cbb2b4b9132f36ee103fc6443fd549d5",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 4341,
+      "workspaceTop": 1393.328125,
+      "toolbarHeight": 284,
+      "scrollAreas": [],
+      "selectedConsultation": [
+        "Propiedades"
+      ],
+      "result": "Resultado: bloques 2D",
+      "validity": "Superseded for renderer interpretation by 2d-narrow-result-recapture.png; layout metrics retained"
+    },
+    {
+      "context": "2d",
+      "state": "stopped",
+      "path": "artifacts/e4-cross/2d-stopped.png",
+      "sha256": "9b1adb6c23f31c4f534530b61f2d1682aa3026b64f1eb7d3530368a741c039f5",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 954,
+      "workspaceTop": 342.375,
+      "toolbarHeight": 80,
+      "scrollAreas": [
+        "dock-content"
+      ],
+      "selectedConsultation": [
+        "Propiedades"
+      ],
+      "result": "Resultado: escena 2D inicial · sin ejecutar",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "text",
+      "state": "empty",
+      "path": "artifacts/e4-cross/text-empty.png",
+      "sha256": "70b6f815b80a3c33e0333ffd7be8250f3084cea3ff59cfbdee03537addfab93e",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 954,
+      "workspaceTop": 342.375,
+      "toolbarHeight": 80,
+      "scrollAreas": [
+        "text-authoring",
+        "dock-content"
+      ],
+      "selectedConsultation": [
+        "Ayuda"
+      ],
+      "result": "Resultado: escena 2D inicial · sin ejecutar",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "text",
+      "state": "ready",
+      "path": "artifacts/e4-cross/text-ready.png",
+      "sha256": "f0cf65d0759045da0ea95f208bcd343c2fd4676cbdbc38407785acdf128a8e52",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 954,
+      "workspaceTop": 342.375,
+      "toolbarHeight": 80,
+      "scrollAreas": [
+        "text-authoring",
+        "dock-content"
+      ],
+      "selectedConsultation": [
+        "Ayuda"
+      ],
+      "result": "Resultado: escena 2D inicial · sin ejecutar",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "text",
+      "state": "running",
+      "path": "artifacts/e4-cross/text-running.png",
+      "sha256": "ee9994e63e1a88baee780975e14c4e7214ed316ba110a3d3795c19ebc965511d",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 954,
+      "workspaceTop": 342.375,
+      "toolbarHeight": 80,
+      "scrollAreas": [
+        "text-authoring",
+        "dock-content"
+      ],
+      "selectedConsultation": [
+        "Ayuda"
+      ],
+      "result": "Resultado: documento 2D · Programa JavaScript",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "text",
+      "state": "consult",
+      "path": "artifacts/e4-cross/text-consult.png",
+      "sha256": "8a32fa978749ca1eb62332257a2b66b64adbccc6174dd217e535526d8292e6f9",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 954,
+      "workspaceTop": 342.375,
+      "toolbarHeight": 80,
+      "scrollAreas": [
+        "text-authoring",
+        "dock-content"
+      ],
+      "selectedConsultation": [
+        "Código"
+      ],
+      "result": "Resultado: documento 2D · Programa JavaScript",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "text",
+      "state": "short-desktop",
+      "path": "artifacts/e4-cross/text-short-desktop.png",
+      "sha256": "8ddeb40b0ea4744c94d0c097c5a07643e4691befeadabd654eebd89d976c0b2c",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 963,
+      "workspaceTop": 394.375,
+      "toolbarHeight": 132,
+      "scrollAreas": [
+        "text-authoring",
+        "dock-content"
+      ],
+      "selectedConsultation": [
+        "Código"
+      ],
+      "result": "Resultado: documento 2D · Programa JavaScript",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "text",
+      "state": "narrow-program",
+      "path": "artifacts/e4-cross/text-narrow-program.png",
+      "sha256": "ec60849ed823a51be0f9933369a6b88f0e2ab2395d3611c674ae7aa699824684",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 4581,
+      "workspaceTop": 1786.28125,
+      "toolbarHeight": 336,
+      "scrollAreas": [],
+      "selectedConsultation": [
+        "Código"
+      ],
+      "result": "Resultado: documento 2D · Programa JavaScript",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "text",
+      "state": "narrow-result",
+      "path": "artifacts/e4-cross/text-narrow-result.png",
+      "sha256": "09555f78eeffa3f04e9ddbf67d4774daf9535fc67a4d4a5d9dd00653d15e84f9",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 4581,
+      "workspaceTop": 1786.28125,
+      "toolbarHeight": 336,
+      "scrollAreas": [],
+      "selectedConsultation": [
+        "Código"
+      ],
+      "result": "Resultado: documento 2D · Programa JavaScript",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "text",
+      "state": "stopped",
+      "path": "artifacts/e4-cross/text-stopped.png",
+      "sha256": "15953c3204344ca23b84d4fa175ec7d199a04298a7a78b761517c96e09422b20",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 954,
+      "workspaceTop": 342.375,
+      "toolbarHeight": 80,
+      "scrollAreas": [
+        "text-authoring",
+        "dock-content"
+      ],
+      "selectedConsultation": [
+        "Código"
+      ],
+      "result": "Resultado: escena 2D inicial · sin ejecutar",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "text",
+      "state": "error",
+      "path": "artifacts/e4-cross/text-error.png",
+      "sha256": "3c1b1b6a668d59e3d6fab7055c5333f227a148f95c1503e391ba7492a523c8f1",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 954,
+      "workspaceTop": 342.375,
+      "toolbarHeight": 80,
+      "scrollAreas": [
+        "text-authoring",
+        "dock-content"
+      ],
+      "selectedConsultation": [
+        "Diagnósticos"
+      ],
+      "result": "Resultado: escena 2D inicial · sin ejecutar",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "microbit",
+      "state": "empty",
+      "path": "artifacts/e4-cross/microbit-empty.png",
+      "sha256": "762bc60d13bd60e7a5704df41849e15cadc4a5d0e3274638f290ba98339f0f8a",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 1048,
+      "workspaceTop": 342.375,
+      "toolbarHeight": 80,
+      "scrollAreas": [
+        "dock-content"
+      ],
+      "selectedConsultation": [
+        "Ayuda"
+      ],
+      "result": "Resultado: escena 2D inicial · sin ejecutar",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "microbit",
+      "state": "ready",
+      "path": "artifacts/e4-cross/microbit-ready.png",
+      "sha256": "c0b26844176193dee586971c5b342b4cccbd1b0b0eb13c05fcc532ad60818c3a",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 1048,
+      "workspaceTop": 342.375,
+      "toolbarHeight": 80,
+      "scrollAreas": [
+        "dock-content"
+      ],
+      "selectedConsultation": [
+        "Ayuda"
+      ],
+      "result": "Resultado: escena 2D inicial · sin ejecutar",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "microbit",
+      "state": "running",
+      "path": "artifacts/e4-cross/microbit-running.png",
+      "sha256": "d866d807fda283b1f97fe4db7ad8597d824ebbbf966e2e255ba4716a595d7daf",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 1048,
+      "workspaceTop": 342.375,
+      "toolbarHeight": 80,
+      "scrollAreas": [
+        "dock-content"
+      ],
+      "selectedConsultation": [
+        "Ayuda"
+      ],
+      "result": "Resultado: micro:bit y escena 2D",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "microbit",
+      "state": "consult",
+      "path": "artifacts/e4-cross/microbit-consult.png",
+      "sha256": "a49f5910e85f60e63da00b45bc2efd9f6283c6031babc1fae480c1bc81d01cdb",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 1048,
+      "workspaceTop": 342.375,
+      "toolbarHeight": 80,
+      "scrollAreas": [
+        "dock-content"
+      ],
+      "selectedConsultation": [
+        "Firmware"
+      ],
+      "result": "Resultado: micro:bit y escena 2D",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "microbit",
+      "state": "short-desktop",
+      "path": "artifacts/e4-cross/microbit-short-desktop.png",
+      "sha256": "5cd9b019d1ed1caee7ea9ef0f5140ac3945355b6212c72a1679f870d545f5173",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 1100,
+      "workspaceTop": 394.375,
+      "toolbarHeight": 132,
+      "scrollAreas": [
+        "dock-content"
+      ],
+      "selectedConsultation": [
+        "Firmware"
+      ],
+      "result": "Resultado: micro:bit y escena 2D",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "microbit",
+      "state": "narrow-program",
+      "path": "artifacts/e4-cross/microbit-narrow-program.png",
+      "sha256": "9f640c4316cc34e31989cf12b35e186feb6430ecf9d759ffebbfbb1618fcb131",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 4972,
+      "workspaceTop": 1529.53125,
+      "toolbarHeight": 336,
+      "scrollAreas": [],
+      "selectedConsultation": [
+        "Firmware"
+      ],
+      "result": "Resultado: micro:bit y escena 2D",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "microbit",
+      "state": "narrow-result",
+      "path": "artifacts/e4-cross/microbit-narrow-result.png",
+      "sha256": "5ef947574a75243d7f1d916b5ba119be23a219adcc50bac15b9c44594f161ce9",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 4972,
+      "workspaceTop": 1529.53125,
+      "toolbarHeight": 336,
+      "scrollAreas": [],
+      "selectedConsultation": [
+        "Firmware"
+      ],
+      "result": "Resultado: micro:bit y escena 2D",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "microbit",
+      "state": "stopped",
+      "path": "artifacts/e4-cross/microbit-stopped.png",
+      "sha256": "0f5daed832fc9bd72cf54c12ef12ab393da11f65ba71e0d492321134b83c8a42",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 1048,
+      "workspaceTop": 342.375,
+      "toolbarHeight": 80,
+      "scrollAreas": [
+        "dock-content"
+      ],
+      "selectedConsultation": [
+        "Firmware"
+      ],
+      "result": "Resultado: escena 2D inicial · sin ejecutar",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "sb3",
+      "state": "empty",
+      "path": "artifacts/e4-cross/sb3-empty.png",
+      "sha256": "4b5cfd98add8a2d370ae61937f7a8ac7ccc5d08aa3f0fb4c07bea4aa24bd3d31",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 1008,
+      "workspaceTop": 342.375,
+      "toolbarHeight": 80,
+      "scrollAreas": [
+        "dock-content"
+      ],
+      "selectedConsultation": [
+        "Ayuda"
+      ],
+      "result": "Resultado: escena 2D inicial · sin ejecutar",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "sb3",
+      "state": "ready",
+      "path": "artifacts/e4-cross/sb3-ready.png",
+      "sha256": "18c1f37df6d9a9bf6ee19e9a9457f7ba64d4b9d7a5b96fff334a11ef7fd88daa",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 1008,
+      "workspaceTop": 342.375,
+      "toolbarHeight": 80,
+      "scrollAreas": [
+        "sb3-review",
+        "dock-content"
+      ],
+      "selectedConsultation": [
+        "Ayuda"
+      ],
+      "result": "Resultado: escena 2D inicial · sin ejecutar",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "sb3",
+      "state": "running",
+      "path": "artifacts/e4-cross/sb3-running.png",
+      "sha256": "f3d70b68994846647e925aa8f0eda0d3dffb6af9e47d9ef800d45a676e210fc5",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 1008,
+      "workspaceTop": 342.375,
+      "toolbarHeight": 80,
+      "scrollAreas": [
+        "sb3-review",
+        "dock-content",
+        "sb3-runtime"
+      ],
+      "selectedConsultation": [
+        "Ayuda"
+      ],
+      "result": "Resultado: Scratch importado",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "sb3",
+      "state": "consult",
+      "path": "artifacts/e4-cross/sb3-consult.png",
+      "sha256": "449b18065d3705066d76c2ae6fb08d28d687db8498d9f1fd230c1b694633b120",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 1008,
+      "workspaceTop": 342.375,
+      "toolbarHeight": 80,
+      "scrollAreas": [
+        "sb3-review",
+        "dock-content",
+        "sb3-runtime"
+      ],
+      "selectedConsultation": [
+        "Original y copia"
+      ],
+      "result": "Resultado: Scratch importado",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "sb3",
+      "state": "short-desktop",
+      "path": "artifacts/e4-cross/sb3-short-desktop.png",
+      "sha256": "40a37fdefe85cbe8bc13a5ffc42c5b39a80d1a460a7c57594be2604c3570a6d8",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 1008,
+      "workspaceTop": 342.375,
+      "toolbarHeight": 80,
+      "scrollAreas": [
+        "sb3-review",
+        "dock-content",
+        "sb3-runtime"
+      ],
+      "selectedConsultation": [
+        "Original y copia"
+      ],
+      "result": "Resultado: Scratch importado",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "sb3",
+      "state": "narrow-program",
+      "path": "artifacts/e4-cross/sb3-narrow-program.png",
+      "sha256": "5067c54f3bf7eb17e708f6a205e38a7e21cafc42904c2c530ea6700c6997062c",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 3576,
+      "workspaceTop": 1552.265625,
+      "toolbarHeight": 284,
+      "scrollAreas": [
+        "sb3-runtime"
+      ],
+      "selectedConsultation": [
+        "Original y copia"
+      ],
+      "result": "Resultado: Scratch importado",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "sb3",
+      "state": "narrow-result",
+      "path": "artifacts/e4-cross/sb3-narrow-result.png",
+      "sha256": "7977f13b83706d01d4aea4fd5364f8aec5b027f8cfcaeb6a77680288ff599078",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 3576,
+      "workspaceTop": 1552.265625,
+      "toolbarHeight": 284,
+      "scrollAreas": [
+        "sb3-runtime"
+      ],
+      "selectedConsultation": [
+        "Original y copia"
+      ],
+      "result": "Resultado: Scratch importado",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "sb3",
+      "state": "stopped",
+      "path": "artifacts/e4-cross/sb3-stopped.png",
+      "sha256": "2d7e0cc56cb95b32c6276136494c5a6d59af67509c4531571e8a3c371449828f",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 1008,
+      "workspaceTop": 342.375,
+      "toolbarHeight": 80,
+      "scrollAreas": [
+        "sb3-review",
+        "dock-content"
+      ],
+      "selectedConsultation": [
+        "Original y copia"
+      ],
+      "result": "Resultado: escena 2D inicial · sin ejecutar",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "scene3d",
+      "state": "empty",
+      "path": "artifacts/e4-cross/scene3d-empty.png",
+      "sha256": "a33c9f0d2e49ee635be6334592afdc49fcd0ed42235c26f0970a7cff41c439e0",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 1108,
+      "workspaceTop": 342.375,
+      "toolbarHeight": 80,
+      "scrollAreas": [
+        "dock-content"
+      ],
+      "selectedConsultation": [
+        "Ayuda"
+      ],
+      "result": "Resultado: escena 2D inicial · sin ejecutar",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "scene3d",
+      "state": "ready",
+      "path": "artifacts/e4-cross/scene3d-ready.png",
+      "sha256": "08269373db3649637883b4ad056b40b48e9cb248c574bc29779ec4824e1df82f",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 1108,
+      "workspaceTop": 342.375,
+      "toolbarHeight": 80,
+      "scrollAreas": [
+        "dock-content",
+        "scene3d-generated-source"
+      ],
+      "selectedConsultation": [
+        "Ayuda"
+      ],
+      "result": "Resultado: escena 2D inicial · sin ejecutar",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "scene3d",
+      "state": "running",
+      "path": "artifacts/e4-cross/scene3d-running.png",
+      "sha256": "4469e14db12db06d9163ce77a0d2dd8b6745fa0c7caea76cc6fa2dae92cdbd0e",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 1108,
+      "workspaceTop": 342.375,
+      "toolbarHeight": 80,
+      "scrollAreas": [
+        "dock-content",
+        "scene3d-generated-source"
+      ],
+      "selectedConsultation": [
+        "Ayuda"
+      ],
+      "result": "Resultado: escena 3D",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "scene3d",
+      "state": "consult",
+      "path": "artifacts/e4-cross/scene3d-consult.png",
+      "sha256": "ad053daad450e439bb2a1f9e3e35f13469f016c01fc249224ae5bf1b56196bec",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 1108,
+      "workspaceTop": 342.375,
+      "toolbarHeight": 80,
+      "scrollAreas": [
+        "dock-content",
+        "scene3d-generated-source"
+      ],
+      "selectedConsultation": [
+        "Objetos 3D"
+      ],
+      "result": "Resultado: escena 3D",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "scene3d",
+      "state": "short-desktop",
+      "path": "artifacts/e4-cross/scene3d-short-desktop.png",
+      "sha256": "3d1b34598dfdfb41ae6864b0f72bbcb9f4d5315952fdece2a20e5d03cf2b74d4",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 1108,
+      "workspaceTop": 342.375,
+      "toolbarHeight": 80,
+      "scrollAreas": [
+        "dock-content",
+        "scene3d-generated-source"
+      ],
+      "selectedConsultation": [
+        "Objetos 3D"
+      ],
+      "result": "Resultado: escena 3D",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "scene3d",
+      "state": "narrow-program",
+      "path": "artifacts/e4-cross/scene3d-narrow-program.png",
+      "sha256": "93aa3cb3ead366ca7171197ff0e0be6cc8f7c16fa3a93bed63797aa18a46abf7",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 6395,
+      "workspaceTop": 1448.0625,
+      "toolbarHeight": 284,
+      "scrollAreas": [
+        "scene3d-generated-source"
+      ],
+      "selectedConsultation": [
+        "Objetos 3D"
+      ],
+      "result": "Resultado: escena 3D",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "scene3d",
+      "state": "narrow-result",
+      "path": "artifacts/e4-cross/scene3d-narrow-result.png",
+      "sha256": "a31930c0570ad35bfb0bac014a7a23fde1fb1b910563479f43cecfb28da24446",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 6395,
+      "workspaceTop": 1448.0625,
+      "toolbarHeight": 284,
+      "scrollAreas": [
+        "scene3d-generated-source"
+      ],
+      "selectedConsultation": [
+        "Objetos 3D"
+      ],
+      "result": "Resultado: escena 3D",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "scene3d",
+      "state": "stopped",
+      "path": "artifacts/e4-cross/scene3d-stopped.png",
+      "sha256": "9e43ea71fd8e20347c3296afae61628ee705b2062163e0c02776096450311825",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 1108,
+      "workspaceTop": 342.375,
+      "toolbarHeight": 80,
+      "scrollAreas": [
+        "dock-content",
+        "scene3d-generated-source"
+      ],
+      "selectedConsultation": [
+        "Objetos 3D"
+      ],
+      "result": "Resultado: escena 2D inicial · sin ejecutar",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "scene3d",
+      "state": "error",
+      "path": "artifacts/e4-cross/scene3d-error.png",
+      "sha256": "65888af4b58b4c9f97820b88bfa2a350e606bc1b858f62f10781e62831d5deb3",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 1108,
+      "workspaceTop": 342.375,
+      "toolbarHeight": 80,
+      "scrollAreas": [
+        "dock-content",
+        "scene3d-generated-source"
+      ],
+      "selectedConsultation": [
+        "Objetos 3D"
+      ],
+      "result": "Resultado: escena 2D inicial · sin ejecutar",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "webapp",
+      "state": "empty",
+      "path": "artifacts/e4-cross/webapp-empty.png",
+      "sha256": "33c6f726f603ddc8728a20c2f61f5f6c9c4f1986890dc567c5cb1949ffa3e5eb",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 1108,
+      "workspaceTop": 342.375,
+      "toolbarHeight": 80,
+      "scrollAreas": [
+        "dock-content"
+      ],
+      "selectedConsultation": [
+        "Ayuda"
+      ],
+      "result": "Resultado: escena 2D inicial · sin ejecutar",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "webapp",
+      "state": "ready",
+      "path": "artifacts/e4-cross/webapp-ready.png",
+      "sha256": "d230848acebcf2c85f7ae64766096acd3277b5e05c670156384af7f756bb2e37",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 1108,
+      "workspaceTop": 342.375,
+      "toolbarHeight": 80,
+      "scrollAreas": [
+        "dock-content",
+        "webapp-generated-source"
+      ],
+      "selectedConsultation": [
+        "Ayuda"
+      ],
+      "result": "Resultado: escena 2D inicial · sin ejecutar",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "webapp",
+      "state": "running",
+      "path": "artifacts/e4-cross/webapp-running.png",
+      "sha256": "0f0d1843ecf5d70e765842e1ff61471a27b1cffd7a83672c663a8d7ebf93de8c",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 1108,
+      "workspaceTop": 342.375,
+      "toolbarHeight": 80,
+      "scrollAreas": [
+        "dock-content",
+        "webapp-generated-source"
+      ],
+      "selectedConsultation": [
+        "Ayuda"
+      ],
+      "result": "Resultado: aplicación web",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "webapp",
+      "state": "consult",
+      "path": "artifacts/e4-cross/webapp-consult.png",
+      "sha256": "aeea6a1e9a405690b46ccc414bff9ad1930e46a4a3e508f1ec3bd805535e9d22",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 1108,
+      "workspaceTop": 342.375,
+      "toolbarHeight": 80,
+      "scrollAreas": [
+        "dock-content",
+        "webapp-generated-source"
+      ],
+      "selectedConsultation": [
+        "Componentes web"
+      ],
+      "result": "Resultado: aplicación web",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "webapp",
+      "state": "short-desktop",
+      "path": "artifacts/e4-cross/webapp-short-desktop.png",
+      "sha256": "bdc6a2f21a4a177ddeb8cb5caad6962efee7290a985c7c49c93cfdc811439552",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 1108,
+      "workspaceTop": 342.375,
+      "toolbarHeight": 80,
+      "scrollAreas": [
+        "dock-content",
+        "webapp-generated-source"
+      ],
+      "selectedConsultation": [
+        "Componentes web"
+      ],
+      "result": "Resultado: aplicación web",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "webapp",
+      "state": "narrow-program",
+      "path": "artifacts/e4-cross/webapp-narrow-program.png",
+      "sha256": "3254f2593bd7efcaf04e7a315ee537d06932a728583b12e3cf8ea9a67e71d525",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 5296,
+      "workspaceTop": 1448.0625,
+      "toolbarHeight": 284,
+      "scrollAreas": [
+        "webapp-generated-source"
+      ],
+      "selectedConsultation": [
+        "Componentes web"
+      ],
+      "result": "Resultado: aplicación web",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "webapp",
+      "state": "narrow-result",
+      "path": "artifacts/e4-cross/webapp-narrow-result.png",
+      "sha256": "2c7b25fa6b93212b6117fcf2e22072ad7f29cee94717efc6345296a980d0e841",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 5296,
+      "workspaceTop": 1448.0625,
+      "toolbarHeight": 284,
+      "scrollAreas": [
+        "webapp-generated-source"
+      ],
+      "selectedConsultation": [
+        "Componentes web"
+      ],
+      "result": "Resultado: aplicación web",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "webapp",
+      "state": "stopped",
+      "path": "artifacts/e4-cross/webapp-stopped.png",
+      "sha256": "78e0196c7ae29fe9f53663084cf22d2fc7cc020bb653a6d5e13fa3c101257e0b",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 1108,
+      "workspaceTop": 342.375,
+      "toolbarHeight": 80,
+      "scrollAreas": [
+        "dock-content",
+        "webapp-generated-source"
+      ],
+      "selectedConsultation": [
+        "Componentes web"
+      ],
+      "result": "Resultado: escena 2D inicial · sin ejecutar",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    },
+    {
+      "context": "webapp",
+      "state": "error",
+      "path": "artifacts/e4-cross/webapp-error.png",
+      "sha256": "2ce89a8b0c617f2967f3ab586c8d2e4b7e9ac5343aa4dd8a0437854393535017",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": false,
+      "sourceCount": 1,
+      "documentHeight": 1108,
+      "workspaceTop": 342.375,
+      "toolbarHeight": 80,
+      "scrollAreas": [
+        "dock-content",
+        "webapp-generated-source"
+      ],
+      "selectedConsultation": [
+        "Componentes web"
+      ],
+      "result": "Resultado: escena 2D inicial · sin ejecutar",
+      "validity": "Viewport capture; not all document contents are necessarily visible"
+    }
+  ],
+  "captureFollowup": [
+    {
+      "path": "artifacts/e4-cross/2d-narrow-renderer-check.png",
+      "sha256": "ad451f2eabbfd0b55fef8d6e2fa51cccfc501c79b9266740dea67cafc521836d"
+    },
+    {
+      "path": "artifacts/e4-cross/2d-narrow-result-recapture.png",
+      "sha256": "ad8b6c7bdc84167f77fc72a3772166c8ac5bdfc68c4022976f62ac3080ec15fb"
+    },
+    {
+      "path": "artifacts/e4-cross/context-mismatch.png",
+      "sha256": "1fe7fd8fd75098d9363413b68862445b9a476e315ef2435cbca728e92366afa3"
+    },
+    {
+      "path": "artifacts/e4-cross/webapp-error-details.png",
+      "sha256": "5ca2f37f3a28550ef8c11acb6bfa38d8e7a57bd3cb515b4585c69dc618414c57"
+    }
+  ],
+  "followup": [
+    {
+      "name": "2d-result-geometry",
+      "stage": {
+        "width": 565,
+        "height": 124.03125,
+        "fittedContentWidth": 165.375,
+        "fittedContentHeight": 124.03125
+      }
+    },
+    {
+      "name": "context-switch-current-link",
+      "selected": "2d",
+      "result": "Resultado: aplicación web",
+      "dockCurrent": [
+        {
+          "label": "Componentes web",
+          "hidden": true
+        }
+      ],
+      "execution": {
+        "contextId": "webapp",
+        "sessionId": "64ce914b-33b3-4f24-bd3c-1566215b171b",
+        "revision": 0,
+        "sourceDocument": "text-382aa030-d604-4eda-93c7-8c0d5f7e9f0c",
+        "preparing": false,
+        "program": {
+          "active": true,
+          "configured": true,
+          "invocations": 0,
+          "events": 0
+        }
+      }
+    },
+    {
+      "name": "stop-across-context",
+      "passed": true
+    },
+    {
+      "name": "web-validation-error",
+      "beforeSession": "aafcec57-c777-4c32-9bba-edebdaa81181",
+      "message": "GG capability: componente inválido",
+      "role": "alert",
+      "error": {
+        "top": 843.578125,
+        "bottom": 864.375,
+        "height": 20.796875
+      },
+      "apply": {
+        "top": 732.8125,
+        "bottom": 776.8125
+      },
+      "height": 900,
+      "focus": "webapp-apply-properties",
+      "afterSession": "aafcec57-c777-4c32-9bba-edebdaa81181"
+    }
+  ],
+  "detector": {
+    "path": "artifacts/e4-cross-detector.json",
+    "runs": 1,
+    "total": 5,
+    "rules": {
+      "broken-image": 1,
+      "cramped-padding": 3,
+      "flat-type-hierarchy": 1
+    },
+    "interpretation": "Hidden resource image is not a visible broken image. Padding/type warnings are design signals, not proven accessibility failures."
+  },
+  "findings": {
+    "P0": 0,
+    "P1": 4,
+    "P2": 4,
+    "P3": 0,
+    "report": "docs/product/E4-CROSS-CONTEXT-REVIEW.md"
+  },
+  "historicalSoftwareGate": {
+    "path": "artifacts/e4web-approved-gate",
+    "finishedAt": "2026-10-23T22:49:32.967Z",
+    "node": 400,
+    "tools": 63,
+    "smoke": 3,
+    "browser": 165,
+    "totalE2E": 168,
+    "openSpecAtThatGate": 21,
+    "notRerunForThisReview": true
+  },
+  "preservation": {
+    "runtimeFiles": 142,
+    "runtimeMatchesApprovedWebFull": true,
+    "onlyDocumentationChangedThisTurn": true,
+    "changes": [
+      "PRODUCT.md",
+      "README.md",
+      "docs/engineering/NEXT-SESSION.md",
+      "docs/product/CLAUDE-OPUS-VISUAL-REWORK-PROMPT.md",
+      "docs/product/E4-CROSS-CONTEXT-REVIEW.md",
+      "docs/product/PLAN-DE-ACCION-2026-10-22.md",
+      "docs/product/VISUAL-REWORK-BRIEF.md",
+      "docs/product/e4-cross-context-evidence.json",
+      "openspec/changes/studio-visual-workspace-rework/design.md",
+      "openspec/changes/studio-visual-workspace-rework/proposal.md",
+      "openspec/changes/studio-visual-workspace-rework/specs/workspace-presentation/spec.md",
+      "openspec/changes/studio-visual-workspace-rework/tasks.md"
+    ],
+    "design": "b58e42e4ebb5278d33d6634defda8413e31710a58d477adbab928b3deb6ce07d",
+    "sidecar": "a2f6f41ac1839d068a154ef4bd334552b91c01dfa5992323870db301b9f163e5",
+    "activeSurfaceBrief": "dca152cfc47a37a2190e4005904a67cf084b1421daff1790baebb2309e54f68e"
+  },
+  "planning": {
+    "change": "studio-visual-workspace-rework",
+    "tasksTotal": 19,
+    "tasksComplete": 0,
+    "prompt": "docs/product/CLAUDE-OPUS-VISUAL-REWORK-PROMPT.md"
+  },
+  "limits": {
+    "freshDualAgentCritique": false,
+    "humanTeacher": false,
+    "students": false,
+    "physicalDevices": false,
+    "humanScreenReader": false,
+    "newPerformanceBenchmark": false,
+    "newRealZoomRun": false,
+    "newColdOfflineRun": false
+  },
+  "notes": [
+    "Resumed after capture-only renderer replacement races; no product change. Previous complete context records retained."
+  ]
+}

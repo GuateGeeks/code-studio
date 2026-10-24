@@ -1,0 +1,995 @@
+{
+  "recordedAt": "2026-10-22T06:51:04.489Z",
+  "command": "npx playwright test --config=playwright.performance.config.mjs && node tools/f0/performance-evidence.mjs",
+  "tests": {
+    "startTime": "2026-10-22T06:46:25.438Z",
+    "duration": 84384.124,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "startup": {
+    "recordedAt": "2026-10-22T06:49:15.461Z",
+    "environment": {
+      "browser": "156.0.8078.4",
+      "node": "v22.23.4",
+      "platform": "linux",
+      "osRelease": "6.18.54.1-microsoft-standard-WSL2",
+      "cpu": "AMD Ryzen 7 3700X 8-Core Processor",
+      "logicalCpus": 16,
+      "reportedSystemRamBytes": 16720486400,
+      "gpu": {
+        "devices": [
+          {
+            "vendorId": 65535,
+            "deviceId": 65535,
+            "vendorString": "Google Inc. (Google)",
+            "deviceString": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver-5.0.0)",
+            "driverVendor": "SwANGLE",
+            "driverVersion": "5.0.0"
+          }
+        ],
+        "auxAttributes": {
+          "amdSwitchable": false,
+          "canSupportThreadedTextureMailbox": false,
+          "directRenderingVersion": "",
+          "displayType": "ANGLE_SWIFTSHADER",
+          "glExtensions": "GL_AMD_performance_monitor GL_ANGLE_base_vertex_base_instance_shader_builtin GL_ANGLE_blob_cache GL_ANGLE_client_arrays GL_ANGLE_clip_cull_distance GL_ANGLE_compressed_texture_etc GL_ANGLE_copy_texture_3d GL_ANGLE_depth_texture GL_ANGLE_framebuffer_blit GL_ANGLE_framebuffer_multisample GL_ANGLE_get_image GL_ANGLE_get_serialized_context_string GL_ANGLE_get_tex_level_parameter GL_ANGLE_instanced_arrays GL_ANGLE_memory_object_flags GL_ANGLE_memory_size GL_ANGLE_multi_draw GL_ANGLE_pack_reverse_row_order GL_ANGLE_polygon_mode GL_ANGLE_program_binary_readiness_query GL_ANGLE_program_cache_control GL_ANGLE_read_only_depth_stencil_feedback_loops GL_ANGLE_relaxed_vertex_attribute_type GL_ANGLE_renderability_validation GL_ANGLE_request_extension GL_ANGLE_rgbx_internal_format GL_ANGLE_robust_client_memory GL_ANGLE_robust_fragment_shader_output GL_ANGLE_robust_resource_initialization GL_ANGLE_shader_pixel_local_storage GL_ANGLE_shader_pixel_local_storage_coherent GL_ANGLE_stencil_texturing GL_ANGLE_texture_compression_dxt3 GL_ANGLE_texture_compression_dxt5 GL_ANGLE_texture_multisample GL_ANGLE_texture_usage GL_ANGLE_translated_shader_source GL_ANGLE_vulkan_image GL_ANGLE_yuv_internal_format GL_APPLE_clip_distance GL_ARM_rgba8 GL_ARM_shader_framebuffer_fetch GL_CHROMIUM_bind_generates_resource GL_CHROMIUM_bind_uniform_location GL_CHROMIUM_copy_compressed_texture GL_CHROMIUM_copy_texture GL_CHROMIUM_lose_context GL_EXT_EGL_image_array GL_EXT_EGL_image_external_wrap_modes GL_EXT_EGL_image_storage GL_EXT_base_instance GL_EXT_blend_minmax GL_EXT_buffer_storage GL_EXT_clear_texture GL_EXT_clip_control GL_EXT_clip_cull_distance GL_EXT_color_buffer_float GL_EXT_color_buffer_half_float GL_EXT_compressed_ETC1_RGB8_sub_texture GL_EXT_conservative_depth GL_EXT_copy_image GL_EXT_debug_label GL_EXT_debug_marker GL_EXT_depth_clamp GL_EXT_discard_framebuffer GL_EXT_disjoint_timer_query GL_EXT_draw_buffers GL_EXT_draw_buffers_indexed GL_EXT_draw_elements_base_vertex GL_EXT_float_blend GL_EXT_frag_depth GL_EXT_instanced_arrays GL_EXT_map_buffer_range GL_EXT_memory_object GL_EXT_memory_object_fd GL_EXT_occlusion_query_boolean GL_EXT_polygon_offset_clamp GL_EXT_read_format_bgra GL_EXT_robustness GL_EXT_sRGB GL_EXT_sRGB_write_control GL_EXT_semaphore GL_EXT_semaphore_fd GL_EXT_separate_shader_objects GL_EXT_shader_framebuffer_fetch GL_EXT_shader_framebuffer_fetch_non_coherent GL_EXT_shader_non_constant_global_initializers GL_EXT_shader_texture_lod GL_EXT_shadow_samplers GL_EXT_texture_border_clamp GL_EXT_texture_compression_bptc GL_EXT_texture_compression_dxt1 GL_EXT_texture_compression_rgtc GL_EXT_texture_compression_s3tc_srgb GL_EXT_texture_filter_anisotropic GL_EXT_texture_format_BGRA8888 GL_EXT_texture_lod_bias GL_EXT_texture_mirror_clamp_to_edge GL_EXT_texture_rg GL_EXT_texture_sRGB_R8 GL_EXT_texture_sRGB_RG8 GL_EXT_texture_sRGB_decode GL_EXT_texture_shadow_lod GL_EXT_texture_storage GL_EXT_texture_type_2_10_10_10_REV GL_EXT_unpack_subimage GL_KHR_blend_equation_advanced GL_KHR_debug GL_KHR_robust_buffer_access_behavior GL_KHR_robustness GL_KHR_texture_compression_astc_ldr GL_NV_fence GL_NV_framebuffer_blit GL_NV_pack_subimage GL_NV_pixel_buffer_object GL_NV_polygon_mode GL_NV_read_depth GL_NV_read_depth_stencil GL_NV_read_stencil GL_NV_shader_noperspective_interpolation GL_OES_EGL_image GL_OES_EGL_image_external GL_OES_EGL_image_external_essl3 GL_OES_EGL_sync GL_OES_compressed_ETC1_RGB8_texture GL_OES_compressed_paletted_texture GL_OES_copy_image GL_OES_depth24 GL_OES_depth32 GL_OES_depth_texture GL_OES_depth_texture_cube_map GL_OES_draw_buffers_indexed GL_OES_draw_elements_base_vertex GL_OES_element_index_uint GL_OES_fbo_render_mipmap GL_OES_get_program_binary GL_OES_mapbuffer GL_OES_packed_depth_stencil GL_OES_required_internalformat GL_OES_rgb8_rgba8 GL_OES_sample_shading GL_OES_sample_variables GL_OES_shader_multisample_interpolation GL_OES_standard_derivatives GL_OES_surfaceless_context GL_OES_texture_3D GL_OES_texture_border_clamp GL_OES_texture_float GL_OES_texture_float_linear GL_OES_texture_half_float GL_OES_texture_half_float_linear GL_OES_texture_npot GL_OES_texture_stencil8 GL_OES_texture_storage_multisample_2d_array GL_OES_vertex_array_object GL_OES_vertex_half_float GL_OES_vertex_type_10_10_10_2 GL_OVR_multiview GL_OVR_multiview2 GL_QCOM_texture_lod_bias ",
+          "glImplementationParts": "(gl=egl-angle,angle=swiftshader)",
+          "glRenderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver-5.0.0)",
+          "glResetNotificationStrategy": 33362,
+          "glVendor": "Google Inc. (Google)",
+          "glVersion": "OpenGL ES 3.0 (ANGLE 2.1.28967 git hash: dfeede58b618)",
+          "glWsExtensions": "EGL_EXT_create_context_robustness EGL_ANGLE_surface_orientation EGL_KHR_create_context EGL_KHR_image EGL_KHR_image_base EGL_EXT_image_gl_colorspace EGL_KHR_gl_colorspace EGL_KHR_gl_texture_2D_image EGL_KHR_gl_texture_cubemap_image EGL_KHR_gl_renderbuffer_image EGL_KHR_get_all_proc_addresses EGL_KHR_fence_sync EGL_KHR_wait_sync EGL_ANGLE_create_context_webgl_compatibility EGL_CHROMIUM_create_context_bind_generates_resource EGL_KHR_swap_buffers_with_damage EGL_EXT_pixel_format_float EGL_KHR_surfaceless_context EGL_ANGLE_display_texture_share_group EGL_ANGLE_display_semaphore_share_group EGL_ANGLE_create_context_client_arrays EGL_ANGLE_program_cache_control EGL_ANGLE_robust_resource_initialization EGL_ANGLE_create_context_extensions_enabled EGL_ANDROID_blob_cache EGL_ANDROID_recordable EGL_ANGLE_create_context_backwards_compatible EGL_KHR_no_config_context EGL_IMG_context_priority EGL_KHR_create_context_no_error EGL_KHR_reusable_sync EGL_EXT_buffer_age EGL_ANGLE_create_surface_swap_interval EGL_ANGLE_vulkan_image EGL_KHR_partial_update EGL_ANGLE_global_fence_sync EGL_ANGLE_memory_usage_report ",
+          "glWsVendor": "Google Inc. (Google)",
+          "glWsVersion": "1.5 (ANGLE 2.1.28967 git hash: dfeede58b618)",
+          "hardwareSupportsVulkan": false,
+          "inProcessGpu": false,
+          "initializationTime": 0.025326,
+          "isAsan": false,
+          "isClangCoverage": false,
+          "jpegDecodeAcceleratorSupported": false,
+          "maxMsaaSamples": "4",
+          "optimus": false,
+          "passthroughCmdDecoder": true,
+          "pixelShaderVersion": "3.00",
+          "processCrashCount": 0,
+          "sandboxed": false,
+          "skiaBackendType": "None",
+          "subpixelFontRendering": true,
+          "targetCpuBits": 64,
+          "vertexShaderVersion": "3.00",
+          "visibilityCallbackCallCount": 0
+        },
+        "featureStatus": {
+          "2d_canvas": "unavailable_software",
+          "direct_rendering_display_compositor": "disabled_off_ok",
+          "gpu_compositing": "disabled_software",
+          "multiple_raster_threads": "enabled_on",
+          "opengl": "disabled_off",
+          "rasterization": "disabled_software",
+          "raw_draw": "disabled_off_ok",
+          "skia_graphite": "disabled_off",
+          "trees_in_viz": "disabled_off",
+          "video_decode": "disabled_software",
+          "video_encode": "disabled_software",
+          "vulkan": "disabled_off",
+          "webgl": "unavailable_software",
+          "webgpu": "unavailable_software",
+          "webgpu_on_vk_via_gl_interop": "disabled_off",
+          "webnn": "unavailable_software"
+        },
+        "driverBugWorkarounds": [],
+        "videoDecoding": [],
+        "videoEncoding": []
+      },
+      "flag": "--enable-unsafe-swiftshader",
+      "schoolHardware": false
+    },
+    "startupMs": {
+      "contextCold": {
+        "samples": [
+          2867.7999999970198,
+          2577.800000011921,
+          2979.5999999940395
+        ],
+        "median": 2867.7999999970198,
+        "p95": 2979.5999999940395,
+        "max": 2979.5999999940395
+      },
+      "warmReload": {
+        "samples": [
+          2374.9000000059605,
+          2579.2999999970198,
+          3943.4000000059605
+        ],
+        "median": 2579.2999999970198,
+        "p95": 3943.4000000059605,
+        "max": 3943.4000000059605
+      }
+    },
+    "startupMethod": "Navigation start to shell enabling Run after rendered runner ready, recorded by MutationObserver in page. Three fresh contexts in one browser, each followed by one same-context reload. Cache-Control:no-store means both fetch assets again. This is context-cold / OS-and-engine-warm reload, not cold OS/browser process, offline cache, or production bundle startup.",
+    "memory": [
+      {
+        "shellTarget": {
+          "JSHeapUsedSize": 5463840,
+          "JSHeapTotalSize": 6168576,
+          "dom": {
+            "documents": 3,
+            "nodes": 1689,
+            "jsEventListeners": 216
+          }
+        },
+        "runnerTarget": {
+          "JSHeapUsedSize": 12872616,
+          "JSHeapTotalSize": 13709312,
+          "dom": {
+            "documents": 6,
+            "nodes": 107,
+            "jsEventListeners": 17
+          }
+        }
+      },
+      {
+        "shellTarget": {
+          "JSHeapUsedSize": 5464736,
+          "JSHeapTotalSize": 6168576,
+          "dom": {
+            "documents": 3,
+            "nodes": 1689,
+            "jsEventListeners": 216
+          }
+        },
+        "runnerTarget": {
+          "JSHeapUsedSize": 12883280,
+          "JSHeapTotalSize": 13447168,
+          "dom": {
+            "documents": 6,
+            "nodes": 107,
+            "jsEventListeners": 17
+          }
+        }
+      },
+      {
+        "shellTarget": {
+          "JSHeapUsedSize": 5463608,
+          "JSHeapTotalSize": 6168576,
+          "dom": {
+            "documents": 3,
+            "nodes": 1689,
+            "jsEventListeners": 216
+          }
+        },
+        "runnerTarget": {
+          "JSHeapUsedSize": 12871976,
+          "JSHeapTotalSize": 13971456,
+          "dom": {
+            "documents": 6,
+            "nodes": 107,
+            "jsEventListeners": 17
+          }
+        }
+      }
+    ],
+    "memoryScope": "Post-GC CDP Performance.getMetrics per shell and runner target. Targets can share an isolate; do not sum their heaps. Excludes worker heaps, WebGL/GPU, audio native allocations and browser/OS process RSS.",
+    "staticBuild": {
+      "builtAt": "2026-10-22T06:45:32.816Z",
+      "files": [
+        {
+          "file": "vendor/typescript.js",
+          "bytes": 1548990,
+          "sha256": "556939b102e5c420fad2eb7d0692dcaf9682a437511ef2e990674e6aaa0695ab"
+        },
+        {
+          "file": "vendor/pxtworker.js",
+          "bytes": 2482200,
+          "sha256": "ce88b5f45f212b2a0eb9371e35a40e436dfe9e1b0957e74f20e9a39708aa1b4e"
+        },
+        {
+          "file": "vendor/microbit-compiler.js",
+          "bytes": 5597,
+          "sha256": "be9af26759448c021b01e028fffba5aeba55d24ae472dc7afc68eb444b015e97"
+        },
+        {
+          "file": "vendor/lzma.js",
+          "bytes": 111982,
+          "sha256": "b2704cc4536d113ba9d4badfb4b262ec878b16824e300596895c0a1080fbdc50"
+        },
+        {
+          "file": "vendor/scratch-vm.js",
+          "bytes": 13989557,
+          "sha256": "c60de5f95ee4bb5b5fc61f9d928b07f3b497b20a899c2b6c9182c4edf6484fc2"
+        },
+        {
+          "file": "vendor/scratch-render.js",
+          "bytes": 3061945,
+          "sha256": "40253eeee30919628a3915a49ceaca462db212d322c46471920d49e61e3da90f"
+        },
+        {
+          "file": "vendor/scratch-storage.js",
+          "bytes": 186078,
+          "sha256": "17d1d1054e06fba2c3ba71d35ef6739771c22b3ec374a066edcfbda8ca3ffc66"
+        },
+        {
+          "file": "vendor/scratch-audio.js",
+          "bytes": 108319,
+          "sha256": "b5b68d3dbb3b0fffbd96dffce99a0e43df339f09e98e9728c06444d9a48f8e6c"
+        },
+        {
+          "file": "simulator/vendor/pxtsim.js",
+          "bytes": 210381,
+          "sha256": "566938713d8405705ac13b0b1e6e5ffb500b9a71aefe9b6a28649fbfdccf63c3"
+        },
+        {
+          "file": "simulator/vendor/microbit-sim.js",
+          "bytes": 561529,
+          "sha256": "2d527dbee4b6a384eb501a2c6129414a0f642af20d4291a2165e1c23576f3335"
+        },
+        {
+          "file": "shell/editor.bundle.js",
+          "bytes": 956601,
+          "sha256": "31ee3acdb703c7a2a224dca750adb2372a938b7cd17f1ab04e1cebb88917c092"
+        }
+      ],
+      "listedBundleBytes": 23223179,
+      "compilerPackBytes": 5221168,
+      "compression": "Raw on-disk bytes from development build, not gzip/brotli transfer bytes."
+    }
+  },
+  "stability": {
+    "recordedAt": "2026-10-22T06:47:40.130Z",
+    "cycles": [
+      {
+        "cycle": 1,
+        "stop": {
+          "feedbackMs": 15.299999997019768,
+          "disabled": true,
+          "sessionInvalidated": true,
+          "removedMs": 26.299999997019768,
+          "readyMs": 1049.6000000089407
+        },
+        "playing": {
+          "rms": 0.17705085762839765,
+          "contextState": "running"
+        },
+        "contexts": [
+          "3cf426e6-f140-4d20-93db-4b2c79f4f263"
+        ],
+        "closed": [
+          "3cf426e6-f140-4d20-93db-4b2c79f4f263"
+        ],
+        "destroyed": [],
+        "oldFrameDetached": true,
+        "remainingFramesIncludingShell": 2,
+        "activeWorkersBeforeStop": [
+          "http://127.0.0.1:4194/loop-worker.js",
+          "http://127.0.0.1:4194/compiler-worker.js"
+        ],
+        "remainingWorkers": 0,
+        "afterStop": {
+          "threads": 0,
+          "audioAvailable": false
+        },
+        "authoringPreserved": true,
+        "shellTargetHeap": {
+          "JSHeapUsedSize": 5797188,
+          "JSHeapTotalSize": 6692864,
+          "dom": {
+            "documents": 3,
+            "nodes": 1713,
+            "jsEventListeners": 216
+          }
+        }
+      },
+      {
+        "cycle": 2,
+        "stop": {
+          "feedbackMs": 2.4000000059604645,
+          "disabled": true,
+          "sessionInvalidated": true,
+          "removedMs": 15,
+          "readyMs": 1543
+        },
+        "playing": {
+          "rms": 0.17650583027102518,
+          "contextState": "running"
+        },
+        "contexts": [
+          "14e91e04-b63e-4713-b825-4bd88405b62f"
+        ],
+        "closed": [
+          "14e91e04-b63e-4713-b825-4bd88405b62f"
+        ],
+        "destroyed": [],
+        "oldFrameDetached": true,
+        "remainingFramesIncludingShell": 2,
+        "activeWorkersBeforeStop": [
+          "http://127.0.0.1:4194/loop-worker.js"
+        ],
+        "remainingWorkers": 0,
+        "afterStop": {
+          "threads": 0,
+          "audioAvailable": false
+        },
+        "authoringPreserved": true,
+        "shellTargetHeap": {
+          "JSHeapUsedSize": 5849192,
+          "JSHeapTotalSize": 6955008,
+          "dom": {
+            "documents": 3,
+            "nodes": 1713,
+            "jsEventListeners": 216
+          }
+        }
+      },
+      {
+        "cycle": 3,
+        "stop": {
+          "feedbackMs": 3.4000000059604645,
+          "disabled": true,
+          "sessionInvalidated": true,
+          "removedMs": 9.5,
+          "readyMs": 1730.800000011921
+        },
+        "playing": {
+          "rms": 0.17705017213991894,
+          "contextState": "running"
+        },
+        "contexts": [
+          "11cce919-3c50-498f-9405-e5656f8b9e66"
+        ],
+        "closed": [
+          "11cce919-3c50-498f-9405-e5656f8b9e66"
+        ],
+        "destroyed": [],
+        "oldFrameDetached": true,
+        "remainingFramesIncludingShell": 2,
+        "activeWorkersBeforeStop": [
+          "http://127.0.0.1:4194/loop-worker.js"
+        ],
+        "remainingWorkers": 0,
+        "afterStop": {
+          "threads": 0,
+          "audioAvailable": false
+        },
+        "authoringPreserved": true,
+        "shellTargetHeap": {
+          "JSHeapUsedSize": 5903572,
+          "JSHeapTotalSize": 6955008,
+          "dom": {
+            "documents": 3,
+            "nodes": 1713,
+            "jsEventListeners": 216
+          }
+        }
+      },
+      {
+        "cycle": 4,
+        "stop": {
+          "feedbackMs": 2.9000000059604645,
+          "disabled": true,
+          "sessionInvalidated": true,
+          "removedMs": 8.5,
+          "readyMs": 1089.7000000029802
+        },
+        "playing": {
+          "rms": 0.17699817541501586,
+          "contextState": "running"
+        },
+        "contexts": [
+          "d22044a5-44ff-4c44-b003-65d10c2673ad"
+        ],
+        "closed": [
+          "d22044a5-44ff-4c44-b003-65d10c2673ad"
+        ],
+        "destroyed": [],
+        "oldFrameDetached": true,
+        "remainingFramesIncludingShell": 2,
+        "activeWorkersBeforeStop": [
+          "http://127.0.0.1:4194/loop-worker.js"
+        ],
+        "remainingWorkers": 0,
+        "afterStop": {
+          "threads": 0,
+          "audioAvailable": false
+        },
+        "authoringPreserved": true,
+        "shellTargetHeap": {
+          "JSHeapUsedSize": 5933808,
+          "JSHeapTotalSize": 6955008,
+          "dom": {
+            "documents": 3,
+            "nodes": 1713,
+            "jsEventListeners": 216
+          }
+        }
+      },
+      {
+        "cycle": 5,
+        "stop": {
+          "feedbackMs": 3.5,
+          "disabled": true,
+          "sessionInvalidated": true,
+          "removedMs": 15.099999994039536,
+          "readyMs": 1261.7000000029802
+        },
+        "playing": {
+          "rms": 0.14415340906052498,
+          "contextState": "running"
+        },
+        "contexts": [
+          "eb33ffc9-0167-4d4d-98e0-39140a058ee4"
+        ],
+        "closed": [
+          "eb33ffc9-0167-4d4d-98e0-39140a058ee4"
+        ],
+        "destroyed": [],
+        "oldFrameDetached": true,
+        "remainingFramesIncludingShell": 2,
+        "activeWorkersBeforeStop": [
+          "http://127.0.0.1:4194/loop-worker.js"
+        ],
+        "remainingWorkers": 0,
+        "afterStop": {
+          "threads": 0,
+          "audioAvailable": false
+        },
+        "authoringPreserved": true,
+        "shellTargetHeap": {
+          "JSHeapUsedSize": 5971880,
+          "JSHeapTotalSize": 6955008,
+          "dom": {
+            "documents": 3,
+            "nodes": 1713,
+            "jsEventListeners": 216
+          }
+        }
+      },
+      {
+        "cycle": 6,
+        "stop": {
+          "feedbackMs": 10.199999988079071,
+          "disabled": true,
+          "sessionInvalidated": true,
+          "removedMs": 18.399999991059303,
+          "readyMs": 1017.1999999880791
+        },
+        "playing": {
+          "rms": 0.14415340906052498,
+          "contextState": "running"
+        },
+        "contexts": [
+          "ec9dcc3c-8eca-48f6-8394-ef20ec81518e"
+        ],
+        "closed": [
+          "ec9dcc3c-8eca-48f6-8394-ef20ec81518e"
+        ],
+        "destroyed": [],
+        "oldFrameDetached": true,
+        "remainingFramesIncludingShell": 2,
+        "activeWorkersBeforeStop": [
+          "http://127.0.0.1:4194/loop-worker.js"
+        ],
+        "remainingWorkers": 0,
+        "afterStop": {
+          "threads": 0,
+          "audioAvailable": false
+        },
+        "authoringPreserved": true,
+        "shellTargetHeap": {
+          "JSHeapUsedSize": 5982328,
+          "JSHeapTotalSize": 6692864,
+          "dom": {
+            "documents": 3,
+            "nodes": 1713,
+            "jsEventListeners": 216
+          }
+        }
+      },
+      {
+        "cycle": 7,
+        "stop": {
+          "feedbackMs": 5.0999999940395355,
+          "disabled": true,
+          "sessionInvalidated": true,
+          "removedMs": 10.200000002980232,
+          "readyMs": 1028.9000000059605
+        },
+        "playing": {
+          "rms": 0.16906881703122834,
+          "contextState": "running"
+        },
+        "contexts": [
+          "e13872a3-9760-43d2-ba8f-50e235823898"
+        ],
+        "closed": [
+          "e13872a3-9760-43d2-ba8f-50e235823898"
+        ],
+        "destroyed": [],
+        "oldFrameDetached": true,
+        "remainingFramesIncludingShell": 2,
+        "activeWorkersBeforeStop": [
+          "http://127.0.0.1:4194/loop-worker.js"
+        ],
+        "remainingWorkers": 0,
+        "afterStop": {
+          "threads": 0,
+          "audioAvailable": false
+        },
+        "authoringPreserved": true,
+        "shellTargetHeap": {
+          "JSHeapUsedSize": 5989560,
+          "JSHeapTotalSize": 6955008,
+          "dom": {
+            "documents": 3,
+            "nodes": 1713,
+            "jsEventListeners": 216
+          }
+        }
+      },
+      {
+        "cycle": 8,
+        "stop": {
+          "feedbackMs": 5.699999988079071,
+          "disabled": true,
+          "sessionInvalidated": true,
+          "removedMs": 13.599999994039536,
+          "readyMs": 1268
+        },
+        "playing": {
+          "rms": 0.17652312458648026,
+          "contextState": "running"
+        },
+        "contexts": [
+          "15e74855-288b-4fcb-bade-e05982d3934c"
+        ],
+        "closed": [
+          "15e74855-288b-4fcb-bade-e05982d3934c"
+        ],
+        "destroyed": [],
+        "oldFrameDetached": true,
+        "remainingFramesIncludingShell": 2,
+        "activeWorkersBeforeStop": [
+          "http://127.0.0.1:4194/loop-worker.js"
+        ],
+        "remainingWorkers": 0,
+        "afterStop": {
+          "threads": 0,
+          "audioAvailable": false
+        },
+        "authoringPreserved": true,
+        "shellTargetHeap": {
+          "JSHeapUsedSize": 6023292,
+          "JSHeapTotalSize": 6955008,
+          "dom": {
+            "documents": 3,
+            "nodes": 1713,
+            "jsEventListeners": 216
+          }
+        }
+      },
+      {
+        "cycle": 9,
+        "stop": {
+          "feedbackMs": 17.599999994039536,
+          "disabled": true,
+          "sessionInvalidated": true,
+          "removedMs": 23.69999998807907,
+          "readyMs": 1442.699999988079
+        },
+        "playing": {
+          "rms": 0.1769818918163375,
+          "contextState": "running"
+        },
+        "contexts": [
+          "0414a4fb-ac99-4413-9ae8-40023eff416a"
+        ],
+        "closed": [
+          "0414a4fb-ac99-4413-9ae8-40023eff416a"
+        ],
+        "destroyed": [],
+        "oldFrameDetached": true,
+        "remainingFramesIncludingShell": 2,
+        "activeWorkersBeforeStop": [
+          "http://127.0.0.1:4194/loop-worker.js"
+        ],
+        "remainingWorkers": 0,
+        "afterStop": {
+          "threads": 0,
+          "audioAvailable": false
+        },
+        "authoringPreserved": true,
+        "shellTargetHeap": {
+          "JSHeapUsedSize": 6035956,
+          "JSHeapTotalSize": 6955008,
+          "dom": {
+            "documents": 3,
+            "nodes": 1713,
+            "jsEventListeners": 216
+          }
+        }
+      },
+      {
+        "cycle": 10,
+        "stop": {
+          "feedbackMs": 41,
+          "disabled": true,
+          "sessionInvalidated": true,
+          "removedMs": 49.19999998807907,
+          "readyMs": 1172.3999999910593
+        },
+        "playing": {
+          "rms": 0.17680040689932017,
+          "contextState": "running"
+        },
+        "contexts": [
+          "2061c2e2-45a5-4aa1-b3df-7933b73033d3"
+        ],
+        "closed": [
+          "2061c2e2-45a5-4aa1-b3df-7933b73033d3"
+        ],
+        "destroyed": [],
+        "oldFrameDetached": true,
+        "remainingFramesIncludingShell": 2,
+        "activeWorkersBeforeStop": [
+          "http://127.0.0.1:4194/loop-worker.js",
+          "http://127.0.0.1:4194/compiler-worker.js"
+        ],
+        "remainingWorkers": 0,
+        "afterStop": {
+          "threads": 0,
+          "audioAvailable": false
+        },
+        "authoringPreserved": true,
+        "shellTargetHeap": {
+          "JSHeapUsedSize": 6060792,
+          "JSHeapTotalSize": 6955008,
+          "dom": {
+            "documents": 3,
+            "nodes": 1713,
+            "jsEventListeners": 216
+          }
+        }
+      }
+    ],
+    "workers": [
+      {
+        "url": "http://127.0.0.1:4194/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+        "closed": true
+      },
+      {
+        "url": "http://127.0.0.1:4194/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+        "closed": true
+      },
+      {
+        "url": "http://127.0.0.1:4194/loop-worker.js",
+        "closed": true
+      },
+      {
+        "url": "http://127.0.0.1:4194/compiler-worker.js",
+        "closed": true
+      },
+      {
+        "url": "http://127.0.0.1:4194/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+        "closed": true
+      },
+      {
+        "url": "http://127.0.0.1:4194/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+        "closed": true
+      },
+      {
+        "url": "http://127.0.0.1:4194/loop-worker.js",
+        "closed": true
+      },
+      {
+        "url": "http://127.0.0.1:4194/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+        "closed": true
+      },
+      {
+        "url": "http://127.0.0.1:4194/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+        "closed": true
+      },
+      {
+        "url": "http://127.0.0.1:4194/loop-worker.js",
+        "closed": true
+      },
+      {
+        "url": "http://127.0.0.1:4194/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+        "closed": true
+      },
+      {
+        "url": "http://127.0.0.1:4194/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+        "closed": true
+      },
+      {
+        "url": "http://127.0.0.1:4194/loop-worker.js",
+        "closed": true
+      },
+      {
+        "url": "http://127.0.0.1:4194/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+        "closed": true
+      },
+      {
+        "url": "http://127.0.0.1:4194/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+        "closed": true
+      },
+      {
+        "url": "http://127.0.0.1:4194/loop-worker.js",
+        "closed": true
+      },
+      {
+        "url": "http://127.0.0.1:4194/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+        "closed": true
+      },
+      {
+        "url": "http://127.0.0.1:4194/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+        "closed": true
+      },
+      {
+        "url": "http://127.0.0.1:4194/loop-worker.js",
+        "closed": true
+      },
+      {
+        "url": "http://127.0.0.1:4194/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+        "closed": true
+      },
+      {
+        "url": "http://127.0.0.1:4194/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+        "closed": true
+      },
+      {
+        "url": "http://127.0.0.1:4194/loop-worker.js",
+        "closed": true
+      },
+      {
+        "url": "http://127.0.0.1:4194/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+        "closed": true
+      },
+      {
+        "url": "http://127.0.0.1:4194/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+        "closed": true
+      },
+      {
+        "url": "http://127.0.0.1:4194/loop-worker.js",
+        "closed": true
+      },
+      {
+        "url": "http://127.0.0.1:4194/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+        "closed": true
+      },
+      {
+        "url": "http://127.0.0.1:4194/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+        "closed": true
+      },
+      {
+        "url": "http://127.0.0.1:4194/loop-worker.js",
+        "closed": true
+      },
+      {
+        "url": "http://127.0.0.1:4194/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+        "closed": true
+      },
+      {
+        "url": "http://127.0.0.1:4194/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+        "closed": true
+      },
+      {
+        "url": "http://127.0.0.1:4194/loop-worker.js",
+        "closed": true
+      },
+      {
+        "url": "http://127.0.0.1:4194/compiler-worker.js",
+        "closed": true
+      },
+      {
+        "url": "http://127.0.0.1:4194/vendor/chunks/fetch-worker.c813c32be403f91001ba.js",
+        "closed": true
+      }
+    ],
+    "errors": [],
+    "initialHeap": {
+      "JSHeapUsedSize": 5667660,
+      "JSHeapTotalSize": 6430720,
+      "dom": {
+        "documents": 3,
+        "nodes": 1713,
+        "jsEventListeners": 216
+      }
+    },
+    "stopMs": {
+      "feedback": {
+        "samples": [
+          15.299999997019768,
+          2.4000000059604645,
+          3.4000000059604645,
+          2.9000000059604645,
+          3.5,
+          10.199999988079071,
+          5.0999999940395355,
+          5.699999988079071,
+          17.599999994039536,
+          41
+        ],
+        "median": 5.0999999940395355,
+        "p95": 41,
+        "max": 41
+      },
+      "frameRemoved": {
+        "samples": [
+          26.299999997019768,
+          15,
+          9.5,
+          8.5,
+          15.099999994039536,
+          18.399999991059303,
+          10.200000002980232,
+          13.599999994039536,
+          23.69999998807907,
+          49.19999998807907
+        ],
+        "median": 15,
+        "p95": 49.19999998807907,
+        "max": 49.19999998807907
+      },
+      "freshRunnerReady": {
+        "samples": [
+          1049.6000000089407,
+          1543,
+          1730.800000011921,
+          1089.7000000029802,
+          1261.7000000029802,
+          1017.1999999880791,
+          1028.9000000059605,
+          1268,
+          1442.699999988079,
+          1172.3999999910593
+        ],
+        "median": 1172.3999999910593,
+        "p95": 1730.800000011921,
+        "max": 1730.800000011921
+      }
+    },
+    "proposedBudgets": {
+      "feedbackMs": 100,
+      "forcedCancellationMs": 1000
+    },
+    "budgetObserved": {
+      "feedbackUnder100ms": true,
+      "oldFrameRemovedUnder1000ms": true
+    },
+    "memoryScope": "Shell CDP target post forced GC each cycle; target/isolate scope can include co-resident frame contexts. Does not include dedicated workers/native audio/GPU/RSS. Ten finite cycles do not prove absence of all leaks.",
+    "stopMethod": "Real Stop click capture timestamp; next rAF checks disabled Run and invalidated session. MutationObserver timestamps old iframe removal (upper bound for forced cancellation); ready measures new rendered runner ready, separately from cancellation.",
+    "resourceMethod": "Real WebAudio CDP context lifecycle on old iframe, Playwright dedicated-worker close events, detached frame, one fresh runner, zero fresh VM threads, no fresh audio context. Audio signal observed before each Stop; loop worker every cycle; PXT compiler worker in cycles 1 and 10."
+  },
+  "sprites": {
+    "recordedAt": "2026-10-22T06:47:49.450Z",
+    "samples": [
+      {
+        "spriteCount": 100,
+        "nativeTargetCount": 100,
+        "frames": 119,
+        "durationMs": 2005.4000000059605,
+        "completedDrawsPerSecond": 59.33978258683869,
+        "frameIntervalMs": {
+          "median": 16.399999991059303,
+          "p95": 30.099999994039536,
+          "max": 45.900000005960464
+        },
+        "drawMs": {
+          "median": 0.800000011920929,
+          "p95": 2.7999999970197678,
+          "max": 8.200000002980232
+        },
+        "gpu": {
+          "vendor": "Google Inc. (Google)",
+          "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+        },
+        "method": "Native Scratch VM timer; 1 original + 99 native clones; reposition 100 targets before each scheduled renderer.draw; gl.finish confirms WebGL completion. This is draw throughput, not display compositor FPS or arbitrary-script throughput."
+      },
+      {
+        "spriteCount": 100,
+        "nativeTargetCount": 100,
+        "frames": 115,
+        "durationMs": 2003.699999988079,
+        "completedDrawsPerSecond": 57.393821430695304,
+        "frameIntervalMs": {
+          "median": 16.400000005960464,
+          "p95": 37.20000000298023,
+          "max": 65.20000000298023
+        },
+        "drawMs": {
+          "median": 0.7999999970197678,
+          "p95": 4.0999999940395355,
+          "max": 6
+        },
+        "gpu": {
+          "vendor": "Google Inc. (Google)",
+          "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+        },
+        "method": "Native Scratch VM timer; 1 original + 99 native clones; reposition 100 targets before each scheduled renderer.draw; gl.finish confirms WebGL completion. This is draw throughput, not display compositor FPS or arbitrary-script throughput."
+      },
+      {
+        "spriteCount": 100,
+        "nativeTargetCount": 100,
+        "frames": 114,
+        "durationMs": 2000.199999988079,
+        "completedDrawsPerSecond": 56.99430057028268,
+        "frameIntervalMs": {
+          "median": 16.5,
+          "p95": 31.700000002980232,
+          "max": 61
+        },
+        "drawMs": {
+          "median": 0.7000000029802322,
+          "p95": 2.7999999970197678,
+          "max": 6.600000008940697
+        },
+        "gpu": {
+          "vendor": "Google Inc. (Google)",
+          "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+        },
+        "method": "Native Scratch VM timer; 1 original + 99 native clones; reposition 100 targets before each scheduled renderer.draw; gl.finish confirms WebGL completion. This is draw throughput, not display compositor FPS or arbitrary-script throughput."
+      }
+    ],
+    "completedDrawsPerSecond": {
+      "samples": [
+        59.33978258683869,
+        57.393821430695304,
+        56.99430057028268
+      ],
+      "median": 57.393821430695304,
+      "p95": 59.33978258683869,
+      "max": 59.33978258683869
+    },
+    "proposedSchoolBudgetFps": 30,
+    "localSamplesMeet30Fps": true,
+    "schoolHardwareValidated": false,
+    "schoolPerformanceGate": "pending; WSL headless software WebGL is not the agreed school hardware profile. Do not treat this smoke benchmark as acceptance of the school >=30 FPS requirement."
+  },
+  "startupRerun": {
+    "command": "npx playwright test --config=playwright.performance.config.mjs --grep F0-PERF-001 --reporter=list",
+    "metricRecordedAt": "2026-10-22T06:49:15.461Z",
+    "testsPassed": 1,
+    "reason": "Replace startup samples from the full 3-test run, whose first startup period overlapped the separate corpus suite. This startup-only rerun had no corpus or root suite running. The original 3/3 JSON reporter result is retained; list reporter does not overwrite it."
+  },
+  "observedResources": {
+    "cycles": 10,
+    "audioContextsObserved": 10,
+    "audioContextsClosedOrDestroyed": 10,
+    "workersObserved": 33,
+    "workersClosed": 33,
+    "workerTypes": {
+      "/vendor/chunks/fetch-worker.c813c32be403f91001ba.js": 21,
+      "/loop-worker.js": 10,
+      "/compiler-worker.js": 2
+    }
+  },
+  "observedMemoryTrend": {
+    "initialShellJsHeapBytes": 5667660,
+    "finalShellJsHeapBytes": 6060792,
+    "growthBytes": 393132,
+    "growthPercent": 6.936407617958734,
+    "domCountersInitial": {
+      "documents": 3,
+      "nodes": 1713,
+      "jsEventListeners": 216
+    },
+    "domCountersFinal": {
+      "documents": 3,
+      "nodes": 1713,
+      "jsEventListeners": 216
+    },
+    "assessment": "Positive post-GC JS heap growth was observed over ten finite cycles. Stable DOM counters and closed observed resources do not establish zero leaks. Longer controlled soak and production memory budget remain pending."
+  },
+  "gates": {
+    "functionalStability": true,
+    "proposedLocalStopBudgets": {
+      "feedbackUnder100ms": true,
+      "oldFrameRemovedUnder1000ms": true
+    },
+    "school100Sprites30Fps": "pending: define hardware/browser/power profile and repeat on representative equipment",
+    "productionStartupAndMemoryBudgets": "pending: agree budgets and repeat using optimized build; current measurements are development build and target-scoped JS heap",
+    "claim": "Functional finite-run release evidence is measured; the school performance criterion remains unverified. No threshold was weakened to pass."
+  }
+}

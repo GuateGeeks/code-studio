@@ -1,0 +1,297 @@
+{
+  "cut": "phase-1-code-console",
+  "dateGuatemala": "2026-10-22",
+  "status": "passed",
+  "node": "v22.23.4",
+  "platform": "posix.uname_result(sysname='Linux', nodename='DEATH', release='6.18.54.1-microsoft-standard-WSL2', version='#1 SMP PREEMPT_DYNAMIC Tue Oct  6 19:13:07 UTC 2026', machine='x86_64')",
+  "full": {
+    "profile": "full",
+    "selection": "full",
+    "startedAt": "2026-10-22T08:45:46.383Z",
+    "steps": [
+      {
+        "name": "integration",
+        "startedAt": "2026-10-22T08:45:46.383Z",
+        "durationMs": 3396.826339,
+        "exitCode": 0
+      },
+      {
+        "name": "tools",
+        "startedAt": "2026-10-22T08:45:49.780Z",
+        "durationMs": 274.09382000000005,
+        "exitCode": 0
+      },
+      {
+        "name": "build",
+        "startedAt": "2026-10-22T08:45:50.055Z",
+        "durationMs": 517.8151750000006,
+        "exitCode": 0
+      },
+      {
+        "name": "smoke",
+        "startedAt": "2026-10-22T08:45:50.572Z",
+        "durationMs": 20759.730721,
+        "exitCode": 0
+      },
+      {
+        "name": "browser",
+        "startedAt": "2026-10-22T08:46:11.332Z",
+        "durationMs": 233011.59469,
+        "exitCode": 0
+      },
+      {
+        "name": "specs",
+        "startedAt": "2026-10-22T08:50:04.344Z",
+        "durationMs": 598.9843549999932,
+        "exitCode": 0
+      },
+      {
+        "name": "upstream-preservation",
+        "startedAt": "2026-10-22T08:50:04.943Z",
+        "durationMs": 116.2420019999845,
+        "exitCode": 0
+      }
+    ],
+    "baselineWritten": true,
+    "exitCode": 0,
+    "finishedAt": "2026-10-22T08:50:06.824Z"
+  },
+  "integration": {
+    "tests": 54,
+    "pass": 54,
+    "fail": 0,
+    "skipped": 0
+  },
+  "tools": {
+    "tests": 23,
+    "pass": 23,
+    "fail": 0,
+    "skipped": 0
+  },
+  "smoke": {
+    "startTime": "2026-10-22T08:45:51.250Z",
+    "duration": 20037.71,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "regression": {
+    "startTime": "2026-10-22T08:46:12.189Z",
+    "duration": 232112.80800000002,
+    "expected": 39,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "affectedControls": {
+    "profile": "affected",
+    "selection": "affected",
+    "startedAt": "2026-10-22T08:40:00.462Z",
+    "steps": [
+      {
+        "name": "integration",
+        "startedAt": "2026-10-22T08:40:00.462Z",
+        "durationMs": 2480.553781,
+        "exitCode": 0
+      },
+      {
+        "name": "tools",
+        "startedAt": "2026-10-22T08:40:02.944Z",
+        "durationMs": 234.99309099999982,
+        "exitCode": 0
+      },
+      {
+        "name": "build",
+        "startedAt": "2026-10-22T08:40:03.179Z",
+        "durationMs": 476.1690880000001,
+        "exitCode": 0
+      },
+      {
+        "name": "browser",
+        "startedAt": "2026-10-22T08:40:03.655Z",
+        "durationMs": 166997.637423,
+        "exitCode": 0
+      },
+      {
+        "name": "specs",
+        "startedAt": "2026-10-22T08:42:50.653Z",
+        "durationMs": 442.3182979999983,
+        "exitCode": 0
+      }
+    ],
+    "baselineWritten": false,
+    "exitCode": 0,
+    "finishedAt": "2026-10-22T08:42:51.095Z"
+  },
+  "browserBuild": {
+    "recordedAt": "2026-10-22T08:45:50.555Z",
+    "forced": false,
+    "totalMs": 456.45223000000004,
+    "stages": [
+      {
+        "name": "static-sync",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 8.891855999999997,
+        "inputsCount": 50,
+        "outputsCount": 42
+      },
+      {
+        "name": "fixtures",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 58.239845,
+        "inputsCount": 1092,
+        "outputsCount": 6
+      },
+      {
+        "name": "pxt-pack",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 29.021157999999986,
+        "inputsCount": 16,
+        "outputsCount": 8
+      },
+      {
+        "name": "renderer-storage",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 12.569105000000008,
+        "inputsCount": 13,
+        "outputsCount": 6
+      },
+      {
+        "name": "webpack-vm",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 168.523964,
+        "inputsCount": 3561,
+        "outputsCount": 1
+      },
+      {
+        "name": "webpack-audio",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 86.08326399999999,
+        "inputsCount": 2683,
+        "outputsCount": 1
+      },
+      {
+        "name": "webpack-editor",
+        "status": "reused",
+        "reason": "unchanged",
+        "durationMs": 59.910860000000014,
+        "inputsCount": 1620,
+        "outputsCount": 1
+      }
+    ]
+  },
+  "sourceSha256": {
+    "src/generated-code.mjs": "aab0fbab169364553f82f29b23406f13356d4a1afba9d4a0523382c41da9c776",
+    "src/diagnostic-console.mjs": "86d4f77144dceeb5400d521ee5c36f9695f7b878f865fe75896bf2a78bff8828",
+    "spikes/program-contract.mjs": "131f469569f0a471a1072c38f998630ce6218dc6f598bd77150b752916ae2719",
+    "spikes/block-program.mjs": "f80dbc1c0983a8f6a57c9db0abd1f037bea2f2d37e131110a54ea7a57abf0066",
+    "spikes/browser/shell/code-console-ui.mjs": "dbac478249b52f1411c0987c44d4ea2ad5bfb5bc9b1ab90779ea3d77901aa6bb",
+    "spikes/browser/shell/shell.js": "7ea45cb078e2f74f507d15740605b9010d734c9fa795b1aba6dfa4e9c3a92953",
+    "spikes/browser/shell/editor-entry.mjs": "7cb1f8dcd00665fadb9cff106d08e75a8a4051075349f072e1693049b3fc773d",
+    "spikes/browser/shell/project-ui.mjs": "ded6b3e16ea17b0390d7a0d596a02513012d3b60952b782a17594120cc9bed88",
+    "spikes/browser/shell/index.html": "8181a32ab5fed1974525db8b3b20f2bc384e3d703605b55383c28585d99834a6",
+    "spikes/browser/shell/style.css": "55a9d83f3a6a60cbd6bb79bcce7092cdc597c13366d500c65f01b63f038f94ae",
+    "spikes/browser/runner/runner.js": "5584c9fcf789e722d2092c57df1215b313aa4a3a5b172b326577776679b6998d",
+    "tools/f0/build-browser.mjs": "e45c8404a59381ffb74c698bae83ce51d9f4954a7eff657f133e66b606608989",
+    "tools/test/impact.mjs": "cc032b3b88695c603bfe0ae94f06f53c301169e4e63b2177b9a3ce38db2db1d6",
+    "tests/browser/code-console.spec.mjs": "a3f10a879a1a73efc8caa7e1b32ecbcadf023cb119066a0cea3f0677987ace3d",
+    "tests/integration/generated-code.test.mjs": "e07438050251b8518c56d61f93fdd1d565a17e307c2072d365b45260ede1f28c",
+    "tests/integration/diagnostic-console.test.mjs": "fc0af0de430a1c35932965e56a76ca17abdec407d22bf3a07bd304043361e349"
+  },
+  "artifacts": {
+    "artifacts/cuts/phase-1-code-console/code-console-desktop.ggproj": {
+      "sha256": "e80c4772b1d685e4183a4c44a85d5927b67d27a11a7797aeb350a2a4692d8b89",
+      "bytes": 61915
+    },
+    "artifacts/cuts/phase-1-code-console/code-console-mobile.ggproj": {
+      "sha256": "6e64d34405506d3e15cbd1b6c98d691bf39d62ed90ac6d85c9ce559b30aa811c",
+      "bytes": 61915
+    },
+    "artifacts/cuts/phase-1-code-console/code-console-desktop.png": {
+      "sha256": "09c66f2baed85b90243f90d1b8c9f8782fff57dfe4ac3073185b5f7a7f0b7eb9",
+      "bytes": 203900
+    },
+    "artifacts/cuts/phase-1-code-console/code-console-mobile.png": {
+      "sha256": "3585fbaad0dbfbcb50c627e19c57e57fdc45bc142ef8bf443113a06e6b5a66af",
+      "bytes": 95001
+    },
+    "artifacts/cuts/phase-1-code-console/code-console-mobile-stage.png": {
+      "sha256": "7997661088c1650a20f4a72468420d60f71aaabc68cbb532e09a6158229e9270",
+      "bytes": 41122
+    },
+    "artifacts/cuts/phase-1-code-console/code-console-flow-desktop.json": {
+      "sha256": "2d1ec5bc0284e8fd29f37dfe64e1ec7001f0abb9feed59c7abdf62d30004ff91",
+      "bytes": 5925
+    },
+    "artifacts/cuts/phase-1-code-console/code-console-flow-mobile.json": {
+      "sha256": "2d1ec5bc0284e8fd29f37dfe64e1ec7001f0abb9feed59c7abdf62d30004ff91",
+      "bytes": 5925
+    }
+  },
+  "upstreamVerification": [
+    {
+      "repository": "raspberrypi-blockly",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    },
+    {
+      "repository": "xcratch-scratch-editor",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    },
+    {
+      "repository": "pxt-microbit",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    }
+  ],
+  "historicalEvidenceAndChangesPreserved": {
+    "docs/phase-0/browser-evidence.json": "6b2ee8fbc9c64ce2f0e9dbf3585f0fe82d76ad7f42ef7c3df2c9220cd8e0e069",
+    "docs/phase-0/performance-evidence.json": "13ed832e5126e1ddbc066a52efa549c9bc5431fa47e5295c5a48d6429dce7922",
+    "docs/phase-1/browser-evidence.json": "427051988acdf72180afc0b30e1fa302e4cca8d1c6ea8600185f9da1209e5e18",
+    "docs/engineering/test-workflow-evidence.json": "87d1231289704873c5592cc5c43be97ac7dccdb4c61b76d7af8883b9f0f5bb30",
+    "openspec/changes/phase-0-integration-foundations/design.md": "8630723553f18861461cd541d8adaec1d7fe61584a4ec071c2c754daff4194e3",
+    "openspec/changes/phase-0-integration-foundations/README.md": "ae8fd9f5327e947fc90d141a42bb54e74942a62ef923e2c3322cb0ff3400d299",
+    "openspec/changes/phase-0-integration-foundations/tasks.md": "e3c4f2d2b7f7c1962c00a6405164875870cab9748fa0a3a79e8535655cf0991f",
+    "openspec/changes/phase-0-integration-foundations/proposal.md": "df5b44dfc22159584d57913bc9736d329fd51da1deca05824a396dc6c11e9321",
+    "openspec/changes/phase-0-integration-foundations/.openspec.yaml": "30cfdee007123f96b2ab27ca107e406084602caf445d6b7cd2130ab329668ed3",
+    "openspec/changes/phase-0-integration-foundations/specs/runtime-session/spec.md": "3be8b7f7033708602ec0d14b4b43e04a5147cc739a99d089824ee2308f0c7e8d",
+    "openspec/changes/phase-0-integration-foundations/specs/phase-transition/spec.md": "386fecccb2c817555c36c02a0c286f9575fba2e02c1f50410aa636cc1c0acaff",
+    "openspec/changes/phase-0-integration-foundations/specs/microbit-build/spec.md": "484e03cc08fcd745cd6fa2caeba631610e73357ed17d6b2c0d000991a8133a93",
+    "openspec/changes/phase-0-integration-foundations/specs/scratch-adapter/spec.md": "d56eb56ef08357a36f445f0cc6695588c52c3a43191b2309158a43d80f56e344",
+    "openspec/changes/phase-0-integration-foundations/specs/block-program/spec.md": "e350edeffd3e48eb7fcc06cace815817bb46b238d216c14cc90180f9a814beef",
+    "openspec/changes/phase-1-project-persistence/design.md": "44e674ccb740288bd2af46ed37ad8ee078b3fcfadedac88652eec8a67fc24970",
+    "openspec/changes/phase-1-project-persistence/tasks.md": "dea7af11043ab24294699b3ea42a0fa148ae2d024af5e624eae021e53f035419",
+    "openspec/changes/phase-1-project-persistence/proposal.md": "e5bf589b89e90b426fc9f227305a1acc6a9e82c691072fbf4734bee10e821a28",
+    "openspec/changes/phase-1-project-persistence/.openspec.yaml": "0ad492a63d87e00a8bc135b0a1a2b19270dbb9ffd997a69b89fd4ab72015a944",
+    "openspec/changes/phase-1-project-persistence/specs/project-persistence/spec.md": "6a30314196e56d702288a2fc3095907a1259912631836a6edeb2ce906cbb6b82",
+    "openspec/changes/incremental-test-workflow/design.md": "0a9ac1076694c71a21ce2ea4905caf9126878c4f4f3dde42401503b8f80f50f0",
+    "openspec/changes/incremental-test-workflow/tasks.md": "5452d2bdb21e9c80579665327c6be03f11200fe7454c4e14df93c2edaee209eb",
+    "openspec/changes/incremental-test-workflow/proposal.md": "c06e8c263af2b85c1ec80f572b45c730c2a1071300d5e5c50d091cc928d0b291",
+    "openspec/changes/incremental-test-workflow/.openspec.yaml": "0ad492a63d87e00a8bc135b0a1a2b19270dbb9ffd997a69b89fd4ab72015a944",
+    "openspec/changes/incremental-test-workflow/specs/test-workflow/spec.md": "edf5f5b76ebbbd50d52e1222c91dd58b4648e4a75deb52ed2276157c365d8888"
+  },
+  "codegraph": [
+    "artifacts/generated-code-codegraph-baseline.json",
+    "artifacts/code-console-codegraph-generation.json",
+    "artifacts/code-console-codegraph-diagnostics.json",
+    "artifacts/code-console-codegraph-validator.json",
+    "artifacts/code-console-codegraph-channel.json"
+  ],
+  "limits": [
+    "IR educativa no ejecutable; no bindings nuevos de lenguaje",
+    "No traza universal de VM; SCRIPT_STARTED confirma orden de inicio",
+    "Hardware, segunda visita offline y perfil escolar pendientes"
+  ],
+  "archivedReports": "artifacts/cuts/phase-1-code-console"
+}

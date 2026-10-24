@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 1,
+  "reviewDate": "2026-10-22",
+  "timeZone": "America/Guatemala",
+  "scope": "Observed SKILL.md files only; hashes do not audit bundled binaries, references or live web guidelines.",
+  "policy": "Review complete package and pin an approved upstream revision before adding external skills. Preserve OpenSpec as the task source of truth.",
+  "skills": [
+    {
+      "name": "gg-browser-first",
+      "scope": "project",
+      "path": ".agents/skills/gg-browser-first/SKILL.md",
+      "source": "GuateGeeks Code Studio: authored in this review",
+      "declaredVersion": null,
+      "upstreamCommit": null,
+      "sha256": "0bee4302ca89887aea4b878f9f929f8ade213b8bb9a44e750e1f27c5628e9f8f",
+      "state": "created; structural validation passed; discovery reload not verified"
+    },
+    {
+      "name": "gg-design-system",
+      "scope": "project",
+      "path": ".agents/skills/gg-design-system/SKILL.md",
+      "source": "GuateGeeks Code Studio: authored in this review",
+      "declaredVersion": null,
+      "upstreamCommit": null,
+      "sha256": "acf23330fb388fd516cbc0e580ab7889f01e2d977cc7729783393dab54909148",
+      "state": "created; structural validation passed; discovery reload not verified"
+    },
+    {
+      "name": "gg-learning-experience",
+      "scope": "project",
+      "path": ".agents/skills/gg-learning-experience/SKILL.md",
+      "source": "GuateGeeks Code Studio: authored in this review",
+      "declaredVersion": null,
+      "upstreamCommit": null,
+      "sha256": "126ec7a2c28502fbdc8b2a6911fb5136ae4b82617350a35ea5dfaa598a45af76",
+      "state": "created; structural validation passed; discovery reload not verified"
+    },
+    {
+      "name": "openspec-apply-change",
+      "scope": "project",
+      "path": ".agents/skills/openspec-apply-change/SKILL.md",
+      "source": "OpenSpec generated skills",
+      "declaredVersion": "1.0 / generatedBy 1.14.3",
+      "upstreamCommit": null,
+      "sha256": "adc163db16c7ba8461e9c431a2f03e3d81853ed063aa04c58b01a789beb35127",
+      "state": "pre-existing; preserved"
+    },
+    {
+      "name": "openspec-archive-change",
+      "scope": "project",
+      "path": ".agents/skills/openspec-archive-change/SKILL.md",
+      "source": "OpenSpec generated skills",
+      "declaredVersion": "1.0 / generatedBy 1.14.3",
+      "upstreamCommit": null,
+      "sha256": "3402bb3270f7a542f97f637495020316670ebca8e5adde1d719fb2aa58304147",
+      "state": "pre-existing; preserved"
+    },
+    {
+      "name": "openspec-explore",
+      "scope": "project",
+      "path": ".agents/skills/openspec-explore/SKILL.md",
+      "source": "OpenSpec generated skills",
+      "declaredVersion": "1.0 / generatedBy 1.14.3",
+      "upstreamCommit": null,
+      "sha256": "bb9f7b5e24f0a611389fb2d159c04724a4f56f06a96b61158d505b583242fc92",
+      "state": "pre-existing; preserved"
+    },
+    {
+      "name": "openspec-propose",
+      "scope": "project",
+      "path": ".agents/skills/openspec-propose/SKILL.md",
+      "source": "OpenSpec generated skills",
+      "declaredVersion": "1.0 / generatedBy 1.14.3",
+      "upstreamCommit": null,
+      "sha256": "69aca1758e23cf7afc200a569326140dd62b2a7199b1bcb51095accaf70c7b5b",
+      "state": "pre-existing; preserved"
+    },
+    {
+      "name": "openspec-sync-specs",
+      "scope": "project",
+      "path": ".agents/skills/openspec-sync-specs/SKILL.md",
+      "source": "OpenSpec generated skills",
+      "declaredVersion": "1.0 / generatedBy 1.14.3",
+      "upstreamCommit": null,
+      "sha256": "739def6ad75b3ec886a041e51aae618949d91aff9481ccb0df37fee5603aa65c",
+      "state": "pre-existing; preserved"
+    },
+    {
+      "name": "openspec-update-change",
+      "scope": "project",
+      "path": ".agents/skills/openspec-update-change/SKILL.md",
+      "source": "OpenSpec generated skills",
+      "declaredVersion": "1.0 / generatedBy 1.14.3",
+      "upstreamCommit": null,
+      "sha256": "e907bbcfabbbaf5fe3702f72b9fa2866e0da744032b50d95f231d25146451b9d",
+      "state": "pre-existing; preserved"
+    },
+    {
+      "name": "impeccable",
+      "scope": "user-or-system",
+      "path": "C:/Users/adawolfs/.codex/skills/impeccable/SKILL.md",
+      "source": "https://github.com/pbakaus/impeccable",
+      "declaredVersion": "4.7.0",
+      "upstreamCommit": null,
+      "sha256": "88e9a46a91b6ddd1059f03f578bd0f9bbe6d212d6a395124379b9bb5c97c5cf2",
+      "state": "available in session; no install or upgrade performed"
+    },
+    {
+      "name": "web-design-guidelines",
+      "scope": "user-or-system",
+      "path": "C:/Users/adawolfs/.codex/skills/web-design-guidelines/SKILL.md",
+      "source": "https://github.com/vercel-labs/agent-skills",
+      "declaredVersion": "1.0.0",
+      "upstreamCommit": null,
+      "sha256": "f4647ca866a3accf763777f83e7682954f0187cd6bea7eea0399796652414e8f",
+      "state": "available in session; no install or upgrade performed"
+    },
+    {
+      "name": "skill-creator",
+      "scope": "user-or-system",
+      "path": "C:/Users/adawolfs/.codex/skills/.system/skill-creator/SKILL.md",
+      "source": "bundled Codex skill",
+      "declaredVersion": null,
+      "upstreamCommit": null,
+      "sha256": "cccd291077ec57c6f50ca6529f0f3fb93212da09473effb2fcec808e81b21288",
+      "state": "available in session; no install or upgrade performed"
+    },
+    {
+      "name": "openai-docs",
+      "scope": "user-or-system",
+      "path": "C:/Users/adawolfs/.codex/skills/.system/openai-docs/SKILL.md",
+      "source": "bundled Codex skill",
+      "declaredVersion": null,
+      "upstreamCommit": null,
+      "sha256": "8ce8021101bcea594ff92ee6cfd8ca7641a49ee66d7bc6070555f1a33fc239d9",
+      "state": "available in session; no install or upgrade performed"
+    }
+  ]
+}

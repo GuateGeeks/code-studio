@@ -1,0 +1,2765 @@
+{
+  "recordedAt": "2026-10-22T06:54:09.472Z",
+  "environment": {
+    "playwright": "1.64.1",
+    "browser": "156.0.8078.4",
+    "revision": "1248",
+    "node": "v22.23.4",
+    "softwareWebGLFlag": "--enable-unsafe-swiftshader"
+  },
+  "tests": {
+    "startTime": "2026-10-22T06:50:41.656Z",
+    "duration": 161805.92599999998,
+    "expected": 25,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "nodeIntegration": {
+    "tests": 30,
+    "pass": 30,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "render": {
+    "before": {
+      "x": 0,
+      "pixels": {
+        "count": 984,
+        "centerX": 239.5,
+        "minX": 220,
+        "maxX": 259
+      },
+      "origin": "http://127.0.0.1:4174",
+      "bluePixels": 0,
+      "costume": {
+        "index": 0,
+        "name": "hero"
+      },
+      "globalVariables": {},
+      "targets": [
+        {
+          "x": 0,
+          "y": 0,
+          "isOriginal": true,
+          "variables": {}
+        }
+      ],
+      "revision": 1,
+      "threads": 0,
+      "moves": [],
+      "sourceMap": {
+        "start": "start",
+        "repeat": "repeat",
+        "move": "move"
+      },
+      "variables": {},
+      "authoringVariables": {},
+      "audio": {
+        "available": false
+      }
+    },
+    "after": {
+      "x": 15,
+      "pixels": {
+        "count": 984,
+        "centerX": 254.5,
+        "minX": 235,
+        "maxX": 274
+      },
+      "origin": "http://127.0.0.1:4174",
+      "bluePixels": 0,
+      "costume": {
+        "index": 0,
+        "name": "hero"
+      },
+      "globalVariables": {},
+      "targets": [
+        {
+          "x": 15,
+          "y": 0,
+          "isOriginal": true,
+          "variables": {}
+        }
+      ],
+      "revision": 1,
+      "threads": 0,
+      "moves": [
+        0,
+        5,
+        10,
+        15
+      ],
+      "sourceMap": {
+        "start": "start",
+        "repeat": "repeat",
+        "move": "move"
+      },
+      "variables": {},
+      "authoringVariables": {},
+      "audio": {
+        "available": false
+      }
+    },
+    "deltaPixels": 15
+  },
+  "corpus": {
+    "events": {
+      "before": {
+        "x": 0,
+        "pixels": {
+          "count": 984,
+          "centerX": 239.5,
+          "minX": 220,
+          "maxX": 259
+        },
+        "origin": "http://127.0.0.1:4174",
+        "bluePixels": 0,
+        "costume": {
+          "index": 0,
+          "name": "hero"
+        },
+        "globalVariables": {},
+        "targets": [
+          {
+            "x": 0,
+            "y": 0,
+            "isOriginal": true,
+            "variables": {}
+          }
+        ],
+        "revision": 2,
+        "threads": 0,
+        "moves": [],
+        "sourceMap": {
+          "start": "start",
+          "wait-start": "wait-start",
+          "move-start": "move-start",
+          "key": "key",
+          "move-key": "move-key",
+          "click": "click",
+          "move-click": "move-click"
+        },
+        "variables": {},
+        "authoringVariables": {},
+        "audio": {
+          "available": false
+        }
+      },
+      "after": {
+        "x": 23,
+        "pixels": {
+          "count": 984,
+          "centerX": 262.5,
+          "minX": 243,
+          "maxX": 282
+        },
+        "origin": "http://127.0.0.1:4174",
+        "bluePixels": 0,
+        "costume": {
+          "index": 0,
+          "name": "hero"
+        },
+        "globalVariables": {},
+        "targets": [
+          {
+            "x": 23,
+            "y": 0,
+            "isOriginal": true,
+            "variables": {}
+          }
+        ],
+        "revision": 2,
+        "threads": 0,
+        "moves": [
+          5,
+          12,
+          23
+        ],
+        "sourceMap": {
+          "start": "start",
+          "wait-start": "wait-start",
+          "move-start": "move-start",
+          "key": "key",
+          "move-key": "move-key",
+          "click": "click",
+          "move-click": "move-click"
+        },
+        "variables": {},
+        "authoringVariables": {},
+        "audio": {
+          "available": false
+        }
+      },
+      "elapsedToFirstMove": 382,
+      "elapsedToFirstMoveMinimum": 180
+    },
+    "messages": {
+      "during": {
+        "x": 1,
+        "pixels": {
+          "count": 984,
+          "centerX": 240.5,
+          "minX": 221,
+          "maxX": 260
+        },
+        "origin": "http://127.0.0.1:4174",
+        "bluePixels": 0,
+        "costume": {
+          "index": 0,
+          "name": "hero"
+        },
+        "globalVariables": {
+          "gg-message:go": {
+            "name": "go",
+            "value": "go"
+          }
+        },
+        "targets": [
+          {
+            "x": 1,
+            "y": 0,
+            "isOriginal": true,
+            "variables": {}
+          }
+        ],
+        "revision": 2,
+        "threads": 2,
+        "moves": [
+          1
+        ],
+        "sourceMap": {
+          "start": "start",
+          "before": "before",
+          "send": "send",
+          "after": "after",
+          "receive": "receive",
+          "wait-receiver": "wait-receiver",
+          "receiver-move": "receiver-move"
+        },
+        "variables": {},
+        "authoringVariables": {},
+        "audio": {
+          "available": false
+        }
+      },
+      "after": {
+        "x": 13,
+        "pixels": {
+          "count": 984,
+          "centerX": 252.5,
+          "minX": 233,
+          "maxX": 272
+        },
+        "origin": "http://127.0.0.1:4174",
+        "bluePixels": 0,
+        "costume": {
+          "index": 0,
+          "name": "hero"
+        },
+        "globalVariables": {
+          "gg-message:go": {
+            "name": "go",
+            "value": "go"
+          }
+        },
+        "targets": [
+          {
+            "x": 13,
+            "y": 0,
+            "isOriginal": true,
+            "variables": {}
+          }
+        ],
+        "revision": 2,
+        "threads": 0,
+        "moves": [
+          1,
+          11,
+          13
+        ],
+        "sourceMap": {
+          "start": "start",
+          "before": "before",
+          "send": "send",
+          "after": "after",
+          "receive": "receive",
+          "wait-receiver": "wait-receiver",
+          "receiver-move": "receiver-move"
+        },
+        "variables": {},
+        "authoringVariables": {},
+        "audio": {
+          "available": false
+        }
+      }
+    },
+    "clones": {
+      "before": {
+        "x": 0,
+        "pixels": {
+          "count": 984,
+          "centerX": 239.5,
+          "minX": 220,
+          "maxX": 259
+        },
+        "origin": "http://127.0.0.1:4174",
+        "bluePixels": 0,
+        "costume": {
+          "index": 0,
+          "name": "hero"
+        },
+        "globalVariables": {},
+        "targets": [
+          {
+            "x": 0,
+            "y": 0,
+            "isOriginal": true,
+            "variables": {}
+          }
+        ],
+        "revision": 2,
+        "threads": 0,
+        "moves": [],
+        "sourceMap": {
+          "start": "start",
+          "create": "create",
+          "create:menu": "create",
+          "original-move": "original-move",
+          "clone-start": "clone-start",
+          "clone-move": "clone-move",
+          "wait-clone": "wait-clone",
+          "delete": "delete"
+        },
+        "variables": {},
+        "authoringVariables": {},
+        "audio": {
+          "available": false
+        }
+      },
+      "during": {
+        "x": 2,
+        "pixels": {
+          "count": 1968,
+          "centerX": 270.5,
+          "minX": 222,
+          "maxX": 319
+        },
+        "origin": "http://127.0.0.1:4174",
+        "bluePixels": 0,
+        "costume": {
+          "index": 0,
+          "name": "hero"
+        },
+        "globalVariables": {},
+        "targets": [
+          {
+            "x": 2,
+            "y": 0,
+            "isOriginal": true,
+            "variables": {}
+          },
+          {
+            "x": 60,
+            "y": 0,
+            "isOriginal": false,
+            "variables": {}
+          }
+        ],
+        "revision": 2,
+        "threads": 1,
+        "moves": [
+          2
+        ],
+        "sourceMap": {
+          "start": "start",
+          "create": "create",
+          "create:menu": "create",
+          "original-move": "original-move",
+          "clone-start": "clone-start",
+          "clone-move": "clone-move",
+          "wait-clone": "wait-clone",
+          "delete": "delete"
+        },
+        "variables": {},
+        "authoringVariables": {},
+        "audio": {
+          "available": false
+        }
+      },
+      "after": {
+        "x": 2,
+        "pixels": {
+          "count": 984,
+          "centerX": 241.5,
+          "minX": 222,
+          "maxX": 261
+        },
+        "origin": "http://127.0.0.1:4174",
+        "bluePixels": 0,
+        "costume": {
+          "index": 0,
+          "name": "hero"
+        },
+        "globalVariables": {},
+        "targets": [
+          {
+            "x": 2,
+            "y": 0,
+            "isOriginal": true,
+            "variables": {}
+          }
+        ],
+        "revision": 2,
+        "threads": 0,
+        "moves": [
+          2
+        ],
+        "sourceMap": {
+          "start": "start",
+          "create": "create",
+          "create:menu": "create",
+          "original-move": "original-move",
+          "clone-start": "clone-start",
+          "clone-move": "clone-move",
+          "wait-clone": "wait-clone",
+          "delete": "delete"
+        },
+        "variables": {},
+        "authoringVariables": {},
+        "audio": {
+          "available": false
+        }
+      }
+    },
+    "stop": {
+      "stoppedWait": {
+        "x": 0,
+        "pixels": {
+          "count": 984,
+          "centerX": 239.5,
+          "minX": 220,
+          "maxX": 259
+        },
+        "origin": "http://127.0.0.1:4174",
+        "bluePixels": 0,
+        "costume": {
+          "index": 0,
+          "name": "hero"
+        },
+        "globalVariables": {},
+        "targets": [
+          {
+            "x": 0,
+            "y": 0,
+            "isOriginal": true,
+            "variables": {}
+          }
+        ],
+        "revision": 2,
+        "threads": 0,
+        "moves": [],
+        "sourceMap": {
+          "start": "start",
+          "wait-start": "wait-start",
+          "move-start": "move-start",
+          "key": "key",
+          "move-key": "move-key",
+          "click": "click",
+          "move-click": "move-click"
+        },
+        "variables": {},
+        "authoringVariables": {},
+        "audio": {
+          "available": false
+        }
+      },
+      "stopped": {
+        "x": 2,
+        "pixels": {
+          "count": 984,
+          "centerX": 241.5,
+          "minX": 222,
+          "maxX": 261
+        },
+        "origin": "http://127.0.0.1:4174",
+        "bluePixels": 0,
+        "costume": {
+          "index": 0,
+          "name": "hero"
+        },
+        "globalVariables": {},
+        "targets": [
+          {
+            "x": 2,
+            "y": 0,
+            "isOriginal": true,
+            "variables": {}
+          }
+        ],
+        "revision": 3,
+        "threads": 0,
+        "moves": [
+          2
+        ],
+        "sourceMap": {
+          "start": "start",
+          "create": "create",
+          "create:menu": "create",
+          "original-move": "original-move",
+          "clone-start": "clone-start",
+          "clone-move": "clone-move",
+          "wait-clone": "wait-clone",
+          "delete": "delete"
+        },
+        "variables": {},
+        "authoringVariables": {},
+        "audio": {
+          "available": false
+        }
+      },
+      "rerun": {
+        "x": 15,
+        "pixels": {
+          "count": 984,
+          "centerX": 254.5,
+          "minX": 235,
+          "maxX": 274
+        },
+        "origin": "http://127.0.0.1:4174",
+        "bluePixels": 0,
+        "costume": {
+          "index": 0,
+          "name": "hero"
+        },
+        "globalVariables": {},
+        "targets": [
+          {
+            "x": 15,
+            "y": 0,
+            "isOriginal": true,
+            "variables": {}
+          }
+        ],
+        "revision": 1,
+        "threads": 0,
+        "moves": [
+          0,
+          5,
+          10,
+          15
+        ],
+        "sourceMap": {
+          "start": "start",
+          "repeat": "repeat",
+          "move": "move"
+        },
+        "variables": {},
+        "authoringVariables": {},
+        "audio": {
+          "available": false
+        }
+      }
+    },
+    "variables": {
+      "before": {
+        "x": 0,
+        "pixels": {
+          "count": 984,
+          "centerX": 239.5,
+          "minX": 220,
+          "maxX": 259
+        },
+        "origin": "http://127.0.0.1:4174",
+        "bluePixels": 0,
+        "costume": {
+          "index": 0,
+          "name": "hero"
+        },
+        "globalVariables": {},
+        "targets": [
+          {
+            "x": 0,
+            "y": 0,
+            "isOriginal": true,
+            "variables": {
+              "gg-score": {
+                "name": "score",
+                "value": 0
+              }
+            }
+          }
+        ],
+        "revision": 2,
+        "threads": 0,
+        "moves": [],
+        "sourceMap": {
+          "start": "start",
+          "reset-score": "reset-score",
+          "count-loop": "count-loop",
+          "increment-score": "increment-score",
+          "branch-loop-read": "branch-loop-read",
+          "branch-loop-compare": "branch-loop-compare",
+          "branch-loop": "branch-loop",
+          "true-move": "true-move",
+          "false-move": "false-move",
+          "branch-final-read": "branch-final-read",
+          "branch-final-compare": "branch-final-compare",
+          "branch-final": "branch-final",
+          "move-score-read": "move-score-read",
+          "move-score": "move-score",
+          "unexpected-final": "unexpected-final",
+          "key": "key",
+          "decrement-score": "decrement-score",
+          "branch-key-read": "branch-key-read",
+          "branch-key-compare": "branch-key-compare",
+          "branch-key": "branch-key",
+          "unexpected-key": "unexpected-key",
+          "key-move": "key-move"
+        },
+        "variables": {
+          "gg-score": {
+            "name": "score",
+            "value": 0
+          }
+        },
+        "authoringVariables": {
+          "gg-score": [
+            "score",
+            0
+          ]
+        },
+        "audio": {
+          "available": false
+        }
+      },
+      "after": {
+        "x": 21,
+        "pixels": {
+          "count": 984,
+          "centerX": 260.5,
+          "minX": 241,
+          "maxX": 280
+        },
+        "origin": "http://127.0.0.1:4174",
+        "bluePixels": 0,
+        "costume": {
+          "index": 0,
+          "name": "hero"
+        },
+        "globalVariables": {},
+        "targets": [
+          {
+            "x": 21,
+            "y": 0,
+            "isOriginal": true,
+            "variables": {
+              "gg-score": {
+                "name": "score",
+                "value": 3
+              }
+            }
+          }
+        ],
+        "revision": 2,
+        "threads": 0,
+        "moves": [
+          4,
+          11,
+          18,
+          21
+        ],
+        "sourceMap": {
+          "start": "start",
+          "reset-score": "reset-score",
+          "count-loop": "count-loop",
+          "increment-score": "increment-score",
+          "branch-loop-read": "branch-loop-read",
+          "branch-loop-compare": "branch-loop-compare",
+          "branch-loop": "branch-loop",
+          "true-move": "true-move",
+          "false-move": "false-move",
+          "branch-final-read": "branch-final-read",
+          "branch-final-compare": "branch-final-compare",
+          "branch-final": "branch-final",
+          "move-score-read": "move-score-read",
+          "move-score": "move-score",
+          "unexpected-final": "unexpected-final",
+          "key": "key",
+          "decrement-score": "decrement-score",
+          "branch-key-read": "branch-key-read",
+          "branch-key-compare": "branch-key-compare",
+          "branch-key": "branch-key",
+          "unexpected-key": "unexpected-key",
+          "key-move": "key-move"
+        },
+        "variables": {
+          "gg-score": {
+            "name": "score",
+            "value": 3
+          }
+        },
+        "authoringVariables": {
+          "gg-score": [
+            "score",
+            0
+          ]
+        },
+        "audio": {
+          "available": false
+        }
+      },
+      "event": {
+        "x": 19,
+        "pixels": {
+          "count": 984,
+          "centerX": 258.5,
+          "minX": 239,
+          "maxX": 278
+        },
+        "origin": "http://127.0.0.1:4174",
+        "bluePixels": 0,
+        "costume": {
+          "index": 0,
+          "name": "hero"
+        },
+        "globalVariables": {},
+        "targets": [
+          {
+            "x": 19,
+            "y": 0,
+            "isOriginal": true,
+            "variables": {
+              "gg-score": {
+                "name": "score",
+                "value": 2
+              }
+            }
+          }
+        ],
+        "revision": 2,
+        "threads": 0,
+        "moves": [
+          4,
+          11,
+          18,
+          21,
+          19
+        ],
+        "sourceMap": {
+          "start": "start",
+          "reset-score": "reset-score",
+          "count-loop": "count-loop",
+          "increment-score": "increment-score",
+          "branch-loop-read": "branch-loop-read",
+          "branch-loop-compare": "branch-loop-compare",
+          "branch-loop": "branch-loop",
+          "true-move": "true-move",
+          "false-move": "false-move",
+          "branch-final-read": "branch-final-read",
+          "branch-final-compare": "branch-final-compare",
+          "branch-final": "branch-final",
+          "move-score-read": "move-score-read",
+          "move-score": "move-score",
+          "unexpected-final": "unexpected-final",
+          "key": "key",
+          "decrement-score": "decrement-score",
+          "branch-key-read": "branch-key-read",
+          "branch-key-compare": "branch-key-compare",
+          "branch-key": "branch-key",
+          "unexpected-key": "unexpected-key",
+          "key-move": "key-move"
+        },
+        "variables": {
+          "gg-score": {
+            "name": "score",
+            "value": 2
+          }
+        },
+        "authoringVariables": {
+          "gg-score": [
+            "score",
+            0
+          ]
+        },
+        "audio": {
+          "available": false
+        }
+      },
+      "reset": {
+        "x": 0,
+        "pixels": {
+          "count": 984,
+          "centerX": 239.5,
+          "minX": 220,
+          "maxX": 259
+        },
+        "origin": "http://127.0.0.1:4174",
+        "bluePixels": 0,
+        "costume": {
+          "index": 0,
+          "name": "hero"
+        },
+        "globalVariables": {},
+        "targets": [
+          {
+            "x": 0,
+            "y": 0,
+            "isOriginal": true,
+            "variables": {
+              "gg-score": {
+                "name": "score",
+                "value": 0
+              }
+            }
+          }
+        ],
+        "revision": 2,
+        "threads": 0,
+        "moves": [],
+        "sourceMap": {
+          "start": "start",
+          "reset-score": "reset-score",
+          "count-loop": "count-loop",
+          "increment-score": "increment-score",
+          "branch-loop-read": "branch-loop-read",
+          "branch-loop-compare": "branch-loop-compare",
+          "branch-loop": "branch-loop",
+          "true-move": "true-move",
+          "false-move": "false-move",
+          "branch-final-read": "branch-final-read",
+          "branch-final-compare": "branch-final-compare",
+          "branch-final": "branch-final",
+          "move-score-read": "move-score-read",
+          "move-score": "move-score",
+          "unexpected-final": "unexpected-final",
+          "key": "key",
+          "decrement-score": "decrement-score",
+          "branch-key-read": "branch-key-read",
+          "branch-key-compare": "branch-key-compare",
+          "branch-key": "branch-key",
+          "unexpected-key": "unexpected-key",
+          "key-move": "key-move"
+        },
+        "variables": {
+          "gg-score": {
+            "name": "score",
+            "value": 0
+          }
+        },
+        "authoringVariables": {
+          "gg-score": [
+            "score",
+            0
+          ]
+        },
+        "audio": {
+          "available": false
+        }
+      }
+    },
+    "audio": {
+      "before": {
+        "x": 0,
+        "pixels": {
+          "count": 984,
+          "centerX": 239.5,
+          "minX": 220,
+          "maxX": 259
+        },
+        "origin": "http://127.0.0.1:4174",
+        "bluePixels": 0,
+        "costume": {
+          "index": 0,
+          "name": "hero"
+        },
+        "globalVariables": {},
+        "targets": [
+          {
+            "x": 0,
+            "y": 0,
+            "isOriginal": true,
+            "variables": {}
+          }
+        ],
+        "revision": 2,
+        "threads": 0,
+        "moves": [],
+        "sourceMap": {
+          "start": "start",
+          "play-wait": "play-wait",
+          "play-wait:menu": "play-wait",
+          "after-sound": "after-sound"
+        },
+        "variables": {},
+        "authoringVariables": {},
+        "audio": {
+          "available": true,
+          "contextState": "running",
+          "currentTime": 0.2612244897959184,
+          "rms": 0,
+          "peakHz": 0,
+          "sounds": [
+            {
+              "playing": false,
+              "duration": 1.2,
+              "channels": 1,
+              "sampleRate": 44100
+            }
+          ],
+          "events": []
+        }
+      },
+      "playing": {
+        "x": 0,
+        "pixels": {
+          "count": 984,
+          "centerX": 239.5,
+          "minX": 220,
+          "maxX": 259
+        },
+        "origin": "http://127.0.0.1:4174",
+        "bluePixels": 0,
+        "costume": {
+          "index": 0,
+          "name": "hero"
+        },
+        "globalVariables": {},
+        "targets": [
+          {
+            "x": 0,
+            "y": 0,
+            "isOriginal": true,
+            "variables": {}
+          }
+        ],
+        "revision": 2,
+        "threads": 1,
+        "moves": [],
+        "sourceMap": {
+          "start": "start",
+          "play-wait": "play-wait",
+          "play-wait:menu": "play-wait",
+          "after-sound": "after-sound"
+        },
+        "variables": {},
+        "authoringVariables": {},
+        "audio": {
+          "available": true,
+          "contextState": "running",
+          "currentTime": 0.5514739229024943,
+          "rms": 0.17667774784250717,
+          "peakHz": 430.6640625,
+          "sounds": [
+            {
+              "playing": true,
+              "duration": 1.2,
+              "channels": 1,
+              "sampleRate": 44100
+            }
+          ],
+          "events": [
+            {
+              "type": "play",
+              "at": 0.4905215419501134
+            }
+          ]
+        }
+      },
+      "after": {
+        "x": 5,
+        "pixels": {
+          "count": 984,
+          "centerX": 244.5,
+          "minX": 225,
+          "maxX": 264
+        },
+        "origin": "http://127.0.0.1:4174",
+        "bluePixels": 0,
+        "costume": {
+          "index": 0,
+          "name": "hero"
+        },
+        "globalVariables": {},
+        "targets": [
+          {
+            "x": 5,
+            "y": 0,
+            "isOriginal": true,
+            "variables": {}
+          }
+        ],
+        "revision": 2,
+        "threads": 0,
+        "moves": [
+          5
+        ],
+        "sourceMap": {
+          "start": "start",
+          "play-wait": "play-wait",
+          "play-wait:menu": "play-wait",
+          "after-sound": "after-sound"
+        },
+        "variables": {},
+        "authoringVariables": {},
+        "audio": {
+          "available": true,
+          "contextState": "running",
+          "currentTime": 2.670294784580499,
+          "rms": 0,
+          "peakHz": 430.6640625,
+          "sounds": [
+            {
+              "playing": false,
+              "duration": 1.2,
+              "channels": 1,
+              "sampleRate": 44100
+            }
+          ],
+          "events": [
+            {
+              "type": "play",
+              "at": 0.4905215419501134
+            },
+            {
+              "type": "stop",
+              "at": 1.692154195011338
+            }
+          ]
+        }
+      },
+      "errors": []
+    },
+    "audio-block-stop": {
+      "playing": {
+        "x": 0,
+        "pixels": {
+          "count": 984,
+          "centerX": 239.5,
+          "minX": 220,
+          "maxX": 259
+        },
+        "origin": "http://127.0.0.1:4174",
+        "bluePixels": 0,
+        "costume": {
+          "index": 0,
+          "name": "hero"
+        },
+        "globalVariables": {},
+        "targets": [
+          {
+            "x": 0,
+            "y": 0,
+            "isOriginal": true,
+            "variables": {}
+          }
+        ],
+        "revision": 2,
+        "threads": 1,
+        "moves": [],
+        "sourceMap": {
+          "start": "start",
+          "play": "play",
+          "play:menu": "play",
+          "wait-before-stop": "wait-before-stop",
+          "stop-sounds": "stop-sounds",
+          "after-stop-sound": "after-stop-sound"
+        },
+        "variables": {},
+        "authoringVariables": {},
+        "audio": {
+          "available": true,
+          "contextState": "running",
+          "currentTime": 0.24090702947845805,
+          "rms": 0.17682322151052787,
+          "peakHz": 430.6640625,
+          "sounds": [
+            {
+              "playing": true,
+              "duration": 1.2,
+              "channels": 1,
+              "sampleRate": 44100
+            }
+          ],
+          "events": [
+            {
+              "type": "play",
+              "at": 0.1219047619047619
+            }
+          ]
+        }
+      },
+      "after": {
+        "x": 3,
+        "pixels": {
+          "count": 984,
+          "centerX": 242.5,
+          "minX": 223,
+          "maxX": 262
+        },
+        "origin": "http://127.0.0.1:4174",
+        "bluePixels": 0,
+        "costume": {
+          "index": 0,
+          "name": "hero"
+        },
+        "globalVariables": {},
+        "targets": [
+          {
+            "x": 3,
+            "y": 0,
+            "isOriginal": true,
+            "variables": {}
+          }
+        ],
+        "revision": 2,
+        "threads": 0,
+        "moves": [
+          3
+        ],
+        "sourceMap": {
+          "start": "start",
+          "play": "play",
+          "play:menu": "play",
+          "wait-before-stop": "wait-before-stop",
+          "stop-sounds": "stop-sounds",
+          "after-stop-sound": "after-stop-sound"
+        },
+        "variables": {},
+        "authoringVariables": {},
+        "audio": {
+          "available": true,
+          "contextState": "running",
+          "currentTime": 0.9113832199546485,
+          "rms": 0,
+          "peakHz": 430.6640625,
+          "sounds": [
+            {
+              "playing": false,
+              "duration": 1.2,
+              "channels": 1,
+              "sampleRate": 44100
+            }
+          ],
+          "events": [
+            {
+              "type": "play",
+              "at": 0.1219047619047619
+            },
+            {
+              "type": "stop",
+              "at": 0.5224489795918368
+            }
+          ]
+        }
+      },
+      "duration": 0.4005442176870749
+    },
+    "audio-stop": {
+      "playing": {
+        "x": 0,
+        "pixels": {
+          "count": 984,
+          "centerX": 239.5,
+          "minX": 220,
+          "maxX": 259
+        },
+        "origin": "http://127.0.0.1:4174",
+        "bluePixels": 0,
+        "costume": {
+          "index": 0,
+          "name": "hero"
+        },
+        "globalVariables": {},
+        "targets": [
+          {
+            "x": 0,
+            "y": 0,
+            "isOriginal": true,
+            "variables": {}
+          }
+        ],
+        "revision": 2,
+        "threads": 1,
+        "moves": [],
+        "sourceMap": {
+          "start": "start",
+          "play-wait": "play-wait",
+          "play-wait:menu": "play-wait",
+          "after-sound": "after-sound"
+        },
+        "variables": {},
+        "authoringVariables": {},
+        "audio": {
+          "available": true,
+          "contextState": "running",
+          "currentTime": 0.2525170068027211,
+          "rms": 0.1769818918163375,
+          "peakHz": 430.6640625,
+          "sounds": [
+            {
+              "playing": true,
+              "duration": 1.2,
+              "channels": 1,
+              "sampleRate": 44100
+            }
+          ],
+          "events": [
+            {
+              "type": "play",
+              "at": 0.14222222222222222
+            }
+          ]
+        }
+      },
+      "stopped": {
+        "x": 0,
+        "pixels": {
+          "count": 984,
+          "centerX": 239.5,
+          "minX": 220,
+          "maxX": 259
+        },
+        "origin": "http://127.0.0.1:4174",
+        "bluePixels": 0,
+        "costume": {
+          "index": 0,
+          "name": "hero"
+        },
+        "globalVariables": {},
+        "targets": [
+          {
+            "x": 0,
+            "y": 0,
+            "isOriginal": true,
+            "variables": {}
+          }
+        ],
+        "revision": 2,
+        "threads": 0,
+        "moves": [],
+        "sourceMap": {
+          "start": "start",
+          "play-wait": "play-wait",
+          "play-wait:menu": "play-wait",
+          "after-sound": "after-sound"
+        },
+        "variables": {},
+        "authoringVariables": {},
+        "audio": {
+          "available": true,
+          "contextState": "running",
+          "currentTime": 0.5021315192743764,
+          "rms": 0,
+          "peakHz": 430.6640625,
+          "sounds": [
+            {
+              "playing": false,
+              "duration": 1.2,
+              "channels": 1,
+              "sampleRate": 44100
+            }
+          ],
+          "events": [
+            {
+              "type": "play",
+              "at": 0.14222222222222222
+            },
+            {
+              "type": "stop",
+              "at": 0.2728344671201814
+            }
+          ]
+        }
+      },
+      "previousFrameDetached": true,
+      "contexts": [
+        "e670a8b4-c21d-4da0-925a-befec62c22dd"
+      ],
+      "closed": [
+        "e670a8b4-c21d-4da0-925a-befec62c22dd"
+      ],
+      "destroyed": [],
+      "fresh": {
+        "x": 0,
+        "pixels": {
+          "count": 984,
+          "centerX": 239.5,
+          "minX": 220,
+          "maxX": 259
+        },
+        "origin": "http://127.0.0.1:4174",
+        "bluePixels": 0,
+        "costume": {
+          "index": 0,
+          "name": "hero"
+        },
+        "globalVariables": {},
+        "targets": [
+          {
+            "x": 0,
+            "y": 0,
+            "isOriginal": true,
+            "variables": {}
+          }
+        ],
+        "revision": 2,
+        "threads": 0,
+        "moves": [],
+        "sourceMap": {
+          "start": "start",
+          "play-wait": "play-wait",
+          "play-wait:menu": "play-wait",
+          "after-sound": "after-sound"
+        },
+        "variables": {},
+        "authoringVariables": {},
+        "audio": {
+          "available": true,
+          "contextState": "running",
+          "currentTime": 0.09287981859410431,
+          "rms": 0,
+          "peakHz": 0,
+          "sounds": [
+            {
+              "playing": false,
+              "duration": 1.2,
+              "channels": 1,
+              "sampleRate": 44100
+            }
+          ],
+          "events": []
+        }
+      },
+      "rerun": {
+        "x": 5,
+        "pixels": {
+          "count": 984,
+          "centerX": 244.5,
+          "minX": 225,
+          "maxX": 264
+        },
+        "origin": "http://127.0.0.1:4174",
+        "bluePixels": 0,
+        "costume": {
+          "index": 0,
+          "name": "hero"
+        },
+        "globalVariables": {},
+        "targets": [
+          {
+            "x": 5,
+            "y": 0,
+            "isOriginal": true,
+            "variables": {}
+          }
+        ],
+        "revision": 2,
+        "threads": 0,
+        "moves": [
+          5
+        ],
+        "sourceMap": {
+          "start": "start",
+          "play-wait": "play-wait",
+          "play-wait:menu": "play-wait",
+          "after-sound": "after-sound"
+        },
+        "variables": {},
+        "authoringVariables": {},
+        "audio": {
+          "available": true,
+          "contextState": "running",
+          "currentTime": 2.3510204081632655,
+          "rms": 0,
+          "peakHz": 430.6640625,
+          "sounds": [
+            {
+              "playing": false,
+              "duration": 1.2,
+              "channels": 1,
+              "sampleRate": 44100
+            }
+          ],
+          "events": [
+            {
+              "type": "play",
+              "at": 0.23219954648526078
+            },
+            {
+              "type": "stop",
+              "at": 1.4425396825396826
+            }
+          ]
+        }
+      }
+    },
+    "global-variables": {
+      "before": {
+        "x": 0,
+        "pixels": {
+          "count": 984,
+          "centerX": 239.5,
+          "minX": 220,
+          "maxX": 259
+        },
+        "origin": "http://127.0.0.1:4174",
+        "bluePixels": 0,
+        "costume": {
+          "index": 0,
+          "name": "hero"
+        },
+        "globalVariables": {
+          "gg-global-score": {
+            "name": "globalScore",
+            "value": 0
+          }
+        },
+        "targets": [
+          {
+            "x": 0,
+            "y": 0,
+            "isOriginal": true,
+            "variables": {
+              "gg-local-score": {
+                "name": "localScore",
+                "value": 0
+              }
+            }
+          }
+        ],
+        "revision": 2,
+        "threads": 0,
+        "moves": [],
+        "sourceMap": {
+          "scope-start": "scope-start",
+          "global-reset": "global-reset",
+          "local-reset": "local-reset",
+          "scope-clone": "scope-clone",
+          "scope-clone:menu": "scope-clone",
+          "scope-clone-start": "scope-clone-start",
+          "clone-global-change": "clone-global-change",
+          "clone-local-change": "clone-local-change",
+          "scope-clone-wait": "scope-clone-wait",
+          "scope-delete": "scope-delete"
+        },
+        "variables": {
+          "gg-local-score": {
+            "name": "localScore",
+            "value": 0
+          }
+        },
+        "authoringVariables": {
+          "gg-local-score": [
+            "localScore",
+            0
+          ]
+        },
+        "audio": {
+          "available": false
+        }
+      },
+      "during": {
+        "x": 0,
+        "pixels": {
+          "count": 996,
+          "centerX": 239.5,
+          "minX": 220,
+          "maxX": 259
+        },
+        "origin": "http://127.0.0.1:4174",
+        "bluePixels": 0,
+        "costume": {
+          "index": 0,
+          "name": "hero"
+        },
+        "globalVariables": {
+          "gg-global-score": {
+            "name": "globalScore",
+            "value": 17
+          }
+        },
+        "targets": [
+          {
+            "x": 0,
+            "y": 0,
+            "isOriginal": true,
+            "variables": {
+              "gg-local-score": {
+                "name": "localScore",
+                "value": "3"
+              }
+            }
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "isOriginal": false,
+            "variables": {
+              "gg-local-score": {
+                "name": "localScore",
+                "value": 5
+              }
+            }
+          }
+        ],
+        "revision": 2,
+        "threads": 1,
+        "moves": [],
+        "sourceMap": {
+          "scope-start": "scope-start",
+          "global-reset": "global-reset",
+          "local-reset": "local-reset",
+          "scope-clone": "scope-clone",
+          "scope-clone:menu": "scope-clone",
+          "scope-clone-start": "scope-clone-start",
+          "clone-global-change": "clone-global-change",
+          "clone-local-change": "clone-local-change",
+          "scope-clone-wait": "scope-clone-wait",
+          "scope-delete": "scope-delete"
+        },
+        "variables": {
+          "gg-local-score": {
+            "name": "localScore",
+            "value": "3"
+          }
+        },
+        "authoringVariables": {
+          "gg-local-score": [
+            "localScore",
+            0
+          ]
+        },
+        "audio": {
+          "available": false
+        }
+      },
+      "after": {
+        "x": 0,
+        "pixels": {
+          "count": 984,
+          "centerX": 239.5,
+          "minX": 220,
+          "maxX": 259
+        },
+        "origin": "http://127.0.0.1:4174",
+        "bluePixels": 0,
+        "costume": {
+          "index": 0,
+          "name": "hero"
+        },
+        "globalVariables": {
+          "gg-global-score": {
+            "name": "globalScore",
+            "value": 17
+          }
+        },
+        "targets": [
+          {
+            "x": 0,
+            "y": 0,
+            "isOriginal": true,
+            "variables": {
+              "gg-local-score": {
+                "name": "localScore",
+                "value": "3"
+              }
+            }
+          }
+        ],
+        "revision": 2,
+        "threads": 0,
+        "moves": [],
+        "sourceMap": {
+          "scope-start": "scope-start",
+          "global-reset": "global-reset",
+          "local-reset": "local-reset",
+          "scope-clone": "scope-clone",
+          "scope-clone:menu": "scope-clone",
+          "scope-clone-start": "scope-clone-start",
+          "clone-global-change": "clone-global-change",
+          "clone-local-change": "clone-local-change",
+          "scope-clone-wait": "scope-clone-wait",
+          "scope-delete": "scope-delete"
+        },
+        "variables": {
+          "gg-local-score": {
+            "name": "localScore",
+            "value": "3"
+          }
+        },
+        "authoringVariables": {
+          "gg-local-score": [
+            "localScore",
+            0
+          ]
+        },
+        "audio": {
+          "available": false
+        }
+      },
+      "reloaded": {
+        "x": 0,
+        "pixels": {
+          "count": 984,
+          "centerX": 239.5,
+          "minX": 220,
+          "maxX": 259
+        },
+        "origin": "http://127.0.0.1:4174",
+        "bluePixels": 0,
+        "costume": {
+          "index": 0,
+          "name": "hero"
+        },
+        "globalVariables": {
+          "gg-global-score": {
+            "name": "globalScore",
+            "value": 0
+          }
+        },
+        "targets": [
+          {
+            "x": 0,
+            "y": 0,
+            "isOriginal": true,
+            "variables": {
+              "gg-local-score": {
+                "name": "localScore",
+                "value": 0
+              }
+            }
+          }
+        ],
+        "revision": 3,
+        "threads": 0,
+        "moves": [],
+        "sourceMap": {
+          "scope-start": "scope-start",
+          "global-reset": "global-reset",
+          "local-reset": "local-reset",
+          "scope-clone": "scope-clone",
+          "scope-clone:menu": "scope-clone",
+          "scope-clone-start": "scope-clone-start",
+          "clone-global-change": "clone-global-change",
+          "clone-local-change": "clone-local-change",
+          "scope-clone-wait": "scope-clone-wait",
+          "scope-delete": "scope-delete"
+        },
+        "variables": {
+          "gg-local-score": {
+            "name": "localScore",
+            "value": 0
+          }
+        },
+        "authoringVariables": {
+          "gg-local-score": [
+            "localScore",
+            0
+          ]
+        },
+        "audio": {
+          "available": false
+        }
+      }
+    },
+    "costumes": {
+      "before": {
+        "x": 0,
+        "pixels": {
+          "count": 984,
+          "centerX": 239.5,
+          "minX": 220,
+          "maxX": 259
+        },
+        "origin": "http://127.0.0.1:4174",
+        "bluePixels": 0,
+        "costume": {
+          "index": 0,
+          "name": "hero"
+        },
+        "globalVariables": {},
+        "targets": [
+          {
+            "x": 0,
+            "y": 0,
+            "isOriginal": true,
+            "variables": {}
+          }
+        ],
+        "revision": 2,
+        "threads": 0,
+        "moves": [],
+        "sourceMap": {
+          "costume-start": "costume-start",
+          "costume-alt": "costume-alt",
+          "costume-alt:menu": "costume-alt",
+          "costume-wait": "costume-wait",
+          "costume-original": "costume-original",
+          "costume-original:menu": "costume-original"
+        },
+        "variables": {},
+        "authoringVariables": {},
+        "audio": {
+          "available": false
+        }
+      },
+      "during": {
+        "x": 0,
+        "pixels": {
+          "count": 0,
+          "centerX": null,
+          "minX": 480,
+          "maxX": -1
+        },
+        "origin": "http://127.0.0.1:4174",
+        "bluePixels": 582,
+        "costume": {
+          "index": 1,
+          "name": "hero-alt"
+        },
+        "globalVariables": {},
+        "targets": [
+          {
+            "x": 0,
+            "y": 0,
+            "isOriginal": true,
+            "variables": {}
+          }
+        ],
+        "revision": 2,
+        "threads": 1,
+        "moves": [],
+        "sourceMap": {
+          "costume-start": "costume-start",
+          "costume-alt": "costume-alt",
+          "costume-alt:menu": "costume-alt",
+          "costume-wait": "costume-wait",
+          "costume-original": "costume-original",
+          "costume-original:menu": "costume-original"
+        },
+        "variables": {},
+        "authoringVariables": {},
+        "audio": {
+          "available": false
+        }
+      },
+      "after": {
+        "x": 0,
+        "pixels": {
+          "count": 984,
+          "centerX": 239.5,
+          "minX": 220,
+          "maxX": 259
+        },
+        "origin": "http://127.0.0.1:4174",
+        "bluePixels": 0,
+        "costume": {
+          "index": 0,
+          "name": "hero"
+        },
+        "globalVariables": {},
+        "targets": [
+          {
+            "x": 0,
+            "y": 0,
+            "isOriginal": true,
+            "variables": {}
+          }
+        ],
+        "revision": 2,
+        "threads": 0,
+        "moves": [],
+        "sourceMap": {
+          "costume-start": "costume-start",
+          "costume-alt": "costume-alt",
+          "costume-alt:menu": "costume-alt",
+          "costume-wait": "costume-wait",
+          "costume-original": "costume-original",
+          "costume-original:menu": "costume-original"
+        },
+        "variables": {},
+        "authoringVariables": {},
+        "audio": {
+          "available": false
+        }
+      }
+    },
+    "concurrent": {
+      "overlap": {
+        "x": 0,
+        "pixels": {
+          "count": 984,
+          "centerX": 239.5,
+          "minX": 220,
+          "maxX": 259
+        },
+        "origin": "http://127.0.0.1:4174",
+        "bluePixels": 0,
+        "costume": {
+          "index": 0,
+          "name": "hero"
+        },
+        "globalVariables": {},
+        "targets": [
+          {
+            "x": 0,
+            "y": 0,
+            "isOriginal": true,
+            "variables": {
+              "gg-long": {
+                "name": "longScript",
+                "value": "1"
+              },
+              "gg-short": {
+                "name": "shortScript",
+                "value": "1"
+              }
+            }
+          }
+        ],
+        "revision": 2,
+        "threads": 2,
+        "moves": [],
+        "sourceMap": {
+          "concurrent-long": "concurrent-long",
+          "long-start": "long-start",
+          "long-wait": "long-wait",
+          "long-finish": "long-finish",
+          "concurrent-short": "concurrent-short",
+          "short-start": "short-start",
+          "short-wait": "short-wait",
+          "short-finish": "short-finish"
+        },
+        "variables": {
+          "gg-long": {
+            "name": "longScript",
+            "value": "1"
+          },
+          "gg-short": {
+            "name": "shortScript",
+            "value": "1"
+          }
+        },
+        "authoringVariables": {
+          "gg-long": [
+            "longScript",
+            0
+          ],
+          "gg-short": [
+            "shortScript",
+            0
+          ]
+        },
+        "audio": {
+          "available": false
+        }
+      },
+      "partial": {
+        "x": 0,
+        "pixels": {
+          "count": 984,
+          "centerX": 239.5,
+          "minX": 220,
+          "maxX": 259
+        },
+        "origin": "http://127.0.0.1:4174",
+        "bluePixels": 0,
+        "costume": {
+          "index": 0,
+          "name": "hero"
+        },
+        "globalVariables": {},
+        "targets": [
+          {
+            "x": 0,
+            "y": 0,
+            "isOriginal": true,
+            "variables": {
+              "gg-long": {
+                "name": "longScript",
+                "value": "1"
+              },
+              "gg-short": {
+                "name": "shortScript",
+                "value": "2"
+              }
+            }
+          }
+        ],
+        "revision": 2,
+        "threads": 1,
+        "moves": [],
+        "sourceMap": {
+          "concurrent-long": "concurrent-long",
+          "long-start": "long-start",
+          "long-wait": "long-wait",
+          "long-finish": "long-finish",
+          "concurrent-short": "concurrent-short",
+          "short-start": "short-start",
+          "short-wait": "short-wait",
+          "short-finish": "short-finish"
+        },
+        "variables": {
+          "gg-long": {
+            "name": "longScript",
+            "value": "1"
+          },
+          "gg-short": {
+            "name": "shortScript",
+            "value": "2"
+          }
+        },
+        "authoringVariables": {
+          "gg-long": [
+            "longScript",
+            0
+          ],
+          "gg-short": [
+            "shortScript",
+            0
+          ]
+        },
+        "audio": {
+          "available": false
+        }
+      },
+      "after": {
+        "x": 0,
+        "pixels": {
+          "count": 984,
+          "centerX": 239.5,
+          "minX": 220,
+          "maxX": 259
+        },
+        "origin": "http://127.0.0.1:4174",
+        "bluePixels": 0,
+        "costume": {
+          "index": 0,
+          "name": "hero"
+        },
+        "globalVariables": {},
+        "targets": [
+          {
+            "x": 0,
+            "y": 0,
+            "isOriginal": true,
+            "variables": {
+              "gg-long": {
+                "name": "longScript",
+                "value": "2"
+              },
+              "gg-short": {
+                "name": "shortScript",
+                "value": "2"
+              }
+            }
+          }
+        ],
+        "revision": 2,
+        "threads": 0,
+        "moves": [],
+        "sourceMap": {
+          "concurrent-long": "concurrent-long",
+          "long-start": "long-start",
+          "long-wait": "long-wait",
+          "long-finish": "long-finish",
+          "concurrent-short": "concurrent-short",
+          "short-start": "short-start",
+          "short-wait": "short-wait",
+          "short-finish": "short-finish"
+        },
+        "variables": {
+          "gg-long": {
+            "name": "longScript",
+            "value": "2"
+          },
+          "gg-short": {
+            "name": "shortScript",
+            "value": "2"
+          }
+        },
+        "authoringVariables": {
+          "gg-long": [
+            "longScript",
+            0
+          ],
+          "gg-short": [
+            "shortScript",
+            0
+          ]
+        },
+        "audio": {
+          "available": false
+        }
+      }
+    }
+  },
+  "simulator": {
+    "heart": {
+      "compileHash": "51e8ea3c1af2ad51ff2ad4c37db27d47db75d5bf36d355d80aa95fec8c1993c5",
+      "state": {
+        "matrix": [
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0,
+          1,
+          1,
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0
+        ],
+        "visual": [
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0,
+          1,
+          1,
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0
+        ],
+        "finished": true,
+        "fault": null,
+        "dead": false,
+        "codeHash": "51e8ea3c1af2ad51ff2ad4c37db27d47db75d5bf36d355d80aa95fec8c1993c5",
+        "origin": "http://127.0.0.1:4175",
+        "parentBlocked": true,
+        "physicalBoardValidated": false
+      },
+      "errors": [],
+      "external": [],
+      "runnerPolicy": "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; frame-src http://127.0.0.1:4175; frame-ancestors http://127.0.0.1:4173; base-uri 'none'; form-action 'none'; object-src 'none'",
+      "simPolicy": "default-src 'none'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; frame-src 'none'; frame-ancestors http://127.0.0.1:4173 http://127.0.0.1:4174; base-uri 'none'; form-action 'none'; object-src 'none'"
+    },
+    "button": {
+      "compileHash": "8f431a5bd607a27b4ada4ac537b092430e65dfbcc5edba3c4a7b6d14946248fe",
+      "on": {
+        "matrix": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "visual": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "finished": true,
+        "fault": null,
+        "dead": false,
+        "codeHash": "8f431a5bd607a27b4ada4ac537b092430e65dfbcc5edba3c4a7b6d14946248fe",
+        "origin": "http://127.0.0.1:4175",
+        "parentBlocked": true,
+        "physicalBoardValidated": false
+      },
+      "off": {
+        "matrix": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "visual": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "finished": true,
+        "fault": null,
+        "dead": false,
+        "codeHash": "8f431a5bd607a27b4ada4ac537b092430e65dfbcc5edba3c4a7b6d14946248fe",
+        "origin": "http://127.0.0.1:4175",
+        "parentBlocked": true,
+        "physicalBoardValidated": false
+      }
+    },
+    "stop": {
+      "previousContextDetached": true,
+      "newCompileHash": "f2bd21408c38b6341d7263a12351e9f753e15774607ae0580a2c6c1ae507a13e",
+      "state": {
+        "matrix": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1
+        ],
+        "visual": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1
+        ],
+        "finished": true,
+        "fault": null,
+        "dead": false,
+        "codeHash": "f2bd21408c38b6341d7263a12351e9f753e15774607ae0580a2c6c1ae507a13e",
+        "origin": "http://127.0.0.1:4175",
+        "parentBlocked": true,
+        "physicalBoardValidated": false
+      }
+    }
+  },
+  "bindings": {
+    "editor": {
+      "before": {
+        "x": 0,
+        "pixels": {
+          "count": 984,
+          "centerX": 239.5,
+          "minX": 220,
+          "maxX": 259
+        },
+        "origin": "http://127.0.0.1:4174",
+        "bluePixels": 0,
+        "costume": {
+          "index": 0,
+          "name": "hero"
+        },
+        "globalVariables": {},
+        "targets": [
+          {
+            "x": 0,
+            "y": 0,
+            "isOriginal": true,
+            "variables": {}
+          }
+        ],
+        "revision": 1,
+        "threads": 0,
+        "moves": [],
+        "sourceMap": {
+          "start": "start",
+          "repeat": "repeat",
+          "move": "move"
+        },
+        "variables": {},
+        "authoringVariables": {},
+        "audio": {
+          "available": false
+        }
+      },
+      "after": {
+        "x": 45,
+        "pixels": {
+          "count": 984,
+          "centerX": 284.5,
+          "minX": 265,
+          "maxX": 304
+        },
+        "origin": "http://127.0.0.1:4174",
+        "bluePixels": 0,
+        "costume": {
+          "index": 0,
+          "name": "hero"
+        },
+        "globalVariables": {
+          "gg-message:boost": {
+            "name": "boost",
+            "value": "boost"
+          }
+        },
+        "targets": [
+          {
+            "x": 45,
+            "y": 0,
+            "isOriginal": true,
+            "variables": {
+              "gg-score": {
+                "name": "score",
+                "value": 5
+              }
+            }
+          }
+        ],
+        "revision": 2,
+        "threads": 0,
+        "moves": [
+          6,
+          12,
+          18,
+          28,
+          40,
+          45
+        ],
+        "sourceMap": {
+          "editable-start": "editable-start",
+          "editable-set": "editable-set",
+          "editable-repeat": "editable-repeat",
+          "editable-move": "editable-move",
+          "editable-boost": "editable-boost",
+          "editable-change": "editable-change",
+          "editable-read": "editable-read",
+          "editable-event-move": "editable-event-move"
+        },
+        "variables": {
+          "gg-score": {
+            "name": "score",
+            "value": 5
+          }
+        },
+        "authoringVariables": {
+          "gg-score": [
+            "score",
+            0
+          ]
+        },
+        "audio": {
+          "available": false
+        }
+      },
+      "scene": {
+        "sprites": [
+          {
+            "id": "hero",
+            "name": "hero",
+            "x": 45,
+            "y": 0
+          }
+        ],
+        "variables": [
+          {
+            "id": "gg-score",
+            "name": "score",
+            "value": 5
+          }
+        ]
+      },
+      "authoringPreserved": true,
+      "errors": []
+    },
+    "stale": {
+      "clientError": "Stale GG session or program revision",
+      "wireError": "Stale GG program revision or scene loading",
+      "sessionError": "Stale GG session or program revision",
+      "failures": [
+        "Unknown GG sprite",
+        "Invalid GG numeric argument",
+        "Invalid GG numeric argument",
+        "Unknown GG numeric variable",
+        "Unknown GG event"
+      ],
+      "final": {
+        "x": 0,
+        "pixels": {
+          "count": 984,
+          "centerX": 239.5,
+          "minX": 220,
+          "maxX": 259
+        },
+        "origin": "http://127.0.0.1:4174",
+        "bluePixels": 0,
+        "costume": {
+          "index": 0,
+          "name": "hero"
+        },
+        "globalVariables": {},
+        "targets": [
+          {
+            "x": 0,
+            "y": 0,
+            "isOriginal": true,
+            "variables": {}
+          }
+        ],
+        "revision": 1,
+        "threads": 0,
+        "moves": [],
+        "sourceMap": {
+          "start": "start",
+          "repeat": "repeat",
+          "move": "move"
+        },
+        "variables": {},
+        "authoringVariables": {},
+        "audio": {
+          "available": false
+        }
+      }
+    },
+    "validation": {
+      "rejected": [
+        "Invalid GG program: unexpected property extensions",
+        "Invalid GG program: unsupported operation eval"
+      ],
+      "before": {
+        "x": 12,
+        "pixels": {
+          "count": 984,
+          "centerX": 251.5,
+          "minX": 232,
+          "maxX": 271
+        },
+        "origin": "http://127.0.0.1:4174",
+        "bluePixels": 0,
+        "costume": {
+          "index": 0,
+          "name": "hero"
+        },
+        "globalVariables": {
+          "gg-message:boost": {
+            "name": "boost",
+            "value": "boost"
+          }
+        },
+        "targets": [
+          {
+            "x": 12,
+            "y": 0,
+            "isOriginal": true,
+            "variables": {
+              "gg-score": {
+                "name": "score",
+                "value": "1"
+              }
+            }
+          }
+        ],
+        "revision": 2,
+        "threads": 0,
+        "moves": [
+          4,
+          8,
+          12
+        ],
+        "sourceMap": {
+          "editable-start": "editable-start",
+          "editable-set": "editable-set",
+          "editable-repeat": "editable-repeat",
+          "editable-move": "editable-move",
+          "editable-boost": "editable-boost",
+          "editable-change": "editable-change",
+          "editable-read": "editable-read",
+          "editable-event-move": "editable-event-move"
+        },
+        "variables": {
+          "gg-score": {
+            "name": "score",
+            "value": "1"
+          }
+        },
+        "authoringVariables": {
+          "gg-score": [
+            "score",
+            0
+          ]
+        },
+        "audio": {
+          "available": false
+        }
+      },
+      "final": {
+        "x": 12,
+        "pixels": {
+          "count": 984,
+          "centerX": 251.5,
+          "minX": 232,
+          "maxX": 271
+        },
+        "origin": "http://127.0.0.1:4174",
+        "bluePixels": 0,
+        "costume": {
+          "index": 0,
+          "name": "hero"
+        },
+        "globalVariables": {
+          "gg-message:boost": {
+            "name": "boost",
+            "value": "boost"
+          }
+        },
+        "targets": [
+          {
+            "x": 12,
+            "y": 0,
+            "isOriginal": true,
+            "variables": {
+              "gg-score": {
+                "name": "score",
+                "value": "1"
+              }
+            }
+          }
+        ],
+        "revision": 2,
+        "threads": 0,
+        "moves": [
+          4,
+          8,
+          12
+        ],
+        "sourceMap": {
+          "editable-start": "editable-start",
+          "editable-set": "editable-set",
+          "editable-repeat": "editable-repeat",
+          "editable-move": "editable-move",
+          "editable-boost": "editable-boost",
+          "editable-change": "editable-change",
+          "editable-read": "editable-read",
+          "editable-event-move": "editable-event-move"
+        },
+        "variables": {
+          "gg-score": {
+            "name": "score",
+            "value": "1"
+          }
+        },
+        "authoringVariables": {
+          "gg-score": [
+            "score",
+            0
+          ]
+        },
+        "audio": {
+          "available": false
+        }
+      },
+      "recovered": true
+    }
+  },
+  "compiler": {
+    "success": true,
+    "outfiles": [
+      "yotta.json",
+      "codal.json",
+      "mbdal-binary.asm",
+      "mbdal-binary.hex",
+      "mbcodal-binary.asm",
+      "mbcodal-binary.hex",
+      "binary.hex"
+    ],
+    "worker": {
+      "worker": true,
+      "origin": "http://127.0.0.1:4174"
+    },
+    "hexRequests": [
+      {
+        "sha": "949fbd03bf2de1d4bf409bb1e68613a9d8745ca0bbafef44aa472a60ef9c0f73",
+        "variant": "mbdal",
+        "available": true
+      },
+      {
+        "sha": "354b97da4696027afdaa3977420ec181bfc88a2faa2d2c0174842767718551e7",
+        "variant": "mbcodal",
+        "available": true
+      }
+    ],
+    "networkAttempts": [],
+    "invalidSourceDiagnostics": [
+      {
+        "code": 2339,
+        "fileName": "main.ts",
+        "line": 0,
+        "messageText": "Property 'noSuchFunction' does not exist on type 'typeof basic'."
+      }
+    ],
+    "physicalBoardValidated": false
+  },
+  "offline": {
+    "success": true,
+    "diagnostics": [],
+    "outfiles": [
+      "yotta.json",
+      "codal.json",
+      "mbdal-binary.asm",
+      "mbdal-binary.hex",
+      "mbcodal-binary.asm",
+      "mbcodal-binary.hex",
+      "binary.hex"
+    ],
+    "hexRequests": [
+      {
+        "sha": "949fbd03bf2de1d4bf409bb1e68613a9d8745ca0bbafef44aa472a60ef9c0f73",
+        "variant": "mbdal",
+        "available": true
+      },
+      {
+        "sha": "354b97da4696027afdaa3977420ec181bfc88a2faa2d2c0174842767718551e7",
+        "variant": "mbcodal",
+        "available": true
+      }
+    ],
+    "networkAttempts": [],
+    "environment": {
+      "worker": true,
+      "origin": "http://127.0.0.1:4174"
+    },
+    "physicalBoardValidated": false,
+    "contextOffline": true
+  },
+  "staticBuild": {
+    "files": [
+      {
+        "file": "vendor/typescript.js",
+        "bytes": 1548990,
+        "sha256": "556939b102e5c420fad2eb7d0692dcaf9682a437511ef2e990674e6aaa0695ab"
+      },
+      {
+        "file": "vendor/pxtworker.js",
+        "bytes": 2482200,
+        "sha256": "ce88b5f45f212b2a0eb9371e35a40e436dfe9e1b0957e74f20e9a39708aa1b4e"
+      },
+      {
+        "file": "vendor/microbit-compiler.js",
+        "bytes": 5597,
+        "sha256": "be9af26759448c021b01e028fffba5aeba55d24ae472dc7afc68eb444b015e97"
+      },
+      {
+        "file": "vendor/lzma.js",
+        "bytes": 111982,
+        "sha256": "b2704cc4536d113ba9d4badfb4b262ec878b16824e300596895c0a1080fbdc50"
+      },
+      {
+        "file": "vendor/scratch-vm.js",
+        "bytes": 13989557,
+        "sha256": "c60de5f95ee4bb5b5fc61f9d928b07f3b497b20a899c2b6c9182c4edf6484fc2"
+      },
+      {
+        "file": "vendor/scratch-render.js",
+        "bytes": 3061945,
+        "sha256": "40253eeee30919628a3915a49ceaca462db212d322c46471920d49e61e3da90f"
+      },
+      {
+        "file": "vendor/scratch-storage.js",
+        "bytes": 186078,
+        "sha256": "17d1d1054e06fba2c3ba71d35ef6739771c22b3ec374a066edcfbda8ca3ffc66"
+      },
+      {
+        "file": "vendor/scratch-audio.js",
+        "bytes": 108319,
+        "sha256": "b5b68d3dbb3b0fffbd96dffce99a0e43df339f09e98e9728c06444d9a48f8e6c"
+      },
+      {
+        "file": "simulator/vendor/pxtsim.js",
+        "bytes": 210381,
+        "sha256": "566938713d8405705ac13b0b1e6e5ffb500b9a71aefe9b6a28649fbfdccf63c3"
+      },
+      {
+        "file": "simulator/vendor/microbit-sim.js",
+        "bytes": 561529,
+        "sha256": "2d527dbee4b6a384eb501a2c6129414a0f642af20d4291a2165e1c23576f3335"
+      },
+      {
+        "file": "shell/editor.bundle.js",
+        "bytes": 956601,
+        "sha256": "31ee3acdb703c7a2a224dca750adb2372a938b7cd17f1ab04e1cebb88917c092"
+      }
+    ],
+    "audioFixture": {
+      "assetId": "52abebc172d254ab1174125953b88bf8",
+      "sha256": "2e1b9910a2fc4be916f6b2211f2a3a1eaf7ae275102e5d69ec089262e678ad9d",
+      "bytes": 52964,
+      "rate": 22050,
+      "sampleCount": 26460,
+      "frequencyHz": 440
+    },
+    "compilerPackBytes": 5221168
+  },
+  "sourcePreservation": [
+    {
+      "repository": "raspberrypi-blockly",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    },
+    {
+      "repository": "xcratch-scratch-editor",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    },
+    {
+      "repository": "pxt-microbit",
+      "sameCommit": true,
+      "sameTrackedDiff": true,
+      "sameLock": true
+    }
+  ],
+  "performance": {
+    "file": "performance-evidence.json",
+    "recordedAt": "2026-10-22T06:51:04.489Z",
+    "tests": {
+      "startTime": "2026-10-22T06:46:25.438Z",
+      "duration": 84384.124,
+      "expected": 3,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "gates": {
+      "functionalStability": true,
+      "proposedLocalStopBudgets": {
+        "feedbackUnder100ms": true,
+        "oldFrameRemovedUnder1000ms": true
+      },
+      "school100Sprites30Fps": "pending: define hardware/browser/power profile and repeat on representative equipment",
+      "productionStartupAndMemoryBudgets": "pending: agree budgets and repeat using optimized build; current measurements are development build and target-scoped JS heap",
+      "claim": "Functional finite-run release evidence is measured; the school performance criterion remains unverified. No threshold was weakened to pass."
+    }
+  }
+}

@@ -1,0 +1,535 @@
+{
+  "change": "studio-visual-workspace-rework",
+  "date": "2026-10-24",
+  "fullGate": {
+    "exitCode": 0,
+    "baselineWritten": true,
+    "startedAt": "2026-10-24T06:54:43.293Z",
+    "finishedAt": "2026-10-24T07:43:18.216Z",
+    "steps": {
+      "integration": 0,
+      "tools": 0,
+      "build": 0,
+      "smoke": 0,
+      "browser": 0,
+      "specs": 0,
+      "upstream-preservation": 0
+    },
+    "counts": {
+      "integration": 400,
+      "tools": 63,
+      "smoke": 3,
+      "browser": 177,
+      "openspec": 22
+    },
+    "upstreams": "same commit, tracked diff and lock (raspberrypi-blockly, xcratch-scratch-editor, pxt-microbit)",
+    "log": "artifacts/visual-rework/full-approved.log",
+    "notApprovedAttempts": [
+      "full-attempt1.log (smoke not migrated)",
+      "full-attempt2-interrupted.log (machine restart)",
+      "full-attempt3/4/5 (webServer >15 s under load)",
+      "full-attempt6-source-changed.log (document edited during run)"
+    ]
+  },
+  "testInfraChange": "playwright.config.mjs webServer.timeout 15000 -> 60000 (authorized by user)",
+  "matrix": {
+    "states": 75,
+    "errors": 0,
+    "viewports": [
+      "1280x720",
+      "1440x900",
+      "390x844"
+    ],
+    "desktopGlobalScroll": [],
+    "horizontalOverflow": [],
+    "minDockDesktop": 140,
+    "canvasBelow240Desktop": [
+      {
+        "name": "d1280x720-2d-pending",
+        "canvas": {
+          "w": 290,
+          "h": 217
+        },
+        "reason": "pending note"
+      },
+      {
+        "name": "d1280x720-microbit-empty",
+        "canvas": {
+          "w": 166,
+          "h": 124
+        },
+        "reason": "foreign result"
+      },
+      {
+        "name": "d1280x720-microbit-ready",
+        "canvas": {
+          "w": 166,
+          "h": 124
+        },
+        "reason": "foreign result"
+      },
+      {
+        "name": "d1280x720-microbit-running",
+        "canvas": {
+          "w": 206,
+          "h": 155
+        },
+        "reason": "micro:bit board + scene"
+      },
+      {
+        "name": "d1280x720-microbit-typescript",
+        "canvas": {
+          "w": 166,
+          "h": 124
+        },
+        "reason": "foreign result"
+      },
+      {
+        "name": "d1280x720-microbit-consult",
+        "canvas": {
+          "w": 166,
+          "h": 124
+        },
+        "reason": "foreign result"
+      },
+      {
+        "name": "d1280x720-sb3-empty",
+        "canvas": {
+          "w": 166,
+          "h": 124
+        },
+        "reason": "foreign result"
+      },
+      {
+        "name": "d1280x720-sb3-editable",
+        "canvas": {
+          "w": 166,
+          "h": 124
+        },
+        "reason": "foreign result"
+      },
+      {
+        "name": "d1280x720-sb3-runnable",
+        "canvas": {
+          "w": 166,
+          "h": 124
+        },
+        "reason": "foreign result"
+      },
+      {
+        "name": "d1280x720-sb3-blocked",
+        "canvas": {
+          "w": 166,
+          "h": 124
+        },
+        "reason": "foreign result"
+      },
+      {
+        "name": "d1280x720-scene3d-empty",
+        "canvas": {
+          "w": 166,
+          "h": 124
+        },
+        "reason": "foreign result"
+      },
+      {
+        "name": "d1280x720-scene3d-ready",
+        "canvas": {
+          "w": 166,
+          "h": 124
+        },
+        "reason": "foreign result"
+      },
+      {
+        "name": "d1280x720-scene3d-consult",
+        "canvas": {
+          "w": 166,
+          "h": 124
+        },
+        "reason": "foreign result"
+      },
+      {
+        "name": "d1280x720-scene3d-error",
+        "canvas": {
+          "w": 166,
+          "h": 124
+        },
+        "reason": "foreign result"
+      },
+      {
+        "name": "d1280x720-webapp-empty",
+        "canvas": {
+          "w": 166,
+          "h": 124
+        },
+        "reason": "foreign result"
+      },
+      {
+        "name": "d1280x720-webapp-ready",
+        "canvas": {
+          "w": 166,
+          "h": 124
+        },
+        "reason": "foreign result"
+      },
+      {
+        "name": "d1440x900-microbit-running",
+        "canvas": {
+          "w": 282,
+          "h": 212
+        },
+        "reason": "micro:bit board + scene"
+      }
+    ],
+    "nominal2dCanvas": {
+      "d1280x720": {
+        "w": 326,
+        "h": 244
+      },
+      "d1440x900": {
+        "w": 566,
+        "h": 425
+      },
+      "m390x844": {
+        "w": 248,
+        "h": 186
+      }
+    },
+    "screenshots": [
+      {
+        "name": "d1280x720-2d-ready",
+        "sha256": "1c16623883dc619da0df3d4fc2cc8e73fc2dc0d248d0ba0b8914e79d64bc19cd"
+      },
+      {
+        "name": "d1280x720-2d-running",
+        "sha256": "995feaa50d5ab3c2d9abcb29eca296a0c526ef1b27de575e10e2160368c31066"
+      },
+      {
+        "name": "d1280x720-2d-consult",
+        "sha256": "941310c09e7133be04148a4e7aa6f912764060ac91f80e6e1c553daa6d50df5e"
+      },
+      {
+        "name": "d1280x720-2d-pending",
+        "sha256": "b1618790fcf235d55d19dae67802974382b0b933221b2f76dc2f7340ce08377b"
+      },
+      {
+        "name": "d1280x720-2d-stopped",
+        "sha256": "ccd8591e60803101325622bc79d4ed14efda25de7d2a61908df86579367f7e43"
+      },
+      {
+        "name": "d1280x720-2d-expanded",
+        "sha256": "640d6a9df1b63b0674aa663b663aba0d4bd2a637044e1f6e68dfee8a8f337946"
+      },
+      {
+        "name": "d1280x720-text-empty",
+        "sha256": "72ae45d7b2d0e6dddf0ff3dd3513d7501c3e96bf396794ce2e8975b95f9d4ef8"
+      },
+      {
+        "name": "d1280x720-text-ready",
+        "sha256": "915384f28a025bff21ef14e9c9da6de896787cf0d77659b76f89a7171f4c78b5"
+      },
+      {
+        "name": "d1280x720-text-error",
+        "sha256": "c2e6dc608cc191628da4669c400610559a4cc617a8f41f59172a11bb90397569"
+      },
+      {
+        "name": "d1280x720-text-running",
+        "sha256": "7ebbc85202aab27d155dcf569142950a9d6c524df23e34d270ef345277eaad0f"
+      },
+      {
+        "name": "d1280x720-microbit-empty",
+        "sha256": "f9f996a139c9ca76a3753f0c043b67b76b117bcc92e37a2a773c5113015d6045"
+      },
+      {
+        "name": "d1280x720-microbit-ready",
+        "sha256": "41e8a8e948ecb28c69ed35bc01edfe917ee9e4407bc361fc5fa5524775c0e23a"
+      },
+      {
+        "name": "d1280x720-microbit-running",
+        "sha256": "8aada6352a6a8d03fe5a03f32b6d42a41da57e2b9fe5d599ba1458dc86110b11"
+      },
+      {
+        "name": "d1280x720-microbit-typescript",
+        "sha256": "f966f0c990ec0283b2ac1201d30beaee2850b22c02673bb98fa310c7f46bafe8"
+      },
+      {
+        "name": "d1280x720-microbit-consult",
+        "sha256": "1d9213a31faeb89cebc6a882e17158b4f1841c06aea68b556ef8650765fb69c3"
+      },
+      {
+        "name": "d1280x720-sb3-empty",
+        "sha256": "749e7e89c317a14fc9276e330391073ffbe6365eec92b62986c435e6ec1eb416"
+      },
+      {
+        "name": "d1280x720-sb3-editable",
+        "sha256": "91875db21fe52729a428f8e835e7e8fe24015bc3e8076b67594171f5b86ad5f1"
+      },
+      {
+        "name": "d1280x720-sb3-runnable",
+        "sha256": "a447288c432521be477cb9f7d236b99eb97ae3ae1ff9161c80592f127a66aae8"
+      },
+      {
+        "name": "d1280x720-sb3-blocked",
+        "sha256": "a1c30e5b5d597e5f41a51e13c8e9ded2e58a1a17858883e95e271dd2e956c4c1"
+      },
+      {
+        "name": "d1280x720-sb3-running",
+        "sha256": "be6ca2d28dba84f59a7466c6dc8137bd6bc5ed17f286af3b0fe1dd0cb4131efc"
+      },
+      {
+        "name": "d1280x720-scene3d-empty",
+        "sha256": "0182db2c2248dc353e3dc4c2e5a43c71c67ebfd95171e0fd8fdb78c023e7c188"
+      },
+      {
+        "name": "d1280x720-scene3d-ready",
+        "sha256": "71aeb25cefcfc7bfeeecdfb5156685ed2734b7718ba3390555b8c1b0c0b3d933"
+      },
+      {
+        "name": "d1280x720-scene3d-running",
+        "sha256": "1b0b9ddd67a8db7e103850e002cc9a186f58787006108ccc0c4e46602161c8d2"
+      },
+      {
+        "name": "d1280x720-scene3d-consult",
+        "sha256": "f352d67a2ce111048b6f31c565cedc4698c3945bc2b4e015434533d77852f1bd"
+      },
+      {
+        "name": "d1280x720-scene3d-error",
+        "sha256": "8dfde6fdc6cf928a0152c60878b1e91b2b4721798023df4bbc498ba6e21dee3b"
+      },
+      {
+        "name": "d1280x720-webapp-empty",
+        "sha256": "4de860e980cfdde6d63e1084cb14a004084330d9d4b8ebab5705e3946f8ce055"
+      },
+      {
+        "name": "d1280x720-webapp-ready",
+        "sha256": "6de2e8e984bb8b5040552633c9bcab950ba66976e14ef20aa46bb7e255b625a9"
+      },
+      {
+        "name": "d1280x720-webapp-running",
+        "sha256": "3abed8d98f9cae95c924b066c618422cbe42eae0e35204c7dee23b42ef82da6f"
+      },
+      {
+        "name": "d1280x720-webapp-error",
+        "sha256": "a387b2e677e48be441507385397fd1de70132618a9ea965efee2c67c9f3c0dc8"
+      },
+      {
+        "name": "d1280x720-webapp-other",
+        "sha256": "dd80f66e82c3fa70b07b2ce9532860088ed86723f39300ab1ea575fc8d1d5831"
+      },
+      {
+        "name": "d1440x900-2d-ready",
+        "sha256": "e1e1edb5b238013032d616f19ab330bfbfa78a35d42b3125479b5dd06bc01ad4"
+      },
+      {
+        "name": "d1440x900-2d-running",
+        "sha256": "c9efb6a35b5952f7e2de37906551332f57bb0c3ffef1da8145259cbc6814b4c1"
+      },
+      {
+        "name": "d1440x900-2d-consult",
+        "sha256": "b37014b8f2e892b1bb62af50a969407bcafaf6e02ef27bf62f21d00c5f1c8e3a"
+      },
+      {
+        "name": "d1440x900-2d-pending",
+        "sha256": "ce7e0ddecf0a9c02c3d27f927f2c6c7a25be5dd7399d5f558ca0c588be82175b"
+      },
+      {
+        "name": "d1440x900-2d-stopped",
+        "sha256": "1fd9c5d70d528726662e1dc9025619d4dc74cd1e772f06d7d039109bbd1ac392"
+      },
+      {
+        "name": "d1440x900-2d-expanded",
+        "sha256": "01dcc43067f35eb12a62a00706bf72b8ba0e8901d9165ce9513fd6597e22f372"
+      },
+      {
+        "name": "d1440x900-text-empty",
+        "sha256": "7de0adc9b3675fb2acb858c210f34ad2cf93d25a0ebe88c560cd80126b442946"
+      },
+      {
+        "name": "d1440x900-text-ready",
+        "sha256": "550253c09ea50e9518c092939da4159bcb9b499748a47b7339c55406a7ff715b"
+      },
+      {
+        "name": "d1440x900-text-error",
+        "sha256": "d6ba2a94c14f4a0e734f91e9f680cbfaac0924dd497808938c55c3d73c1f79a7"
+      },
+      {
+        "name": "d1440x900-text-running",
+        "sha256": "e0c5404f6c54db242e3c406d1c93c34386a4b287e2e61de71107ee9c67c28b67"
+      },
+      {
+        "name": "d1440x900-microbit-empty",
+        "sha256": "bd0151a1ebc678860d32bf0d83b31e87d6161ea89049611921d2bb40d2d9bc32"
+      },
+      {
+        "name": "d1440x900-microbit-ready",
+        "sha256": "66d75850c69610ff2d0d8313da0e146acdbb732dc839d3ea59c7b417b5f13f59"
+      },
+      {
+        "name": "d1440x900-microbit-running",
+        "sha256": "dabeebffb7f8440e9ff64b4f5978f864ef2703a4a4fb6ff0ee53e1faf9472c25"
+      },
+      {
+        "name": "d1440x900-microbit-typescript",
+        "sha256": "209ec83fcad6f0bd3ad4ff0a3974980865e383ba57c09b951f62a87cadb2f3f3"
+      },
+      {
+        "name": "d1440x900-microbit-consult",
+        "sha256": "948443e9d4f24a17781ec4c1a714521d529d67c34e0148e41507e7649e4fcaaf"
+      },
+      {
+        "name": "d1440x900-sb3-empty",
+        "sha256": "8044beca48a164b9adb33e2a85009bd50f21b27f24b5167f6035b6ecdb9bacfb"
+      },
+      {
+        "name": "d1440x900-sb3-editable",
+        "sha256": "67b75361c385370eda4e9d84227eba1328376086a0dfe056f8ef2378e4ffc22c"
+      },
+      {
+        "name": "d1440x900-sb3-runnable",
+        "sha256": "68f529aa5141b89a77d9bec054d7a4a280306b4b1e2a4f78d163a0398d132026"
+      },
+      {
+        "name": "d1440x900-sb3-blocked",
+        "sha256": "b8664f2352b96f4e84d8a52913f9a7713f8d1f141d04ee377265b05a1b769c82"
+      },
+      {
+        "name": "d1440x900-sb3-running",
+        "sha256": "b0fbfa7411f945162a66872ab8a524f46c352bcc80f5845b36f4454db5d2487b"
+      },
+      {
+        "name": "d1440x900-scene3d-empty",
+        "sha256": "370d66cd5a2a480e0396afc81b2998bde85c22fcace92cddbc2b0b736076dd2a"
+      },
+      {
+        "name": "d1440x900-scene3d-ready",
+        "sha256": "a089e5d748a8ba879d952f1e50bbbca017582e9f866d6a3528e17616cb5acd45"
+      },
+      {
+        "name": "d1440x900-scene3d-running",
+        "sha256": "3ecdca6604181036344bb97cb81f088e441edfaaae3b849cc1c1484b7380b7ae"
+      },
+      {
+        "name": "d1440x900-scene3d-consult",
+        "sha256": "48d94679a78df077d72b97f204a0d94e3d25393acbdedf9923ab3182aaa3f8fb"
+      },
+      {
+        "name": "d1440x900-scene3d-error",
+        "sha256": "ed3a3c2266a21f2cf1a213214dbac9e09e1b23cded6ecba29b3c3018a6d38a19"
+      },
+      {
+        "name": "d1440x900-webapp-empty",
+        "sha256": "e114c57f355b42ed3af62410d2e95f6dc7e487dbd1df2025aaaf2a56e3ac2644"
+      },
+      {
+        "name": "d1440x900-webapp-ready",
+        "sha256": "34b042617c49469dde22f5c84a34d23f1de068d8af82114e4e46762e387b09f8"
+      },
+      {
+        "name": "d1440x900-webapp-running",
+        "sha256": "59487b22a1eb524f16b4f33e80698d1835f665dbb08aaf033641c7de350470f6"
+      },
+      {
+        "name": "d1440x900-webapp-error",
+        "sha256": "129395c6e36a303cb999b6e30ba122554abc5d63027cbf9b73ff8a914fa755ca"
+      },
+      {
+        "name": "d1440x900-webapp-other",
+        "sha256": "73e8a522231475b745c21e245cdc42d1206db514d87e58dc028e7eb1b1f535cf"
+      },
+      {
+        "name": "m390x844-2d-ready",
+        "sha256": "bfd94bcb69d6378bea3610f2b7b95d71d1491856005acd2c560d9ef0e9fc1efa"
+      },
+      {
+        "name": "m390x844-2d-running",
+        "sha256": "2bf1f16513c28b6d9f039ebe05b339493a1312663de778c93e5b81ce29bf5e08"
+      },
+      {
+        "name": "m390x844-text-ready",
+        "sha256": "362494af09ea6a5989293581d94dd6ddc76450c70df99ebc92dfa2313275e697"
+      },
+      {
+        "name": "m390x844-text-error",
+        "sha256": "ee2dfd27c373702103aa11dafe7403ff8b5710a397c2080671acd9f388b38ebb"
+      },
+      {
+        "name": "m390x844-text-running",
+        "sha256": "6d163ba37a3fa411b0faac4e829d90215617bf9e0665f177f49886bb3214e56c"
+      },
+      {
+        "name": "m390x844-microbit-ready",
+        "sha256": "267871a04355fd4716d65e02b3ceeae503ec5b9482f8d8870fc01516dffc1159"
+      },
+      {
+        "name": "m390x844-microbit-running",
+        "sha256": "029561f4c5aafb1cb87fb4f5778fe4445535afaedd287f87ddf8db1b2044af7c"
+      },
+      {
+        "name": "m390x844-sb3-blocked",
+        "sha256": "53a9a7a95e538e6f30e81d515d718c9cae9cabc1e5b70fa24c893dc1c88459d1"
+      },
+      {
+        "name": "m390x844-sb3-running",
+        "sha256": "e2e52464543692fba3153aefed178a032926ff5c6dc987327655215f1e413e7a"
+      },
+      {
+        "name": "m390x844-scene3d-ready",
+        "sha256": "775366e33a6458606ade30da650bb499c4bbf019f03f68f9565a57008a080076"
+      },
+      {
+        "name": "m390x844-scene3d-running",
+        "sha256": "7534de551753a1d81311e2417bd84d024f779e5459e49f3df2befc87231a6567"
+      },
+      {
+        "name": "m390x844-scene3d-error",
+        "sha256": "7a984e46b9c16c97eddd37daf0a804bc5fc0ce4d14c9daad2fe7c4f8eb9a2052"
+      },
+      {
+        "name": "m390x844-webapp-ready",
+        "sha256": "c1f445a022c641ff78fd8cf8c04ac1b0563b78977250ace7892c27c93db86794"
+      },
+      {
+        "name": "m390x844-webapp-running",
+        "sha256": "c27b603391703b24f12fd6a4e58873fb27ce139d93173aa850e2f46227aaa33e"
+      },
+      {
+        "name": "m390x844-webapp-error",
+        "sha256": "d6bc93e953f6dbf0d830c6c3cbf044c38cd2b350685d3fb7f873ae39e162dc0f"
+      }
+    ]
+  },
+  "release": {
+    "shell": "http://127.0.0.1:5083",
+    "ports": {
+      "runner": 5084,
+      "simulator": 5085,
+      "language": 5086,
+      "scene3d": 5091,
+      "webapp": 5092
+    },
+    "cohort": "481df311ebcc316021bc228edad9f6ba6b079d251daf7e22b7e99f1a8239c561",
+    "manifestHash": "83abea8c8914e9e81012d48fdf726b61297d64c8f53b79cb39122be3d63037d4",
+    "smoke": {
+      "initialX": 0,
+      "afterRunX": 12,
+      "stopped": true,
+      "pageErrors": []
+    }
+  },
+  "detector": {
+    "tool": "impeccable 4.7.0",
+    "findings": 11,
+    "fixed": 2,
+    "falsePositives": 5,
+    "accepted": 1,
+    "preexistingRunner": 3,
+    "triage": "artifacts/visual-rework/impeccable-triage.md"
+  },
+  "scope": "artifacts/visual-rework/scope-diff.txt",
+  "humanPending": [
+    "teacher/student observation",
+    "human screen reader",
+    "physical micro:bit and USB",
+    "school devices"
+  ]
+}
