@@ -1,5 +1,5 @@
 import {test,expect} from '@playwright/test';
-import {clickVisible,selectContext,revealPanel} from './workspace-controls.mjs';
+import {clickVisible,selectContext,revealPanel,settled} from './workspace-controls.mjs';
 import {artifactPath} from './artifacts.mjs';
 test.setTimeout(120000);
 const snapshot=page=>page.evaluate(()=>studioProbe.request('snapshot'));
@@ -40,7 +40,7 @@ for(const width of [1280,1440])test('E4 micro:bit: edición real, placa y escena
   expect(await page.evaluate(()=>studioProbe.deviceEditor.captureGraph())).toEqual(before.graph);
   await run(page);await pressA(page);
   await expect.poll(async()=>(await simulator(page)).matrix[4]).toBe(1);
-  await expect.poll(async()=>(await snapshot(page)).x).toBe(10);
+  await expect.poll(async () => (await settled(snapshot, page)).x).toBe(10);
   // Check the real rendering surfaces, not only the outer slot.
   await page.locator('#authoring-context').scrollIntoViewIfNeeded();
   const editor=await page.locator('#device-blockly-editor').boundingBox();
@@ -80,7 +80,7 @@ test('E4 micro:bit: una instancia TypeScript, modos independientes, HEX actual y
   expect(await page.evaluate(()=>studioProbe.deviceEditor.captureGraph())).toEqual(graph);
   expect(await page.evaluate(()=>studioProbe.device.state().simulation)).toBeNull();
   await run(page);await pressA(page);await expect.poll(async()=>(await simulator(page)).matrix[6]).toBe(1);
-  await expect.poll(async()=>(await snapshot(page)).x).toBe(10);
+  await expect.poll(async () => (await settled(snapshot, page)).x).toBe(10);
   await consultFirmware(page);await clickVisible(page.locator('#compile-device'));
   await expect(page.locator('#download-device')).toBeEnabled({timeout:45000});
   const download=page.waitForEvent('download');await clickVisible(page.locator('#download-device'));

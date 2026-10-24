@@ -1,6 +1,8 @@
 import {isAbsolute, relative, resolve, sep} from 'node:path';
 
 export const normalBrowserFiles = Object.freeze([
+  'canonical-projects.spec.mjs',
+  'workspace-presentation.spec.mjs',
   'integrated-2d-workspace.spec.mjs',
   'integrated-microbit-workspace.spec.mjs',
   'integrated-scratch-workspace.spec.mjs',
@@ -16,6 +18,28 @@ const persistence = ['tests/browser/device-integration.spec.mjs', 'tests/browser
 const controls = ['tests/browser/device-transfer.spec.mjs', 'tests/browser/code-console.spec.mjs', 'tests/browser/audio-variables.spec.mjs', 'tests/browser/bindings-editor.spec.mjs', ...persistence];
 const pxt = ['tests/browser/pxt-worker.spec.mjs', 'tests/browser/simulator.spec.mjs', 'tests/browser/device-integration.spec.mjs', 'tests/browser/device-transfer.spec.mjs'];
 const bindings = ['tests/browser/bindings-editor.spec.mjs', ...persistence];
+// Context groups (test-gate-scaling): a change inside one context runs that
+// context's suites plus shared persistence, not the whole gate.
+const browserFiles = (...names) => names.map(name => `tests/browser/${name}.spec.mjs`);
+const scene3d = browserFiles('integrated-3d-workspace', 'scene3d-advanced', 'capability-contexts', 'standalone-contexts', 'studio-contextual-workspace');
+const webapp = browserFiles('integrated-web-workspace', 'capability-contexts', 'standalone-contexts', 'studio-contextual-workspace');
+const microbit = [...new Set([...pxt, ...browserFiles('integrated-microbit-workspace')])];
+const scratchImport = browserFiles('sb3-resources', 'integrated-scratch-workspace', 'resource-safety');
+const compatibility = [...new Set([...persistence, ...browserFiles('packs-lessons', 'educational-activities')])];
+export const contextGroups = Object.freeze([
+  {group: 'project-compatibility', reason: 'Compatibilidad de proyectos y migraciones de packs', browser: compatibility,
+    match: path => ['src/contracts/engine-locks.mjs', 'src/contracts/pack-migrations.mjs', 'src/project-migration.mjs'].includes(path)},
+  {group: 'scene3d', reason: 'Contexto 3D propio', browser: scene3d,
+    match: path => ['src/contracts/scene3d-program.mjs', 'src/contracts/media-glb.mjs'].includes(path) || /^src\/(?:adapters\/babylon\/|packs\/gg\.3d-)/.test(path)},
+  {group: 'webapp', reason: 'Contexto de aplicación web propio', browser: webapp,
+    match: path => path === 'src/contracts/webapp-program.mjs' || /^src\/(?:adapters\/webapp\/|packs\/gg\.webapps\/)/.test(path)},
+  {group: 'capability', reason: 'Capacidades compartidas por 3D y web', browser: [...new Set([...scene3d, ...webapp])],
+    match: path => ['src/contracts/operations.mjs', 'src/contracts/program-ir1.mjs', 'src/contracts/capability-data.mjs', 'src/contracts/capability-language.mjs', 'src/capability-program-host.mjs', 'src/generated-capability-source.mjs'].includes(path) || /^src\/(?:editor|studio)\/capability-[^/]+\.mjs$/.test(path)},
+  {group: 'microbit', reason: 'Contexto micro:bit propio', browser: microbit,
+    match: path => /^src\/(?:contracts\/device-[^/]+\.mjs|editor\/device-editor\.mjs|studio\/device-ui\.mjs|packs\/gg\.microbit\/|device-transfer\/)/.test(path)},
+  {group: 'scratch-import', reason: 'Importación Scratch y recursos', browser: scratchImport,
+    match: path => /^src\/(?:contracts\/sb3-[^/]+\.mjs|adapters\/scratch\/sb3\/|import\/|studio\/resources-ui\.mjs|packs\/gg\.sb3\/)/.test(path)}
+]);
 export function normalizeChangedPath(input, {root, workspace = resolve(root, '..')} = {}) {
   if (typeof input !== 'string' || !input || /[\0\r\n]/.test(input)) throw new Error('Ruta de impacto vacía o inválida');
   let portable = input.replaceAll('\\', '/').replace(/^\/\/wsl(?:\.localhost|\$)\/Ubuntu(?=\/)/i, '');
@@ -31,10 +55,12 @@ export function classifyFile(path) {
   if (path.startsWith('../docs/')) return {group: 'documentation', reason: 'Documentación del workspace', browser: []};
   if (path.startsWith('../')) return {group: 'full', reason: 'Cambio en un checkout, fuente o paquete upstream', browser: normalBrowserFiles};
   if (/^(?:docs|openspec|\.agents)\//.test(path) || /(?:^|\/)[^/]+\.md$/i.test(path)) return {group: 'documentation', reason: 'Documentación o contrato OpenSpec', browser: []};
+  if (path.startsWith('tests/fixtures/canonical/')) return {group: 'canonical', reason: 'Proyecto canónico', browser: ['tests/browser/canonical-projects.spec.mjs']};
+  for (const item of contextGroups) if (item.match(path)) return {group: item.group, reason: item.reason, browser: [...item.browser]};
   // Owned sources mirror legacy areas; unknown/new shared code still expands to full.
   if (/^src\/(?:offline\/|contracts\/pack|packs\/|lessons\.mjs|lesson-|studio\/lesson)/.test(path)) return {group: 'packs-lessons-offline', reason: 'Capacidades, actividades y preparación offline', browser: ['tests/browser/educational-activities.spec.mjs', 'tests/browser/packs-lessons.spec.mjs', 'tests/browser/offline-recovery.spec.mjs', ...persistence]};
   if (path === 'src/studio/project-ui.mjs') return {group: 'persistence', reason: 'Controlador propio de proyecto', browser: persistence};
-  if (/^src\/studio\/.*\.(?:html|css)$/.test(path)) return {group: 'controls', reason: 'UI propia con controles reales, recorrido, accesibilidad y móvil', browser: [...controls, 'tests/browser/integrated-2d-workspace.spec.mjs', 'tests/browser/integrated-microbit-workspace.spec.mjs', 'tests/browser/integrated-scratch-workspace.spec.mjs', 'tests/browser/integrated-3d-workspace.spec.mjs','tests/browser/integrated-web-workspace.spec.mjs', 'tests/browser/educational-activities.spec.mjs', 'tests/browser/studio-contextual-workspace.spec.mjs', 'tests/browser/studio-entry-journey.spec.mjs', 'tests/browser/accessibility-shell.spec.mjs', 'tests/browser/accessibility-runner.spec.mjs', 'tests/browser/accessibility-zoom.spec.mjs', 'tests/browser/scene-inspector.spec.mjs', 'tests/browser/language-runtime.spec.mjs']};
+  if (/^src\/studio\/.*\.(?:html|css)$/.test(path)) return {group: 'controls', reason: 'UI propia con controles reales, recorrido, accesibilidad y móvil', browser: [...controls, 'tests/browser/workspace-presentation.spec.mjs', 'tests/browser/integrated-2d-workspace.spec.mjs', 'tests/browser/integrated-microbit-workspace.spec.mjs', 'tests/browser/integrated-scratch-workspace.spec.mjs', 'tests/browser/integrated-3d-workspace.spec.mjs','tests/browser/integrated-web-workspace.spec.mjs', 'tests/browser/educational-activities.spec.mjs', 'tests/browser/studio-contextual-workspace.spec.mjs', 'tests/browser/studio-entry-journey.spec.mjs', 'tests/browser/accessibility-shell.spec.mjs', 'tests/browser/accessibility-runner.spec.mjs', 'tests/browser/accessibility-zoom.spec.mjs', 'tests/browser/scene-inspector.spec.mjs', 'tests/browser/language-runtime.spec.mjs']};
   if (['src/generated-code.mjs', 'src/diagnostic-console.mjs', 'src/studio/code-console-ui.mjs'].includes(path)) return {group: 'code-console', reason: 'Generación y diagnóstico derivados', browser: ['tests/browser/code-console.spec.mjs', 'tests/browser/language-runtime.spec.mjs']};
   if (['src/scene-inspection.mjs', 'src/studio/scene-inspector-ui.mjs'].includes(path)) return {group: 'scene-inspector', reason: 'Lectura de escena y selección accesible', browser: ['tests/browser/scene-inspector.spec.mjs', ...bindings]};
   if (path.startsWith('src/editor/') || path === 'src/contracts/program-contract.mjs' || path.startsWith('src/adapters/scratch/') || path.startsWith('src/assets/')) return {group: 'two-dimensional', reason: 'Editor, IR o adaptación 2D propia', browser: twoD};
@@ -69,12 +95,18 @@ export function createPlan(profile, {files = [], source = 'explicit', baselineSt
 
 export function parseArguments(argv) {
   const [profile, ...args] = argv;
-  if (!['quick', 'affected', 'full'].includes(profile)) throw new Error('Uso: run.mjs quick|affected|full [--files rutas...] [--list|--dry-run] [--force-build]');
+  if (!['quick', 'affected', 'full'].includes(profile)) throw new Error('Uso: run.mjs quick|affected|full [--files rutas...] [--list|--dry-run] [--force-build] [--partitions N|auto]');
   const options = {profile, files: [], explicit: false, dryRun: false, forceBuild: false};
   for (let index = 0; index < args.length; index++) {
     const arg = args[index];
     if (arg === '--list' || arg === '--dry-run') options.dryRun = true;
     else if (arg === '--force-build') options.forceBuild = true;
+    else if (arg === '--partitions') {
+      if (args[index + 1] === 'auto') { options.partitions = 'auto'; index++; continue; }
+      const value = Number(args[++index]);
+      if (!Number.isSafeInteger(value) || value < 1 || value > 8) throw new Error('--partitions requiere un entero entre 1 y 8');
+      options.partitions = value;
+    }
     else if (arg === '--files') {
       if (profile !== 'affected') throw new Error('--files sólo se admite en test:affected');
       const start = index + 1;

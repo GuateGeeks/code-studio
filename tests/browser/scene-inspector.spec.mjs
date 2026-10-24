@@ -1,4 +1,4 @@
-import {selectContext,clickVisible} from './workspace-controls.mjs';
+import {selectContext,clickVisible,settled} from './workspace-controls.mjs';
 import {revealAdvanced} from './advanced-controls.mjs';
 import {test, expect} from '@playwright/test';
 import {readFile, writeFile} from 'node:fs/promises';
@@ -17,7 +17,7 @@ async function run(page, x = 12) {
   await selectContext(page,'2d');
   await clickVisible(page.getByRole('button', {name: 'Ejecutar bloques', exact: true}));
   await expect(page.locator('#status')).toHaveText('Bloques ejecutados');
-  await expect.poll(async () => (await snapshot(page)).x).toBe(x);
+  await expect.poll(async () => (await settled(snapshot, page)).x).toBe(x);
 }
 async function currentRecord(page) {
   return page.evaluate(() => new Promise((resolve, reject) => {
@@ -188,7 +188,7 @@ test('GG-INSPECT-003: real toolbox drag connects costume block, portable reopen 
   const authoring = await authored(page);
   await page.evaluate(() => studioProbe.project.flush());
   await run(page);
-  await expect.poll(async () => (await snapshot(page)).costume.name).toBe('hero-alt');
+  await expect.poll(async () => (await settled(snapshot, page)).costume.name).toBe('hero-alt');
   expect((await snapshot(page)).bluePixels).toBeGreaterThan(100);
   const pendingDownload = page.waitForEvent('download');
   await clickVisible(page.getByRole('button', {name: 'Descargar proyecto', exact: true}));

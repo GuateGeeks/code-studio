@@ -1,4 +1,4 @@
-import {clickVisible,clickStagePoint,revealPanel,revealControl} from './workspace-controls.mjs';
+import {clickVisible,clickStagePoint,revealPanel,revealControl,settled} from './workspace-controls.mjs';
 import {test, expect, chromium} from '@playwright/test';
 import {readFile, writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
@@ -83,7 +83,7 @@ for (const mobile of [false, true]) test('GG-SB3/ASSET: real import → run/Stop
   expect(await page.evaluate(() => studioProbe.editor.save())).toEqual(beforeBlocks);
   expect((await snapshot(page)).mode).not.toBe('compatibility');
   await runScratch(page);
-  await expect.poll(async () => (await snapshot(page)).targets.find(target => target.name === 'hero')?.x).toBe(10);
+  await expect.poll(async () => (await settled(snapshot, page)).targets.find(target => target.name === 'hero')?.x).toBe(10);
   const ran = await snapshot(page); expect(ran.mode).toBe('compatibility'); expect(ran.bluePixels).toBeGreaterThan(0);
   if(!await page.locator('#sb3-coverage-panel').evaluate(panel=>panel.open))await clickVisible(page.locator('#sb3-coverage-panel > summary'));
   await page.locator('#sb3-heading').scrollIntoViewIfNeeded();
@@ -97,7 +97,7 @@ for (const mobile of [false, true]) test('GG-SB3/ASSET: real import → run/Stop
   await expect(page.locator('#resources-error')).toBeEmpty();
   expect((await snapshot(page)).x).toBe(0);
   await click(page, '#run-editor'); await expect(page.locator('#status')).toHaveText('Bloques ejecutados');
-  await expect.poll(async () => (await snapshot(page)).x).toBe(10);
+  await expect.poll(async () => (await settled(snapshot, page)).x).toBe(10);
   await revealPanel(page,page.locator('#resources-panel'));if(!await page.locator('#resources-panel').evaluate(node=>node.open))await clickVisible(page.locator('#resources-panel > summary'));
   await page.locator('#import-media').setInputFiles({name: 'Colores.png', mimeType: 'image/png', buffer: pngFixture()});
   await settleEdit(page);
@@ -155,15 +155,10 @@ for (const mobile of [false, true]) test('GG-SB3/ASSET: real import → run/Stop
   await writeFile(artifactPath('sb3-resources-' + (mobile ? 'mobile' : 'desktop') + '.json'), JSON.stringify({ran, originalSha: item.sha256, costume, audio: info, errors}, null, 2));
 });
 
-test('GG-SB3-005: all twenty public files execute their declared native behavior or remain entirely blocked', async () => {
-  test.setTimeout(240000);
-  const results = [];
-  expect(manifest.fixtures).toHaveLength(20);
-  // One green flag per backend. Native "Reproducir sonido" deliberately starts
-  // another flag; the separate suspended-context test below covers that gesture.
-  const browser=await chromium.launch({args:['--enable-unsafe-swiftshader','--autoplay-policy=no-user-gesture-required']});
-  try {
-    for (const item of manifest.fixtures) await test.step(item.id + ' · ' + item.title, async () => {
+// One test per public fixture (each with its own time budget), sharing one
+// browser launched with autoplay enabled. Same assertions as the former single
+// 240 s test, which failed under load on the shared machine.
+async function runPublicFixture(browser, item, results) {
       // Each complete project starts from a cold, independent authoring store;
       // the corpus is not an attempt to bypass the four-original quota.
       const context = await browser.newContext();
@@ -202,7 +197,7 @@ test('GG-SB3-005: all twenty public files execute their declared native behavior
               const audioButton = page.frameLocator('#runner-slot iframe').getByRole('button', {name: 'Activar audio e iniciar', exact: true});
               await expect(audioButton).toBeVisible(); await clickVisible(audioButton);
             }
-            await expect.poll(async () => (await snapshot(page)).audio.contextState).toBe('running');
+            await expect.poll(async () => (await settled(snapshot, page)).audio.contextState).toBe('running');
           }
           const canvas = page.frameLocator('#runner-slot iframe').locator('#stage');
           if (item.expected.trigger === 'key') { await canvas.focus(); await canvas.press('Space'); }
@@ -210,13 +205,13 @@ test('GG-SB3-005: all twenty public files execute their declared native behavior
             // The fixture's opaque 16px costume is anchored at its top-left.
             await clickStagePoint(page,canvas,4,-4);
           }
-          if (Object.hasOwn(item.expected, 'x')) await expect.poll(async () => (await snapshot(page)).targets.find(target => target.name === 'hero' && target.isOriginal)?.x).toBe(item.expected.x);
-          for (const [name, x] of Object.entries(item.expected.sprites ?? {})) await expect.poll(async () => (await snapshot(page)).targets.find(target => target.name === name && target.isOriginal)?.x).toBe(x);
-          for (const [id, value] of Object.entries(item.expected.variables ?? {})) await expect.poll(async () => (await snapshot(page)).targets.find(target => target.name === 'hero')?.variables[id]?.value).toEqual(value);
-          for (const [id, value] of Object.entries(item.expected.globalVariables ?? {})) await expect.poll(async () => (await snapshot(page)).globalVariables[id]?.value).toEqual(value);
-          for (const [id, value] of Object.entries(item.expected.lists ?? {})) await expect.poll(async () => (await snapshot(page)).targets.find(target => target.name === 'hero')?.variables[id]?.value).toEqual(value);
-          if (Object.hasOwn(item.expected, 'visible')) await expect.poll(async () => (await snapshot(page)).targets.find(target => target.name === 'hero')?.visible).toBe(item.expected.visible);
-          if (Object.hasOwn(item.expected, 'costume')) await expect.poll(async () => (await snapshot(page)).targets.find(target => target.name === 'hero')?.costume.index).toBe(item.expected.costume);
+          if (Object.hasOwn(item.expected, 'x')) await expect.poll(async () => (await settled(snapshot, page)).targets.find(target => target.name === 'hero' && target.isOriginal)?.x).toBe(item.expected.x);
+          for (const [name, x] of Object.entries(item.expected.sprites ?? {})) await expect.poll(async () => (await settled(snapshot, page)).targets.find(target => target.name === name && target.isOriginal)?.x).toBe(x);
+          for (const [id, value] of Object.entries(item.expected.variables ?? {})) await expect.poll(async () => (await settled(snapshot, page)).targets.find(target => target.name === 'hero')?.variables[id]?.value).toEqual(value);
+          for (const [id, value] of Object.entries(item.expected.globalVariables ?? {})) await expect.poll(async () => (await settled(snapshot, page)).globalVariables[id]?.value).toEqual(value);
+          for (const [id, value] of Object.entries(item.expected.lists ?? {})) await expect.poll(async () => (await settled(snapshot, page)).targets.find(target => target.name === 'hero')?.variables[id]?.value).toEqual(value);
+          if (Object.hasOwn(item.expected, 'visible')) await expect.poll(async () => (await settled(snapshot, page)).targets.find(target => target.name === 'hero')?.visible).toBe(item.expected.visible);
+          if (Object.hasOwn(item.expected, 'costume')) await expect.poll(async () => (await settled(snapshot, page)).targets.find(target => target.name === 'hero')?.costume.index).toBe(item.expected.costume);
           const ran = await snapshot(page);
           for (const [effect, value] of Object.entries(item.expected.effects ?? {})) expect(ran.targets.find(target => target.name === 'hero').effects[effect]).toBe(value);
           expect(ran.mode).toBe('compatibility');
@@ -238,9 +233,9 @@ test('GG-SB3-005: all twenty public files execute their declared native behavior
             if (item.expected.trigger === 'click') {
               await clickStagePoint(page,copiedCanvas,4,-4);
             }
-            await expect.poll(async () => (await snapshot(page)).x).toBe(item.expected.x);
-            for (const [id,value] of Object.entries(item.expected.variables??{})) await expect.poll(async () => (await snapshot(page)).variables[id]?.value).toEqual(value);
-            for (const [id,value] of Object.entries(item.expected.globalVariables??{})) await expect.poll(async () => (await snapshot(page)).globalVariables[id]?.value).toEqual(value);
+            await expect.poll(async () => (await settled(snapshot, page)).x).toBe(item.expected.x);
+            for (const [id,value] of Object.entries(item.expected.variables??{})) await expect.poll(async () => (await settled(snapshot, page)).variables[id]?.value).toEqual(value);
+            for (const [id,value] of Object.entries(item.expected.globalVariables??{})) await expect.poll(async () => (await settled(snapshot, page)).globalVariables[id]?.value).toEqual(value);
             copied = await snapshot(page);expect(copied.mode).toBe('native');
             if (item.expected.costume !== undefined) {
               const costumeId=await page.evaluate(()=>studioProbe.editor.program().scripts.flatMap(script=>script.body).find(node=>node.kind==='setCostume').costume);
@@ -251,19 +246,33 @@ test('GG-SB3-005: all twenty public files execute their declared native behavior
         }
         expect(errors).toEqual([]); expect(outside).toEqual([]);
       } finally { await context.close(); }
-    });
-  } finally {
+}
+test.describe('GG-SB3-005: public SB3 corpus', () => {
+  let browser;
+  const results = [];
+  // One green flag per backend. Native "Reproducir sonido" deliberately starts
+  // another flag; the separate suspended-context test below covers that gesture.
+  test.beforeAll(async () => { browser = await chromium.launch({args: ['--enable-unsafe-swiftshader', '--autoplay-policy=no-user-gesture-required']}); });
+  test.afterAll(async () => {
     try { await writeFile(artifactPath('sb3-corpus-browser.json'), JSON.stringify({license: manifest.license, results}, null, 2)); }
-    finally { await browser.close(); }
-  }
-  expect(results.filter(item => item.blocked)).toHaveLength(3);
+    finally { await browser?.close(); }
+  });
+  test('GG-SB3-005: the corpus declares twenty public files', () => { expect(manifest.fixtures).toHaveLength(20); });
+  for (const item of manifest.fixtures) test('GG-SB3-005: ' + item.id + ' · ' + item.title + ' executes its declared native behavior or remains entirely blocked', async () => {
+    test.setTimeout(90000);
+    await runPublicFixture(browser, item, results);
+  });
+  test('GG-SB3-005: exactly three public files remain blocked after the whole corpus', () => {
+    expect(results).toHaveLength(manifest.fixtures.length);
+    expect(results.filter(item => item.blocked)).toHaveLength(3);
+  });
 });
 
 test('GG-SB3-003: a genuinely suspended AudioContext defers start, Stop revokes it, and a fresh in-frame gesture starts once', async ({browser}) => {
   test.setTimeout(60000);
   const context=await browser.newContext();
-  await context.addInitScript(()=>{
-    if(location.port!=='4174')return;
+  await context.addInitScript(runnerPort=>{
+    if(location.port!==runnerPort)return; // Runner origin of this run (partitions use other ports).
     const Native=window.AudioContext,contexts=[];
     window.AudioContext=class extends Native {constructor(...args){super(...args);contexts.push(this);}};
     const post=MessagePort.prototype.postMessage;let suspended=false;
@@ -275,7 +284,7 @@ test('GG-SB3-003: a genuinely suspended AudioContext defers start, Stop revokes 
       }
       return post.call(this,data,...rest);
     };
-  });
+  }, process.env.GG_RUNNER_PORT ?? '4174');
   try {
     const page=await context.newPage();await open(page);await importFixture(page,manifest.fixtures.find(item=>item.id==='09-sound'));
     await runScratch(page);
@@ -284,7 +293,7 @@ test('GG-SB3-003: a genuinely suspended AudioContext defers start, Stop revokes 
     await runScratch(page);expect((await snapshot(page)).pendingAudioStart).toBe(true);
     const startAudio=page.frameLocator('#runner-slot iframe').getByRole('button',{name:'Activar audio e iniciar',exact:true});
     await expect(startAudio).toBeVisible();await clickVisible(startAudio);
-    await expect.poll(async()=>(await snapshot(page)).x).toBe(4);
+    await expect.poll(async () => (await settled(snapshot, page)).x).toBe(4);
     const ran=await snapshot(page);expect(ran.audio.contextState).toBe('running');expect(ran.audio.events.filter(event=>event.type==='play')).toHaveLength(1);expect(ran.pendingAudioStart).toBe(false);
     await stopScratch(page);expect((await snapshot(page)).x).toBe(0);
     await writeFile(artifactPath('sb3-audio-deferred.json'),JSON.stringify({pending,ran},null,2));

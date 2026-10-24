@@ -125,3 +125,37 @@ Las pruebas nuevas viven en accessibility-runner, accessibility-shell y accessib
 La medida local F7 usa npx playwright test --config=playwright.release-performance.config.mjs y escribe artifacts/f7-performance-*.json. No ejecutar el publicador histórico F0 para documentar F7. Medir sin otras cargas de navegador/build concurrentes; los heaps por target y los draws WebGL no equivalen a RAM total o rendimiento escolar.
 
 La reproducción manual usa node tools/release/reproduce.mjs [NUEVA_CARPETA]. Restaura dos árboles de fuente y reutiliza las dependencias instaladas mediante hardlinks en directorios distintos, recompila SVG/render y el producto y compara payload/cohort con iguales orígenes. Rechaza destinos existentes y rutas locales emitidas. No demuestra instalación desconectada de dependencias ni recompilación nativa C++/WASM.
+
+## Particiones paralelas (test-gate-scaling, 24/10/2026)
+
+`npm run test:full -- --partitions N` (o `GG_TEST_PARTITIONS=N`) reparte la puerta de navegador en N procesos de Playwright aislados. Sin la opción, la puerta sigue en serie.
+
+- **Partición 0** conserva los puertos por defecto (4173–4182) y agrupa las suites de `defaultPortSuites` (`tools/test/partitions.mjs`): las que fijan orígenes en el código o levantan sus propios servidores (offline, standalone).
+- **Partición *i* ≥ 1** usa 4400 + 100·*i* para los seis orígenes. Tiene además su propio `GG_RELEASE_ROOT`, carpeta de resultados, informe JSON (`artifacts/test-runs/partitions/p<i>-browser.json`) y evidencia.
+- **Reparto:** el resto de suites se reparte por duración histórica, tomada del informe canónico `artifacts/browser-results.json` o, si falta, de los últimos informes de particiones (LPT).
+- **Cobertura:** una puerta completa particionada incluye siempre todos los `tests/browser/*.spec.mjs` del disco. `test:tools` falla si un archivo no está en `normalBrowserFiles` o si una suite fuera de la partición 0 empieza a fijar orígenes por defecto.
+- **Referencia de impacto:** avanza solo si todas las particiones aprueban y las fuentes no cambian durante la corrida.
+- **`--partitions auto`** usa 2 particiones si hay al menos 6 GB de `MemAvailable` y la carga es menor que 8; si no, ejecuta en serie. Es la política medida en esta máquina compartida: con 3 particiones la memoria disponible bajó a 0,7 GB, la carga llegó a 36 y fallaron cuatro pruebas con presupuesto de tiempo.
+- **No ejecutes `playwright test --list` sin `--reporter=list`:** usa el reporter JSON de la configuración y sobrescribe el informe canónico de duraciones.
+
+### Impacto por contexto
+
+`test:affected` clasifica los módulos propios de cada contexto en grupos con sus suites (`contextGroups` en `tools/test/impact.mjs`):
+
+- `project-compatibility`
+- `scene3d`
+- `webapp`
+- `capability` (compartido por 3D y web)
+- `microbit`
+- `scratch-import`
+- `canonical` (fixtures en `tests/fixtures/canonical/`)
+
+Lo desconocido sigue yendo a la puerta completa.
+
+### Lecturas durante una ejecución
+
+Dentro de `expect.poll`, las lecturas de la escena usan `settled(snapshot, page)` (`tests/browser/workspace-controls.mjs`). Reintenta solo «Session stopped», que aparece por diseño cuando la propia ejecución de la prueba reinicia la sesión. Cualquier otro error, y el valor que se comprueba, no cambian.
+
+### Proyectos canónicos
+
+`tests/fixtures/canonical/<contexto>/<proyecto>/{project.json, expect.json}` y `tests/browser/canonical-projects.spec.mjs`. El ejecutor comprueba tres cosas: que abrir no ejecuta, que «Ejecutar» alcanza el estado final declarado y que «Detener» devuelve el estado inicial. Formato en `tests/fixtures/canonical/README.md`.

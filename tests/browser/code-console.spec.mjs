@@ -1,4 +1,4 @@
-import {selectContext,clickVisible,consult,revealPanel} from './workspace-controls.mjs';
+import {selectContext,clickVisible,consult,revealPanel,settled} from './workspace-controls.mjs';
 import {test, expect} from '@playwright/test';
 import {readFile, writeFile} from 'node:fs/promises';
 import JSZip from 'jszip';
@@ -35,7 +35,7 @@ async function run(page, x = 18) {
   await selectContext(page,'2d');
   await clickVisible(page.getByRole('button', {name: 'Ejecutar bloques', exact: true}));
   await expect(page.locator('#status')).toHaveText('Bloques ejecutados');
-  await expect.poll(async () => (await snapshot(page)).x).toBe(x);
+  await expect.poll(async () => (await settled(snapshot, page)).x).toBe(x);
 }
 async function edit(page, value) {
   const field = page.locator('#blockly-editor [data-id="editable-move-n"] .blocklyText');

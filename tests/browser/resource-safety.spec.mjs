@@ -1,4 +1,4 @@
-import {selectContext,clickVisible,revealPanel} from './workspace-controls.mjs';
+import {selectContext,clickVisible,revealPanel,settled} from './workspace-controls.mjs';
 import {test,expect} from '@playwright/test';
 import {readFile,writeFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
@@ -26,7 +26,7 @@ async function live(page){
  await field.dblclick();await page.locator('.blocklyHtmlInput').fill('6');await page.locator('.blocklyHtmlInput').press('Enter');
  await expect(field).toHaveText('6');
  await click(page,'#run-editor');await expect(page.locator('#status')).toHaveText('Bloques ejecutados');
- await expect.poll(async()=>(await snapshot(page)).x).toBe(18);
+ await expect.poll(async () => (await settled(snapshot, page)).x).toBe(18);
  await page.evaluate(()=>{window.resourceSafetyGG=GG;});
  await page.evaluate(()=>studioProbe.project.flush());
  return {authoring:await exportAuthoring(page),runtime:await snapshot(page),session:(await state(page)).sessionId};
@@ -39,7 +39,7 @@ async function unchanged(page,before,x=before.runtime.x){
  // This is the original authenticated GG object, captured before the failed
  // import. A working mutator proves that no hidden reset replaced its session.
  await page.evaluate(()=>resourceSafetyGG.sprite.move('hero',1));
- await expect.poll(async()=>(await snapshot(page)).x).toBe(x+1);
+ await expect.poll(async () => (await settled(snapshot, page)).x).toBe(x+1);
 }
 async function idle(page){
  await expect.poll(()=>page.evaluate(()=>studioProbe.resourcesUI.state().busy)).toBe(false);

@@ -1,5 +1,5 @@
 import {test, expect} from '@playwright/test';
-import {clickVisible,selectContext,revealPanel} from './workspace-controls.mjs';
+import {clickVisible,selectContext,revealPanel,settled} from './workspace-controls.mjs';
 import {fileURLToPath} from 'node:url';
 import {createProject} from '../../src/project-format.mjs';
 import {triangleData, encodeGlb} from '../fixtures/scene3d/glb.mjs';
@@ -205,7 +205,7 @@ test('GG-3D-ADVANCED: malformed GLB, foreign model ownership and forged operatio
   }).then(() => null, error => error.message));
   expect(badOperation).toBeTruthy(); expect(await snapshot(page)).toEqual(current);
   await page.evaluate(() => studioProbe.capabilityExecution.frameRequest('call', {operationId: 'scene3d.setCamera', args: {alpha:45,beta:65,radius:12,target:{x:0,y:0,z:0}}}));
-  await expect.poll(async () => (await snapshot(page)).cameraArc.radius).toBe(12);
+  await expect.poll(async () => (await settled(snapshot, page)).cameraArc.radius).toBe(12);
   expect(await projectContent(page)).toEqual(before);
   await click(stopButton(page));
 });

@@ -1,4 +1,4 @@
-import {selectContext,clickVisible} from './workspace-controls.mjs';
+import {selectContext,clickVisible,settled} from './workspace-controls.mjs';
 import {test, expect} from '@playwright/test';
 import {artifactPath} from './artifacts.mjs';
 import {writeFile, readFile} from 'node:fs/promises';
@@ -91,7 +91,7 @@ for (const mobile of [false, true]) {
     await selectContext(page,'text');
     await clickVisible(page.getByRole('button', {name: 'Ejecutar documento 2D', exact: true}));
     await expect(page.locator('#console-entries')).toContainText('fallo controlado', {timeout: 60000});
-    await expect.poll(async () => (await snapshot(page)).x).toBe(4);
+    await expect.poll(async () => (await settled(snapshot, page)).x).toBe(4);
     const link = page.getByRole('button', {name: 'Ver línea 2', exact: true, includeHidden: true});
     await clickVisible(page,link);
     await expect(page.locator('#text-source')).toBeFocused();

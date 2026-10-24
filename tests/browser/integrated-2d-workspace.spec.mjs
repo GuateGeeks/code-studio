@@ -1,5 +1,5 @@
 import {test,expect} from '@playwright/test';
-import {clickVisible,selectContext} from './workspace-controls.mjs';
+import {clickVisible,selectContext,settled} from './workspace-controls.mjs';
 import {artifactPath} from './artifacts.mjs';
 
 async function open(page) {
@@ -52,7 +52,7 @@ test('E4: actividad, edición real, resultado, consulta y recuperación comparte
   await input.dblclick();await page.locator('.blocklyHtmlInput').fill('30');await page.locator('.blocklyHtmlInput').press('Enter');
   const blocks=await page.evaluate(()=>studioProbe.editor.save());
   await clickVisible(page.locator('#run-editor'));await expect(page.locator('#status')).toHaveText('Bloques ejecutados');
-  await expect.poll(async()=>(await snapshot(page)).x).toBe(50);
+  await expect.poll(async () => (await settled(snapshot, page)).x).toBe(50);
   await consult(page,'Propiedades','#inspector-heading');await clickVisible(page.locator('#refresh-inspector'));
   await expect(page.locator('#inspector-runtime')).toContainText('50');
   await consult(page,'Actividad','#lesson-select');
@@ -78,7 +78,7 @@ test('E4: consulta estrecha y copia textual conservan foco, bloques y resultado 
   // Wait until the document run is active: its own reset rejects any snapshot
   // request still pending, which made the poll below fail intermittently.
   await clickVisible(page.locator('#run-document'));await expect(page.locator('#result-context')).toContainText('· activo');
-  await expect.poll(async()=>(await snapshot(page)).x).toBe(9);
+  await expect.poll(async () => (await settled(snapshot, page)).x).toBe(9);
   await selectContext(page,'microbit');
   await expect(page.locator('#result-context')).toContainText('documento');
   await clickVisible(page.locator('#stop-result'));expect((await snapshot(page)).x).toBe(0);

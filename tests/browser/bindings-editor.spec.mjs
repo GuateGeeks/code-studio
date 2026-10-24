@@ -1,11 +1,11 @@
-import {selectContext,clickVisible,revealPanel} from './workspace-controls.mjs';
+import {selectContext,clickVisible,revealPanel,settled} from './workspace-controls.mjs';
 import {revealAdvanced} from './advanced-controls.mjs';
 import {artifactPath} from './artifacts.mjs';
 import {test, expect} from '@playwright/test';
 import {writeFile} from 'node:fs/promises';
 const snapshot = page => page.evaluate(() => studioProbe.request('snapshot'));
 async function open(page) { await page.goto('/'); await expect(page.locator('#run-editor')).toBeEnabled(); }
-async function run(page, x = 12) { await selectContext(page,'2d'); await clickVisible(page.getByRole('button', {name: 'Ejecutar bloques', exact: true})); await expect(page.locator('#status')).toHaveText('Bloques ejecutados'); await expect.poll(async () => (await snapshot(page)).x).toBe(x); }
+async function run(page, x = 12) { await selectContext(page,'2d'); await clickVisible(page.getByRole('button', {name: 'Ejecutar bloques', exact: true})); await expect(page.locator('#status')).toHaveText('Bloques ejecutados'); await expect.poll(async () => (await settled(snapshot, page)).x).toBe(x); }
 
 test('GG-BLOCK-005/GG-SCRATCH-011: native Blockly edit and GG bindings share one rendered state', async ({page}) => {
   const errors = []; page.on('pageerror', error => errors.push(error.message));
@@ -32,7 +32,7 @@ test('GG-BLOCK-005/GG-SCRATCH-011: native Blockly edit and GG bindings share one
   await expect.poll(() => page.evaluate(() => GG.variables.get('gg-score').then(item => item.value))).toBe(4);
   await revealAdvanced(page);
   await clickVisible(page,page.getByRole('button', {name: 'Enviar boost'}));
-  await expect.poll(async () => (await snapshot(page)).x).toBe(45);
+  await expect.poll(async () => (await settled(snapshot, page)).x).toBe(45);
   const after = await snapshot(page);
   const scene = await page.evaluate(() => GG.scene.get());
   expect(scene.sprites[0].x).toBe(after.x);

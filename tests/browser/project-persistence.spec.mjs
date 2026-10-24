@@ -1,4 +1,4 @@
-import {selectContext,clickVisible,revealPanel} from './workspace-controls.mjs';
+import {selectContext,clickVisible,revealPanel,settled} from './workspace-controls.mjs';
 import {revealAdvanced} from './advanced-controls.mjs';
 import {artifactPath} from './artifacts.mjs';
 import {test, expect} from '@playwright/test';
@@ -42,7 +42,7 @@ async function run(page, x) {
   await selectContext(page,'2d');
   await clickVisible(page.getByRole('button', {name: 'Ejecutar bloques', exact: true}));
   await expect(page.locator('#status')).toHaveText('Bloques ejecutados');
-  await expect.poll(async () => (await snapshot(page)).x).toBe(x);
+  await expect.poll(async () => (await settled(snapshot, page)).x).toBe(x);
 }
 async function download(page) {
   const pending = page.waitForEvent('download');
@@ -98,7 +98,7 @@ test('GG-PROJECT-001/002/003/005/010: downloaded ZIP reopens in a clean browser 
   await run(page, 18);
   await revealAdvanced(page);
   await clickVisible(page,page.getByRole('button', {name: 'Mover +10', exact: true}));
-  await expect.poll(async () => (await snapshot(page)).x).toBe(28);
+  await expect.poll(async () => (await settled(snapshot, page)).x).toBe(28);
   const saved = await download(page);
   await writeFile(artifactPath('f1-example.ggproj'), saved.bytes);
   expect([...saved.bytes.subarray(0, 4)]).toEqual([80, 75, 3, 4]);
@@ -221,7 +221,7 @@ test('GG-PROJECT-003/004: invalid files and manifests fail atomically while the 
     expect((await snapshot(page)).revision).toBe(before.scene.revision);
   }
   await page.evaluate(() => validBeforeFailedImport.sprite.move('hero', 1));
-  await expect.poll(async () => (await snapshot(page)).x).toBe(19);
+  await expect.poll(async () => (await settled(snapshot, page)).x).toBe(19);
   await saveEvidence('atomic-rejections', {rejected, invalidArchives: invalidArchives.map(([name]) => name), authoringPreserved: true, originalSessionStillValid: true, finalX: 19});
 });
 
@@ -321,7 +321,7 @@ test('GG-PROJECT-007/009: Stop and reopening preserve audio authoring without re
   const oldFrame = page.frames().find(frame => frame.url().startsWith('http://127.0.0.1:4174/'));
   const play = () => page.frameLocator('#runner-slot iframe').getByRole('button', {name: 'Reproducir sonido', exact: true});
   await clickVisible(play());
-  await expect.poll(async () => (await snapshot(page)).audio.rms).toBeGreaterThan(0.01);
+  await expect.poll(async () => (await settled(snapshot, page)).audio.rms).toBeGreaterThan(0.01);
   await page.evaluate(() => { window.previousProjectGG = GG; return studioProbe.request('start-loop-worker'); });
   await expect.poll(() => workers.some(worker => worker.url.endsWith('/loop-worker.js') && !worker.closed)).toBe(true);
   const oldWorkers = [...workers];
@@ -347,8 +347,8 @@ test('GG-PROJECT-007/009: Stop and reopening preserve audio authoring without re
   await clickVisible(page.getByRole('button', {name: 'Ejecutar bloques', exact: true}));
   await expect(play()).toBeVisible();
   await clickVisible(play());
-  await expect.poll(async () => (await snapshot(page)).audio.rms).toBeGreaterThan(0.01);
-  await expect.poll(async () => (await snapshot(page)).x).toBe(5);
+  await expect.poll(async () => (await settled(snapshot, page)).audio.rms).toBeGreaterThan(0.01);
+  await expect.poll(async () => (await settled(snapshot, page)).x).toBe(5);
   await saveEvidence('stop-reopen', {authoringPreserved: true, previousFrameDetached: true, workers, oldWorkers, replacementWorkers: workers.filter(worker => !oldWorkers.includes(worker)), staleReferenceError: stale, reopenedInitialX: 0, rerunX: 5});
 });
 

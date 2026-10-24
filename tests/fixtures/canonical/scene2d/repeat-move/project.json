@@ -1,0 +1,58 @@
+{
+  "format": "gg-canonical-fixture",
+  "version": 1,
+  "context": "scene2d",
+  "name": "Canónico · repetir y mover",
+  "packIds": [
+    "gg.sprites"
+  ],
+  "blockly": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "gg_when_start",
+          "id": "canonical-start",
+          "x": 20,
+          "y": 20,
+          "inputs": {
+            "DO": {
+              "block": {
+                "type": "controls_repeat_ext",
+                "id": "canonical-repeat",
+                "inputs": {
+                  "TIMES": {
+                    "shadow": {
+                      "type": "math_number",
+                      "id": "canonical-times",
+                      "fields": {
+                        "NUM": 3
+                      }
+                    }
+                  },
+                  "DO": {
+                    "block": {
+                      "type": "gg_move",
+                      "id": "canonical-move",
+                      "inputs": {
+                        "STEPS": {
+                          "shadow": {
+                            "type": "math_number",
+                            "id": "canonical-steps",
+                            "fields": {
+                              "NUM": 5
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

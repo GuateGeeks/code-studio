@@ -2,7 +2,7 @@ import {test,expect} from '@playwright/test';
 import {readFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
-import {clickVisible,selectContext} from './workspace-controls.mjs';
+import {clickVisible,selectContext,settled} from './workspace-controls.mjs';
 import {artifactPath} from './artifacts.mjs';
 test.setTimeout(120000);
 const directory=new URL('../fixtures/sb3/',import.meta.url);
@@ -43,7 +43,7 @@ for(const width of [1280,1440])test('E4 Scratch: original, cobertura, transporte
   expect(geometry.stage.bottom).toBeLessThan(geometry.height);expect(geometry.footer.y).toBeGreaterThanOrEqual(Math.max(geometry.dock.bottom,geometry.workspace.bottom));
   expect(await page.locator('#dock-content').evaluate(node=>node.scrollHeight>node.clientHeight)).toBe(true);
   for(const id of ['run-sb3','stop-result'])await expect(page.locator('#'+id)).toBeInViewport();
-  await run(page);await expect.poll(async()=>(await snapshot(page)).targets.find(target=>target.name==='hero')?.x).toBe(10);
+  await run(page);await expect.poll(async () => (await settled(snapshot, page)).targets.find(target=>target.name==='hero')?.x).toBe(10);
   const session=await page.evaluate(()=>studioProbe.state().sessionId),reference=await page.evaluate(()=>studioProbe.resourcesUI.reference());
   await consult(page);expect(await page.evaluate(()=>studioProbe.state().sessionId)).toBe(session);expect(await page.evaluate(()=>scrollY)).toBe(geometry.scrollY);
   expect(await originalHash(page)).toBe(item.sha256);expect(reference).toBe(item.sha256);

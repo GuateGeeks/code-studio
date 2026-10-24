@@ -1,4 +1,4 @@
-import {selectContext,clickVisible,revealPanel} from './workspace-controls.mjs';
+import {selectContext,clickVisible,revealPanel,settled} from './workspace-controls.mjs';
 import {test, expect} from '@playwright/test';
 import {readFile} from 'node:fs/promises';
 import {artifactPath} from './artifacts.mjs';
@@ -26,7 +26,7 @@ async function run(page, x) {
   await selectContext(page,'2d');
   await clickVisible(page.locator('#run-editor'));
   await expect(page.locator('#status')).toHaveText('Bloques ejecutados');
-  await expect.poll(async () => (await snapshot(page)).x).toBe(x);
+  await expect.poll(async () => (await settled(snapshot, page)).x).toBe(x);
 }
 
 test('GG-ENTRY-001: recovery stays pending until its real resources are ready; navigation does not run a program', async ({page}) => {
@@ -160,7 +160,7 @@ test('GG-ENTRY-006/007: advanced examples are explicit and a textual copy stays 
   await revealPanel(page,page.locator('#fixture'));await page.locator('#fixture').selectOption('repeat');
   expect((await snapshot(page)).x).toBe(0);
   await clickVisible(page.getByRole('button',{name:'Ejecutar ejemplo',exact:true}));
-  await expect.poll(async()=>(await snapshot(page)).x).toBe(15);
+  await expect.poll(async () => (await settled(snapshot, page)).x).toBe(15);
   expect(await authored(page)).toEqual(blocks);
   await clickVisible(page.locator('#advanced-tools > summary'));
   await expect(page.locator('#advanced-tools > summary')).toBeFocused();
@@ -176,7 +176,7 @@ test('GG-ENTRY-006/007: advanced examples are explicit and a textual copy stays 
   await expect(page.locator('#run-editor')).toBeHidden();
   await expect(page.locator('#scene-stop-link')).toHaveAttribute('href','#stop-result');
   await clickVisible(page.locator('#stop-result'));
-  await expect.poll(async()=>(await snapshot(page)).x).toBe(0);
+  await expect.poll(async () => (await settled(snapshot, page)).x).toBe(0);
   expect(await authored(page)).toEqual(blocks);
   await selectContext(page,'text');
   await expect(page.locator('#text-source')).toHaveValue('print("Una copia independiente")');
@@ -188,7 +188,7 @@ test('GG-ENTRY-008: keyboard entry, result and Stop work with reduced motion and
   await open(page);await page.locator('#entry-create').focus();await page.keyboard.press('Enter');
   await expect(page.locator('#editor-heading')).toBeFocused();
   await page.locator('#run-editor').focus();await page.keyboard.press('Enter');
-  await expect.poll(async()=>(await snapshot(page)).x).toBe(40);
+  await expect.poll(async () => (await settled(snapshot, page)).x).toBe(40);
   await page.locator('#scene-stop-link').focus();await page.keyboard.press('Enter');
   await expect(page.locator('#stop-result')).toBeFocused();
   await page.keyboard.press('Enter');await expect(page.locator('#run-editor')).toBeEnabled();

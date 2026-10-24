@@ -1,5 +1,5 @@
 import {test, expect} from '@playwright/test';
-import {selectContext,revealPanel} from './workspace-controls.mjs';
+import {selectContext,revealPanel,settled} from './workspace-controls.mjs';
 
 const snapshot = page => page.evaluate(() => studioProbe.request('snapshot'));
 async function open(page, mobile = false) {
@@ -132,7 +132,7 @@ for (const mobile of [false, true]) test('GG-F7-SHELL: Blockly creates and conne
     await page.keyboard.press('Shift+Tab');
   }
   await expect(page.locator('#run-editor')).toBeFocused(); await page.keyboard.press('Enter');
-  await expect(page.locator('#status')).toHaveText('Bloques ejecutados'); await expect.poll(async () => (await snapshot(page)).x).toBe(9);
+  await expect(page.locator('#status')).toHaveText('Bloques ejecutados'); await expect.poll(async () => (await settled(snapshot, page)).x).toBe(9);
   await page.locator('#stop-result').focus(); await page.keyboard.press('Enter'); await expect(page.locator('#run-editor')).toBeEnabled();
   expect((await snapshot(page)).x).toBe(0);
   await page.locator('#project-menu > summary').focus(); await page.keyboard.press('Enter');
@@ -144,7 +144,7 @@ for (const mobile of [false, true]) test('GG-F7-SHELL: Blockly creates and conne
   await expect.poll(() => page.evaluate(() => studioProbe.editor.save())).toEqual(authored);
   expect((await snapshot(page)).x).toBe(0);
   await page.locator('#run-editor').focus(); await page.keyboard.press('Enter');
-  await expect.poll(async () => (await snapshot(page)).x).toBe(9);
+  await expect.poll(async () => (await settled(snapshot, page)).x).toBe(9);
 });
 
 for (const mobile of [false, true]) test('GG-F7-SHELL: property Apply preserves focus/caret, invalid draft remains editable and Run returns focus (' + (mobile ? 'mobile' : 'desktop') + ')', async ({page}) => {

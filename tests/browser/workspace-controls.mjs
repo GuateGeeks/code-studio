@@ -117,3 +117,16 @@ export async function clickVisible(page,control) {
     await Promise.allSettled([target,...hosts].map(handle=>handle.dispose()));
   }
 }
+
+// A read issued while the run under test resets its session is rejected with
+// «Session stopped» by design. Inside expect.poll only that rejection is
+// retried (bounded); every other error and the asserted value are unchanged.
+export async function settled(read, page, {attempts = 20, delayMs = 100} = {}) {
+  for (let attempt = 0; ; attempt++) {
+    try { return await read(page); }
+    catch (error) {
+      if (!/Session stopped/.test(error?.message ?? '') || attempt >= attempts) throw error;
+      await page.waitForTimeout(delayMs);
+    }
+  }
+}

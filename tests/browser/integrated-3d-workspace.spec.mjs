@@ -1,5 +1,5 @@
 import {test,expect} from '@playwright/test';
-import {clickVisible,selectContext} from './workspace-controls.mjs';
+import {clickVisible,selectContext,settled} from './workspace-controls.mjs';
 import {artifactPath} from './artifacts.mjs';
 test.setTimeout(120000);
 const capture=page=>page.evaluate(()=>studioProbe.capabilityUI.capture('scene3d'));
@@ -8,7 +8,7 @@ const execution=page=>page.evaluate(()=>studioProbe.capabilityExecution.state())
 async function open(page){await page.goto('/');await expect(page.locator('#run-editor')).toBeEnabled();await page.evaluate(()=>studioProbe.project.ready());await selectContext(page,'scene3d');}
 async function enable(page){await clickVisible(page.getByRole('button',{name:'Añadir escena 3D',exact:true}));await expect(page.locator('#scene3d-mode')).toBeVisible();}
 async function consult(page,name,target){const tab=page.getByRole('tablist',{name:'Consulta'}).getByRole('tab',{name:name,exact:true});await tab.focus();await tab.press('Enter');await expect(tab).toHaveAttribute('aria-selected','true');await expect(page.locator(target)).toBeVisible();}
-async function run(page,x){await clickVisible(page.locator('#scene3d-run'));await expect.poll(async()=>(await snapshot(page))?.entities.find(item=>item.id==='sphere')?.local.position.x,{timeout:45000}).toBe(x);}
+async function run(page,x){await clickVisible(page.locator('#scene3d-run'));await expect.poll(async () => (await settled(snapshot, page))?.entities.find(item=>item.id==='sphere')?.local.position.x,{timeout:45000}).toBe(x);}
 async function textBoundary(page){
  const bounds=await page.evaluate(()=>{const rect=selector=>{const r=document.querySelector(selector).getBoundingClientRect();return{top:r.top,bottom:r.bottom};};return{context:rect('#context-authoring'),status:rect('#scene3d-status'),error:rect('#scene3d-error'),panel:rect('.text-authoring'),label:rect('label[for="text-source"]')};});
  expect(bounds.context.bottom).toBeGreaterThanOrEqual(Math.max(bounds.status.bottom,bounds.error.bottom));expect(bounds.panel.top-bounds.context.bottom).toBeGreaterThanOrEqual(16);expect(bounds.label.top).toBeGreaterThanOrEqual(bounds.panel.top);expect(bounds.label.bottom).toBeLessThanOrEqual(bounds.panel.bottom);

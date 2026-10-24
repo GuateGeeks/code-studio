@@ -2,16 +2,30 @@ import {spawn} from 'node:child_process';
 import {appendFileSync, mkdirSync, readFileSync, readdirSync, writeFileSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {loadavg} from 'node:os';
 import {projectRoot} from '../../spikes/paths.mjs';
 import {createPlan, normalizeChangedPath, parseArguments} from './impact.mjs';
 import {captureSnapshot, compareSnapshots} from './snapshot.mjs';
+import {planPartitions, partitionEnv, readDurations, resolvePartitionCount, availableMemory} from './partitions.mjs';
 
 const json = (file, value) => writeFileSync(file, JSON.stringify(value, null, 2) + '\n');
 const testFiles = (root, directory) => {
   try { return readdirSync(resolve(root, directory)).filter(file => file.endsWith('.test.mjs')).sort().map(file => `${directory}/${file}`); }
   catch (error) { if (error.code === 'ENOENT') return []; throw error; }
 };
-export function buildCommands(plan, {root = projectRoot, forceBuild = false} = {}) {
+export function browserSpecFiles(root = projectRoot) {
+  try { return readdirSync(resolve(root, 'tests/browser')).filter(file => file.endsWith('.spec.mjs')).sort().map(file => `tests/browser/${file}`); }
+  catch (error) { if (error.code === 'ENOENT') return []; throw error; }
+}
+// Canonical serial report first; otherwise the latest partition reports.
+export function historicalDurations(root = projectRoot) {
+  const canonical = readDurations(resolve(root, 'artifacts/browser-results.json'));
+  if (Object.keys(canonical).length) return canonical;
+  const merged = {};
+  for (let index = 0; index <= 8; index++) Object.assign(merged, readDurations(resolve(root, `artifacts/test-runs/partitions/p${index}-browser.json`)));
+  return merged;
+}
+export function buildCommands(plan, {root = projectRoot, forceBuild = false, partitions = 1, durations} = {}) {
   const commands = [];
   const add = (name, args, extra = {}) => commands.push({name, executable: process.execPath, args, ...extra});
   if (plan.node) add('integration', ['--test', ...testFiles(root, 'tests/integration')], {logFile: `artifacts/test-runs/${plan.profile}-integration.tap`});
@@ -19,7 +33,17 @@ export function buildCommands(plan, {root = projectRoot, forceBuild = false} = {
   if (plan.tools && tools.length) add('tools', ['--test', ...tools], {logFile: `artifacts/test-runs/${plan.profile}-tools.tap`});
   if (plan.build) add('build', ['tools/f0/build-browser.mjs', ...(forceBuild ? ['--force'] : [])]);
   if (plan.quick) add('smoke', ['node_modules/playwright/cli.js', 'test', '--config=playwright.quick.config.mjs', '--reporter=list,json', '--output', `artifacts/test-runs/${plan.profile}-smoke-results`], {env: {GG_TEST_REPORT_FILE: `artifacts/test-runs/${plan.profile === 'full' ? 'full-smoke' : plan.profile}-browser.json`, PLAYWRIGHT_JSON_OUTPUT_FILE: `artifacts/test-runs/${plan.profile === 'full' ? 'full-smoke' : plan.profile}-browser.json`, GG_TEST_EVIDENCE_DIR: `artifacts/test-runs/${plan.profile}-cases`}});
-  if (plan.browser.length) {
+  if (plan.browser.length && partitions > 1) {
+    // Same suites as the serial run, split into isolated processes (own ports,
+    // release root, outputs). Each file still runs with workers: 1 in order.
+    // A full gate partitions every spec on disk, so an uninventoried file can
+    // never silently drop out (the serial run covers the whole directory).
+    const files = plan.selection === 'full' ? [...new Set([...plan.browser, ...browserSpecFiles(root)])] : plan.browser;
+    const planned = planPartitions(files, {count: partitions, durations: durations ?? historicalDurations(root)});
+    commands.push({name: 'browser', parallel: planned.map(item => ({name: `browser-p${item.index}`, executable: process.execPath,
+      args: ['node_modules/playwright/cli.js', 'test', '--config=playwright.config.mjs', ...item.files],
+      env: partitionEnv(item.index, {root}), logFile: `artifacts/test-runs/partitions/p${item.index}.log`, files: item.files, estimateMs: Math.round(item.estimateMs)}))});
+  } else if (plan.browser.length) {
     const args = ['node_modules/playwright/cli.js', 'test', '--config=playwright.config.mjs'];
     if (plan.selection !== 'full') args.push(...plan.browser);
     if (plan.profile !== 'full') args.push('--reporter=list,json', '--output', 'artifacts/test-runs/affected-browser-results');
@@ -31,6 +55,7 @@ export function buildCommands(plan, {root = projectRoot, forceBuild = false} = {
 }
 
 async function execute(command, root) {
+  if (command.parallel) return executeParallel(command, root);
   const startedAt = new Date().toISOString();
   const start = performance.now();
   if (command.logFile) writeFileSync(resolve(root, command.logFile), '');
@@ -44,6 +69,35 @@ async function execute(command, root) {
     child.on('error', error => resolveRun({name: command.name, startedAt, durationMs: performance.now() - start, exitCode: 1, error: error.message}));
     child.on('close', (code, signal) => resolveRun({name: command.name, startedAt, durationMs: performance.now() - start, exitCode: code ?? 1, ...(signal ? {signal} : {})}));
   });
+}
+
+// Runs partitions concurrently; output lines are prefixed and each partition
+// keeps its own log. The group fails if any partition fails.
+async function executeParallel(group, root) {
+  const startedAt = new Date().toISOString();
+  const start = performance.now();
+  mkdirSync(resolve(root, 'artifacts/test-runs/partitions'), {recursive: true});
+  console.log(`\n[test:${group.name}] ${group.parallel.length} particiones: ` + group.parallel.map(item => `${item.name} (${item.files.length} archivos, ~${Math.round(item.estimateMs / 60000)} min)`).join(', '));
+  const results = await Promise.all(group.parallel.map(command => new Promise(resolveRun => {
+    const childStart = performance.now();
+    writeFileSync(resolve(root, command.logFile), '');
+    const env = {...process.env, ...command.env};
+    delete env.NODE_TEST_CONTEXT;
+    const child = spawn(command.executable, command.args, {cwd: root, env, stdio: ['ignore', 'pipe', 'pipe'], shell: false});
+    const prefix = `[${command.name.replace('browser-', '')}] `;
+    const relay = stream => { let pending = ''; return chunk => {
+      appendFileSync(resolve(root, command.logFile), chunk);
+      const lines = (pending + chunk).split('\n'); pending = lines.pop();
+      for (const line of lines) stream.write(prefix + line + '\n');
+    }; };
+    child.stdout.on('data', relay(process.stdout));
+    child.stderr.on('data', relay(process.stderr));
+    const done = extra => resolveRun({name: command.name, files: command.files.length, durationMs: performance.now() - childStart, ...extra});
+    child.on('error', error => done({exitCode: 1, error: error.message}));
+    child.on('close', (code, signal) => done({exitCode: code ?? 1, ...(signal ? {signal} : {})}));
+  })));
+  const failed = results.find(item => item.exitCode !== 0);
+  return {name: group.name, startedAt, durationMs: performance.now() - start, exitCode: failed ? failed.exitCode : 0, partitions: results};
 }
 
 export async function run(argv, {root = projectRoot, executeCommand = execute} = {}) {
@@ -67,8 +121,11 @@ export async function run(argv, {root = projectRoot, executeCommand = execute} =
     }
   }
   const plan = createPlan(options.profile, {files, source, baselineStatus});
-  const commands = buildCommands(plan, {root, forceBuild: options.forceBuild});
-  const published = {...plan, createdAt: new Date().toISOString(), dryRun: options.dryRun, forceBuild: options.forceBuild, commands};
+  const requested = options.partitions ?? (process.env.GG_TEST_PARTITIONS === 'auto' ? 'auto' : Number(process.env.GG_TEST_PARTITIONS) || 1);
+  const partitions = resolvePartitionCount(requested);
+  if (requested === 'auto') console.log(`[test] --partitions auto → ${partitions} (memoria disponible ${(availableMemory() / 1024 ** 3).toFixed(1)} GB, carga ${loadavg()[0].toFixed(1)})`);
+  const commands = buildCommands(plan, {root, forceBuild: options.forceBuild, partitions});
+  const published = {...plan, createdAt: new Date().toISOString(), dryRun: options.dryRun, forceBuild: options.forceBuild, partitions, commands};
   json(resolve(folder, `${options.profile}-plan.json`), published);
   console.log(JSON.stringify(published, null, 2));
   if (options.dryRun) return 0;

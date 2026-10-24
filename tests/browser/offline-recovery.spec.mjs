@@ -1,4 +1,4 @@
-import {selectContext,clickVisible,revealPanel,revealControl} from './workspace-controls.mjs';
+import {selectContext,clickVisible,revealPanel,revealControl,settled} from './workspace-controls.mjs';
 import {test, expect, chromium} from '@playwright/test';
 import {spawn} from 'node:child_process';
 import {once} from 'node:events';
@@ -6,7 +6,9 @@ import {mkdtemp, cp, readFile, writeFile, mkdir} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import {artifactPath} from './artifacts.mjs';
 
-test.setTimeout(300000);
+// Cohort update/rollback polls allow 240 s: on the shared machine a loaded
+// gate exceeded 120 s while the same test passes alone (24/10/2026).
+test.setTimeout(600000);
 const origin='http://127.0.0.1:4177';
 const ports={GG_SHELL_PORT:'4177',GG_RUNNER_PORT:'4178',GG_SIMULATOR_PORT:'4179',GG_LANGUAGE_PORT:'4180',GG_SCENE3D_PORT:'4188',GG_WEBAPP_PORT:'4189'};
 const snapshot=page=>page.evaluate(()=>studioProbe.request('snapshot'));
@@ -42,7 +44,7 @@ async function run(page,x) {
   await selectContext(page,'2d');
   await clickVisible(page.locator('#run-editor'));
   await expect(page.locator('#status')).toHaveText('Bloques ejecutados');
-  await expect.poll(async()=>(await snapshot(page)).x).toBe(x);
+  await expect.poll(async () => (await settled(snapshot, page)).x).toBe(x);
 }
 async function edit(page,id,value) {
   await selectContext(page,'2d');
@@ -57,7 +59,7 @@ async function textRun(page,language,x) {
   await page.locator('#text-source').fill(language==='javascript'?"await GG.sprite.move('hero', "+x+");\nconsole.log(await GG.scene.get());":"await GG.sprite.move('hero', "+x+")\nprint(await GG.scene.get())");
   await clickVisible(page.locator('#run-document'));
   await expect(page.locator('#text-run-status')).toHaveText('Documento terminado',{timeout:60000});
-  await expect.poll(async()=>(await snapshot(page)).x).toBe(x);
+  await expect.poll(async () => (await settled(snapshot, page)).x).toBe(x);
   await selectContext(page,'text');
   await clickVisible(page.locator('#stop-result'));await expect(page.locator('#run-editor')).toBeEnabled();
 }
@@ -113,7 +115,7 @@ test('GG-OFFLINE: immutable update and rollback survive full browser closure wit
     await writeFile(candidateStyle,correctStyle);
     // Preparing B on A must not replace its runner or authoring.
     await clickPreparedControl(page,'#prepare-offline');
-    await expect.poll(()=>page.evaluate(()=>studioProbe.offline.state().current.cohort),{timeout:120000}).not.toBe(first.cohort);
+    await expect.poll(()=>page.evaluate(()=>studioProbe.offline.state().current.cohort),{timeout:240000}).not.toBe(first.cohort);
     const second=(await page.evaluate(()=>studioProbe.offline.state())).current;
     evidence.second=second;
     expect((await page.evaluate(()=>studioProbe.state())).sessionId).toBe(activeA);
@@ -123,7 +125,7 @@ test('GG-OFFLINE: immutable update and rollback survive full browser closure wit
     expect(await fresh.locator('body').getAttribute('data-fixture-release')).toBe('B');
     expect(await fresh.evaluate(()=>studioProbe.editor.save())).toEqual(blocks);
     await clickPreparedControl(fresh,'#rollback-offline');
-    await expect.poll(()=>fresh.evaluate(()=>studioProbe.offline.state().current.cohort),{timeout:120000}).toBe(first.cohort);
+    await expect.poll(()=>fresh.evaluate(()=>studioProbe.offline.state().current.cohort),{timeout:240000}).toBe(first.cohort);
     await fresh.evaluate(()=>studioProbe.project.flush());
     evidence.phases.push('prepared A','A remained active during B','new visit opened B','rollback selected A');
     // Close Chromium entirely, not just a page/context from a shared process.
@@ -210,7 +212,7 @@ test('GG-OFFLINE: immutable update and rollback survive full browser closure wit
     await expect(page.locator('#run-sb3')).toBeEnabled();
     await clickVisible(page.locator('#run-sb3'));
     await expect(page.locator('#status')).toHaveText('Proyecto Scratch activo');
-    await expect.poll(async()=>(await snapshot(page)).targets.find(target=>target.isOriginal)?.x).toBe(6);
+    await expect.poll(async () => (await settled(snapshot, page)).targets.find(target=>target.isOriginal)?.x).toBe(6);
     expect((await snapshot(page)).mode).toBe('compatibility');
     await selectContext(page,'sb3');
     await clickVisible(page.locator('#stop-result'));await expect(page.locator('#run-editor')).toBeEnabled();
@@ -222,7 +224,7 @@ test('GG-OFFLINE: immutable update and rollback survive full browser closure wit
     await page.locator('#authoring-context').selectOption('sb3');
     await expect(page.locator('#run-sb3')).toBeEnabled();await clickVisible(page.locator('#run-sb3'));
     await expect(page.locator('#status')).toHaveText('Proyecto Scratch activo');
-    await expect.poll(async()=>(await snapshot(page)).targets.find(target=>target.isOriginal)?.x).toBe(6);
+    await expect.poll(async () => (await settled(snapshot, page)).targets.find(target=>target.isOriginal)?.x).toBe(6);
     evidence.offlineResources={version:resourcesBefore.version,sourceAssetId:await page.evaluate(()=>studioProbe.resourcesUI.reference()),snapshot:await snapshot(page),portableBytes:portable.length};
     await selectContext(page,'sb3');
     await clickVisible(page.locator('#stop-result'));await expect(page.locator('#run-editor')).toBeEnabled();

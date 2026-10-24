@@ -1,4 +1,4 @@
-import {selectContext,clickVisible} from './workspace-controls.mjs';
+import {selectContext,clickVisible,settled} from './workspace-controls.mjs';
 import {test, expect} from '@playwright/test';
 import {readFile} from 'node:fs/promises';
 import JSZip from 'jszip';
@@ -35,8 +35,8 @@ async function run(page) {
   await selectContext(page,'2d');
   await clickVisible(page.locator('#run-editor'));
   await expect(page.locator('#status')).toHaveText('Bloques ejecutados');
-  await expect.poll(async () => (await snapshot(page)).targets.length).toBe(2);
-  await expect.poll(async () => (await snapshot(page)).x).toBe(100);
+  await expect.poll(async () => (await settled(snapshot, page)).targets.length).toBe(2);
+  await expect.poll(async () => (await settled(snapshot, page)).x).toBe(100);
   await expect(selector(page).locator('option')).toHaveCount(2);
 }
 async function point(page, x, y) {
@@ -61,20 +61,20 @@ for (const mobile of [false, true]) test('GG-F7-RUNNER: off-centre pointer and s
   test.setTimeout(120000); await open(page, mobile); await run(page);
   const authoring = await page.evaluate(() => studioProbe.editor.save());
   await point(page, 100, 0);
-  await expect.poll(async () => (await snapshot(page)).x).toBe(111);
+  await expect.poll(async () => (await settled(snapshot, page)).x).toBe(111);
   await semanticOriginal(page);
-  await expect.poll(async () => (await snapshot(page)).x).toBe(122);
+  await expect.poll(async () => (await settled(snapshot, page)).x).toBe(122);
   await stage(page).focus(); await stage(page).press('Tab'); await expect(selector(page)).toBeFocused();
   await selector(page).press('Shift+Tab'); await expect(stage(page)).toBeFocused();
   await stage(page).press('Escape'); await expect(stage(page)).toBeFocused();
   await stage(page).press('Control+Space');
   expect((await snapshot(page)).x).toBe(122);
   await stage(page).press('Space');
-  await expect.poll(async () => (await snapshot(page)).x).toBe(129);
+  await expect.poll(async () => (await settled(snapshot, page)).x).toBe(129);
   const clone = (await snapshot(page)).targets.find(target => !target.isOriginal);
   expect(clone.x).toBe(-73);
   await selector(page).selectOption(clone.id); await activate(page).press('Space');
-  await expect.poll(async () => (await snapshot(page)).targets.length).toBe(1);
+  await expect.poll(async () => (await settled(snapshot, page)).targets.length).toBe(1);
   await expect(selector(page).locator('option')).toHaveCount(1);
   expect((await snapshot(page)).x).toBe(129);
   const bounds = await stage(page).boundingBox();
@@ -88,11 +88,11 @@ for (const mobile of [false, true]) test('GG-F7-RUNNER: off-centre pointer and s
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   const old = await activate(page).elementHandle();
   await shellClick(page, '#stop-result'); await expect(page.locator('#run-editor')).toBeEnabled();
-  await expect.poll(async () => (await snapshot(page)).x).toBe(0);
+  await expect.poll(async () => (await settled(snapshot, page)).x).toBe(0);
   await expect(old.evaluate(button => button.click())).rejects.toThrow();
   expect(await page.evaluate(() => studioProbe.editor.save())).toEqual(authoring);
   await run(page); await semanticOriginal(page);
-  await expect.poll(async () => (await snapshot(page)).x).toBe(111);
+  await expect.poll(async () => (await settled(snapshot, page)).x).toBe(111);
 });
 
 for (const language of ['javascript', 'python']) test('GG-F7-RUNNER: semantic target activates the actual native callback and clone of an independent ' + language + ' document', async ({page}) => {
@@ -102,15 +102,15 @@ for (const language of ['javascript', 'python']) test('GG-F7-RUNNER: semantic ta
   await expect(page.locator('#copy-status')).toContainText('creada');
   await clickVisible(page.locator('#run-document'));
   await expect(page.locator('#text-run-status')).toHaveText('Documento activo · eventos disponibles', {timeout: 60000});
-  await expect.poll(async () => (await snapshot(page)).targets.length).toBe(2);
-  await expect.poll(async () => (await snapshot(page)).x).toBe(100);
+  await expect.poll(async () => (await settled(snapshot, page)).targets.length).toBe(2);
+  await expect.poll(async () => (await settled(snapshot, page)).x).toBe(100);
   await expect(stage(page)).toHaveAccessibleName('Escenario 2D del documento de texto');
   const source = await page.locator('#text-source').inputValue();
-  await semanticOriginal(page); await expect.poll(async () => (await snapshot(page)).x).toBe(111);
+  await semanticOriginal(page); await expect.poll(async () => (await settled(snapshot, page)).x).toBe(111);
   const clone = (await snapshot(page)).targets.find(target => !target.isOriginal);
   await expect(selector(page).locator('option')).toHaveCount(2);
   await selector(page).selectOption(clone.id); await activate(page).press('Enter');
-  await expect.poll(async () => (await snapshot(page)).targets.length).toBe(1);
+  await expect.poll(async () => (await settled(snapshot, page)).targets.length).toBe(1);
   expect((await snapshot(page)).x).toBe(111);
   await expect(page.locator('#text-source')).toHaveValue(source);
   await shellClick(page, '#stop-result'); await expect(page.locator('#run-editor')).toBeEnabled();
@@ -144,11 +144,11 @@ for (const mobile of [false, true]) test('GG-F7-RUNNER: controls, off-centre poi
   await expect(page.locator('#device-status')).toContainText('Dispositivo añadido');
   await clickVisible(page.locator('#run-device'));
   await expect(page.locator('#device-status')).toContainText('Escena y dispositivo activos');
-  await expect.poll(async () => (await snapshot(page)).x).toBe(100);
+  await expect.poll(async () => (await settled(snapshot, page)).x).toBe(100);
   await expect(stage(page)).toBeVisible(); await expect(activate(page)).toBeVisible();
   await expect(runner(page).frameLocator('iframe').getByRole('button', {name: 'A', exact: true})).toBeVisible();
-  await point(page, 100, 0); await expect.poll(async () => (await snapshot(page)).x).toBe(111);
-  await semanticOriginal(page); await expect.poll(async () => (await snapshot(page)).x).toBe(122);
+  await point(page, 100, 0); await expect.poll(async () => (await settled(snapshot, page)).x).toBe(111);
+  await semanticOriginal(page); await expect.poll(async () => (await settled(snapshot, page)).x).toBe(122);
   expect(await runner(page).locator('body').evaluate(body => body.scrollWidth <= innerWidth)).toBe(true);
   await shellClick(page, '#stop-result'); await expect(page.locator('#run-editor')).toBeEnabled();
 });
