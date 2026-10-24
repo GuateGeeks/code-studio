@@ -172,7 +172,7 @@ export function createProjectUI({editor, source, stop, textDocuments, authoring:
       const model = await makeModel();
       authoring.prepare(model,{allowRemoval:true});
       await flush();
-      await apply(model, {notice, beforeCommit: () => {
+      await apply(model, {notice: typeof notice === 'function' ? notice(model) : notice, beforeCommit: () => {
         if (changes !== expectedChanges || !isCurrent()) throw new Error('El proyecto cambió durante la preparación. No se reemplazó tu trabajo.');
       }});
       await flush().catch(report);
@@ -272,7 +272,7 @@ export function createProjectUI({editor, source, stop, textDocuments, authoring:
     export: async () => { await ready; const model = await capture(); authoring.prepare(model,{allowRemoval:true}); return serializeProject(model); },
     exportArchive: async () => { await ready; return createProjectArchive(await capture(), {catalog}); },
     open: openDocument, openArchive, flush, loadStarter, useCapabilities,
-    replaceAuthoring:(makeModel,{isCurrent=()=>true}={})=>replacePrepared(async()=>parseProject(serializeProject(await makeModel()),{catalog}),isCurrent),
+    replaceAuthoring:(makeModel,{isCurrent=()=>true,notice=null}={})=>replacePrepared(async()=>parseProject(serializeProject(await makeModel()),{catalog}),isCurrent,notice),
     capture, catalog:()=>structuredClone(catalog),
     capabilities: () => authoring.captureCapabilities(),
     state,

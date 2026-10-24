@@ -13,6 +13,7 @@
 ## 3. Impacto y fixtures
 
 - [ ] 3.1 Añadir los grupos de impacto por contexto y para los módulos de los cambios propuestos, con una prueba de herramientas por grupo; lo desconocido sigue yendo a la puerta completa.
+- [ ] 3.3 Endurecer el patrón `expect.poll(snapshot)` (~85 llamadas en 20 suites): las lecturas no deben poder solaparse con el `reset()` de la ejecución que provoca la prueba. Hay que esperar el estado activo o reintentar solo «Session stopped», sin relajar aserciones (origen: `docs/engineering/PACK-VERSIONING-RESULTS.md`).
 - [ ] 3.2 Crear el formato `tests/fixtures/canonical/`, el ejecutor `canonical-projects.spec.mjs` y un fixture 2D mínimo (sin ejecución al abrir, estado final, Detener).
 
 ## 4. Verificación y documentación

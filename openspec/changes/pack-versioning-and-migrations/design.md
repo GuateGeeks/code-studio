@@ -2,33 +2,48 @@
 
 ## Context
 
-Véanse `proposal.md`, ADR-005 (packs declarativos y GGPROJ3) y ADR-011. Hoy `validateProject` compara `canonical(document.locks)` con `catalog.locks`; `resolveOperationProfile` concede operaciones solo a `lock.version==='0.1.0'`; `validateDocument` exige `runtime.engine` y `runtime.version` idénticos a `textDocumentRuntimes`. Los manifiestos ya incluyen `migrations:[]` y existe `migrateCapabilities` para la configuración de score 0.1→0.2, lo que demuestra el patrón a escala pequeña.
+Estado verificado al aplicar (corrige el borrador inicial, que suponía packs con igualdad exacta):
+
+- **Locks de motores.** `document.locks` contiene `{blockly, ir, adapter, scratch, scratchAudio}`, viene de `project-catalog.json` (`tools/f1/build-project-catalog.mjs`) y `validateProject` lo compara por igualdad canónica (`project-format.mjs:85`). La prueba GG-PROJ-002 exige rechazar `blockly: 999.0.0` y aceptar las claves en cualquier orden.
+- **Packs.** `capabilities.locks` declara `{id, version, sha256}`. `localPackCatalog` contiene varias versiones (score, assets, sb3), `latestPackVersions` fija las versiones de proyectos nuevos y `migrateCapabilities` aplica una migración de un salto (manifiesto o `localPackMigrations`) que solo renombra campos de configuración. `validateCapabilities` rechaza `apiVersion !== 1`.
+- **Permisos.** `resolveOperationProfile` concede `operationPermissionGrants[id]` solo si `lock.version === '0.1.0'`. Los manifiestos 3D/web copian esa misma tabla en `permissions.operations` (forma parte de su hash).
+- **Workspaces.** El 2D está en `authoring.blockly` (serialización anidada de Blockly). micro:bit, 3D y web guardan grafos planos `{version, nodes[{id,type,fields,inputs,next,x,y}], …}` en `capabilities.config[pack].workspace`.
+- **Documentos textuales.** `runtime` es `{engine, version}` con igualdad exacta contra `textDocumentRuntimes`, y el valor se normaliza a la versión vigente al validar.
+- **Interfaz.** «Actualizar packs» (`#update-packs`) llama a `migrateCapabilities(…, {id: 'gg.score', toVersion: '0.2.0'})`. `project.replaceAuthoring` ya ofrece un reemplazo atómico sin ejecución.
 
 ## Goals / Non-Goals
 
-**Goals:** abrir cualquier proyecto válido anterior; permitir que los packs evolucionen; separar versión de API textual de versión de intérprete; migraciones auditables.
+**Goals:** motores compatibles registrados; API de manifiesto por lista; permisos por `pack@versión`; migraciones encadenadas de configuración y bloques conservando IDs; API textual declarable; mensajes claros.
 
-**Non-Goals:** catálogo remoto, packs de terceros, migrar código escrito por el alumno, cambiar bloques o API (cambios posteriores).
+**Non-Goals:** cuarentena de packs desconocidos, retirar versiones, migración automática al abrir, cambiar bloques o comportamiento.
 
 ## Decisions
 
-1. **GGPROJ v4 con locks declarados.** `locks` deja de compararse por igualdad y pasa a ser la declaración del proyecto: `{id, version, sha256}` por pack. El hash identifica la versión revisada instalada, no un requisito de igualdad con el catálogo vigente.
-2. **Migración hacia adelante, no multiinstalación por defecto.** Cada versión nueva de un pack declara migraciones puras desde las anteriores (configuración y workspace Blockly). Se instala una sola versión vigente por pack; mantener varias versiones instaladas solo se usa si una migración es imposible. Alternativa descartada: instalar todas las versiones históricas, que multiplica bloques duplicados en el editor y el peso offline.
-3. **Migraciones como datos más funciones puras revisadas.** Las funciones viven en `src/` junto al pack (código revisado, nunca del proyecto). Entrada y salida se validan con el esquema de cada versión. Una migración de workspace MUST conservar IDs de bloques; si un bloque cambia de tipo, el ID se mantiene.
-4. **Permisos derivados del lock.** Los grants se calculan con la versión declarada y la tabla de permisos de esa versión instalada (o migrada), eliminando la constante `0.1.0`.
-5. **API textual separada del intérprete.** `runtime` pasa a `{engine, version, api}`; `version` se valida contra un rango declarado por el target textual. Documentos sin `api` se asignan por su contexto: 2D → `api1`, 3D/web → `api2`.
-6. **Pack desconocido = contexto en cuarentena.** Se conservan sus bytes originales en el documento y se reescriben tal cual al guardar.
+1. **Historial de motores como dato propio.** `src/contracts/engine-locks.mjs` exporta `engineLockHistory`, la lista de conjuntos de motores publicados (hoy, el vigente). `validateProject` acepta `document.locks` si coincide canónicamente con `catalog.locks` o con un elemento del historial. El historial es inyectable para pruebas (`{engineHistory}`). Al guardar, `createProject` sigue escribiendo `catalog.locks`. No hace falta tocar el build: cuando se actualice un motor, el conjunto anterior se añade al historial.
+2. **Lista de API de manifiesto.** `supportedPackApiVersions = [1]` en `packs.mjs`. `block-language-contract` añadirá 2.
+3. **Permisos por versión sin tocar hashes.** `operationPermissionGrantsByVersion` (`'gg.3d-basic@0.1.0'`, …) en `operations.mjs` es la fuente de `resolveOperationProfile`. `operationPermissionGrants[id]` se conserva para los manifiestos existentes, cuyo hash no cambia. Una prueba verifica que ambas tablas coinciden para cada versión instalada. Se descarta leer los permisos del manifiesto desde `operations.mjs` porque crearía un ciclo de módulos (los manifiestos importan `operations.mjs`).
+4. **Migraciones encadenadas con transformación de bloques.** Un registro de migración admite, además de `rename` (configuración), `blocks: {types: {viejo: nuevo}, fields: {tipo: {VIEJO: NUEVO}}, inputs: {tipo: {VIEJO: NUEVO}}, values: {tipo: {CAMPO: {viejo: nuevo}}}}`. Las claves de `fields`, `inputs` y `values` usan el tipo nuevo.
+   - `src/contracts/pack-migrations.mjs` (puro, sin Blockly) valida los registros, busca la cadena desde la versión declarada hasta la elegida y transforma tanto la serialización anidada de Blockly como los grafos planos.
+   - Los IDs, posiciones, conexiones y valores no mapeados no cambian. Los tipos de bloque son únicos por pack, así que la transformación se aplica a todos los workspaces del proyecto.
+   - `migrateCapabilities` pasa a recorrer la cadena, sin cambiar su firma.
+5. **Migración de proyecto.** `src/project-migration.mjs` exporta:
+   - `availablePackUpdates(capabilities)`: las actualizaciones hacia `latestPackVersions` con cadena registrada;
+   - `migrateProject(document, updates, {catalog})`: aplica configuración y bloques sobre una copia, valida con `validateProject` y devuelve `{document, summary}`. Si algo falla, lanza la excepción sin tocar el original.
+
+   La shell usa `project.replaceAuthoring` (atómico, sin ejecución) y muestra el resumen en `#packs-error`/estado. `#update-packs` conserva su ID y aplica todas las actualizaciones disponibles; hoy el resultado es el mismo que antes (score 0.1→0.2).
+6. **API textual latente en GGPROJ v4.** `runtime` admite `api` (`api1`/`api2`) solo en GGPROJ v4, que tiene la misma estructura que v3. `createProject` escribe v4 únicamente si algún documento declara `api`, siguiendo el patrón actual de elegir la versión según el contenido. `resolveTextDocumentApi(document, capabilities)` devuelve la declarada o la del contexto: 2D → `api1`; documento referenciado por 3D/web → `api2`. `textDocumentRuntimes` añade `compatibleVersions`.
+7. **Mensajes.** Conservan las subcadenas que fijan las pruebas («no instalado», «runtime o versión») y añaden qué falta y la acción: «ábrelo con una versión más reciente de Code Studio».
 
 ## Risks / Trade-offs
 
-- [Una migración altera comportamiento] → fixtures de proyectos reales de cada versión; ejecutar antes y después y comparar estado final y trazas con el corpus existente.
-- [Crece la superficie de mantenimiento] → cada migración tiene pruebas Node propias y se retira solo con una decisión explícita.
-- [El hash deja de proteger contra manipulación] → el hash sigue verificando que la versión declarada corresponde a datos revisados instalados; un hash desconocido activa la cuarentena del punto 6.
+- [La transformación de bloques corrompe un workspace] → pruebas de propiedad: workspace sin bloques afectados = idéntico; con bloques afectados = solo cambian los campos declarados; IDs y posiciones intactos; resultado validado antes de aplicar.
+- [Dos tablas de permisos divergen] → prueba de igualdad por versión instalada.
+- [GGPROJ v4 en una release anterior] → no se escribe hasta que un contenido lo requiera (no ocurre en este cambio).
 
 ## Migration Plan
 
-1. Fixtures de GGPROJ v1–v3 y de autosave tomados de las puertas anteriores. 2. Lectura v4 y escritura v4 manteniendo lectura v1–v3. 3. Permisos por versión. 4. `runtime.api` y rangos. 5. Pack de prueba `@0.2.0` sin cambios visibles para demostrar la migración extremo a extremo. Reversión: restaurar los archivos del cambio; los GGPROJ v4 guardados durante la prueba no se abren en la versión anterior, por lo que no se publica release hasta la puerta completa.
+Sin migración de datos: ningún proyecto existente cambia al abrir. Orden: contratos puros con pruebas Node → integración en `validateProject`/`migrateCapabilities` → acción de la shell → E2E de actualización y rechazo → `test:affected` y una `test:full`. Reversión: revertir el commit del cambio.
 
 ## Open Questions
 
-- ¿Se permite abrir un GGPROJ v4 en una release anterior en modo de solo lectura? Propuesta: no; se informa la versión mínima requerida.
+- Cuarentena de packs desconocidos (diferida): ¿se necesita en aulas con releases mezcladas? Se evaluará con el despliegue real (Exp. 2).

@@ -1,4 +1,5 @@
 import {createHash} from 'node:crypto';
+import {currentEngineLocks} from '../../src/contracts/engine-locks.mjs';
 
 // Build-owned resources only. Imported projects must match this catalog before
 // their authoring reaches Blockly or their resources reach a runtime adapter.
@@ -9,5 +10,5 @@ export async function buildProjectCatalog(rawResources) {
     const bytes = typeof asset === 'string' ? Buffer.from(asset, 'utf8') : Buffer.from(asset.data, 'base64');
     return [id, {bytes: bytes.length, sha256: createHash('sha256').update(bytes).digest('hex')}];
   }));
-  return {resources, locks: {blockly: '13.4.0', ir: 0, adapter: 'scratch-2d-v0', scratch: '12.3.1', scratchAudio: '2.0.268'}};
+  return {resources, locks: structuredClone(currentEngineLocks)};
 }

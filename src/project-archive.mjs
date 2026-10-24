@@ -125,7 +125,7 @@ export async function parseProjectArchive(bytes, {catalog} = {}) {
   let manifest;
   try { manifest = JSON.parse(utf8(entries.get('manifest.json'))); } catch { fail('manifest.json inválido o truncado'); }
   const modern=[1,2].includes(manifest?.resources?.version);
-  if(modern&&(manifest.version!==3||resolveResourcePolicy(manifest.capabilities)!=='gg-resources-v'+manifest.resources.version))fail('política de recursos no instalada/seleccionada');
+  if(modern&&(manifest.version<3||resolveResourcePolicy(manifest.capabilities)!=='gg-resources-v'+manifest.resources.version))fail('política de recursos no instalada/seleccionada');
   const manifestAssets = manifest?.resources?.assets;
   if (!manifestAssets || typeof manifestAssets !== 'object' || Array.isArray(manifestAssets)) fail('recursos del manifiesto ausentes');
   const resources = {}, paths=new Set(['manifest.json']);

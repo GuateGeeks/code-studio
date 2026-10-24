@@ -23,6 +23,9 @@ export const operationDescriptors=freeze([
  op('webapp','snapshot',obj({}),'json',false)
 ]);
 export const operationPermissionGrants=freeze({'gg.3d-basic':['scene3d.getEntity','scene3d.move','scene3d.setCamera','scene3d.snapshot'],'gg.3d-advanced':['scene3d.setTransform','scene3d.setParent','scene3d.setLight'],'gg.webapps':['webapp.getValue','webapp.setText','webapp.setValue','webapp.appendItem','webapp.clearItems','webapp.setVisible','webapp.snapshot']});
+// Grants per declared pack version (ADR-011). The by-id table above stays only
+// because installed 0.1.0 manifests embed it and their hashes are frozen.
+export const operationPermissionGrantsByVersion=freeze({'gg.3d-basic@0.1.0':operationPermissionGrants['gg.3d-basic'],'gg.3d-advanced@0.1.0':operationPermissionGrants['gg.3d-advanced'],'gg.webapps@0.1.0':operationPermissionGrants['gg.webapps']});
 export const contextDescriptors=freeze([
  {id:'scene3d',profileId:'gg-scene3d-v1',packIds:['gg.3d-basic','gg.3d-advanced'],events:[{id:'start'},{id:'click'},{id:'key'}]},
  {id:'webapp',profileId:'gg-webapp-v1',packIds:['gg.webapps'],events:[{id:'start'},{id:'click'},{id:'input'},{id:'submit'},{id:'key'}]}
@@ -30,7 +33,7 @@ export const contextDescriptors=freeze([
 export function resolveOperationProfile({contextId,documentId,capabilities}={}) {
  const context=contextDescriptors.find(item=>item.id===contextId);if(!context)fail('contexto no instalado');identifier(documentId);
  if(capabilities!=null&&!capabilities.locks?.some(lock=>context.packIds.includes(lock.id)))fail('proveedor no seleccionado');
- const grants=capabilities==null?null:new Set(capabilities.locks.flatMap(lock=>lock.version==='0.1.0'?(operationPermissionGrants[lock.id]??[]):[]));
+ const grants=capabilities==null?null:new Set(capabilities.locks.flatMap(lock=>operationPermissionGrantsByVersion[lock.id+'@'+lock.version]??[]));
  return structuredClone({profileId:context.profileId,principal:contextId==='scene3d'?'gg.3d-basic':'gg.webapps',contextId,documentId,operations:operationDescriptors.filter(item=>item.contexts.includes(contextId)&&(!grants||grants.has(item.id))),events:context.events});
 }
 export function validateCapabilityOperation(profile,operationId,args){

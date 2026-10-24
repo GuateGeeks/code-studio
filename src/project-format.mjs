@@ -1,6 +1,7 @@
 import {validateTextDocuments} from './text-documents.mjs';
 import {validateResources,createResourceView,cloneValidatedResources,promoteLegacyResources,promoteResources2} from './contracts/resources.mjs';
 import {validateCapabilities,resolveResourcePolicy,validateCapabilityReferences} from './contracts/packs.mjs';
+import {engineLockHistory,isCompatibleEngineLocks,describeUnsupportedEngineLocks} from './contracts/engine-locks.mjs';
 
 // Portable Studio data. No Blockly, Scratch, DOM or storage dependencies.
 export const projectLimits = Object.freeze({bytes: 2 * 1024 * 1024, workspaceBytes: 65536, sourceBytes: 65536, nameLength: 80});
@@ -41,8 +42,10 @@ function timestamp(value, field) {
 }
 function structure(document) {
   jsonTree(document);
-  object(document, document.version === 3 ? ['format', 'version', 'project', 'authoring', 'capabilities', 'resources', 'locks'] : ['format', 'version', 'project', 'authoring', 'scene', 'resources', 'locks'], 'documento');
-  if (document.format !== 'ggproj' || ![1, 2, 3].includes(document.version)) fail('formato o versión no soportada');
+  object(document, document.version >= 3 ? ['format', 'version', 'project', 'authoring', 'capabilities', 'resources', 'locks'] : ['format', 'version', 'project', 'authoring', 'scene', 'resources', 'locks'], 'documento');
+  if (document.format !== 'ggproj') fail('formato o versión no soportada');
+  if (Number.isSafeInteger(document.version) && document.version > 4) fail(`formato o versión no soportada: GGPROJ v${document.version} es de una versión más reciente de Code Studio; ábrelo con esa versión`);
+  if (![1, 2, 3, 4].includes(document.version)) fail('formato o versión no soportada');
   object(document.project, ['id', 'name', 'revision', 'createdAt', 'updatedAt'], 'project');
   const model = document.project;
   if (typeof model.id !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(model.id)) fail('ID de proyecto inválido');
@@ -52,11 +55,13 @@ function structure(document) {
   if (Date.parse(model.updatedAt) < Date.parse(model.createdAt)) fail('updatedAt es anterior a createdAt');
   object(document.authoring, document.version === 1 ? ['blockly', 'deviceSource'] : ['blockly', 'deviceSource', 'textDocuments', 'selectedTextDocumentId'], 'authoring');
   if (document.version >= 2) validateTextDocuments(document.authoring.textDocuments, document.authoring.selectedTextDocumentId);
+  // GGPROJ v4 is v3 plus a declared text API; it is written only when needed.
+  if (document.version >= 2 && document.version < 4 && document.authoring.textDocuments.some(item => Object.hasOwn(item.runtime ?? {}, 'api'))) fail('la API textual declarada requiere GGPROJ v4');
   if (!document.authoring.blockly || typeof document.authoring.blockly !== 'object' || Array.isArray(document.authoring.blockly)) fail('workspace Blockly inválido');
   if (Object.keys(document.authoring.blockly).some(key => !['blocks', 'variables'].includes(key))) fail('metadatos de workspace no soportados');
   text(JSON.stringify(document.authoring.blockly), projectLimits.workspaceBytes, 'workspace Blockly');
   text(document.authoring.deviceSource, projectLimits.sourceBytes, 'fuente de dispositivo');
-  if (document.version === 3) {
+  if (document.version >= 3) {
     if (!validateCapabilities(document.capabilities)) fail('capacidades explícitas ausentes');
   } else {
     object(document.scene, Object.keys(scene), 'scene');
@@ -77,15 +82,16 @@ function decodeAsset(asset) {
   return Uint8Array.from(binary, character => character.charCodeAt(0));
 }
 
-export async function validateProject(document, {catalog} = {}) {
+export async function validateProject(document, {catalog, engineHistory = engineLockHistory} = {}) {
   structure(document);
   if (!catalog?.resources || !catalog?.locks) fail('catálogo local no disponible');
   // Match the allowlist before hashing or interpreting imported resource data.
   // Object-key order is deliberately insignificant, unlike array ordering.
-  if (canonical(document.locks) !== canonical(catalog.locks)) fail('versiones o locks no soportados');
+  // Earlier published engine sets stay accepted; saving writes catalog.locks.
+  if (!isCompatibleEngineLocks(document.locks, {current: catalog.locks, history: engineHistory})) fail(`versiones o locks no soportados (${describeUnsupportedEngineLocks(document.locks, {current: catalog.locks, history: engineHistory})}). Ábrelo con una versión más reciente de Code Studio`);
   if([1,2].includes(document.resources.version)) {
     const policy=resolveResourcePolicy(document.capabilities);
-    if(document.version!==3||policy!=='gg-resources-v'+document.resources.version)fail('política de recursos no instalada/seleccionada');
+    if(document.version<3||policy!=='gg-resources-v'+document.resources.version)fail('política de recursos no instalada/seleccionada');
     const resources=await validateResources(document.resources,{policy});
     validateCapabilityReferences(document.capabilities,{resources,textDocuments:document.authoring.textDocuments});
     const result=structuredClone(document);result.resources=resources;return result;
@@ -108,7 +114,9 @@ export async function validateProject(document, {catalog} = {}) {
 export async function createProject({name, blockly, deviceSource, catalog, resources, capabilities, textDocuments, selectedTextDocumentId = null, id = crypto.randomUUID(), revision = 0, createdAt = new Date().toISOString(), updatedAt = new Date().toISOString()}) {
   const profile = capabilities == null ? null : validateCapabilities(capabilities);
   const textAuthoring = textDocuments === undefined ? (profile ? {textDocuments: [], selectedTextDocumentId: null} : null) : validateTextDocuments(textDocuments, selectedTextDocumentId);
-  const document = {format: 'ggproj', version: profile ? 3 : textAuthoring ? 2 : 1, project: {id, name, revision, createdAt, updatedAt},
+  const declaresApi = Boolean(textAuthoring?.textDocuments.some(item => Object.hasOwn(item.runtime, 'api')));
+  if (declaresApi && !profile) fail('la API textual declarada requiere capacidades explícitas');
+  const document = {format: 'ggproj', version: declaresApi ? 4 : profile ? 3 : textAuthoring ? 2 : 1, project: {id, name, revision, createdAt, updatedAt},
     authoring: {blockly: structuredClone(blockly), deviceSource, ...(textAuthoring ?? {})},
     ...(profile ? {capabilities: profile} : {scene: {...scene}}), resources: structuredClone(resources??catalog?.resources), locks: structuredClone(catalog?.locks)};
   return validateProject(document, {catalog});
@@ -121,11 +129,11 @@ export function serializeProject(document) {
   return serialized;
 }
 
-export async function parseProject(serialized, {catalog} = {}) {
+export async function parseProject(serialized, {catalog, engineHistory} = {}) {
   if (typeof serialized !== 'string' || bytes(serialized) > projectLimits.bytes) fail('archivo demasiado grande o texto ausente');
   let document;
   try { document = JSON.parse(serialized); } catch { fail('JSON inválido o archivo truncado'); }
-  return validateProject(document, {catalog});
+  return validateProject(document, {catalog, ...(engineHistory ? {engineHistory} : {})});
 }
 
 // Promotion is explicit and copy-on-write. Legacy documents remain exact until

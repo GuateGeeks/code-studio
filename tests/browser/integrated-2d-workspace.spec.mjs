@@ -75,7 +75,10 @@ test('E4: consulta estrecha y copia textual conservan foco, bloques y resultado 
   await consult(page,'Código','#generated-heading');await clickVisible(page.locator('#copy-javascript'));
   await expect(page.locator('#text-source')).toBeFocused();
   await page.locator('#text-source').fill("await GG.sprite.move('hero', 9);");
-  await clickVisible(page.locator('#run-document'));await expect.poll(async()=>(await snapshot(page)).x).toBe(9);
+  // Wait until the document run is active: its own reset rejects any snapshot
+  // request still pending, which made the poll below fail intermittently.
+  await clickVisible(page.locator('#run-document'));await expect(page.locator('#result-context')).toContainText('· activo');
+  await expect.poll(async()=>(await snapshot(page)).x).toBe(9);
   await selectContext(page,'microbit');
   await expect(page.locator('#result-context')).toContainText('documento');
   await clickVisible(page.locator('#stop-result'));expect((await snapshot(page)).x).toBe(0);

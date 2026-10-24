@@ -16,7 +16,8 @@ import {createTextDocumentsUI} from './text-documents-ui.mjs';
 import {createLanguageController} from './language-controller.mjs';
 import {createSceneInspectorUI} from './scene-inspector-ui.mjs';
 import {projectInitialScene} from '../project-format.mjs';
-import {createCapabilities, migrateCapabilities, resolveCapabilities} from '../contracts/packs.mjs';
+import {createCapabilities, resolveCapabilities} from '../contracts/packs.mjs';
+import {availablePackUpdates, migrateProject, describeMigrationSummary} from '../project-migration.mjs';
 import {createLessonsUI} from './lessons-ui.mjs';
 import {createOfflineController} from '../offline/controller.mjs';
 import {createAuthoringContexts} from './authoring-contexts.mjs';
@@ -512,7 +513,7 @@ fixtureSelect.addEventListener('change', () => {
 
 const project = createProjectUI({editor, source, stop: reset, textDocuments, authoring,
   prepareResources:resources=>[1,2].includes(resources.version)?resourceValidator.process('validate-resources',{resources}):Promise.resolve(),onDiagnostic: record => consoleUI.local(record),
-  onApplied: () => { copyFacts.clear(); executionLessonIdentity = null; previousCapabilities = null; lessons?.invalidate(); renderPacks();resourcesUI.render();capabilityUI.refreshProfiles(authoring);void resourcesUI.refreshReport(); }
+  onApplied: () => { copyFacts.clear(); executionLessonIdentity = null; previousCapabilities = null; previousProjectSnapshot = null; lessons?.invalidate(); renderPacks();resourcesUI.render();capabilityUI.refreshProfiles(authoring);void resourcesUI.refreshReport(); }
 });
 createEntryJourneyUI({project,
   startCreation: () => project.loadStarter({...getLesson('story').starter, name:'Mi primera creación'}),
@@ -548,6 +549,9 @@ lessons = createLessonsUI({
 });
 source.addEventListener('input', () => { lessons?.invalidate();workspace?.authoringChanged();compileAttempt++;if(document.querySelector('#compile-result').textContent==='Compilando…')document.querySelector('#compile-result').textContent='Fuente modificada · compilación anterior descartada'; });
 let previousCapabilities = null;
+// Whole-project snapshot from the last pack update: block transforms make a
+// capabilities-only rollback unsafe, so update rollback restores the project.
+let previousProjectSnapshot = null;
 function renderPacks() {
   const capabilities = authoring.captureCapabilities();
   const profile = resolveCapabilities(capabilities);
@@ -564,8 +568,8 @@ function renderPacks() {
   }));
   const score = capabilities?.locks.find(lock => lock.id === 'gg.score');
   document.querySelector('#enable-score').disabled = Boolean(score) || !project.state().ready;
-  document.querySelector('#update-packs').hidden = !score || score.version === '0.2.0';
-  document.querySelector('#rollback-packs').hidden = !previousCapabilities;
+  document.querySelector('#update-packs').hidden = !availablePackUpdates(capabilities).length;
+  document.querySelector('#rollback-packs').hidden = !previousCapabilities && !previousProjectSnapshot;
   document.querySelector('#packs-status').textContent = capabilities ? 'Versiones fijadas en este proyecto' : 'Perfil compatible 2D · archivo original sin actualizar';
 }
 async function changeCapabilities(capabilities) {
@@ -574,6 +578,7 @@ async function changeCapabilities(capabilities) {
   try {
     await project.useCapabilities(capabilities);
     previousCapabilities = before;
+    previousProjectSnapshot = null;
     renderPacks();
     lessons?.invalidate();
   } catch (error) { document.querySelector('#packs-error').textContent = error.message; }
@@ -584,8 +589,35 @@ document.querySelector('#enable-score').addEventListener('click', () => {
   const ids = [...new Set([...(current?.locks.map(lock => lock.id) ?? ['gg.sprites']), 'gg.score'])];
   changeCapabilities(createCapabilities(ids, {config: current?.config ?? {}, versions: Object.fromEntries((current?.locks ?? []).map(lock => [lock.id, lock.version]))}));
 });
-document.querySelector('#update-packs').addEventListener('click', () => changeCapabilities(migrateCapabilities(authoring.captureCapabilities(), {id: 'gg.score', toVersion: '0.2.0'})));
-document.querySelector('#rollback-packs').addEventListener('click', () => { if (previousCapabilities) changeCapabilities(previousCapabilities); });
+// Explicit update of every pack with a registered chain; atomic, never runs.
+document.querySelector('#update-packs').addEventListener('click', async () => {
+  const errorOutput = document.querySelector('#packs-error');
+  errorOutput.textContent = '';
+  let before = null, summary = [];
+  try {
+    await project.replaceAuthoring(async () => {
+      before = await project.capture();
+      const result = await migrateProject(before, availablePackUpdates(before.capabilities), {catalog: project.catalog()});
+      summary = result.summary;
+      return result.document;
+    }, {notice: () => `Packs actualizados: ${describeMigrationSummary(summary)}. No se ejecutó nada: pulsa Ejecutar cuando quieras ver el resultado.`});
+    previousProjectSnapshot = before;
+    previousCapabilities = null;
+    renderPacks();
+    lessons?.invalidate();
+  } catch (error) { errorOutput.textContent = error.message; }
+});
+document.querySelector('#rollback-packs').addEventListener('click', async () => {
+  if (previousProjectSnapshot) {
+    const snapshot = previousProjectSnapshot;
+    try {
+      await project.replaceAuthoring(async () => snapshot, {notice: 'Se restauraron las versiones anteriores de los packs. No se ejecutó nada.'});
+      previousProjectSnapshot = null;
+      renderPacks();
+      lessons?.invalidate();
+    } catch (error) { document.querySelector('#packs-error').textContent = error.message; }
+  } else if (previousCapabilities) changeCapabilities(previousCapabilities);
+});
 
 // Explicit diagnostic surface; public language bindings remain experimental.
 window.studioProbe = Object.freeze({

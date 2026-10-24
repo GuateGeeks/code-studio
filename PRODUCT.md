@@ -75,7 +75,7 @@ El piloto apunta a N3 en 2D, texto, micro:bit y actividades, y a N4 en 2D, activ
 
 | Ola | Contenido | Estado |
 |---|---|---|
-| 0 · Higiene | `repo-baseline-and-spec-consolidation`, `pack-versioning-and-migrations`, `test-gate-scaling` | Línea base aplicada el 24/10: commit `670ab20`, etiquetas, 22 cambios archivados y 26 especificaciones consolidadas ([acta](docs/engineering/REPO-BASELINE-RESULTS.md)). Los otros dos, propuestos |
+| 0 · Higiene | `repo-baseline-and-spec-consolidation`, `pack-versioning-and-migrations`, `test-gate-scaling` | Línea base aplicada el 24/10: commit `670ab20`, etiquetas, 22 cambios archivados y 26 especificaciones consolidadas ([acta](docs/engineering/REPO-BASELINE-RESULTS.md)). `pack-versioning-and-migrations` aplicado el 24/10 ([acta](docs/engineering/PACK-VERSIONING-RESULTS.md)); `test-gate-scaling`, propuesto |
 | 1 · Núcleo 2D y texto | `block-language-contract`, multi-sprite, vocabulario 2D v2, `synced-code-views`, editor de código, modelo de continuidad, biblioteca de recursos | Dos cambios propuestos; el resto, por redactar |
 | 2 · Aprendizaje | Actividades v3 con feedback graduado, unidades, entrada «actividad primero», catálogo CNB, contenido; **Exp. 1** en aula | Por redactar; requiere D1 y un docente |
 | 3 · Capacidades | micro:bit v2 con radio y prueba física, bloques tipados 3D/web, Scratch importado multi-sprite | Por redactar |

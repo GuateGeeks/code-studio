@@ -2,8 +2,11 @@ import {createResourceView} from './resources.mjs';
 import {localPackCatalog, latestPackVersions, localPackMigrations} from '../packs/catalog.mjs';
 import {validatePackJSON,validatePackConfigSchema} from './pack-config-schema.mjs';
 import {validateLocalPackConfig,validateLocalPackReferences,validateLocalPackFeatures} from './pack-config-validators.mjs';
+import {findMigrationChain,transformWorkspace} from './pack-migrations.mjs';
 
 export const packLimits = Object.freeze({packs: 16, configBytes: 16384, depth: 16});
+// Manifest formats this release understands; later formats are added, never swapped.
+export const supportedPackApiVersions = Object.freeze([1]);
 const fail = message => { throw new Error(`GG packs: ${message}`); };
 const own = (value, field) => Object.hasOwn(value, field);
 export function canonicalPackData(value) {
@@ -17,7 +20,7 @@ function fields(value, required, label) {
 }
 function entry(id, version, catalog = localPackCatalog) {
   const found = catalog.find(item => item.manifest.id === id && item.manifest.version === version);
-  if (!found) fail('pack/versión no instalado: ' + id + '@' + version);
+  if (!found) fail('pack/versión no instalado: ' + id + '@' + version + '. Este proyecto necesita ' + id + ' ' + version + '; ábrelo con una versión más reciente de Code Studio');
   return found;
 }
 export function validateCapabilities(capabilities, {catalog = localPackCatalog} = {}) {
@@ -34,7 +37,7 @@ export function validateCapabilities(capabilities, {catalog = localPackCatalog} 
     if (typeof lock.id !== 'string' || !/^gg\.[a-z0-9][a-z0-9.-]{0,63}$/.test(lock.id) || seen.has(lock.id)) fail('ID de pack inválido/duplicado');
     if (typeof lock.version !== 'string' || lock.version.length > 32 || !/^\d+\.\d+\.\d+$/.test(lock.version) || typeof lock.sha256 !== 'string' || !/^[a-f0-9]{64}$/.test(lock.sha256)) fail('lock inválido');
     const installed = entry(lock.id, lock.version, catalog);
-    if (installed.sha256 !== lock.sha256 || installed.manifest.apiVersion !== 1) fail('hash/API incompatible: ' + lock.id);
+    if (installed.sha256 !== lock.sha256 || !supportedPackApiVersions.includes(installed.manifest.apiVersion)) fail('hash/API incompatible: ' + lock.id);
     if (!own(capabilities.config, lock.id)) fail('configuración ausente: ' + lock.id);
     validatePackJSON(capabilities.config[lock.id],{maxDepth:packLimits.depth,maxBytes:installed.manifest.configBudgetBytes??packLimits.configBytes});
     validatePackConfigSchema(capabilities.config[lock.id],installed.manifest.configSchema,lock.id);
@@ -85,24 +88,30 @@ export function resolveCapabilities(capabilities = null, {catalog = localPackCat
   return {legacy: capabilities == null, capabilities: capabilities == null ? null : resolved, packs, variables,
     initialScene: resolved.config['gg.sprites']?structuredClone(resolved.config['gg.sprites'].initialScene):undefined};
 }
-export function migrateCapabilities(capabilities, {id, toVersion}, {catalog = localPackCatalog} = {}) {
-  const current = validateCapabilities(capabilities, {catalog});
+// Walks the registered chain (manifest records and catalog records) one step at
+// a time; each step renames config fields, transforms pack workspaces and must
+// validate against the installed target version before the next step.
+export function migrateCapabilities(capabilities, {id, toVersion}, {catalog = localPackCatalog, records = localPackMigrations} = {}) {
+  let current = validateCapabilities(capabilities, {catalog});
   if (!current) fail('migración requiere capacidades explícitas');
   const lock = current.locks.find(item => item.id === id);
   if (!lock) fail('pack no seleccionado');
   if (lock.version === toVersion) return current;
-  const previous = entry(id, lock.version, catalog);
-  const migration = previous.manifest.migrations.find(item => item.toVersion === toVersion)??localPackMigrations.find(item=>item.id===id&&item.fromVersion===lock.version&&item.toVersion===toVersion);
-  if (!migration) fail('migración no instalada');
-  const target = entry(id, toVersion, catalog);
-  const config = {...current.config[id]};
-  for (const [from, to] of Object.entries(migration.rename)) {
-    if (!own(config, from) || own(config, to)) fail('migración ambigua');
-    config[to] = config[from]; delete config[from];
+  for (const step of findMigrationChain(id, lock.version, toVersion, {catalog, records})) {
+    const target = entry(id, step.toVersion, catalog);
+    const config = {...current.config[id]};
+    for (const [from, to] of Object.entries(step.rename)) {
+      if (!own(config, from) || own(config, to)) fail('migración ambigua');
+      config[to] = config[from]; delete config[from];
+    }
+    current.config[id] = config;
+    if (step.blocks) for (const [packId, packConfig] of Object.entries(current.config)) {
+      if (plain(packConfig) && plain(packConfig.workspace) && Array.isArray(packConfig.workspace.nodes)) current.config[packId] = {...packConfig, workspace: transformWorkspace(packConfig.workspace, step.blocks).workspace};
+    }
+    current.locks = current.locks.map(item => item.id === id ? {id, version: step.toVersion, sha256: target.sha256} : item);
+    current = validateCapabilities(current, {catalog});
   }
-  current.config[id] = config;
-  current.locks = current.locks.map(item => item.id === id ? {id, version: toVersion, sha256: target.sha256} : item);
-  return validateCapabilities(current, {catalog});
+  return current;
 }
 
 // Policy authority comes only from the installed manifests, never archive data.

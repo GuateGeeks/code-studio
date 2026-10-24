@@ -79,3 +79,16 @@ El ZIP moderno admite manifest más hasta32assets (33entradas), rutas derivadas 
 La apertura verifica estructura, hashes, formato y referencias; PNG requiere salida zlib/filtros válidos y decode real antes del commit. ResourceStore se prepara antes de Blockly y los participantes. Los IDs raw de dropdown se verifican antes de deserializar para evitar sustitución silenciosa por Blockly. Candidatos y checkpoints son opacos; el rollback restaura recursos, selección y campos abiertos.
 
 La promoción copy-on-write es explícita. No se retira una política perdiendo recursos; reemplazar el proyecto es una transacción distinta. Los logs, candidatos VM, audio activo, cobertura derivada y exportaciones no forman parte de la autoría. La configuración gg.sb3 referencia el SHA del original. Véanse [ADR008](../adr/008-recursos-y-compatibilidad-sb3.md) y [resultados F5](../phase-5/RESULTS.md).
+
+## Compatibilidad y migraciones (pack-versioning-and-migrations, 24/10/2026)
+
+Cambio OpenSpec `pack-versioning-and-migrations`, decidido en [ADR-011](../adr/011-contrato-de-lenguaje-y-vistas-sincronizadas.md).
+
+- **Motores.** `locks` se acepta si coincide con el conjunto vigente o con uno anterior de `engineLockHistory` (`src/contracts/engine-locks.mjs`), sin importar el orden de las claves. Una versión desconocida se rechaza nombrando el motor. Al guardar se escriben los locks vigentes. Cuando se actualice un motor, el conjunto anterior se añade al historial y nunca se retira.
+- **Packs.** Un proyecto conserva la versión que declara mientras esté instalada; abrir no migra. «Actualizar packs» aplica de forma explícita la cadena de migraciones registrada hasta la versión más reciente:
+  - la migración es atómica, sin ejecución y con resumen;
+  - «Revertir» restaura el proyecto anterior completo;
+  - una migración puede renombrar campos de configuración y transformar bloques (tipos, campos, entradas y valores) en `authoring.blockly` y en los grafos de los packs, sin cambiar IDs, posiciones ni conexiones (`src/contracts/pack-migrations.mjs`, `src/project-migration.mjs`).
+- **Permisos y API de manifiesto.** Los permisos se resuelven por `pack@versión` (`operationPermissionGrantsByVersion`). Los manifiestos se aceptan si su `apiVersion` está en `supportedPackApiVersions`.
+- **GGPROJ v4.** Es GGPROJ3 con `runtime.api` (`api1`/`api2`) en los documentos textuales y solo se escribe cuando algún documento declara su API. Los documentos v2/v3 sin API usan la de su contexto: 2D → `api1`, documento de 3D/web → `api2`. La versión del intérprete se acepta si está en `textDocumentCompatibleVersions`. El texto del alumno nunca cambia.
+- **Requisitos no instalados.** Un formato más nuevo, un pack o versión ausente, un motor o un intérprete no admitidos se rechazan explicando qué falta y que hace falta una versión más reciente de Code Studio. El proyecto abierto no cambia. Abrir parcialmente un proyecto con un pack desconocido queda diferido.
