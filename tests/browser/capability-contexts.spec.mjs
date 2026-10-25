@@ -12,7 +12,7 @@ test('GG-CONTEXT-001: independent 3D blocks, readonly source, QuickJS, Python, S
  await clickVisible(page.getByRole('button',{name:'Añadir escena 3D',exact:true}));
  await expect(page.locator('#scene3d-mode')).toBeVisible();
  await expect(page.locator('#scene3d-generated-source')).toHaveJSProperty('readOnly',true);
- await expect(page.locator('#scene3d-generated-source')).toHaveValue(/ctx.scene3d.move/);
+ await expect(page.locator('#scene3d-generated-source')).toHaveValue(/sphere\.move\(/);
  await clickVisible(page.getByRole('button',{name:'Ejecutar escena 3D',exact:true}));
  await expect.poll(async()=>{const s=await snapshot(page);return s?.entities?.find(e=>e.id==='sphere')?.local?.position?.x??s?.entities?.find(e=>e.id==='sphere')?.position?.x;},{timeout:30000}).toBe(1);
  const canvas=page.frameLocator('.context-preview:not([hidden]) iframe[title="Escena 3D"]').locator('canvas');await expect(canvas).toBeVisible();await page.screenshot({path:testInfo.outputPath('babylon-real-render.png'),timeout:10000});

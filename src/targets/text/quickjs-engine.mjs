@@ -4,6 +4,7 @@ import {newQuickJSWASMModuleFromVariant, newVariant} from 'quickjs-emscripten-co
 import RELEASE_SYNC from '@jitl/quickjs-wasmfile-release-sync';
 import {resolveLanguageProfile} from '../../contracts/capability-language.mjs';
 import {compileApi3JavaScript} from './api-v3.mjs';
+import {compileApi3Capability} from './api-v3-capability.mjs';
 import {languageRuntimeLimits, validateLanguageDocument, validateLanguageRPC, validateLanguageWait} from '../../contracts/language-runtime.mjs';
 
 // Acorn is syntax-only. The pinned QuickJS C wrapper mishandles module
@@ -281,7 +282,9 @@ async function initializeQuickJSEngine({rpc, onDiagnostic, onProgramReady = () =
       const candidate = validateLanguageDocument(document);
       if (candidate.language !== 'javascript') throw new Error('Documento JavaScript requerido.');
       // API v3 documents are translated to API1 here, inside the language origin (ADR-011).
-      prepared = candidate.runtime.api === 'api3' && !profile ? {...candidate, source: compileApi3JavaScript(candidate.source, {variableIds: candidate.runtime.variableIds ?? {}}).source} : candidate;
+      const metadata = {variableIds: candidate.runtime.variableIds ?? {}, targetIds: candidate.runtime.targetIds ?? {}};
+      prepared = candidate.runtime.api !== 'api3' ? candidate
+        : {...candidate, source: (profile ? compileApi3Capability(candidate.source, {profile, ...metadata}) : compileApi3JavaScript(candidate.source, metadata)).source};
       return {prepared: true};
     },
     execute() {

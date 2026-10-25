@@ -1,7 +1,8 @@
 import {createTextProgramSession,createCapabilityProgramSession, contextOperations, variableReference} from './program-session.mjs';
 import {resolveLanguageProfile} from '../../contracts/capability-language.mjs';
 import {languageRuntimeLimits, validateLanguageDocument, validateLanguageRPC, validateLanguageWait} from '../../contracts/language-runtime.mjs';
-import {api3PythonCompiler} from './api-v3-python.mjs';
+import {api3PythonCompiler, api3CapabilityPythonCompiler} from './api-v3-python.mjs';
+import {capabilityApi3Vocabulary} from '../../contracts/api3-capability-vocabulary.mjs';
 
 export async function createPythonEngine({rpc, onDiagnostic, onProgramReady = () => {}, profile = null, indexURL = '/vendor/pyodide/'} = {}) {
   profile=profile===null?null:resolveLanguageProfile(profile);
@@ -123,7 +124,7 @@ export async function createPythonEngine({rpc, onDiagnostic, onProgramReady = ()
   // Fixed host bootstrap; the student's source is transferred as a Python value.
   pyodide.runPython('import ast as __gg_ast\nimport inspect as __gg_inspect\nimport asyncio as __gg_asyncio\ndef __gg_invoke(callback, context, event=None):\n    return __gg_asyncio.ensure_future(callback(context) if event is None else callback(context, event))');
   invokePython = pyodide.globals.get("__gg_invoke");
-  let api3Ready = false;
+  let api3Ready = false, api3CapabilityReady = false;
   return Object.freeze({
     async prepare(document) {
       const candidate = validateLanguageDocument(document);
@@ -137,6 +138,13 @@ export async function createPythonEngine({rpc, onDiagnostic, onProgramReady = ()
           pyodide.globals.set('__gg_variable_ids', JSON.stringify(candidate.runtime.variableIds ?? {}));
           try { pyodide.runPython('__gg_code = _gg_api3_compile(__gg_source, __gg_variable_ids)[0]'); }
           finally { pyodide.globals.delete('__gg_variable_ids'); }
+        } else if (candidate.runtime.api === 'api3') {
+          if (!api3CapabilityReady) { pyodide.runPython(api3CapabilityPythonCompiler); api3CapabilityReady = true; }
+          const values = {__gg_vocabulary: JSON.stringify(capabilityApi3Vocabulary(profile)), __gg_profile: JSON.stringify({contextId: profile.contextId, documentId: profile.documentId}),
+            __gg_variable_ids: JSON.stringify(candidate.runtime.variableIds ?? {}), __gg_target_ids: JSON.stringify(candidate.runtime.targetIds ?? {})};
+          for (const [name, value] of Object.entries(values)) pyodide.globals.set(name, value);
+          try { pyodide.runPython('__gg_code = _gg_api3_capability_compile(__gg_source, __gg_vocabulary, __gg_profile, __gg_variable_ids, __gg_target_ids)[0]'); }
+          finally { for (const name of Object.keys(values)) pyodide.globals.delete(name); }
         } else pyodide.runPython('__gg_code = compile(__gg_source, "document.py", "exec", flags=__gg_ast.PyCF_ALLOW_TOP_LEVEL_AWAIT, dont_inherit=True)');
       } finally { pyodide.globals.delete('__gg_source'); }
       prepared = candidate;

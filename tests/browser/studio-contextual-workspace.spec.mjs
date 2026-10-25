@@ -80,8 +80,9 @@ for(const id of ['scene3d','webapp'])test('E2: edición independiente en '+id+' 
   await expect(page.locator('#run-document')).toBeHidden();
   await expect(page.locator('#text-run-document')).toBeHidden();
   const source=await page.locator('#text-source').inputValue();
-  expect(source).toContain('GG.');
-  const modifiedSource=source.replace('await GG.context.activate()', 'console.log("mi documento contextual");\nawait GG.context.activate()');
+  // API v3 copy (ADR-011): readable text without the internal bridge.
+  expect(source).toMatch(/onStart\(\(\) => \{|\.on(Click|Submit|Input)\(/);expect(source).not.toContain('GG.');
+  const modifiedSource=source+'\nconsole.log("mi documento contextual");\n';
   expect(modifiedSource).not.toBe(source);
   await page.locator('#text-source').fill(modifiedSource);
   await page.locator('#text-context-run').focus();await page.locator('#text-context-run').press('Enter');

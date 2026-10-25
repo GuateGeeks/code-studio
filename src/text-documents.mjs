@@ -18,18 +18,20 @@ const runtimeIdentifier = /^[A-Za-z_][A-Za-z0-9_]{0,63}$/;
 // variable ID) only accompanies a declared API and never appears in the text.
 export function validateTextRuntime(language, runtime, fail = message => { throw new Error(`GGPROJ textos: ${message}`); }) {
   if (!runtime || typeof runtime !== 'object' || Array.isArray(runtime) || ![Object.prototype, null].includes(Object.getPrototypeOf(runtime))) fail('runtime: objeto inválido');
-  const keys = Object.keys(runtime), allowed = ['engine', 'version', 'api', 'variableIds'];
+  const keys = Object.keys(runtime), allowed = ['engine', 'version', 'api', 'variableIds', 'targetIds'];
   if (keys.some(key => !allowed.includes(key)) || !Object.hasOwn(runtime, 'engine') || !Object.hasOwn(runtime, 'version')) fail('runtime: propiedades ausentes o no permitidas');
-  if (Object.hasOwn(runtime, 'variableIds') && !Object.hasOwn(runtime, 'api')) fail('runtime: variableIds requiere una API declarada');
+  for (const field of ['variableIds', 'targetIds']) if (Object.hasOwn(runtime, field) && !Object.hasOwn(runtime, 'api')) fail(`runtime: ${field} requiere una API declarada`);
   const expected = textDocumentRuntimes[language];
   if (!expected || runtime.engine !== expected.engine || !textDocumentCompatibleVersions[language].includes(runtime.version)) fail(`runtime o versión no soportados (${runtime.engine} ${runtime.version}). Ábrelo con una versión más reciente de Code Studio`);
   if (Object.hasOwn(runtime, 'api') && !textDocumentApis.includes(runtime.api)) fail('API textual no soportada: ' + runtime.api);
-  if (Object.hasOwn(runtime, 'variableIds')) {
-    const map = runtime.variableIds;
-    if (!map || typeof map !== 'object' || Array.isArray(map) || Object.keys(map).length > 16) fail('runtime: variableIds inválido');
-    for (const [name, id] of Object.entries(map)) if (!runtimeIdentifier.test(name) || typeof id !== 'string' || !id || id.length > 128 || ['__proto__', 'constructor', 'prototype'].includes(id)) fail('runtime: variableIds inválido');
+  for (const [field, limit] of [['variableIds', 16], ['targetIds', 64]]) {
+    if (!Object.hasOwn(runtime, field)) continue;
+    const map = runtime[field];
+    if (!map || typeof map !== 'object' || Array.isArray(map) || Object.keys(map).length > limit) fail(`runtime: ${field} inválido`);
+    for (const [name, id] of Object.entries(map)) if (!runtimeIdentifier.test(name) || typeof id !== 'string' || !id || id.length > 128 || ['__proto__', 'constructor', 'prototype'].includes(id)) fail(`runtime: ${field} inválido`);
   }
-  return {engine: expected.engine, version: expected.version, ...(Object.hasOwn(runtime, 'api') ? {api: runtime.api} : {}), ...(Object.hasOwn(runtime, 'variableIds') ? {variableIds: {...runtime.variableIds}} : {})};
+  return {engine: expected.engine, version: expected.version, ...(Object.hasOwn(runtime, 'api') ? {api: runtime.api} : {}),
+    ...(Object.hasOwn(runtime, 'variableIds') ? {variableIds: {...runtime.variableIds}} : {}), ...(Object.hasOwn(runtime, 'targetIds') ? {targetIds: {...runtime.targetIds}} : {})};
 }
 const encoder = new TextEncoder();
 const uuid = /^text-[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -68,12 +70,12 @@ export function validateTextDocuments(textDocuments, selectedTextDocumentId) {
   return {textDocuments: cloned, selectedTextDocumentId};
 }
 
-export function createTextDocument({language, name, source = '', api, variableIds}) {
+export function createTextDocument({language, name, source = '', api, variableIds, targetIds}) {
   if (typeof language !== 'string' || !Object.hasOwn(textDocumentRuntimes, language)) fail('lenguaje no soportado');
   return validateDocument({
     id: `text-${crypto.randomUUID()}`,
     name: name === undefined ? (language === 'javascript' ? 'Programa JavaScript' : 'Programa Python') : name,
-    language, source, runtime: {...textDocumentRuntimes[language], ...(api ? {api} : {}), ...(api && variableIds ? {variableIds} : {})}
+    language, source, runtime: {...textDocumentRuntimes[language], ...(api ? {api} : {}), ...(api && variableIds ? {variableIds} : {}), ...(api && targetIds ? {targetIds} : {})}
   });
 }
 

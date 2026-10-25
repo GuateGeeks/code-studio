@@ -1,7 +1,7 @@
 import {createCapabilities,resolveCapabilityFeatures} from '../contracts/packs.mjs';
 import {defaultScene3DConfig,validateScene3DConfig} from '../contracts/scene3d-program.mjs';
 import {defaultWebAppConfig,validateWebAppConfig} from '../contracts/webapp-program.mjs';
-import {generateCapabilityProgramSource} from '../generated-capability-source.mjs';
+import {generateApi3CapabilitySource} from '../generated-capability-source.mjs';
 import {propertyLabel,explainValidation,objectTypeLabel} from './presentation-text.mjs';
 const definitions=[
  {contextId:'scene3d',packId:'gg.3d-basic',title:'Escena 3D',runLabel:'Ejecutar escena 3D',addLabel:'Añadir escena 3D',defaults:defaultScene3DConfig,validate:validateScene3DConfig,collection:'entities',payload:'scene'},
@@ -104,7 +104,8 @@ export function createCapabilityContextsUI({contexts,getCapabilities,activate,te
      doc.replaceChildren(...options);doc.value=config.selectedTextDocumentId??'';blocks.hidden=config.mode!=='blocks';
      run.disabled=exportButton.disabled=!ready||busy;
      const ids=objects().map(x=>x.id).join('|');for(const option of addType.options)if(def.contextId==='scene3d')option.disabled=!features.entityKinds.includes(option.value);if(addType.selectedOptions[0]?.disabled)addType.value='sphere';if(object.dataset.ids!==ids){object.replaceChildren(...objects().map(item=>{const option=el('option',item.name??item.id);option.value=item.id;return option;}));object.dataset.ids=ids;if(def.contextId==='scene3d'){const camera=el('option','Cámara');camera.value='$camera';object.append(camera);}object.value=[...object.options].some(o=>o.value===selectedId)?selectedId:objects()[0]?.id??'';renderProperties();}
-     try{output.value=generateCapabilityProgramSource(blockEditor.program(),codeLanguage.value).text;}catch(e){output.value='';error.textContent=e.message;}
+     // Readable API v3 (ADR-011); blocks still run through the internal API2 path.
+     try{output.value=generateApi3CapabilitySource(blockEditor.program(),codeLanguage.value,{targets:objects().map(item=>item.id)}).text;}catch(e){output.value='';error.textContent=e.message;}
    }
    function changed(){if(muted)return;error.textContent='';status.textContent='Cambios sin ejecutar';render();notify();}
    blockEditor.subscribe(changed);
@@ -155,7 +156,7 @@ export function createCapabilityContextsUI({contexts,getCapabilities,activate,te
      await activate(createCapabilities(ids,{config:previous?.config??{},versions:{...Object.fromEntries((previous?.locks??[]).map(l=>[l.id,l.version])),'gg.assets':'0.2.0',...(previous?.locks.some(l=>l.id==='gg.sb3')?{'gg.sb3':'0.2.0'}:{})}}));}finally{activating=false;render();if(returnFocus&&config&&!section.hidden&&[document.body,enable].includes(document.activeElement))mode.querySelector('input:checked')?.focus({preventScroll:true});}
    }
    enable.addEventListener('click',()=>enablePack().catch(e=>report(entry,e)));
-   function createCopy(language){try{const source=generateCapabilityProgramSource(blockEditor.program(),language).text;const document=textDocuments.add({language,name:def.title+' · '+(language==='javascript'?'JavaScript':'Python'),source});config.mode=language;config.selectedTextDocumentId=document.id;changed();const input=section.ownerDocument.querySelector('#text-source');input.focus({preventScroll:true});input.scrollIntoView({block:'nearest'});}catch(e){report(entry,e);}}
+   function createCopy(language){try{const generated=generateApi3CapabilitySource(blockEditor.program(),language,{targets:objects().map(item=>item.id)});const document=textDocuments.add({language,name:def.title+' · '+(language==='javascript'?'JavaScript':'Python'),source:generated.text,api:'api3',variableIds:generated.variableIds,targetIds:generated.targetIds});config.mode=language;config.selectedTextDocumentId=document.id;changed();const input=section.ownerDocument.querySelector('#text-source');input.focus({preventScroll:true});input.scrollIntoView({block:'nearest'});}catch(e){report(entry,e);}}
    createJS.addEventListener('click',()=>createCopy('javascript'));createPy.addEventListener('click',()=>createCopy('python'));
    run.addEventListener('click',async()=>{if(busy)return;const returnFocus=document.activeElement===run;busy=true;run.disabled=true;status.textContent='Preparando ejecución…';try{await onRun(def.contextId);status.textContent='Ejecución activa';}catch(e){status.textContent='No se pudo iniciar esta ejecución';report(entry,e);}finally{busy=false;run.disabled=!ready;if(returnFocus&&!section.hidden&&document.activeElement===document.body)run.focus({preventScroll:true});}});
    exportButton.addEventListener('click',()=>onExport(def.contextId).catch(e=>report(entry,e)));

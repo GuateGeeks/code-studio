@@ -53,11 +53,13 @@ test('GG-COMPAT-002: operation grants derive from pack@version data and manifest
   }
   const profile = resolveOperationProfile({contextId: 'scene3d', documentId: 'scene-main', capabilities: createCapabilities(['gg.3d-basic'])});
   assert.deepEqual(profile.operations.map(op => op.id).sort(), [...operationPermissionGrantsByVersion['gg.3d-basic@0.1.0']].sort());
-  assert.deepEqual(supportedPackApiVersions, [1]);
+  assert.deepEqual(supportedPackApiVersions, [1, 2]);
   const future = structuredClone(localPackCatalog.find(entry => entry.manifest.id === 'gg.sprites'));
-  future.manifest.apiVersion = 2;
+  future.manifest.apiVersion = 3;
   const syntheticCatalog = localPackCatalog.filter(entry => entry.manifest.id !== 'gg.sprites').concat(future);
   assert.throws(() => createCapabilities(['gg.sprites'], {catalog: syntheticCatalog}), /hash\/API incompatible/);
+  future.manifest.apiVersion = 2;
+  assert.throws(() => createCapabilities(['gg.sprites'], {catalog: syntheticCatalog}), /tabla de lenguaje ausente/);
 });
 
 test('GG-COMPAT-003: block transforms rename types, fields, inputs and values in nested Blockly and flat graphs keeping IDs', () => {

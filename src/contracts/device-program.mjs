@@ -1,3 +1,4 @@
+import {languageTables} from '../packs/language-tables.mjs';
 // Portable device authoring and derivation. No DOM, Blockly or PXT dependency.
 export const deviceLimits = Object.freeze({nodes:48,hats:8,depth:4,workspaceBytes:8192,sourceBytes:16384,id:128,deviceId:64});
 export const deviceIcons = Object.freeze(['Heart','SmallHeart','Yes','No','Happy','Sad']);
@@ -136,6 +137,12 @@ function validateIR(ir) {
   }
   return ir;
 }
+const deviceFormats={'led-matrix':value=>'\n'+Array.from({length:5},(_,row)=>value.slice(row*5,row*5+5).split('').map(bit=>bit==='1'?'#':'.').join(' ')).join('\n')+'\n'};
+function renderDeviceStatement(node){
+  const entry=languageTables['gg.microbit@0.1.0'].find(item=>item.kind==='call'&&item.lower.device===node.kind);
+  if(!entry)fail('Instrucción de dispositivo sin tabla de lenguaje.',node.sourceBlockId);
+  return entry.typescript.replace(/\{([A-Z][A-Z0-9_]*)\}/g,(match,name)=>{const value=node[name];return entry.format?.[name]?deviceFormats[entry.format[name]](value):String(value);});
+}
 export function generateDeviceSource(input) {
   const ir=validateIR(input);let source='',line=1,loop=0;const sourceMap=[];
   const append=text=>{source+=text;line+=(text.match(/\n/g)??[]).length;};
@@ -144,15 +151,9 @@ export function generateDeviceSource(input) {
     const pad='    '.repeat(indent);
     for(const node of items)span(node.sourceBlockId,()=>{
       switch(node.kind) {
-        case 'showIcon':append(pad+'basic.showIcon(IconNames.'+node.ICON+');\n');break;
-        case 'showNumber':append(pad+'basic.showNumber('+node.NUMBER+');\n');break;
-        case 'showLeds': {
-          const rows=Array.from({length:5},(_,row)=>node.LEDS.slice(row*5,row*5+5).split('').map(bit=>bit==='1'?'#':'.').join(' '));
-          append(pad+'basic.showLeds(\x60\n'+rows.join('\n')+'\n\x60);\n');break;
-        }
-        case 'plot':case 'unplot':append(pad+'led.'+node.kind+'('+node.X+', '+node.Y+');\n');break;
-        case 'clear':append(pad+'basic.clearScreen();\n');break;
-        case 'pause':append(pad+'basic.pause('+node.MS+');\n');break;
+        case 'showIcon':case 'showNumber':case 'showLeds':case 'plot':case 'unplot':case 'clear':case 'pause':
+          // Statement text comes from the gg.microbit language table (ADR-011).
+          append(pad+renderDeviceStatement(node)+';\n');break;
         case 'repeat': {
           const local='gg_device_i_'+(++loop);append(pad+'for (let '+local+' = 0; '+local+' < '+node.COUNT+'; '+local+'++) {\n');body(node.body,indent+1);append(pad+'}\n');break;
         }

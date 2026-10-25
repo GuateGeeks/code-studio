@@ -3,10 +3,12 @@ import {localPackCatalog, latestPackVersions, localPackMigrations} from '../pack
 import {validatePackJSON,validatePackConfigSchema} from './pack-config-schema.mjs';
 import {validateLocalPackConfig,validateLocalPackReferences,validateLocalPackFeatures} from './pack-config-validators.mjs';
 import {findMigrationChain,transformWorkspace} from './pack-migrations.mjs';
+import {validateLanguageTables} from './language-table.mjs';
 
 export const packLimits = Object.freeze({packs: 16, configBytes: 16384, depth: 16});
 // Manifest formats this release understands; later formats are added, never swapped.
-export const supportedPackApiVersions = Object.freeze([1]);
+// apiVersion 2 manifests carry their own language table (ADR-011).
+export const supportedPackApiVersions = Object.freeze([1, 2]);
 const fail = message => { throw new Error(`GG packs: ${message}`); };
 const own = (value, field) => Object.hasOwn(value, field);
 export function canonicalPackData(value) {
@@ -38,6 +40,10 @@ export function validateCapabilities(capabilities, {catalog = localPackCatalog} 
     if (typeof lock.version !== 'string' || lock.version.length > 32 || !/^\d+\.\d+\.\d+$/.test(lock.version) || typeof lock.sha256 !== 'string' || !/^[a-f0-9]{64}$/.test(lock.sha256)) fail('lock inválido');
     const installed = entry(lock.id, lock.version, catalog);
     if (installed.sha256 !== lock.sha256 || !supportedPackApiVersions.includes(installed.manifest.apiVersion)) fail('hash/API incompatible: ' + lock.id);
+    if (installed.manifest.apiVersion === 2) {
+      if (!Array.isArray(installed.manifest.language)) fail('tabla de lenguaje ausente: ' + lock.id);
+      validateLanguageTables({[lock.id + '@' + lock.version]: installed.manifest.language});
+    }
     if (!own(capabilities.config, lock.id)) fail('configuración ausente: ' + lock.id);
     validatePackJSON(capabilities.config[lock.id],{maxDepth:packLimits.depth,maxBytes:installed.manifest.configBudgetBytes??packLimits.configBytes});
     validatePackConfigSchema(capabilities.config[lock.id],installed.manifest.configSchema,lock.id);

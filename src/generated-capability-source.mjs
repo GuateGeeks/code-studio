@@ -2,6 +2,8 @@ import {createTextDocument} from './text-documents.mjs';
 import {validateProgramIR1} from './contracts/program-ir1.mjs';
 import {resolveOperationProfile} from './contracts/operations.mjs';
 import {languageProfileMetadata} from './contracts/capability-language.mjs';
+import {capabilityApi3Vocabulary} from './contracts/api3-capability-vocabulary.mjs';
+import {api3Identifier} from './contracts/api3-names.mjs';
 const js=value=>JSON.stringify(value).replaceAll('\u2028','\\u2028').replaceAll('\u2029','\\u2029');
 const py=value=>js(value).replaceAll('\\u2028','\\u2028').replaceAll('\\u2029','\\u2029');
 
@@ -91,4 +93,80 @@ export function createGeneratedCapabilityDocument(ir,language='javascript',{name
  const generated=generateCapabilityProgramSource(ir,language,options);
  const document=createTextDocument({language,name,source:generated.text});
  return {document,sourceMap:generated.sourceMap,profile:generated.requirements.profile,requirements:generated.requirements};
+}
+
+// API v3 (ADR-011) for 3D and web: readable derived text. Targets become
+// identifiers (`sphere.move(1, 0, 0)`), event fields read as event.value /
+// event.values["id"], and IDs travel in the copy's metadata. The language
+// origin translates it back to API2 (targets/text/api-v3-capability.mjs).
+export function generateApi3CapabilitySource(input, language, {profile, targets = []} = {}) {
+ if(!['javascript','python'].includes(language))throw new Error('Unsupported generated language');
+ const ir=validateProgramIR1(input,{profile}),python=language==='python';
+ profile=resolveOperationProfile({contextId:ir.contextId,documentId:ir.documentId});
+ const vocabulary=capabilityApi3Vocabulary(profile);
+ const quote=python?py:js,lines=[],sourceMap=[];
+ const line=(text,ids=[],depth=0)=>{lines.push((python?'    ':'  ').repeat(depth)+text);sourceMap.push([...new Set(ids.filter(Boolean))]);};
+ const taken=new Set([vocabulary.namespace]),variableIds={},targetIds={},names=new Map(),targetNames=new Map();
+ for(const variable of ir.variables){const identifier=api3Identifier(variable.name,taken);names.set(variable.id,identifier);variableIds[identifier]=variable.id;}
+ const targetName=id=>{if(!targetNames.has(id)){const identifier=api3Identifier(id,taken);targetNames.set(id,identifier);targetIds[identifier]=id;}return targetNames.get(id);};
+ for(const id of targets)targetName(id);
+ const literal=value=>value===null?(python?'None':'null'):typeof value==='boolean'?(python?(value?'True':'False'):String(value)):typeof value==='string'?quote(value):String(value);
+ function expression(value,ids){
+  if(!value||typeof value!=='object')return literal(value);
+  if(value.sourceBlockId)ids.push(value.sourceBlockId);
+  if(value.kind==='variable')return names.get(value.variableId);
+  if(value.kind==='event'){const path=value.path.split('.');return path[0]==='values'?`event.values[${quote(path.slice(1).join('.'))}]`:'event.'+value.path;}
+  if(value.kind==='compare')return `${expression(value.left,ids)} ${{EQ:'==',LT:'<',GT:'>'}[value.operator]} ${expression(value.right,ids)}`;
+  throw new Error('Expresión no soportada en API v3');
+ }
+ const leaf=(args,path)=>path.split('.').reduce((value,key)=>value?.[key],args);
+ function usesEvent(nodes){return JSON.stringify(nodes).includes('"kind":"event"');}
+ function assigned(nodes,out=new Set()){for(const node of nodes){if(['setVariable','changeVariable'].includes(node.kind))out.add(names.get(node.variableId));if(node.body)assigned(node.body,out);if(node.elseBody)assigned(node.elseBody,out);}return out;}
+ function body(nodes,depth,parent,loopDepth){
+  if(!nodes.length&&python)line('pass',[parent],depth);
+  for(const node of nodes){
+   const ids=[node.sourceBlockId];
+   if(node.kind==='call'){
+    const operation=Object.values(vocabulary.targeted).concat(Object.values(vocabulary.global)).find(item=>item.id===node.operationId);
+    const owner=Object.values(vocabulary.targeted).includes(operation)?targetName(node.args.targetId):vocabulary.namespace;
+    const method=python?operation.name.replace(/[A-Z]/g,letter=>'_'+letter.toLowerCase()):operation.name;
+    line(`${owner}.${method}(${operation.leaves.map(path=>expression(leaf(node.args,path),ids)).join(', ')})${python?'':';'}`,ids,depth);
+   }else if(node.kind==='setVariable')line(`${names.get(node.variableId)} = ${expression(node.value,ids)}${python?'':';'}`,ids,depth);
+   else if(node.kind==='changeVariable'){const negative=typeof node.value==='number'&&node.value<0;line(`${names.get(node.variableId)} ${negative?'-=':'+='} ${negative?String(-node.value):expression(node.value,ids)}${python?'':';'}`,ids,depth);}
+   else if(node.kind==='wait')line(`wait(${expression(node.seconds,ids)})${python?'':';'}`,ids,depth);
+   else if(node.kind==='repeat'){
+    const counter=['i','j','k'][loopDepth]??'i'+(loopDepth+1),count=expression(node.count,ids);
+    line(python?`for ${counter} in range(${count}):`:`for (let ${counter} = 0; ${counter} < ${count}; ${counter}++) {`,ids,depth);
+    body(node.body,depth+1,node.sourceBlockId,loopDepth+1);if(!python)line('}',ids,depth);
+   }else if(node.kind==='if'){
+    line(python?`if ${expression(node.condition,ids)}:`:`if (${expression(node.condition,ids)}) {`,ids,depth);
+    body(node.body,depth+1,node.sourceBlockId,loopDepth);
+    if(node.elseBody.length){line(python?'else:':'} else {',[node.sourceBlockId],depth);body(node.elseBody,depth+1,node.sourceBlockId,loopDepth);}
+    if(!python)line('}',[node.sourceBlockId],depth);
+   }else throw Object.assign(new Error('Unsupported generated operation: '+node.kind),{sourceBlockId:node.sourceBlockId});
+  }
+ }
+ line((python?'#':'//')+` ${python?'Python':'JavaScript'} de tus bloques. Crear una copia no cambia tus bloques.`);
+ for(const variable of ir.variables)line(python?`${names.get(variable.id)} = ${literal(variable.initialValue)}`:`let ${names.get(variable.id)} = ${literal(variable.initialValue)};`);
+ const handlerNames=new Set();
+ for(const script of ir.scripts){
+  line('');
+  const event=Object.values(vocabulary.events).find(item=>item.id===script.event);
+  const owner=event.target?targetName(script.targetId)+'.':'';
+  const option=event.option?quote(script.key??'')+', ':'';
+  const parameter=usesEvent(script.body)?'event':'';
+  if(python){
+   line(`@${owner}${event.python}${event.option?'('+quote(script.key??'')+')':''}`,[script.sourceBlockId]);
+   line(`def ${api3Identifier('al_'+script.event+(script.targetId?'_'+script.targetId:''),handlerNames)}(${parameter}):`,[script.sourceBlockId]);
+   const globals=[...assigned(script.body)].sort();if(globals.length)line(`global ${globals.join(', ')}`,[script.sourceBlockId],1);
+   body(script.body,1,script.sourceBlockId,0);
+  }else{
+   line(`${owner}${event.js}(${option}(${parameter}) => {`,[script.sourceBlockId]);
+   body(script.body,1,script.sourceBlockId,0);
+   line('});',[script.sourceBlockId]);
+  }
+ }
+ const text=lines.join('\n')+'\n';sourceMap.push([]);
+ if(new TextEncoder().encode(text).length>65536)throw new Error('Generated program source exceeds 65536 UTF-8 bytes');
+ return {text,sourceMap,variableIds,targetIds,requirements:{apiVersion:3,profile:languageProfileMetadata(profile)}};
 }

@@ -1,5 +1,8 @@
 import {generateCapabilityProgramSource} from './generated-capability-source.mjs';
 import {validateProgram} from './contracts/program-contract.mjs';
+import {api3Identifier} from './contracts/api3-names.mjs';
+import {languageTables} from './packs/language-tables.mjs';
+export {api3Identifier};
 
 const sourceBytes = 65536;
 const javascriptString = value => JSON.stringify(value).replaceAll('\u2028', '\\u2028').replaceAll('\u2029', '\\u2029');
@@ -130,18 +133,6 @@ export function generateProgramSource(ir, language,options={}) {
 // API v3 (ADR-011): readable JavaScript/Python for 2D programs. The language
 // origin translates it back to API1 before running (targets/text/api-v3.mjs);
 // variable IDs travel in the copy's metadata, never in the text.
-const api3Keywords = new Set(['break', 'case', 'catch', 'class', 'const', 'continue', 'debugger', 'default', 'delete', 'do', 'else', 'export', 'extends', 'finally', 'for', 'function', 'if', 'import', 'in', 'instanceof', 'let', 'new', 'return', 'super', 'switch', 'this', 'throw', 'try', 'typeof', 'var', 'void', 'while', 'with', 'yield', 'await', 'enum', 'static', 'null', 'true', 'false', 'undefined', 'NaN', 'Infinity',
-  'and', 'as', 'assert', 'async', 'def', 'del', 'elif', 'except', 'from', 'global', 'is', 'lambda', 'nonlocal', 'not', 'or', 'pass', 'raise', 'None', 'True', 'False', 'print', 'input', 'range', 'len', 'list', 'str', 'int', 'float', 'type',
-  'GG', 'ctx', 'hero', 'shared', 'wait', 'broadcastAndWait', 'createClone', 'deleteClone', 'playSound', 'playSoundUntilDone', 'stopSounds', 'onStart', 'onKey', 'onMessage', 'i', 'j', 'k']);
-export function api3Identifier(name, taken = new Set()) {
-  let base = String(name).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Za-z0-9_]+/g, '_').replace(/^_+|_+$/g, '') || 'variable';
-  if (/^[0-9]/.test(base)) base = 'v_' + base;
-  if (api3Keywords.has(base)) base = base + '_';
-  let candidate = base, suffix = 2;
-  while (taken.has(candidate)) candidate = `${base}_${suffix++}`;
-  taken.add(candidate);
-  return candidate;
-}
 export function generateApi3ProgramSource(ir, language, options = {}) {
   validateProgram(ir, options);
   if (!['javascript', 'python'].includes(language)) throw new Error('Unsupported generated language');
@@ -167,6 +158,14 @@ export function generateApi3ProgramSource(ir, language, options = {}) {
   const value = (node, ids) => { if (typeof node === 'number') return String(node); ids.push(node.sourceBlockId); return names.get(node.variableId); };
   const loopNames = ['i', 'j', 'k'];
   const call = (js, py, args, ids, depth) => line(`${python ? py : js}(${args.join(', ')})${python ? '' : ';'}`, ids, depth);
+  // Action names come from the sprite language table (ADR-011); playSound picks its variant by `wait`.
+  const actions = languageTables['gg.sprites@0.1.0'].filter(entry => entry.kind === 'call');
+  const action = (node, args, ids, depth) => {
+    const entry = actions.find(item => item.lower.ir === node.kind && (item.append === undefined || item.append === Boolean(node.wait)));
+    if (!entry) throw Object.assign(new Error(`Unsupported generated operation: ${node.kind}`), {sourceBlockId: node.sourceBlockId});
+    const owner = entry.target === 'sprite' ? 'hero.' : '';
+    call(owner + entry.js, owner + entry.python, args, ids, depth);
+  };
   function assigned(body, out = new Set()) {
     for (const node of body) {
       if (['setVariable', 'changeVariable'].includes(node.kind)) out.add(names.get(node.variableId));
@@ -180,8 +179,8 @@ export function generateApi3ProgramSource(ir, language, options = {}) {
     for (const node of body) {
       const ids = [node.sourceBlockId];
       switch (node.kind) {
-        case 'move': call('hero.move', 'hero.move', [value(node.steps, ids)], ids, depth); break;
-        case 'wait': call('wait', 'wait', [String(node.seconds)], ids, depth); break;
+        case 'move': action(node, [value(node.steps, ids)], ids, depth); break;
+        case 'wait': action(node, [String(node.seconds)], ids, depth); break;
         case 'setVariable': line(`${names.get(node.variableId)} = ${value(node.value, ids)}${python ? '' : ';'}`, ids, depth); break;
         case 'changeVariable': {
           const negative = typeof node.value === 'number' && node.value < 0;
@@ -205,12 +204,10 @@ export function generateApi3ProgramSource(ir, language, options = {}) {
           if (!python) line('}', [node.sourceBlockId], depth);
           break;
         }
-        case 'broadcastWait': call('broadcastAndWait', 'broadcast_and_wait', [quote(node.message)], ids, depth); break;
-        case 'createClone': call('createClone', 'create_clone', [], ids, depth); break;
-        case 'deleteClone': call('deleteClone', 'delete_clone', [], ids, depth); break;
-        case 'playSound': audio.add(node.sound); call(node.wait ? 'playSoundUntilDone' : 'playSound', node.wait ? 'play_sound_until_done' : 'play_sound', [quote(node.sound)], ids, depth); break;
-        case 'stopSounds': call('stopSounds', 'stop_sounds', [], ids, depth); break;
-        case 'setCostume': costumes.add(node.costume); call('hero.setCostume', 'hero.set_costume', [quote(node.costume)], ids, depth); break;
+        case 'broadcastWait': action(node, [quote(node.message)], ids, depth); break;
+        case 'createClone': case 'deleteClone': case 'stopSounds': action(node, [], ids, depth); break;
+        case 'playSound': audio.add(node.sound); action(node, [quote(node.sound)], ids, depth); break;
+        case 'setCostume': costumes.add(node.costume); action(node, [quote(node.costume)], ids, depth); break;
         default: throw Object.assign(new Error(`Unsupported generated operation: ${node.kind}`), {sourceBlockId: node.sourceBlockId});
       }
     }

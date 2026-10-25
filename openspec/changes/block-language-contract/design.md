@@ -50,6 +50,8 @@ Véanse `proposal.md`, ADR-011 y el [plan de maduración](../../../docs/product/
 8. **Variables.** Los nombres nuevos deben ser identificadores válidos. Los existentes no válidos se presentan con un derivado determinista y estable (transliteración, `_` y sufijo numérico ante colisión), guardado como alias en el proyecto para que el resultado no cambie entre sesiones. El ID de la variable sigue siendo la identidad. «Cambiar en» se lee `puntos.changeBy(1)` (o `puntos += 1` si la prueba 6 permite atomicidad), para preservar la atomicidad de ADR-004 con clones.
 9. **Rótulos educativos en la tabla.** Los rótulos de `capability-labels.mjs` (capa de editor del rework) pasan a la entrada como `label`. Ya no hace falta separar el rótulo del hash, porque los manifiestos se versionan con `pack-versioning-and-migrations`.
 
+10. **Tablas de versiones publicadas en el catálogo (24/10/2026, al aplicar).** Los manifiestos `apiVersion: 1` publicados están congelados por su hash; sus tablas viven en `src/packs/language-tables.mjs` por `pack@versión`, con el mismo principio que migraciones y permisos. Las versiones nuevas llevarán su tabla en el manifiesto `apiVersion: 2`, validada al instalar. 3D y web derivan sus entradas de los descriptores de operaciones. El vocabulario v3 2D y las sentencias de micro:bit se generan desde la tabla, que es la fuente única.
+
 ## Risks / Trade-offs
 
 - [El núcleo pasa a interpretar tablas y es más difícil de depurar] → errores de validación que nombran pack, entrada y campo; prueba de herramientas que recorre todas las entradas.

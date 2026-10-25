@@ -121,10 +121,10 @@ export function createTextDocumentsUI({onError = () => {},canRun = () => true,on
     render();
     notify();
   }
-  function add({language, name: documentName, source: documentSource, api, variableIds}) {
+  function add({language, name: documentName, source: documentSource, api, variableIds, targetIds}) {
     if (!ready) throw new Error('Espera a que termine la recuperación del proyecto antes de crear un documento.');
     if ((documents?.length ?? 0) >= textDocumentLimits.documents) throw new Error('El proyecto admite hasta 8 documentos de texto.');
-    const document = createTextDocument({language, name: documentName, source: documentSource, api, variableIds});
+    const document = createTextDocument({language, name: documentName, source: documentSource, api, variableIds, targetIds});
     // commit validates the entire candidate before changing the live documents.
     commit({textDocuments: [...(documents ?? []), document], selectedTextDocumentId: document.id});
     source.focus();
