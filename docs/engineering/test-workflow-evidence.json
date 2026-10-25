@@ -1361,7 +1361,7 @@
         "commands": [
           {
             "name": "specs",
-            "executable": "/home/adawolfs/projects/makecode/.tools/node-v22.23.4-linux-x64/bin/node",
+            "executable": "<workspace>/.tools/node-v22.23.4-linux-x64/bin/node",
             "args": [
               "tools/run-tool.mjs",
               "openspec",

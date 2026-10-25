@@ -79,3 +79,18 @@ se conservan esos originales y se indica expresamente; no se inventa el texto
 ni una variante SPDX. microee 0.0.6 declara "BSD" sin texto separado ni variante;
 audio-context 1.0.3 declara MIT en README. La publicación externa requiere
 mantener visible esa limitación de procedencia, no anunciar una auditoría legal.
+
+## Preparación desde fuentes públicas
+
+`tools/workspace/bootstrap.sh` reconstruye el mismo workspace sin el paquete
+source.tar.gz: Node fijado, Xcratch y pxt-microbit en sus revisiones, el parche
+previo, `release/locks/pxt-microbit.package-lock.json` (pxt-microbit no publica
+lockfile), los módulos Scratch, el target con `pxt serve` y el archivo original
+de PXT Core. Comprobado el 25/10/2026: en un workspace vacío, los doce
+precompilados coinciden byte a byte con el lock. `pxt buildtarget` no sirve
+para esto: genera URLs de CDN distintas.
+
+El árbol de micro:bit excluye `libs/*/built`. Son salidas de `pxt serve` que el
+build no usa, y sus `debug/binary.js` cambian entre ejecuciones porque dependen
+de un contador global del compilador. Por eso `treeSha256` de micro:bit cambió
+a `6e60cb16…` sin que cambiara ninguna fuente.

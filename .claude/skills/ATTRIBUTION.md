@@ -17,13 +17,13 @@ Cambios del 23 de octubre: sección **Movimiento** añadida a `gg-design-system`
 
 | Skill | Origen | Licencia | Cambios locales |
 |---|---|---|---|
-| `web-design-guidelines` | Vercel, vía `socrates.app/.claude/skills/` (idéntica a `/mnt/c/Users/adawolfs/.codex/skills/web-design-guidelines/SKILL.md`) | No declarada en el archivo (frontmatter `author: vercel`, v1.0.0) | Ninguno. Descarga las reglas vigentes de su URL al usarse. |
+| `web-design-guidelines` | Vercel, vía `socrates.app/.claude/skills/` (idéntica a `/mnt/c/Users/$USER/.codex/skills/web-design-guidelines/SKILL.md`) | No declarada en el archivo (frontmatter `author: vercel`, v1.0.0) | Ninguno. Descarga las reglas vigentes de su URL al usarse. |
 | `emil-design-eng` | [emilkowalski/skills](https://github.com/emilkowalski/skills) commit `e879241fab3cdb22e8d95587cdbf40b57a88d7da`, vía Sócrates | MIT — `LICENSE.txt` | El cambio M1 heredado de Sócrates/claude-webkit (sección `## Initial Response` sustituida por `## Attribution`, ver `NOTICE.md`). Ninguno adicional. |
 | `review-animations` | Mismo upstream y commit | MIT — `LICENSE.txt` | Ninguno; conserva `disable-model-invocation: true`. |
 
 Los ejemplos de `emil-design-eng` y `review-animations` mencionan React, Tailwind o librerías de movimiento. Code Studio usa módulos ES, Blockly y CSS propio: tómalos como ilustración del criterio, no como stack. No se editaron para no alterar el texto upstream; la precedencia está en [CLAUDE.md](../../CLAUDE.md).
 
-Impeccable no se copia: se ejecuta desde `/mnt/c/Users/adawolfs/.codex/skills/impeccable/` (v4.7.0), donde el usuario la mantiene.
+Impeccable no se copia: se ejecuta desde `/mnt/c/Users/$USER/.codex/skills/impeccable/` (v4.7.0), donde el usuario la mantiene.
 
 ## No incorporadas, a propósito
 

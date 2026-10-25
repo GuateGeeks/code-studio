@@ -15,6 +15,8 @@
     "test:quick": "node tools/test/run.mjs quick",
     "test:affected": "node tools/test/run.mjs affected",
     "test:full": "node tools/test/run.mjs full",
+    "test:standalone": "node tools/test/standalone.mjs",
+    "workspace:bootstrap": "bash tools/workspace/bootstrap.sh",
     "spec:validate": "node tools/run-tool.mjs openspec validate --all --strict",
     "baseline": "node tools/f0/baseline.mjs",
     "analyze": "node tools/f0/queries.mjs",

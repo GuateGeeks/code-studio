@@ -35,7 +35,7 @@ Fuera de alcance, con razón documentada: reinicio automático al editar (la eje
 Sin tocar fuentes del producto. `CLAUDE.md` y `.claude/` cuentan como documentación para `test:affected` (solo validación de specs).
 
 - **0.1** SHA-256 de todos los archivos no ignorados (el árbol completo está sin seguimiento), snapshot tar recuperable, estado de upstreams y `artifacts/baseline/verification.json`. Sin reset/clean/stash/cambio de rama.
-- **0.2** Copias idénticas de `gg-*` y `openspec-*` en `.claude/skills/` con script de comparación de hashes; `web-design-guidelines`, `emil-design-eng`, `review-animations` con `ATTRIBUTION.md` (procedencia, licencia, cambios). Impeccable se ejecuta desde `/mnt/c/Users/adawolfs/.codex/skills/impeccable/`.
+- **0.2** Copias idénticas de `gg-*` y `openspec-*` en `.claude/skills/` con script de comparación de hashes; `web-design-guidelines`, `emil-design-eng`, `review-animations` con `ATTRIBUTION.md` (procedencia, licencia, cambios). Impeccable se ejecuta desde `/mnt/c/Users/$USER/.codex/skills/impeccable/`.
 - **0.3** `gg-ui-verification` (geometría y≤200, medición de canvas e imagen 4:3 dentro del iframe, recaptura de superficies GPU, una captura no prueba ejecución ni persistencia) y sección de movimiento en `gg-design-system`.
 - **0.4** Subagentes en `.claude/agents/` y TOML en `.codex/agents/`: `gg-experience-reviewer`, `gg-continuity-reviewer`, `gg-browser-verifier` (solo lectura) y `gg-ui-implementer`. El coordinador es el único escritor de shell, tokens y componentes compartidos.
 - **0.5** `CLAUDE.md` sin duplicar `AGENTS.md`. Precedencia: contratos/OpenSpec > `PRODUCT.md`/`DESIGN.md` > `gg-*` > Impeccable > guidelines > resto. Tabla de skills, subagentes y comandos.

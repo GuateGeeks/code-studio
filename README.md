@@ -34,16 +34,29 @@ El [corte de persistencia F1](docs/phase-1/RESULTS.md) añade descarga/apertura 
 - [Flujo de pruebas incremental](docs/engineering/TESTING.md) y [resultados](docs/engineering/TEST-WORKFLOW-RESULTS.md).
 - [Prompt para la siguiente sesión](docs/engineering/NEXT-SESSION.md).
 - [Cambio OpenSpec de herramientas](openspec/changes/archive/2026-10-24-incremental-test-workflow/proposal.md).
-- [Plan de producto](../docs/architecture/IMPLEMENTATION-PLAN.md).
+- Plan de producto: `docs/architecture/IMPLEMENTATION-PLAN.md` del workspace original (no publicado en este repositorio).
+
+## Preparar el workspace
+
+El producto resuelve sus repositorios hermanos en la carpeta padre. La disposición es `<workspace>/guategeeks-code-studio`, `<workspace>/xcratch-scratch-editor`, `<workspace>/pxt-microbit`, `<workspace>/.tools` y `<workspace>/scripts/env.sh`. Clona este repositorio dentro de una carpeta propia y prepara el resto desde fuentes públicas fijadas en `release/source-lock.json` (Linux x86_64, con git, curl, tar y sha256sum):
+
+```bash
+mkdir code-studio-workspace && cd code-studio-workspace
+git clone https://github.com/GuateGeeks/code-studio.git guategeeks-code-studio
+cd guategeeks-code-studio
+bash tools/workspace/bootstrap.sh --browsers
+```
+
+El script descarga Node 22.23.4 con su suma de verificación y clona Xcratch y pxt-microbit en sus revisiones. A pxt-microbit le aplica el parche previo y su `package-lock.json` fijado. Además construye los módulos Scratch y el target micro:bit con `pxt serve`, descarga la fuente de PXT Core (212 MB) e instala las dependencias. Al final verifica árboles, precompilados y runtimes contra el lock. Los repositorios que ya existan solo se verifican; si están en otra revisión, el script se detiene. Los registros quedan en `artifacts/bootstrap/`. Detalle de procedencia en [fuentes y reconstrucción](docs/release/BUILD.md).
+
+Sin workspace, `npm ci && npm run test:standalone` ejecuta las suites de Node que no cargan los repositorios hermanos (lista en `tools/test/standalone.mjs`). La CI (`.github/workflows/ci.yml`) corre ese job y otro que prepara el workspace con el script y ejecuta `npm run test:quick`.
 
 ## Ejecutar las pruebas
 
-En Ubuntu/WSL, desde esta carpeta, con los tres repositorios hermanos del workspace disponibles:
+En Ubuntu/WSL, desde esta carpeta, con el workspace preparado:
 
 ```bash
 source ../scripts/env.sh
-npm ci --no-audit --no-fund
-bash tools/f0/prepare.sh
 set -o pipefail
 npm test | tee artifacts/f1-integration.tap
 npm run spec:validate
@@ -60,9 +73,9 @@ npm run test:full
 
 Quick ejecuta Node/herramientas y tres smoke de navegador. Affected selecciona el área modificada y explica su alcance; sin `--files` compara contenido con el último full exitoso, incluso sin commits. Full ejecuta la puerta completa y actualiza esa referencia solo al aprobar. El build es incremental por defecto. Consulta la [guía de pruebas](docs/engineering/TESTING.md) para reglas, reportes y reconstrucción forzada.
 
-`prepare.sh` instala Xcratch con su lockfile y `--ignore-scripts`, construye sus módulos SVG/render y conserva una línea base inicial. Puede descargar dependencias en esta preparación. Las pruebas de compilación PXT resuelven los paquetes y los cachés de runtime desde los archivos locales de micro:bit.
+En el workspace original, `tools/f0/prepare.sh` instala Xcratch con su lockfile y `--ignore-scripts`, construye sus módulos SVG/render y conserva una línea base inicial; en un clon nuevo usa `tools/workspace/bootstrap.sh`. Las pruebas de compilación PXT resuelven los paquetes y los cachés de runtime desde los archivos locales de micro:bit.
 
-Los tests requieren el target micro:bit ya preparado como describe el [README del workspace](../README.md). No ejecutan firmware en una placa. La suite `npm test` es headless; la suite de navegador siguiente verifica también el renderizado real.
+Los tests requieren el target micro:bit ya preparado (lo hace el script de preparación). No ejecutan firmware en una placa. La suite `npm test` es headless; la suite de navegador siguiente verifica también el renderizado real.
 
 ## Runner y compilador en navegador
 

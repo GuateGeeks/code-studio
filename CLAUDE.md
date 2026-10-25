@@ -7,7 +7,7 @@ Las reglas del repositorio están en [AGENTS.md](AGENTS.md) y se aplican siempre
 1. Contratos y cambio OpenSpec activo (`openspec/changes/<cambio>/`), ADRs en `docs/adr/` y actas de resultados.
 2. [PRODUCT.md](PRODUCT.md) (público: principiantes acompañados por docente) y [DESIGN.md](DESIGN.md) con su sidecar `.impeccable/design.json`: única fuente de tokens, componentes y movimiento.
 3. Skills propias `gg-*`.
-4. Impeccable (`/mnt/c/Users/adawolfs/.codex/skills/impeccable/`, skill directora de diseño).
+4. Impeccable (`/mnt/c/Users/$USER/.codex/skills/impeccable/`, skill directora de diseño).
 5. `web-design-guidelines`.
 6. `emil-design-eng` y `review-animations`, solo como consulta.
 
@@ -31,7 +31,7 @@ Las propias tienen fuente canónica en `.agents/skills/` (Codex) y copias idént
 | `web-design-guidelines` | Revisar archivos contra las Web Interface Guidelines |
 | `emil-design-eng`, `review-animations` | Criterio de movimiento; sus ejemplos React/Tailwind son ilustrativos |
 
-Impeccable: ejecutar `/mnt/c/Users/adawolfs/.codex/skills/impeccable/scripts/impeccable context` una vez por sesión desde la raíz del producto y seguir sus directivas. No repares drift de Impeccable como efecto lateral.
+Impeccable: ejecutar `/mnt/c/Users/$USER/.codex/skills/impeccable/scripts/impeccable context` una vez por sesión desde la raíz del producto y seguir sus directivas. No repares drift de Impeccable como efecto lateral.
 
 ## Subagentes (`.claude/agents/`, equivalentes en `.codex/agents/`)
 

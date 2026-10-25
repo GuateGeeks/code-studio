@@ -18,11 +18,11 @@ La integración funcional E4 ya existe en **2D, texto para 2D, micro:bit, Scratc
 
 Producto en WSL:
 
-`/home/adawolfs/projects/makecode/guategeeks-code-studio`
+`<workspace>/guategeeks-code-studio`
 
 Desde Windows:
 
-`\\wsl.localhost\Ubuntu\home\adawolfs\projects\makecode\guategeeks-code-studio`
+`\\wsl.localhost\Ubuntu\<workspace>\guategeeks-code-studio`
 
 Antes de editar, lee:
 
@@ -44,7 +44,7 @@ Lee las instrucciones reales antes de usarlas:
 - `.agents/skills/gg-learning-experience/SKILL.md`
 - `.agents/skills/openspec-apply-change/SKILL.md`
 
-Usa también Impeccable y las guidelines de interfaz disponibles en este entorno. En la máquina original están en `C:/Users/adawolfs/.codex/skills/impeccable/SKILL.md` y `C:/Users/adawolfs/.codex/skills/web-design-guidelines/SKILL.md` —desde WSL, bajo `/mnt/c/Users/adawolfs/.codex/skills/`—. Localízalas si el entorno cambió. No inventes que ejecutaste una skill o revisión si no pudiste leerla. Sigue sus flujos de contexto, dirección, revisión y documentación cuando sean aplicables; no introduzcas sistemas visuales competidores por combinar skills.
+Usa también Impeccable y las guidelines de interfaz disponibles en este entorno. En la máquina original están en `C:/Users/<usuario>/.codex/skills/impeccable/SKILL.md` y `C:/Users/<usuario>/.codex/skills/web-design-guidelines/SKILL.md` —desde WSL, bajo `/mnt/c/Users/<usuario>/.codex/skills/`—. Localízalas si el entorno cambió. No inventes que ejecutaste una skill o revisión si no pudiste leerla. Sigue sus flujos de contexto, dirección, revisión y documentación cuando sean aplicables; no introduzcas sistemas visuales competidores por combinar skills.
 
 Este encargo autoriza la implementación del cambio preparado. Las decisiones reversibles de composición se resuelven con criterio dentro del brief. Señala cualquier conflicto material con contratos existentes antes de ampliarlos; no agregues aprobaciones para ajustes rutinarios.
 

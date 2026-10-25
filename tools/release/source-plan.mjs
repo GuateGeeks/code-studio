@@ -5,7 +5,9 @@ export const digest=bytes=>createHash('sha256').update(bytes).digest('hex');
 const rootFiles=['package.json','package-lock.json','README.md','CONTRIBUTING.md','AGENTS.md','.gitignore','.gitattributes','playwright.config.mjs','playwright.quick.config.mjs','playwright.performance.config.mjs','LICENSE','THIRD_PARTY_NOTICES'];
 export const upstreamPlans=[
  {id:'xcratch',root:'xcratch-scratch-editor',trees:['packages/scratch-vm/src','packages/scratch-render/src','packages/scratch-svg-renderer/src','packages/task-herder'],files:['package.json','package-lock.json','LICENSE','TRADEMARK','AGENTS.md','README.md',...['scratch-vm','scratch-render','scratch-svg-renderer','scratch-gui','task-herder'].map(name=>'packages/'+name+'/package.json'),...['scratch-vm','scratch-render','scratch-svg-renderer'].flatMap(name=>['webpack.config.js','LICENSE'].map(file=>'packages/'+name+'/'+file))],optionalFiles:['scratch-vm','scratch-render','scratch-svg-renderer'].map(name=>'packages/'+name+'/README.md')},
- {id:'microbit',root:'pxt-microbit',trees:['compiler','sim','libs'],files:['package.json','package-lock.json','pxtarget.json','targetconfig.json','LICENSE.txt','THIRD-PARTY-NOTICES.txt','README.md']},
+ // libs/*/built are pxt serve outputs: unused by the build and their debug
+ // binaries change between runs, so they are not source.
+ {id:'microbit',root:'pxt-microbit',trees:['compiler','sim','libs'],skip:/^libs\/[^/]+\/built\//,files:['package.json','package-lock.json','pxtarget.json','targetconfig.json','LICENSE.txt','THIRD-PARTY-NOTICES.txt','README.md']},
  {id:'pxt-core',root:'.tools/pxt-core-source',trees:['pxtcompiler','pxtlib','pxtpy','pxtsim','pxtservices','localtypings','libs','backendutils','cli','pxt-cli','scripts'],files:['package.json','LICENSE','ThirdPartyNotice','README.md','Makefile','gulpfile.js','jakeutil.js']}
 ];
 const excluded=new Set(['node_modules','.git','.codegraph','artifacts','test-results','playwright-report','.cache','.codex','.ssh']);
@@ -22,7 +24,7 @@ export async function walkFiles(directory,{optional=false,privateCheck=true}={})
 async function required(file){if(!(await lstat(file)).isFile())throw new Error('Required release source missing: '+file);return file;}
 export async function upstreamFiles(workspaceRoot,plan){
  const root=resolve(workspaceRoot,plan.root),files=[];
- for(const tree of plan.trees)files.push(...await walkFiles(resolve(root,tree)));
+ for(const tree of plan.trees)files.push(...(await walkFiles(resolve(root,tree))).filter(file=>!plan.skip?.test(relative(root,file).split(sep).join('/'))));
  for(const file of plan.files)files.push(await required(resolve(root,file)));
  for(const file of plan.optionalFiles??[]){try{files.push(await required(resolve(root,file)));}catch(error){if(error.code!=='ENOENT')throw error;}}
  // Root/package build settings are needed by the upstream webpack presets.

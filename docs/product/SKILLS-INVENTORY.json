@@ -98,7 +98,7 @@
     {
       "name": "impeccable",
       "scope": "user-or-system",
-      "path": "C:/Users/adawolfs/.codex/skills/impeccable/SKILL.md",
+      "path": "C:/Users/<usuario>/.codex/skills/impeccable/SKILL.md",
       "source": "https://github.com/pbakaus/impeccable",
       "declaredVersion": "4.7.0",
       "upstreamCommit": null,
@@ -108,7 +108,7 @@
     {
       "name": "web-design-guidelines",
       "scope": "user-or-system",
-      "path": "C:/Users/adawolfs/.codex/skills/web-design-guidelines/SKILL.md",
+      "path": "C:/Users/<usuario>/.codex/skills/web-design-guidelines/SKILL.md",
       "source": "https://github.com/vercel-labs/agent-skills",
       "declaredVersion": "1.0.0",
       "upstreamCommit": null,
@@ -118,7 +118,7 @@
     {
       "name": "skill-creator",
       "scope": "user-or-system",
-      "path": "C:/Users/adawolfs/.codex/skills/.system/skill-creator/SKILL.md",
+      "path": "C:/Users/<usuario>/.codex/skills/.system/skill-creator/SKILL.md",
       "source": "bundled Codex skill",
       "declaredVersion": null,
       "upstreamCommit": null,
@@ -128,7 +128,7 @@
     {
       "name": "openai-docs",
       "scope": "user-or-system",
-      "path": "C:/Users/adawolfs/.codex/skills/.system/openai-docs/SKILL.md",
+      "path": "C:/Users/<usuario>/.codex/skills/.system/openai-docs/SKILL.md",
       "source": "bundled Codex skill",
       "declaredVersion": null,
       "upstreamCommit": null,

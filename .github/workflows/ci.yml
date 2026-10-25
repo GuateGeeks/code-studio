@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  OPENSPEC_TELEMETRY: '0'
+  CODEGRAPH_TELEMETRY: '0'
+  DO_NOT_TRACK: '1'
+
+jobs:
+  standalone:
+    name: Node sin workspace
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.23.4
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run spec:validate
+      - run: npm run test:standalone
+
+  workspace:
+    name: Workspace, build y smoke
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      # The product resolves its sibling repositories in the parent folder.
+      - uses: actions/checkout@v4
+        with:
+          path: guategeeks-code-studio
+      - uses: actions/cache@v4
+        with:
+          path: |
+            .tools/node-v22.23.4-linux-x64
+            .tools/npm-cache
+            .tools/pxt-core-source.tar.gz
+          key: workspace-${{ hashFiles('guategeeks-code-studio/release/source-lock.json', 'guategeeks-code-studio/package-lock.json', 'guategeeks-code-studio/release/locks/**') }}
+          restore-keys: workspace-
+      - name: Preparar workspace
+        run: bash guategeeks-code-studio/tools/workspace/bootstrap.sh --browsers
+      - name: Dependencias de sistema de Chromium
+        working-directory: guategeeks-code-studio
+        run: |
+          source ../scripts/env.sh
+          sudo env "PATH=$PATH" npx playwright install-deps chromium
+      - name: Pruebas rápidas (Node, herramientas, build y smoke)
+        working-directory: guategeeks-code-studio
+        run: |
+          source ../scripts/env.sh
+          npm run test:quick
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: workspace-logs
+          path: |
+            guategeeks-code-studio/artifacts/bootstrap/
+            guategeeks-code-studio/artifacts/test-runs/
+          if-no-files-found: ignore
+          retention-days: 7
