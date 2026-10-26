@@ -2,7 +2,7 @@
 
 ## Context
 
-Véanse `proposal.md`, ADR-011 y el [plan de maduración](../../../docs/product/FEATURE-MATURATION-PLAN.md) (H2, H4, H5, H9, H10). Estado actual verificado en el código:
+Véanse `proposal.md`, ADR-011 y el [plan de maduración](../../../../docs/product/FEATURE-MATURATION-PLAN.md) (H2, H4, H5, H9, H10). Estado actual verificado en el código:
 
 - **2D:** las reglas `hats/statements/expressions` del pack bajan a 12 kinds IR0 cerrados (`program-contract.mjs`). `generated-program-source.mjs` y el adaptador Scratch son `switch` sobre esos kinds. La VM ya ejecuta 84 opcodes (matriz F5).
 - **micro:bit:** `gg.microbit` aporta bloques con traducción vacía; `device-program.mjs` tiene su tabla y un `switch` a Static TypeScript.
@@ -51,6 +51,41 @@ Véanse `proposal.md`, ADR-011 y el [plan de maduración](../../../docs/product/
 9. **Rótulos educativos en la tabla.** Los rótulos de `capability-labels.mjs` (capa de editor del rework) pasan a la entrada como `label`. Ya no hace falta separar el rótulo del hash, porque los manifiestos se versionan con `pack-versioning-and-migrations`.
 
 10. **Tablas de versiones publicadas en el catálogo (24/10/2026, al aplicar).** Los manifiestos `apiVersion: 1` publicados están congelados por su hash; sus tablas viven en `src/packs/language-tables.mjs` por `pack@versión`, con el mismo principio que migraciones y permisos. Las versiones nuevas llevarán su tabla en el manifiesto `apiVersion: 2`, validada al instalar. 3D y web derivan sus entradas de los descriptores de operaciones. El vocabulario v3 2D y las sentencias de micro:bit se generan desde la tabla, que es la fuente única.
+
+## Inventario de consumidores (tarea 1.3, 25/10/2026)
+
+Consultas de CodeGraph (`npm run codegraph -- node --path . <símbolo>`, índice sincronizado) guardadas en `artifacts/block-language-contract/codegraph/`.
+
+**Texto generado desde bloques**
+
+| Generador | API | Consumidores de producto |
+|---|---|---|
+| `generateApi3ProgramSource` | v3 (2D) | `code-console-ui.mjs`: lectura derivada (`generatedView`) y copia (`copy`, `api: 'api3'` con `variableIds`) |
+| `generateApi3CapabilitySource` | v3 (3D/web) | `capability-contexts-ui.mjs`: lectura (`render`) y copia (`createCopy`, con `targetIds`) |
+| `generateCapabilityProgramSource` | API2 interna | `capability-execution.mjs` (`run`: los bloques 3D/web se ejecutan por API2) y `generated-capability-source.mjs` |
+| `generateProgramSource` | API1 | Solo pruebas (`api-v3`, `generated-program-source`, `packs`, `resources`); la lectura del alumno ya no lo usa |
+| `generateCode` | IR educativa | `code-console-ui.mjs` (`generatedView`, vista «IR educativa») |
+| `generateDeviceSource` / `lowerDeviceGraph` | Static TypeScript | `prepareDeviceCompilation` y `device-editor.mjs`; plantillas desde la tabla (LANG-004) |
+
+**Traductores v3 en el origen del lenguaje.** `compileApi3JavaScript` y `compileApi3Capability` se llaman solo desde `quickjs-engine.mjs` (preparación, cuando `runtime.api === 'api3'`). `api3PythonCompiler` y `api3CapabilityPythonCompiler`, solo desde `python-engine.mjs`. Los motores se crean solo en `language-worker.mjs`. Ningún traductor vive en la shell (AGENTS.md).
+
+**Adaptador Scratch.** `toScratchProject` (IR → proyecto VM) lo usan la exportación SB3 inicial y las pruebas de corpus. `createGGBindings` y `createTextProgram` los usa solo `browser-scene.mjs`. `workspaceFromIr` lo usa `editor-entry.mjs`. Ninguno consume texto generado.
+
+**`GG` visible, fuera del puente interno**
+
+- **`shell.js`:**
+  - Herramientas avanzadas `#gg-move`, `#gg-set`, `#gg-emit` y `#gg-read`.
+  - El inspector usa `GG.scene.get()`.
+  - Panel técnico, no es texto del alumno. Se conserva.
+- **`text-documents-ui.mjs:18-19`:** las plantillas de «Nuevo JavaScript/Python» empiezan con `await GG.sprite.move('hero', 10)` y crean documentos **API1**.
+- **`index.html` `#text-api-help`:** documenta la API inicial `GG.*` con `await`.
+- Estos dos últimos puntos son coherentes entre sí: un documento en blanco sigue siendo API1. La propuesta solo cubre la lectura derivada y las copias nuevas, así que el documento en blanco pasa a `synced-code-views`, donde se decide qué es un documento nuevo frente a una vista del programa.
+  - Cambiarlo aquí convertiría en API v3 los documentos de pruebas E2E que escriben API1 con `let` de nivel superior (`language-runtime`).
+- **Textos «bloques GG» de `resources-ui.mjs`:** nombre de producto, no API.
+
+**Restos.**
+- `isApi3Source` (`api-v3.mjs:43`) no tiene consumidores. Queda para la detección de vistas de `synced-code-views` o para retirarse allí.
+- El contador `gg_device_i_N` de micro:bit se conserva (límite de 4.2).
 
 ## Risks / Trade-offs
 

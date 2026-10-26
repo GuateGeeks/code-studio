@@ -1,10 +1,10 @@
-# Spec Delta
+# block-language Specification
 
 ## Purpose
 
 Que cada bloque tenga una forma textual única, legible y ejecutable en cada lenguaje de su contexto, declarada por su pack como datos, para que leer código enseñe un lenguaje real y para que bloques y texto puedan convertirse entre sí.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: Una entrada declarativa por bloque
 
@@ -62,6 +62,10 @@ Las copias guardadas con API1 o API2 SHALL seguir ejecutándose con su texto int
 
 Cada contexto SHALL ofrecer solo los lenguajes que todos sus packs activos declaran. Si un pack activo no declara un lenguaje, ese lenguaje MUST mostrarse no disponible con el nombre del pack y la causa, sin fallar en silencio.
 
-#### Scenario: Pack sin forma Python
-- **WHEN** un proyecto usa un pack que solo declara JavaScript
-- **THEN** la lectura Python del contexto se muestra no disponible indicando el pack, y la lectura JavaScript funciona
+#### Scenario: Pack sin formas textuales
+- **WHEN** un proyecto usa un pack cuyas acciones o eventos del contexto no declaran forma JavaScript ni Python (cada bloque declara ambas o ninguna)
+- **THEN** la lectura y la copia JavaScript y Python del contexto se muestran no disponibles indicando el pack y la causa, y la vista de IR educativa y los bloques siguen funcionando
+
+#### Scenario: Estructuras del núcleo y otras bajadas
+- **WHEN** el contexto usa asignaciones, lecturas, estructuras de control o eventos de capacidad del núcleo, o un pack activo cuyos bloques bajan a otro contexto (micro:bit)
+- **THEN** esos bloques no vuelven un lenguaje no disponible

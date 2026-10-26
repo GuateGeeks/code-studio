@@ -2,6 +2,8 @@ import {generateCode} from '../generated-code.mjs';
 import {generateApi3ProgramSource} from '../generated-program-source.mjs';
 import {createDiagnosticConsole} from '../diagnostic-console.mjs';
 import {explainDiagnostic} from './presentation-text.mjs';
+import {languageAvailability, tablesForLocks} from '../contracts/language-table.mjs';
+import {languageTables} from '../packs/language-tables.mjs';
 
 // Presentation only: neither this listing nor the log enters project authoring.
 export function createCodeConsoleUI(editor, {selectSourceLocation = () => false, selectSourceBlock = (id) => editor.selectSource(id), createTextCopy = null} = {}) {
@@ -85,16 +87,26 @@ export function createCodeConsoleUI(editor, {selectSourceLocation = () => false,
     }
   }
   function local(record) { const accepted = log.add(record); if (accepted) render(); return accepted; }
+  // Languages the active 2D packs declare; an unavailable one names its pack.
+  function availability() {
+    return languageAvailability(tablesForLocks(editor.captureCapabilities?.()?.locks, languageTables), {lowering: 'ir'});
+  }
   function generatedView(ir) {
     const language = languagePicker.value;
     if (language === 'ir') return generateCode(ir);
     if (!['javascript', 'python'].includes(language)) throw new Error('El lenguaje de lectura no está disponible.');
+    const state = availability()[language];
+    if (!state.available) throw Object.assign(new Error(state.reason), {unavailable: true});
     // Readable API v3 (ADR-011); the language origin translates it before running.
     return generateApi3ProgramSource(ir, language);
   }
   function updateCopyControls() {
     const disabled = copying || !listing || typeof createTextCopy !== 'function';
-    copyJavascript.disabled = copyPython.disabled = disabled;
+    const languages = availability();
+    copyJavascript.disabled = disabled || !languages.javascript.available;
+    copyPython.disabled = disabled || !languages.python.available;
+    const reasons = [languages.javascript.reason, languages.python.reason].filter(Boolean);
+    if (reasons.length && !copying) copyStatus.textContent = reasons.join(' ');
   }
   function reportCopyError(error) {
     copyStatus.textContent = String(error?.message ?? error);
@@ -103,6 +115,8 @@ export function createCodeConsoleUI(editor, {selectSourceLocation = () => false,
   }
   async function copy(language) {
     if (copying || typeof createTextCopy !== 'function') return;
+    const state = availability()[language];
+    if (!state.available) { reportCopyError(new Error(state.reason)); return; }
     copying = true;
     updateCopyControls();
     copyStatus.textContent = 'Creando copia independiente…';
@@ -142,6 +156,8 @@ export function createCodeConsoleUI(editor, {selectSourceLocation = () => false,
       listing = null;
       code.value = '';
       codeStatus.textContent = 'No se pudo generar. Corrige los bloques y vuelve a intentar.';
+      // An unavailable language is a stated limit, not an authoring error.
+      if (error.unavailable) { codeStatus.textContent = error.message; updateCopyControls(); render(); return; }
       const fingerprint = `${authoring}:${error.sourceBlockId ?? ''}:${error.message}`;
       if (fingerprint !== lastFailure) {
         log.add({level: 'error', code: 'GENERATION_INVALID', origin: 'generation', message: error.message,

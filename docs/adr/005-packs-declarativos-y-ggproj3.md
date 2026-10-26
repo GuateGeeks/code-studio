@@ -2,6 +2,8 @@
 
 Fecha: 22 de octubre de 2026. Estado: aceptada e implementada; full F3 aprobado.
 
+> **Sustitución parcial (25 de octubre de 2026):** [ADR-011](011-contrato-de-lenguaje-y-vistas-sincronizadas.md) sustituye la igualdad exacta de locks como condición de apertura (ver `pack-versioning-and-migrations`) y `apiVersion: 1` como único formato: cada bloque de pack declara su entrada en una tabla de lenguaje (`apiVersion: 2` en el manifiesto, o en el catálogo por `pack@versión` para las versiones publicadas) y cada contexto ofrece solo los lenguajes que sus packs declaran.
+
 Los packs gg.sprites y gg.score son contribuciones locales de datos revisadas. El registro define bloques, categorías y lowerings a IR0; ningún archivo importado añade módulos ejecutables. El catálogo fija contenido, versión y SHA256, comprobados en Node. Las excepciones de fronteras admiten exclusivamente datos de packs/lecciones y siguen prohibiendo DOM/motores en ese nivel.
 
 GGPROJ1/2 conservan sus esquemas exactos y no se actualizan al abrir. Activar capacidades crea GGPROJ3 con capabilities.locks/config; gg.sprites es dueño del estado inicial, sin scene duplicada. La puntuación declara su global estable gg-pack-score, evitando colisión con el ejemplo legado gg-score local. Una copia textual conserva su initialValue explícito; defaults solo completan IDs ausentes. Las migraciones score0.1↔0.2 cambian initial/initialValue sobre copias validadas, sin reescribir fuente.

@@ -3,6 +3,7 @@ import {isAbsolute, relative, resolve, sep} from 'node:path';
 export const normalBrowserFiles = Object.freeze([
   'canonical-projects.spec.mjs',
   'workspace-presentation.spec.mjs',
+  'language-copies.spec.mjs',
   'integrated-2d-workspace.spec.mjs',
   'integrated-microbit-workspace.spec.mjs',
   'integrated-scratch-workspace.spec.mjs',
@@ -21,7 +22,7 @@ const bindings = ['tests/browser/bindings-editor.spec.mjs', ...persistence];
 // Context groups (test-gate-scaling): a change inside one context runs that
 // context's suites plus shared persistence, not the whole gate.
 const browserFiles = (...names) => names.map(name => `tests/browser/${name}.spec.mjs`);
-const scene3d = browserFiles('integrated-3d-workspace', 'scene3d-advanced', 'capability-contexts', 'standalone-contexts', 'studio-contextual-workspace');
+const scene3d = browserFiles('integrated-3d-workspace', 'scene3d-advanced', 'capability-contexts', 'standalone-contexts', 'studio-contextual-workspace', 'language-copies');
 const webapp = browserFiles('integrated-web-workspace', 'capability-contexts', 'standalone-contexts', 'studio-contextual-workspace');
 const microbit = [...new Set([...pxt, ...browserFiles('integrated-microbit-workspace')])];
 const scratchImport = browserFiles('sb3-resources', 'integrated-scratch-workspace', 'resource-safety');
@@ -61,11 +62,11 @@ export function classifyFile(path) {
   if (/^src\/(?:offline\/|contracts\/pack|packs\/|lessons\.mjs|lesson-|studio\/lesson)/.test(path)) return {group: 'packs-lessons-offline', reason: 'Capacidades, actividades y preparación offline', browser: ['tests/browser/educational-activities.spec.mjs', 'tests/browser/packs-lessons.spec.mjs', 'tests/browser/offline-recovery.spec.mjs', ...persistence]};
   if (path === 'src/studio/project-ui.mjs') return {group: 'persistence', reason: 'Controlador propio de proyecto', browser: persistence};
   if (/^src\/studio\/.*\.(?:html|css)$/.test(path)) return {group: 'controls', reason: 'UI propia con controles reales, recorrido, accesibilidad y móvil', browser: [...controls, 'tests/browser/workspace-presentation.spec.mjs', 'tests/browser/integrated-2d-workspace.spec.mjs', 'tests/browser/integrated-microbit-workspace.spec.mjs', 'tests/browser/integrated-scratch-workspace.spec.mjs', 'tests/browser/integrated-3d-workspace.spec.mjs','tests/browser/integrated-web-workspace.spec.mjs', 'tests/browser/educational-activities.spec.mjs', 'tests/browser/studio-contextual-workspace.spec.mjs', 'tests/browser/studio-entry-journey.spec.mjs', 'tests/browser/accessibility-shell.spec.mjs', 'tests/browser/accessibility-runner.spec.mjs', 'tests/browser/accessibility-zoom.spec.mjs', 'tests/browser/scene-inspector.spec.mjs', 'tests/browser/language-runtime.spec.mjs']};
-  if (['src/generated-code.mjs', 'src/diagnostic-console.mjs', 'src/studio/code-console-ui.mjs'].includes(path)) return {group: 'code-console', reason: 'Generación y diagnóstico derivados', browser: ['tests/browser/code-console.spec.mjs', 'tests/browser/language-runtime.spec.mjs']};
+  if (['src/generated-code.mjs', 'src/diagnostic-console.mjs', 'src/studio/code-console-ui.mjs'].includes(path)) return {group: 'code-console', reason: 'Generación y diagnóstico derivados', browser: ['tests/browser/code-console.spec.mjs', 'tests/browser/language-runtime.spec.mjs', 'tests/browser/language-copies.spec.mjs']};
   if (['src/scene-inspection.mjs', 'src/studio/scene-inspector-ui.mjs'].includes(path)) return {group: 'scene-inspector', reason: 'Lectura de escena y selección accesible', browser: ['tests/browser/scene-inspector.spec.mjs', ...bindings]};
   if (path.startsWith('src/editor/') || path === 'src/contracts/program-contract.mjs' || path.startsWith('src/adapters/scratch/') || path.startsWith('src/assets/')) return {group: 'two-dimensional', reason: 'Editor, IR o adaptación 2D propia', browser: twoD};
   if (path === 'src/contracts/gg-client.mjs') return {group: 'bindings', reason: 'Cliente GG propio y lectura de escena', browser: [...bindings, 'tests/browser/scene-inspector.spec.mjs']};
-  if (path.startsWith('src/targets/text/') || path === 'src/contracts/language-runtime.mjs' || path === 'src/text-documents.mjs' || path === 'src/contracts/text-program.mjs' || path === 'src/generated-program-source.mjs' || ['src/studio/language-controller.mjs', 'src/studio/text-documents-ui.mjs'].includes(path)) return {group: 'language-runtime', reason: 'Documentos de texto y runtimes aislados', browser: ['tests/browser/language-runtime.spec.mjs', ...persistence]};
+  if (path.startsWith('src/targets/text/') || path === 'src/contracts/language-runtime.mjs' || path === 'src/text-documents.mjs' || path === 'src/contracts/text-program.mjs' || path === 'src/generated-program-source.mjs' || ['src/studio/language-controller.mjs', 'src/studio/text-documents-ui.mjs'].includes(path)) return {group: 'language-runtime', reason: 'Documentos de texto y runtimes aislados', browser: ['tests/browser/language-runtime.spec.mjs', 'tests/browser/language-copies.spec.mjs', ...persistence]};
   if (path.startsWith('src/targets/microbit/')) return {group: 'pxt', reason: 'Target micro:bit propio', browser: pxt};
   if (/^src\/(?:project-format|project-archive|autosave-store)\.mjs$/.test(path) || path === 'spikes/browser/shell/project-ui.mjs') return {group: 'persistence', reason: 'Formato, almacenamiento o controlador de proyecto', browser: persistence};
   if (/^spikes\/browser\/shell\/.*\.(?:html|css)$/.test(path)) return {group: 'controls', reason: 'Composición visual y controles reales de UI', browser: controls};

@@ -2,6 +2,8 @@
 
 **Fecha:**22 de octubre de2026. **Estado:**aceptada e implementada; full F2 aprobado (123 Node, 33 herramientas, 70 E2E).
 
+> **Sustitución parcial (25 de octubre de 2026):** [ADR-011](011-contrato-de-lenguaje-y-vistas-sincronizadas.md) sustituye «la vista derivada se mantiene de solo lectura» y la copia como única vía a texto, y la API textual del alumno pasa a la API v3 legible (sin `GG.`, `ctx` ni `await`, traducida a API1 en el origen del lenguaje). Se conservan el contexto por invocación, la atomicidad de variables, la revocación en Stop y el dominio finito; las copias API1 guardadas se ejecutan sin cambios.
+
 ## Decisión
 QuickJS/Pyodide ejecutan funciones/control de flujo reales, con variables de escena propiedad de la VM. Los hats nativos ejecutan una primitiva proxy privada que espera la Promise de un callback del intérprete. Cada invocación tiene token/revisión/target propios; los callbacks no comparten un currentTarget mutable.
 

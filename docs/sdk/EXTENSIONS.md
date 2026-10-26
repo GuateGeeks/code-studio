@@ -10,7 +10,17 @@ El proyecto configura packs por createCapabilities, valida antes de abrir y migr
 
 El anfitrión puede crear createCapabilityBroker({capabilities,call,getContext}) y obtener client(packId).invoke(method,args). El principal se captura al crear el cliente y no viaja en un campo elegido por el programa. El runner vuelve a verificar la política del proyecto. El cliente de score está limitado a su variable declarada; mover sprites desde él produce error antes de llamar al adaptador.
 
-Para el alumno siguen disponibles las operaciones reales GG.scene.get, GG.sprite.get/move/setPosition, GG.variables.get/set, GG.events.emit y GG.wait. Los programas de eventos usan GG.program.configure, GG.events.onStart/onKey/onClick/onMessage/onClone/run y ctx. No existe un servicio GG.score; los bloques de puntuación usan el mismo almacenamiento nativo de variables. Las operaciones asíncronas requieren await y los mutadores sin contexto se revocan dentro de un programa de eventos.
+## Tabla de lenguaje (ADR-011, `block-language-contract`)
+
+Cada bloque que aporta un pack se declara en **una entrada de datos**: tipo de bloque, `kind` (`call`, `event`, `assign`, `change`, `read`, `control` o `value`), argumentos, objetivo (`target: 'sprite'` para métodos del objeto), forma JavaScript y Python (`js`/`python`, ambas o ninguna), plantilla Static TypeScript (`typescript`, micro:bit) y bajada por contexto (`lower`). Ejemplo: `{block: 'gg_move', kind: 'call', target: 'sprite', js: 'move', python: 'move', args: ['STEPS'], lower: {ir: 'move'}}` se lee `hero.move(10)`.
+
+- **Dónde vive:** un manifiesto `apiVersion: 2` lleva su tabla en `language` y solo se acepta con una tabla válida. Las versiones ya publicadas (`apiVersion: 1`, congeladas por su hash) tienen su tabla en `src/packs/language-tables.mjs` por `pack@versión`. 3D y web derivan sus entradas de los descriptores de operaciones.
+- **Reglas bloqueables** (`src/contracts/language-table.mjs`), comprobadas al instalar: una entrada por bloque, una forma canónica por bloque salvo `supersedes` explícito, identificadores válidos fuera de las palabras reservadas, plantillas que usan exactamente sus argumentos y bajada obligatoria. La cobertura exige que todo bloque instalado tenga entrada.
+- **Lenguajes por contexto:** un contexto ofrece JavaScript y Python solo si todas las acciones y eventos de sus packs activos para esa bajada los declaran (`languageAvailability`). Si falta, la lectura y la copia muestran «no disponible» con el pack y la causa; las estructuras del núcleo nunca bloquean un lenguaje.
+
+## API textual del alumno
+
+La lectura derivada y las copias nuevas usan la **API v3**: espacios de nombres legibles (`hero.move(10)`, `onStart(() => { … })`, `sphere.move(1, 0, 0)`), sin `GG.`, `ctx`, `await` ni nombres `gg_*`. El origen del lenguaje la traduce a la API interna antes de ejecutar (API1 en 2D, API2 en 3D/web). `GG` sigue siendo el puente interno del sandbox: las copias API1/API2 guardadas se ejecutan con su texto intacto, y un documento en blanco todavía empieza en API1 hasta que `synced-code-views` decida su forma. No existe un servicio GG.score; los bloques de puntuación usan el almacenamiento nativo de variables, y los mutadores sin contexto se revocan dentro de un programa de eventos.
 
 Los packs de distribución offline son una lista distinta: studio-core, scratch-2d, javascript-quickjs, python-stdlib, microbit-compiler y microbit-simulator. Un lock de capacidad no equivale a un runtime descargado. Preparar recursos verifica cada origen y no ejecuta el proyecto.
 

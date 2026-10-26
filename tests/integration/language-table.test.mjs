@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {localPackCatalog} from '../../src/packs/catalog.mjs';
 import {languageTables, coreLanguageEntries, scene2DVocabularyFromTables} from '../../src/packs/language-tables.mjs';
-import {validateLanguageTables, validateLanguageEntry, capabilityLanguageEntries, languageCoverage} from '../../src/contracts/language-table.mjs';
+import {validateLanguageTables, validateLanguageEntry, capabilityLanguageEntries, languageCoverage, languageAvailability, tablesForLocks} from '../../src/contracts/language-table.mjs';
 import {createCapabilities} from '../../src/contracts/packs.mjs';
 import {generateDeviceSource} from '../../src/contracts/device-program.mjs';
 import {scene2DApi3} from '../../src/targets/text/api-v3-vocabulary.mjs';
@@ -56,4 +56,33 @@ test('LANG-005: an apiVersion 2 manifest is accepted only with a valid language 
   assert.equal(createCapabilities(['gg.sprites'], {catalog}).locks[0].id, 'gg.sprites');
   next.manifest.language = [...next.manifest.language, {...next.manifest.language.find(entry => entry.block === 'gg_move'), block: 'gg_move_again'}];
   assert.throws(() => createCapabilities(['gg.sprites'], {catalog}), /misma forma/);
+});
+
+test('LANG-006: each context offers only the languages its active packs declare and names the pack that blocks one', () => {
+  // Every published 2D pack declares both forms; micro:bit (TypeScript only) lowers to the device, not to 2D.
+  const locks2D = ['gg.sprites@0.1.0', 'gg.assets@0.2.0', 'gg.score@0.2.0', 'gg.microbit@0.1.0'].map(key => { const [id, version] = key.split('@'); return {id, version}; });
+  const current = languageAvailability(tablesForLocks(locks2D, languageTables), {lowering: 'ir'});
+  assert.equal(current.javascript.available, true); assert.equal(current.python.available, true);
+  assert.equal(current.python.reason, null);
+  // 3D and web derive their pack entries from the operations: all readable.
+  for (const context of ['scene3d', 'webapp']) {
+    const operations = capabilityLanguageEntries(context).filter(entry => entry.lower.operation);
+    const state = languageAvailability({[context]: operations}, {lowering: 'operation'});
+    assert.equal(state.javascript.available && state.python.available, true, context);
+  }
+  // A pack whose 2D action has no text form makes both languages unavailable, naming the pack.
+  const silent = {block: 'gg_example_glow', kind: 'call', target: 'sprite', args: [], lower: {ir: 'move'}};
+  validateLanguageEntry(silent);
+  const blocked = languageAvailability({'gg.sprites@0.1.0': languageTables['gg.sprites@0.1.0'], 'gg.example@1.0.0': [silent]}, {lowering: 'ir'});
+  for (const language of ['javascript', 'python']) {
+    assert.equal(blocked[language].available, false);
+    assert.deepEqual(blocked[language].packs, ['gg.example@1.0.0']);
+    assert.match(blocked[language].reason, /gg\.example@1\.0\.0 no declara forma (JavaScript|Python)/);
+  }
+  // Core syntax (assignments, reads, control) never blocks a language, nor do entries of another lowering.
+  const coreOnly = languageAvailability({core: coreLanguageEntries, 'gg.score@0.2.0': languageTables['gg.score@0.2.0'], 'gg.microbit@0.1.0': languageTables['gg.microbit@0.1.0']}, {lowering: 'ir'});
+  assert.equal(coreOnly.javascript.available && coreOnly.python.available, true);
+  // apiVersion 2 manifests bring their own table; unknown locks contribute nothing.
+  const own = tablesForLocks([{id: 'gg.example', version: '2.0.0'}, {id: 'gg.unknown', version: '9.9.9'}], languageTables, {'gg.example@2.0.0': {language: [silent]}});
+  assert.deepEqual(Object.keys(own), ['gg.example@2.0.0']);
 });

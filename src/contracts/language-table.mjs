@@ -71,6 +71,36 @@ export function capabilityLanguageEntries(contextId) {
   return [...control, ...operations];
 }
 
+// Readable languages of one context («Disponibilidad de lenguajes por contexto»).
+// A pack makes a language unavailable when one of its actions or events for
+// this lowering has no form in it. Core structures (assignments, reads,
+// control and capability events) use the core syntax and never count.
+const languageFields = Object.freeze({javascript: 'js', python: 'python'});
+const languageNames = Object.freeze({javascript: 'JavaScript', python: 'Python'});
+export function languageAvailability(tables, {lowering}) {
+  const result = {};
+  for (const [language, field] of Object.entries(languageFields)) {
+    const packs = Object.entries(tables)
+      .filter(([, entries]) => entries.some(entry => entry.lower?.[lowering] !== undefined && ['call', 'event'].includes(entry.kind) && entry[field] === undefined))
+      .map(([owner]) => owner);
+    const name = languageNames[language];
+    result[language] = Object.freeze({available: packs.length === 0, packs: Object.freeze(packs),
+      reason: packs.length ? `${name} no está disponible: ${packs.join(', ')} no declara forma ${name} para sus bloques.` : null});
+  }
+  return Object.freeze(result);
+}
+// Tables of the packs a project locks: apiVersion 2 manifests carry their
+// own table; published versions use the catalog tables keyed `pack@version`.
+export function tablesForLocks(locks, tables, manifests = {}) {
+  const active = {};
+  for (const lock of locks ?? []) {
+    const key = `${lock.id}@${lock.version}`;
+    const table = manifests[key]?.language ?? tables[key];
+    if (table) active[key] = table;
+  }
+  return active;
+}
+
 // Every installed block has exactly one entry, and every entry names an installed block.
 export function languageCoverage(catalog, {tables, core = []}) {
   const missing = [], orphan = [];

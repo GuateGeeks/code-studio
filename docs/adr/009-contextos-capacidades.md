@@ -2,6 +2,8 @@
 
 Estado: decisión aceptada para la implementación de F6; verificación de cierre pendiente. Fecha: 22 de octubre de 2026. Cambio: `phase-6-capability-contexts`.
 
+> **Sustitución parcial (25 de octubre de 2026):** [ADR-011](011-contrato-de-lenguaje-y-vistas-sincronizadas.md) sustituye la forma generada `await ctx.<ruta>(args)` de API2 como texto por defecto: la lectura y las copias nuevas de 3D y web usan la API v3 (`sphere.move(1, 0, 0)`), traducida a API2 en el origen del lenguaje. Los bloques siguen ejecutándose por API2 y las copias API2 guardadas se ejecutan sin cambios.
+
 F6 amplía el producto con proveedores 3D y web sin convertir Scratch en un requisito de todos los contextos. La decisión conserva GGPROJ 1/2/3, IR0 y API1. La evidencia disponible y los pendientes se registran en [RESULTS de F6](../phase-6/RESULTS.md); este ADR no certifica la puerta completa del corte.
 
 ## Registro instalado y autoría

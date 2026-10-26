@@ -6,7 +6,7 @@ El código JavaScript/Python que ve el estudiante expone la mecánica interna: `
 
 Además, hoy hay tres formas distintas de convertir bloques en código. 2D baja a 12 operaciones IR fijas con generadores escritos a mano. micro:bit tiene su propia tabla y un `switch` a Static TypeScript. 3D/web genera bloques desde una tabla de operaciones. Añadir comportamiento nuevo exige editar el núcleo, salvo en 3D/web.
 
-El usuario decidió el 24 de octubre de 2026 adoptar el modelo MakeCode: un programa con vistas sincronizadas Bloques · JavaScript · Python ([ADR-011](../../../docs/adr/011-contrato-de-lenguaje-y-vistas-sincronizadas.md)). Ese modelo exige primero una API **bloqueable**: cada función corresponde a un único bloque y viceversa. Este cambio define ese contrato. El parser de vuelta a bloques se implementa en `synced-code-views`.
+El usuario decidió el 24 de octubre de 2026 adoptar el modelo MakeCode: un programa con vistas sincronizadas Bloques · JavaScript · Python ([ADR-011](../../../../docs/adr/011-contrato-de-lenguaje-y-vistas-sincronizadas.md)). Ese modelo exige primero una API **bloqueable**: cada función corresponde a un único bloque y viceversa. Este cambio define ese contrato. El parser de vuelta a bloques se implementa en `synced-code-views`.
 
 ## What Changes
 

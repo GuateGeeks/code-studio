@@ -2,6 +2,8 @@
 
 Fecha:22 de octubre de2026. Estado: aceptada e implementada; software F4 consolidado. Prueba física pendiente.
 
+> **Sustitución parcial (25 de octubre de 2026):** [ADR-011](011-contrato-de-lenguaje-y-vistas-sincronizadas.md) sustituye el `switch` fijo a Static TypeScript por plantillas declaradas en la tabla de `gg.microbit`, con texto idéntico al anterior. Se conservan los documentos independientes, la compilación en worker, la validación HEX y la transferencia USB.
+
 GGPROJ3 fija gg.microbit del catálogo local con deviceId, variante, modo y BlockGraph plano. El workspace tiene48 nodos,8 hats, profundidad4 y8KiB; configuración agregada16KiB. deviceId usa ASCII de hasta64 caracteres; los IDs de bloques conservan128. Bloques y deviceSource son documentos independientes: alternar modo conserva ambos. StaticTS, sourceMap, binarioJS, HEX y estado mutable quedan fuera de autoría.
 
 El coordinador inyecta participantes y materializa snapshots sin duplicar el grafo mutable. Prepara todos antes del commit y restaura checkpoints opacos, incluidos borradores inválidos. Las proyecciones de ejecución permiten usar 2D/texto aunque el borrador de dispositivo sea inválido. El contexto seleccionado es preferencia de interfaz. La consola usa origen además del ID para seleccionar el workspace correcto.

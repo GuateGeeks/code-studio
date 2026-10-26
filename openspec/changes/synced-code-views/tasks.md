@@ -14,6 +14,7 @@
 
 - [ ] 3.1 Convertir el selector Bloques · JavaScript · Python en vistas del mismo programa para 2D, con texto editable, aviso de formato regenerado y Ejecutar desde cualquier vista sin ejecución al cambiar.
 - [ ] 3.2 Implementar el rechazo con tres salidas accesibles por teclado, puntos de restauración y Deshacer; guardar vista activa y texto pendiente en autosave y GGPROJ.
+- [ ] 3.3 Decidir y aplicar el documento nuevo en blanco y la ayuda textual (`text-documents-ui.mjs` y `#text-api-help` siguen en API1 con `GG`/`await`; hallazgo de `block-language-contract` 1.3): plantilla API v3 o vista del programa, migrando las pruebas E2E que escriben API1 en documentos nuevos.
 
 ## 4. Extensión por contextos
 

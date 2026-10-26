@@ -26,3 +26,11 @@ Archivados el 24 de octubre de 2026 por `repo-baseline-and-spec-consolidation`. 
 | `openspec/changes/studio-integrated-scratch-workspace/` | [`openspec/changes/archive/2026-10-24-studio-integrated-scratch-workspace/`](2026-10-24-studio-integrated-scratch-workspace/) | `integrated-scratch-workspace` |
 | `openspec/changes/studio-integrated-web-workspace/` | [`openspec/changes/archive/2026-10-24-studio-integrated-web-workspace/`](2026-10-24-studio-integrated-web-workspace/) | `integrated-web-workspace` |
 | `openspec/changes/studio-visual-workspace-rework/` | [`openspec/changes/archive/2026-10-24-studio-visual-workspace-rework/`](2026-10-24-studio-visual-workspace-rework/) | `workspace-presentation` |
+
+## 25 de octubre de 2026
+
+Archivo autorizado por el usuario después de la puerta completa aprobada. La tarea 3.2 de `block-language-contract` se conserva sin marcar: su traslado a `scene2d-vocabulary-v2` 1.1 fue aceptado expresamente.
+
+| Ruta original | Ruta actual | Capacidades |
+|---|---|---|
+| `openspec/changes/block-language-contract/` | [`openspec/changes/archive/2026-10-25-block-language-contract/`](2026-10-25-block-language-contract/) | `block-language` |
