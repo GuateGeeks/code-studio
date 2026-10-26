@@ -191,7 +191,7 @@ test('GG-INSPECT-003: real toolbox drag connects costume block, portable reopen 
   await expect.poll(async () => (await settled(snapshot, page)).costume.name).toBe('hero-alt');
   expect((await snapshot(page)).bluePixels).toBeGreaterThan(100);
   const pendingDownload = page.waitForEvent('download');
-  await clickVisible(page.getByRole('button', {name: 'Descargar proyecto', exact: true}));
+  await clickVisible(page.getByRole('button', {name: 'Llevar o entregar', exact: true}));
   const file = await pendingDownload;
   const filePath = artifactPath('scene-inspector-toolbox.ggproj');
   await file.saveAs(filePath);

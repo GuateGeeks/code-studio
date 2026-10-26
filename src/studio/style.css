@@ -135,6 +135,10 @@ legend { padding: 0; font-size: var(--gg-text-label); font-weight: 600; }
 .project-name { display: flex; align-items: center; gap: var(--gg-space-2); flex: 0 1 340px; min-width: 0; }
 .project-name label { margin: 0; color: var(--gg-on-action); font-weight: 600; white-space: nowrap; }
 .project-name input { flex: 1 1 160px; min-height: 36px; padding: 4px 8px; border-color: transparent; background: rgb(255 255 255 / .94); }
+.project-continuity { display: grid; gap: 0; flex: 1 1 220px; min-width: 0; }
+.project-continuity output { color: var(--gg-toolbar); font-size: var(--gg-text-label); overflow-wrap: anywhere; line-height: 1.35; }
+#project-copy-warning:empty { display: none; }
+#continuity-reminder button { margin-top: var(--gg-space-2); }
 #project-status { color: var(--gg-toolbar); font-size: var(--gg-text-label); min-width: 0; }
 .app-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--gg-space-2); margin-inline-start: auto; }
 .app-actions > button, .app-menu > summary { min-height: 36px; padding: 6px 12px; border: 1px solid rgb(255 255 255 / .55); border-radius: var(--gg-radius); background: transparent; color: var(--gg-on-action); font-size: var(--gg-text-label); font-weight: 600; }
@@ -457,7 +461,7 @@ body:is([data-workspace-context="scene3d"], [data-workspace-context="webapp"]) .
   .project-files { flex: 1 1 100%; flex-wrap: wrap; gap: var(--gg-space-1) var(--gg-space-2); }
   .project-name { flex: 1 1 100%; }
   .project-name input { min-width: 0; }
-  #project-status { flex: 1 1 100%; }
+  .project-continuity { flex: 1 1 100%; }
   .workspace-context { flex: 1 1 100%; }
   .mode-switch label { padding-inline: 10px; }
   .app-actions { margin-inline-start: 0; }

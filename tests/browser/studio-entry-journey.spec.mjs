@@ -94,6 +94,12 @@ test('GG-ENTRY-002: activity exploration and invalid file preserve current work 
   await revealPanel(page,page.locator('#lesson-select'));await page.locator('#lesson-select').selectOption('score');
   expect(await authored(page)).toEqual(before.blocks);
   expect((await snapshot(page)).x).toBe(40);
+  const cancelled = page.waitForEvent('filechooser');
+  await clickVisible(page.locator('#entry-open'));
+  await (await cancelled).setFiles([]);
+  expect(await authored(page)).toEqual(before.blocks);
+  expect(await page.evaluate(()=>studioProbe.project.state().id)).toBe(before.id);
+  expect((await snapshot(page)).x).toBe(40);
   const chooser = page.waitForEvent('filechooser');
   await clickVisible(page.locator('#entry-open'));
   await (await chooser).setFiles({name:'invalido.ggproj',mimeType:'application/zip',buffer:Buffer.from('not a project')});

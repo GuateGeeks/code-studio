@@ -34,3 +34,10 @@ Archivo autorizado por el usuario después de la puerta completa aprobada. La ta
 | Ruta original | Ruta actual | Capacidades |
 |---|---|---|
 | `openspec/changes/block-language-contract/` | [`openspec/changes/archive/2026-10-25-block-language-contract/`](2026-10-25-block-language-contract/) | `block-language` |
+
+Archivo posterior autorizado el 25/10/2026: estabilización 2D (15/15) y continuidad (12/12), con especificaciones consolidadas y observación humana pendiente. La puerta conjunta validó el checkout con trabajo experimental pendiente de synced-code-views; su código y evidencia permanecen fuera de este cierre.
+
+| Ruta original | Ruta actual | Capacidades |
+|---|---|---|
+| `openspec/changes/scene2d-journey-stabilization/` | [`openspec/changes/archive/2026-10-25-scene2d-journey-stabilization/`](2026-10-25-scene2d-journey-stabilization/) | `project-persistence` |
+| `openspec/changes/project-continuity-model/` | [`openspec/changes/archive/2026-10-25-project-continuity-model/`](2026-10-25-project-continuity-model/) | `project-continuity` |

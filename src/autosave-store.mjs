@@ -1,3 +1,4 @@
+import {validateCopyRecord} from './project-continuity.mjs';
 // Studio-owned persistence boundary. IndexedDB transactions commit whole snapshots;
 // validation is deliberately completed before a read/write transaction is opened.
 export const autosaveDatabaseName = 'gg-studio-projects';
@@ -161,6 +162,37 @@ export function createAutosaveStore({indexedDB = globalThis.indexedDB, dbName = 
     throw new AutosaveError('Otra pestaña sigue cambiando el proyecto. No se confirmó el guardado; exporta GGPROJ o cierra esa pestaña.', 'conflict');
   }
 
+  // Optional metadata shares the transaction queue, never snapshot rotation.
+  async function loadCopyRecord(projectId) {
+    try {
+      const db = await database();
+      const value = await new Promise((resolve, reject) => {
+        const tx = db.transaction(storeName, 'readonly');
+        const request = tx.objectStore(storeName).get('continuity:' + projectId);
+        tx.oncomplete = () => resolve(request.result);
+        tx.onabort = () => reject(transactionError(tx));
+        tx.onerror = () => {};
+      });
+      const record = validateCopyRecord(value, projectId);
+      return {status: record ? 'available' : value === undefined ? 'missing' : 'invalid', record};
+    } catch (error) { return {status: 'unavailable', record: null, warning: error.message}; }
+  }
+  async function saveCopyRecord(value) {
+    const record = validateCopyRecord(value);
+    if (!record) throw new AutosaveError('El registro de la copia no es válido.', 'invalid-copy-record');
+    const db = await database();
+    return new Promise((resolve, reject) => {
+      let tx;
+      try {
+        tx = db.transaction(storeName, 'readwrite');
+        tx.objectStore(storeName).put(record, 'continuity:' + record.projectId);
+        tx.oncomplete = () => resolve({status: 'saved', record});
+        tx.onabort = () => reject(transactionError(tx));
+        tx.onerror = () => {};
+      } catch (error) { try { tx?.abort(); } catch {} reject(unavailable(error)); }
+    });
+  }
+
   async function clear() {
     const db = await database();
     return new Promise((resolve, reject) => {
@@ -170,6 +202,13 @@ export function createAutosaveStore({indexedDB = globalThis.indexedDB, dbName = 
         const store = transaction.objectStore(storeName);
         store.delete('current');
         store.delete('previous');
+        const cursor = store.openCursor();
+        cursor.onsuccess = () => {
+          const entry = cursor.result;
+          if (!entry) return;
+          if (typeof entry.key === 'string' && entry.key.startsWith('continuity:')) entry.delete();
+          entry.continue();
+        };
         transaction.oncomplete = () => resolve({status: 'cleared'});
         transaction.onerror = () => {};
         transaction.onabort = () => reject(transactionError(transaction));
@@ -181,6 +220,8 @@ export function createAutosaveStore({indexedDB = globalThis.indexedDB, dbName = 
     save: serialized => enqueue(() => save(serialized)),
     load: () => enqueue(load),
     clear: () => enqueue(clear),
+    loadCopyRecord: projectId => enqueue(() => loadCopyRecord(projectId)),
+    saveCopyRecord: record => enqueue(() => saveCopyRecord(record)),
     close: () => { disposed = true; connection?.close(); connection = null; }
   });
 }

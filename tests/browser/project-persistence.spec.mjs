@@ -3,7 +3,9 @@ import {revealAdvanced} from './advanced-controls.mjs';
 import {artifactPath} from './artifacts.mjs';
 import {test, expect} from '@playwright/test';
 import {readFile, writeFile} from 'node:fs/promises';
-import {createHash} from 'node:crypto';
+import {createHash, randomUUID} from 'node:crypto';
+import {createProjectArchive} from '../../src/project-archive.mjs';
+import {projectContentHash} from '../../src/project-continuity.mjs';
 import JSZip from 'jszip';
 import {corpus} from '../fixtures/corpus.blocks.mjs';
 
@@ -46,13 +48,13 @@ async function run(page, x) {
 }
 async function download(page) {
   const pending = page.waitForEvent('download');
-  await clickVisible(page.getByRole('button', {name: 'Descargar proyecto', exact: true}));
+  await clickVisible(page.locator('#save-project'));
   const result = await pending;
   expect(result.suggestedFilename()).toMatch(/\.ggproj$/);
   return {name: result.suggestedFilename(), bytes: await readFile(await result.path())};
 }
 async function importFile(page, bytes, name = 'reabrir.ggproj') {
-  await page.locator('#open-project').setInputFiles({name, mimeType: 'application/zip', buffer: bytes});
+  await page.locator('#open-project').setInputFiles({name, mimeType: 'application/zip', buffer: Buffer.from(bytes)});
   await expect(page.locator('#open-project')).toHaveValue('');
 }
 async function records(page) {
@@ -409,4 +411,424 @@ test('GG-PROJECT-006/007/009: flush during recovery and an import superseded by 
   expect(JSON.parse((await records(page)).current.serialized).project.name).toBe('Importación conservada durante Stop');
   await run(page, 18);
   await saveEvidence('overlapping-recovery', {flushStartedBeforeRecovery: true, restoredCheckpoint: JSON.parse(committed).project.name, outcomes, savedImportedName: 'Importación conservada durante Stop', authoringPreserved: true, runtimeX: 18});
+});
+
+const stableProject = model => {
+  const value = structuredClone(model);
+  delete value.project.revision; delete value.project.createdAt; delete value.project.updatedAt;
+  return value;
+};
+async function delayArchive(page) {
+  await page.route('**/project-archive.mjs', async route => {
+    const response = await route.fetch(), source = await response.text();
+    const signature = 'export async function createProjectArchive(document, {catalog} = {}) {';
+    expect(source).toContain(signature);
+    await route.fulfill({response, body: source.replace(signature, signature +
+      '\n if (globalThis.__failArchive) throw new Error("Empaquetado de prueba fallido"); if (globalThis.__holdArchive) { globalThis.__archiveCaptured = structuredClone(document); await new Promise(resolve => { globalThis.__releaseArchive = resolve; }); }')});
+  });
+}
+
+test('SJ-01/02/03: create, edit repeat-move to x21, close, recover and open a real portable copy with all authoring intact', async ({page, context, browser}) => {
+  test.setTimeout(120000);
+  await open(page);
+  await clickVisible(page.locator('#entry-create'));
+  await expect(page.locator('#project-name')).toHaveValue('Mi primera creación');
+  const seed = JSON.parse(await readFile(new URL('../fixtures/canonical/scene2d/repeat-move/project.json', import.meta.url)));
+  const model = JSON.parse(await exported(page));
+  model.authoring.blockly = seed.blockly; model.project.name = 'Mi recorrido 2D';
+  const catalog = await page.evaluate(() => studioProbe.project.catalog());
+  await importFile(page, await createProjectArchive(model, {catalog}), 'semilla-repetir.ggproj');
+  await selectContext(page, '2d');
+  const field = page.locator('#blockly-editor [data-id="canonical-steps"] .blocklyText');
+  await field.dblclick(); await page.locator('.blocklyHtmlInput').fill('7'); await page.locator('.blocklyHtmlInput').press('Enter');
+  await expect(field).toHaveText('7');
+  await page.locator('#project-name').fill('Mi viaje de 21 pasos');
+  await run(page, 21);
+  await page.frameLocator('#runner-slot iframe').locator('#stage').screenshot({path: artifactPath('sj-2d-result-canvas.png')});
+  await clickVisible(page.locator('#stop-result')); await expect(page.locator('#run-editor')).toBeEnabled();
+  expect((await snapshot(page)).x).toBe(0);
+  const blocks = await authoring(page);
+  await clickVisible(page.locator('#copy-javascript'));
+  await selectContext(page, 'text'); await page.locator('#text-source').fill('console.log("Documento independiente");');
+  expect(await authoring(page)).toEqual(blocks);
+  await selectContext(page, '2d');
+  await expect(page.locator('#project-status')).toHaveText('Guardado en este navegador');
+  const original = stableProject(JSON.parse(await exported(page)));
+  const portable = await download(page);
+  await page.screenshot({path: artifactPath('sj-2d-continuity.png'), fullPage: true});
+  await page.close();
+  const local = await context.newPage(); await open(local);
+  expect(stableProject(JSON.parse(await exported(local)))).toEqual(original);
+  expect((await snapshot(local)).x).toBe(0);
+  await run(local, 21);
+  await clickVisible(local.locator('#stop-result'));
+  const fresh = await browser.newContext();
+  try {
+    const reopened = await fresh.newPage(); await open(reopened);
+    await importFile(reopened, portable.bytes, portable.name);
+    expect(stableProject(JSON.parse(await exported(reopened)))).toEqual(original);
+    await expect(reopened.locator('#project-copy-status')).toHaveText('Sin registro de copia en este navegador');
+    expect((await snapshot(reopened)).x).toBe(0);
+    await run(reopened, 21);
+    expect(await authoring(reopened)).toEqual(blocks);
+  } finally { await fresh.close(); }
+  await saveEvidence('sj-01-03', {seed: 'repeat-move', editedSteps: 7, runtimeX: 21, stoppedX: 0, completeAuthoring: true, numericShadows: true, independentDocument: true, sameProfileRecovery: true, portableFreshProfile: true});
+});
+
+test('SJ-04/GG-PROJECT-011: delayed archive uses one capture for bytes and filename and cannot replace a later project', async ({page}) => {
+  test.setTimeout(90000);
+  await delayArchive(page); await open(page);
+  await page.locator('#project-name').fill('Captura A');
+  await page.evaluate(() => { window.__holdArchive = true; });
+  const requested = page.waitForEvent('download');
+  await clickVisible(page.locator('#save-project'));
+  await page.waitForFunction(() => Boolean(window.__releaseArchive));
+  const captured = await page.evaluate(() => window.__archiveCaptured);
+  await page.locator('#project-name').fill('Edición posterior de A');
+  await editSteps(page, 8);
+  const later = JSON.parse(await exported(page));
+  later.project.id = randomUUID(); later.project.name = 'Proyecto B';
+  const catalog = await page.evaluate(() => studioProbe.project.catalog());
+  await importFile(page, await createProjectArchive(later, {catalog}), 'B.ggproj');
+  const before = stableProject(JSON.parse(await exported(page)));
+  await page.evaluate(() => { window.__holdArchive = false; window.__releaseArchive(); });
+  const result = await requested, bytes = await readFile(await result.path());
+  expect(result.suggestedFilename()).toBe('Captura A.ggproj');
+  const archive = await JSZip.loadAsync(bytes);
+  const manifest = JSON.parse(await archive.file('manifest.json').async('string'));
+  expect(manifest.project).toEqual(captured.project);
+  expect(manifest.authoring).toEqual(captured.authoring);
+  expect(stableProject(JSON.parse(await exported(page)))).toEqual(before);
+  await expect(page.locator('#project-name')).toHaveValue('Proyecto B');
+  await expect(page.locator('#project-copy-status')).toHaveText('Sin registro de copia en este navegador');
+  await expect.poll(async () => Boolean((await allLocalRecords(page))['continuity:' + captured.project.id])).toBe(true);
+  await importFile(page, bytes, result.suggestedFilename());
+  await expect.poll(async () => (await continuity(page)).portable).toBe('current');
+  expect((await snapshot(page)).x).toBe(0);
+  await saveEvidence('sj-04', {singleCapture: true, capturedProject: captured.project, activeProject: before.project, bytes: bytes.length, filename: result.suggestedFilename()});
+});
+
+const continuity = page => page.evaluate(() => studioProbe.project.state().continuity);
+async function allLocalRecords(page) {
+  return page.evaluate(() => new Promise((resolve, reject) => {
+    const request = indexedDB.open('gg-studio-projects', 1);
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => {
+      const db = request.result, tx = db.transaction('snapshots', 'readonly'), store = tx.objectStore('snapshots');
+      const output = {}, cursor = store.openCursor();
+      cursor.onsuccess = () => { const item = cursor.result; if (item) { output[item.key] = item.value; item.continue(); } };
+      tx.oncomplete = () => { db.close(); resolve(output); };
+      tx.onabort = () => { db.close(); reject(tx.error); };
+    };
+  }));
+}
+async function holdSnapshotTransactions(page) {
+  await page.addInitScript(() => {
+    const put = IDBObjectStore.prototype.put;
+    IDBObjectStore.prototype.put = function(value, key) {
+      if (this.name !== 'snapshots' || key !== 'current') return put.apply(this, arguments);
+      if (window.__rejectSnapshotWrites) throw new DOMException('Transacción de prueba abortada', 'AbortError');
+      const result = put.apply(this, arguments);
+      if (window.__holdSnapshotWrites) {
+        const store = this; window.__heldSnapshotTransaction = this.transaction;
+        window.__snapshotWriteHeld = true;
+        const pump = () => {
+          const request = store.get('__test-keep-transaction-open');
+          request.onsuccess = () => { if (window.__holdSnapshotWrites) pump(); };
+        };
+        pump();
+      }
+      return result;
+    };
+  });
+}
+
+test('PC-01/06: copy is identified by content, survives reload and never rotates authoring snapshots', async ({page}) => {
+  await open(page);
+  await page.locator('#project-name').fill('Contenido confirmado');
+  await flush(page);
+  await expect.poll(async () => (await continuity(page)).portable).toBe('unknown');
+  const snapshots = await records(page), original = JSON.parse(await exported(page));
+  const portable = await download(page);
+  const header = await page.locator('.app-bar').boundingBox();
+  expect(header.height).toBeLessThanOrEqual(50); // Keep the desktop station's compact header.
+  await page.locator('.app-bar').screenshot({path: artifactPath('pc-continuity-header.png')});
+  await page.locator('#project-menu .menu-panel').screenshot({path: artifactPath('pc-copy-menu.png')});
+  await expect(page.locator('#project-copy-status')).toContainText('Copia solicitada');
+  await expect.poll(async () => (await continuity(page)).persisted).toBe(true);
+  const saved = await allLocalRecords(page), id = original.project.id, copy = saved['continuity:' + id];
+  expect(copy.contentHash).toBe(await projectContentHash(original));
+  expect(await records(page)).toEqual(snapshots);
+  const zip = await JSZip.loadAsync(portable.bytes), manifest = JSON.parse(await zip.file('manifest.json').async('string'));
+  expect(JSON.stringify(manifest)).not.toContain('contentHash');
+  expect(Object.keys(manifest.project)).toEqual(Object.keys(original.project));
+  await page.evaluate(() => { const input = document.querySelector('#project-name'); input.dispatchEvent(new Event('input', {bubbles:true})); });
+  await flush(page);
+  await expect.poll(async () => (await continuity(page)).portable).toBe('current');
+  const revision = await page.evaluate(() => studioProbe.project.state().revision);
+  await exported(page); await exported(page);
+  await expect.poll(async () => (await continuity(page)).portable).toBe('current');
+  expect(await page.evaluate(() => studioProbe.project.state().revision)).toBe(revision);
+  await page.locator('#project-name').fill('Contenido posterior');
+  await expect(page.locator('#project-copy-status')).toHaveText('Hay cambios desde la última solicitud de copia');
+  await flush(page);
+  await page.reload(); await page.waitForFunction(() => Boolean(window.studioProbe?.project)); await page.evaluate(() => studioProbe.project.ready());
+  await expect(page.locator('#project-copy-status')).toHaveText('Hay cambios desde la última solicitud de copia');
+  expect((await continuity(page)).record).toEqual(copy);
+  await page.locator('#project-name').fill('Contenido confirmado'); await flush(page);
+  await expect.poll(async () => (await continuity(page)).portable).toBe('current');
+  await saveEvidence('pc-01-06', {contentHash: copy.contentHash, localOnly: true, snapshotRotationIndependent: true, revisionIndependent: true, portableBytes: portable.bytes.length});
+});
+
+test('PC-02/06: failed local save stays visible beside a real copy and both failures have working UI retries', async ({page}) => {
+  await page.addInitScript(() => {
+    const put = IDBObjectStore.prototype.put;
+    IDBObjectStore.prototype.put = function(value, key) {
+      if (this.name === 'snapshots' && ((window.__failLocal && ['current','previous'].includes(key)) ||
+          (window.__failCopyRecord && typeof key === 'string' && key.startsWith('continuity:'))))
+        throw new DOMException('Cuota de prueba agotada', 'QuotaExceededError');
+      return put.apply(this, arguments);
+    };
+  });
+  await open(page); await page.locator('#project-name').fill('Último commit'); await flush(page);
+  const durable = await records(page);
+  await page.evaluate(() => { window.__failLocal = window.__failCopyRecord = true; });
+  await page.locator('#project-name').fill('Copia fuera del navegador'); await editSteps(page, 6);
+  await page.evaluate(() => studioProbe.project.flush().catch(() => {}));
+  await expect(page.locator('#project-status')).toHaveText('Sin guardar en este navegador');
+  await run(page, 18);
+  const portable = await download(page);
+  await expect(page.locator('#project-copy-status')).toContainText('Copia solicitada');
+  await expect(page.locator('#project-copy-warning')).toContainText('Solo se recuerda en esta sesión');
+  await expect(page.locator('#project-status')).toHaveText('Sin guardar en este navegador');
+  expect(await records(page)).toEqual(durable);
+  await page.evaluate(() => { window.__failLocal = false; });
+  await clickVisible(page.locator('#retry-project-save'));
+  await expect(page.locator('#project-status')).toHaveText('Guardado en este navegador');
+  await page.evaluate(() => { window.__failCopyRecord = false; });
+  await clickVisible(page.locator('#retry-copy-record'));
+  await expect(page.locator('#project-copy-warning')).toBeEmpty();
+  await expect(page.locator('#retry-copy-record')).toBeHidden();
+  await expect.poll(async () => (await continuity(page)).persisted).toBe(true);
+  const id = await page.evaluate(() => studioProbe.project.state().id);
+  expect((await allLocalRecords(page))['continuity:' + id]).toEqual((await continuity(page)).record);
+  await saveEvidence('pc-02', {realDownloadBytes: portable.bytes.length, localFailurePreserved: true, memoryRecord: true, realUIRetries: true});
+});
+
+test('PC-03: an edit during packaging remains newer than the copy; a packaging failure does not create a record', async ({page}) => {
+  await delayArchive(page); await open(page);
+  await page.locator('#project-name').fill('Antes de empaquetar');
+  await flush(page);
+  await page.evaluate(() => { window.__holdArchive = true; });
+  const pending = page.waitForEvent('download');
+  await clickVisible(page.locator('#save-project'));
+  await page.waitForFunction(() => Boolean(window.__releaseArchive));
+  const captured = await page.evaluate(() => window.__archiveCaptured);
+  await page.locator('#project-name').fill('Después de capturar'); await editSteps(page, 8);
+  const active = stableProject(JSON.parse(await exported(page)));
+  await page.evaluate(() => { window.__holdArchive = false; window.__releaseArchive(); });
+  const result = await pending, bytes = await readFile(await result.path());
+  const zip = await JSZip.loadAsync(bytes), manifest = JSON.parse(await zip.file('manifest.json').async('string'));
+  expect(manifest.authoring).toEqual(captured.authoring);
+  expect(result.suggestedFilename()).toBe('Antes de empaquetar.ggproj');
+  expect(stableProject(JSON.parse(await exported(page)))).toEqual(active);
+  await expect(page.locator('#project-copy-status')).toHaveText('Hay cambios desde la última solicitud de copia');
+  await expect.poll(async () => (await continuity(page)).persisted).toBe(true);
+  const record = (await continuity(page)).record;
+  expect(record.contentHash).toBe(await projectContentHash(captured));
+  await page.evaluate(() => { window.__failArchive = true; });
+  await clickVisible(page.locator('#save-project'));
+  await expect(page.locator('#project-error')).toContainText('Empaquetado de prueba fallido');
+  expect((await continuity(page)).record).toEqual(record);
+  expect(stableProject(JSON.parse(await exported(page)))).toEqual(active);
+  await saveEvidence('pc-03', {oneCapture: true, postCaptureEditsKept: true, failedPackagingDoesNotRecord: true, contentHash: record.contentHash});
+});
+
+test.describe('Base reader fixture without a service-worker interception layer', () => {
+  // This case checks old IndexedDB code, not offline. A worker would handle
+  // the injected fixture URL before page.route and correctly return 404.
+  test.use({serviceWorkers: 'block'});
+test('PC-04/06: corrupt optional metadata is ignored, backups keep their own content and old readers still recover snapshots', async ({page}) => {
+  await open(page);
+  await page.locator('#project-name').fill('Respaldo A'); await flush(page);
+  await page.locator('#project-name').fill('Current B'); await flush(page);
+  await download(page); await expect.poll(async () => (await continuity(page)).persisted).toBe(true);
+  const before = await records(page), id = await page.evaluate(() => studioProbe.project.state().id);
+  // Execute the actual storage reader from base 1235693, not the new reader
+  // with a version-1 database number. The fixture is byte-identical to HEAD's
+  // autosave-store before this change and is served only by this test route.
+  const legacySource = await readFile(new URL('../fixtures/legacy-autosave-store-1235693.mjs', import.meta.url), 'utf8');
+  await page.route('**/legacy-autosave-store-1235693.mjs', route => route.fulfill({contentType:'text/javascript', body:legacySource}));
+  const beforeLegacy = await allLocalRecords(page);
+  const legacy = await page.evaluate(async () => {
+    const {createAutosaveStore} = await import(new URL('./legacy-autosave-store-1235693.mjs', location.href).href);
+    const store = createAutosaveStore({validate:JSON.parse});
+    try { const saved = await store.load(); return {saved, repeat:await store.save(saved.serialized)}; }
+    finally { store.close(); }
+  });
+  expect(legacy.saved.serialized).toBe(before.current.serialized);
+  expect(legacy.repeat.status).toBe('unchanged');
+  expect(await allLocalRecords(page)).toEqual(beforeLegacy);
+  await corruptRecords(page, ['current']);
+  await page.reload(); await page.waitForFunction(() => Boolean(window.studioProbe?.project)); await page.evaluate(() => studioProbe.project.ready());
+  await expect(page.locator('#project-name')).toHaveValue('Respaldo A');
+  await expect(page.locator('#project-copy-status')).toHaveText('Hay cambios desde la última solicitud de copia');
+  expect((await records(page)).previous).toEqual(before.previous);
+  const afterRecovery = await records(page);
+  await page.evaluate(id => new Promise((resolve, reject) => {
+    const request = indexedDB.open('gg-studio-projects', 1);
+    request.onsuccess = () => { const db = request.result, tx = db.transaction('snapshots', 'readwrite');
+      tx.objectStore('snapshots').put({version:99, contentHash:'bad'}, 'continuity:' + id);
+      tx.oncomplete = () => { db.close(); resolve(); }; tx.onabort = () => reject(tx.error); };
+  }), id);
+  await page.reload(); await page.waitForFunction(() => Boolean(window.studioProbe?.project)); await page.evaluate(() => studioProbe.project.ready());
+  await expect(page.locator('#project-copy-status')).toHaveText('Sin registro de copia en este navegador');
+  await expect(page.locator('#project-copy-warning')).toContainText('registro de copia no es válido');
+  expect(await records(page)).toEqual(afterRecovery);
+  expect((await snapshot(page)).x).toBe(0);
+  await saveEvidence('pc-04-06', {backupNotCertifiedByCurrentCopy: true, corruptMetadataIgnored: true, snapshotsPreserved: true, readerDatabaseVersion: 1, readerRevision: '1235693', unchangedWritePreservedMetadata: true});
+});
+
+});
+
+test('PC-01/SJ-11: committing A while editing B cannot announce B saved; native exit warning is removed after the real commit', async ({page}) => {
+  await holdSnapshotTransactions(page); await open(page);
+  await page.locator('#project-name').fill('Base durable'); await flush(page);
+  await page.evaluate(() => { window.__holdSnapshotWrites = true; });
+  await page.locator('#project-name').fill('Guardado lento A');
+  await page.evaluate(() => { window.__slowSave = studioProbe.project.flush().then(() => { window.__stateAfterA = studioProbe.project.state(); }); });
+  await page.waitForFunction(() => window.__snapshotWriteHeld);
+  await expect(page.locator('#project-status')).toHaveText('Guardando…');
+  expect(await page.evaluate(() => studioProbe.project.state().beforeUnloadPending)).toBe(true);
+  await page.locator('#project-name').fill('Edición B');
+  await page.evaluate(() => { window.__holdSnapshotWrites = false; });
+  await page.evaluate(() => window.__slowSave);
+  const afterA = await page.evaluate(() => window.__stateAfterA);
+  expect(afterA.name).toBe('Edición B'); expect(afterA.dirty).toBe(true);
+  expect(afterA.continuity.local).not.toBe('saved');
+  await flush(page);
+  await expect(page.locator('#project-status')).toHaveText('Guardado en este navegador');
+  expect(await page.evaluate(() => studioProbe.project.state().beforeUnloadPending)).toBe(false);
+  expect(await page.evaluate(() => { const event = new Event('beforeunload', {cancelable:true}); window.dispatchEvent(event); return event.defaultPrevented; })).toBe(false);
+  await saveEvidence('pc-01-sj-11', {afterA, realTransactionHeld: true, finalDurable: JSON.parse((await records(page)).current.serialized).project.name});
+});
+
+test('PC-05/SJ-11: closing with an aborted pending transaction recovers only the previous confirmed authoring', async ({page, context}) => {
+  await holdSnapshotTransactions(page); await open(page);
+  await page.locator('#project-name').fill('Última revisión durable'); await flush(page);
+  const durable = stableProject(JSON.parse(await exported(page)));
+  await page.evaluate(() => { window.__holdSnapshotWrites = true; });
+  await page.locator('#project-name').fill('Borrador sin confirmar');
+  await page.evaluate(() => { window.__pendingSave = studioProbe.project.flush().catch(() => {}); });
+  await page.waitForFunction(() => window.__snapshotWriteHeld);
+  expect(await page.evaluate(() => { const event = new Event('beforeunload', {cancelable:true}); window.dispatchEvent(event); return event.defaultPrevented; })).toBe(true);
+  await page.evaluate(() => { window.__rejectSnapshotWrites = true; window.__heldSnapshotTransaction.abort(); });
+  await page.evaluate(() => window.__pendingSave);
+  await page.close();
+  const returned = await context.newPage(); await open(returned);
+  await expect(returned.locator('#project-name')).toHaveValue('Última revisión durable');
+  expect(stableProject(JSON.parse(await exported(returned)))).toEqual(durable);
+  expect((await snapshot(returned)).x).toBe(0);
+  await saveEvidence('pc-05', {realAbort: true, noForcedFlushBeforeClose: true, recoveredConfirmedOnly: true, nativeDialogGuarantee: false});
+});
+
+test('SJ-08: ten explicit audio/wait Run and Stop cycles retain authoring and reject every stale GG reference', async ({page}) => {
+  test.setTimeout(180000);
+  await open(page);
+  await page.evaluate(state => studioProbe.editor.load(state), corpus.audioStop);
+  await flush(page);
+  const original = await authoring(page), cycles = [];
+  for (let cycle = 0; cycle < 10; cycle++) {
+    await selectContext(page, '2d'); await clickVisible(page.locator('#run-editor'));
+    await expect(page.locator('#status')).toHaveText('Bloques ejecutados');
+    const play = page.frameLocator('#runner-slot iframe').getByRole('button', {name: 'Reproducir sonido', exact: true});
+    await clickVisible(play);
+    await expect.poll(async () => (await settled(snapshot, page)).audio.rms).toBeGreaterThan(0.01);
+    await page.evaluate(() => { window.__staleCycleGG = GG; });
+    await clickVisible(page.locator('#stop-result')); await expect(page.locator('#run-editor')).toBeEnabled();
+    const stale = await page.evaluate(() => __staleCycleGG.sprite.move('hero', 100).then(() => null, error => error.message));
+    expect(stale).toContain('Stale GG');
+    expect((await snapshot(page)).x).toBe(0);
+    expect(await authoring(page)).toEqual(original);
+    cycles.push({cycle: cycle + 1, stale, initialX: 0});
+  }
+  await page.waitForTimeout(1300);
+  expect((await snapshot(page)).x).toBe(0); expect((await snapshot(page)).threads).toBe(0);
+  expect(await authoring(page)).toEqual(original);
+  await saveEvidence('sj-08-cycles', {cycles, authoringPreserved: true, lateEffectsAbsent: true});
+});
+
+test('PC-06: optional records use database v1 and explicit local clear removes them with current/previous', async ({page}) => {
+  await open(page); await page.locator('#project-name').fill('Registro separado'); await flush(page); await download(page);
+  await expect.poll(async () => (await continuity(page)).persisted).toBe(true);
+  const before = stableProject(JSON.parse(await exported(page))), record = (await continuity(page)).record;
+  const result = await page.evaluate(async record => {
+    const {createAutosaveStore} = await import(new URL('./app/autosave-store.mjs', location.href).href);
+    const store = createAutosaveStore({validate: JSON.parse});
+    try {
+      const other = {...record, projectId: crypto.randomUUID()};
+      await store.saveCopyRecord(other);
+      const loaded = await store.loadCopyRecord(record.projectId);
+      const durable = await store.load();
+      const clearing = await store.clear();
+      return {loaded, durable: JSON.parse(durable.serialized), clearing, after: await store.load(), optional: await store.loadCopyRecord(record.projectId)};
+    } finally { store.close(); }
+  }, record);
+  expect(result.loaded.record).toEqual(record);
+  expect(stableProject(result.durable)).toEqual(before);
+  expect(result.clearing.status).toBe('cleared'); expect(result.after.status).toBe('empty');
+  expect(result.optional.status).toBe('missing');
+  expect(await allLocalRecords(page)).toEqual({});
+  expect(stableProject(JSON.parse(await exported(page)))).toEqual(before);
+  await saveEvidence('pc-06-clear', {databaseVersion: 1, metadataDoesNotEnterAuthoring: true, currentPreviousAndRecordsCleared: true});
+});
+
+test('PC-BLOCKED: edits under corrupt recovery invalidate the portable copy and warn on exit without overwriting damaged snapshots', async ({page}) => {
+  await open(page);
+  await page.locator('#project-name').fill('Respaldo'); await flush(page);
+  await page.locator('#project-name').fill('Current'); await flush(page);
+  await corruptRecords(page, ['current', 'previous']);
+  await page.reload(); await page.waitForFunction(() => Boolean(window.studioProbe?.project)); await page.evaluate(() => studioProbe.project.ready());
+  await expect(page.locator('#project-status')).toHaveText('No se pudo recuperar el guardado local');
+  const damaged = await records(page);
+  await expect.poll(() => page.evaluate(() => Boolean(studioProbe.project.state().contentHash))).toBe(true);
+  await download(page);
+  await expect.poll(async () => (await continuity(page)).portable).toBe('current');
+  await expect.poll(async () => (await continuity(page)).persisted).toBe(true);
+  await page.locator('#project-name').fill('Borrador que sigue editable');
+  expect((await continuity(page)).portable).toBe('previous');
+  expect(await page.evaluate(() => studioProbe.project.state().beforeUnloadPending)).toBe(true);
+  await expect(page.locator('#project-status')).toHaveText('No se pudo recuperar el guardado local');
+  await page.waitForTimeout(650); // Past autosave debounce; blocked snapshots must remain untouched.
+  expect(await records(page)).toEqual(damaged);
+  expect(await page.locator('#project-name').inputValue()).toBe('Borrador que sigue editable');
+  await saveEvidence('pc-blocked', {corruptSnapshotsPreserved: true, copyInvalidated: true, pendingExitWarning: true});
+});
+
+test('PC-MEMORY: a copy remembered only in this session remains associated with A after opening B and returning to A', async ({page}) => {
+  await page.addInitScript(() => {
+    const open = IDBFactory.prototype.open;
+    IDBFactory.prototype.open = function(name, ...args) {
+      if (name === 'gg-studio-projects') throw new DOMException('Storage denied', 'SecurityError');
+      return open.call(this, name, ...args);
+    };
+  });
+  await open(page);
+  await page.locator('#project-name').fill('A sin almacenamiento');
+  const portable = await download(page);
+  await expect.poll(async () => (await continuity(page)).portable).toBe('current');
+  await expect(page.locator('#project-copy-warning')).toContainText('Solo se recuerda en esta sesión');
+  const record = (await continuity(page)).record;
+  const b = JSON.parse(await exported(page)); b.project.id = randomUUID(); b.project.name = 'B sin almacenamiento';
+  const catalog = await page.evaluate(() => studioProbe.project.catalog());
+  await importFile(page, await createProjectArchive(b, {catalog}), 'B.ggproj');
+  await expect(page.locator('#project-copy-status')).toHaveText('Sin registro de copia en este navegador');
+  await importFile(page, portable.bytes, portable.name);
+  await expect.poll(async () => (await continuity(page)).portable).toBe('current');
+  expect((await continuity(page)).record).toEqual(record);
+  expect((await continuity(page)).persisted).toBe(false);
+  await expect(page.locator('#project-status')).toHaveText('Sin guardar en este navegador');
+  await expect(page.locator('#project-copy-warning')).toContainText('Solo se recuerda en esta sesión');
+  expect((await snapshot(page)).x).toBe(0);
+  await saveEvidence('pc-memory', {sameSessionReturn: true, crossProjectIsolation: true, storageDenied: true, noAutorun: true});
 });

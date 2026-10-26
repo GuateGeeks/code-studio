@@ -8,12 +8,15 @@
 <section class="project-files" aria-labelledby="project-heading">
 <h2 id="project-heading" class="visually-hidden">Tu proyecto</h2>
 <div class="project-name"><label for="project-name">Nombre del proyecto</label><input id="project-name" value="Mi proyecto" maxlength="80" autocomplete="off"></div>
-<output id="project-status" aria-live="polite">Buscando una copia local…</output>
+<div class="project-continuity" aria-label="Dónde está tu trabajo"><output id="project-status" aria-live="polite">Buscando una copia local…</output><output id="project-copy-status" aria-live="polite">Sin registro de copia en este navegador</output></div>
 </section>
 <nav class="app-actions" aria-label="Proyecto y clase">
 <button id="entry-toggle" type="button" aria-controls="entry-panel" aria-expanded="true">Inicio</button>
 <details id="project-menu" class="app-menu"><summary>Archivo</summary><div class="menu-panel">
-<button id="save-project" disabled>Descargar proyecto</button>
+<button id="save-project" aria-describedby="continuity-help" disabled>Llevar o entregar</button>
+<p id="continuity-help">Descarga un archivo .ggproj para abrirlo en otra computadora. Comprueba tu carpeta de descargas; no se envía a tu docente.</p>
+<p id="continuity-reminder">Tu trabajo local pertenece a este navegador. Lleva una copia si vas a cambiar de computadora. <button id="continuity-continue" type="button">Seguir trabajando</button></p>
+<output id="project-copy-warning" role="status"></output><button id="retry-copy-record" type="button" hidden>Reintentar guardar el registro</button>
 <div class="project-open"><label for="open-project">Abrir archivo GGPROJ</label><input id="open-project" type="file" accept=".ggproj,application/zip" disabled></div>
 <p>Los cambios se guardan en este navegador. Descarga el archivo para llevar tu proyecto a otro equipo.</p>
 </div></details>
@@ -24,7 +27,7 @@
 </nav>
 </header>
 <main>
-<div class="project-notices"><output id="recovery-notice" aria-live="polite"></output><output id="project-error" role="alert"></output><button id="save-new-copy" hidden>Guardar este proyecto como copia nueva</button><button id="dismiss-notices" type="button">Entendido</button></div>
+<div class="project-notices"><output id="recovery-notice" aria-live="polite"></output><output id="project-error" role="alert"></output><button id="retry-project-save" type="button" hidden>Reintentar guardado local</button><button id="save-new-copy" hidden>Guardar este proyecto como copia nueva</button><button id="dismiss-notices" type="button">Entendido</button></div>
 <details id="entry-panel" open><summary>Empezar o continuar</summary>
 <section id="entry-journey" aria-labelledby="entry-heading" aria-busy="true">
 <div><h2 id="entry-heading">Crea, prueba y descubre</h2><p id="entry-description" aria-live="polite">Buscando tu proyecto en este navegador…</p></div>

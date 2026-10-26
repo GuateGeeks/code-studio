@@ -67,6 +67,18 @@ for(const size of [{name:'desktop',width:1280,height:960},{name:'mobile',width:3
     const layout=await noPageOverflow(page);expect(layout.innerWidth).toBeLessThan(baseline.innerWidth);
     await reachable(page,name);await expect(name).toHaveAccessibleName('Nombre del proyecto');
     for(const id of ['project-menu > summary','authoring-context','run-editor','stop-result'])await reachable(page,page.locator('#'+id));
+    // PC-07: both continuity dimensions and the one real download remain
+    // reachable with native keyboard interaction at the actual browser zoom.
+    for(const id of ['project-status','project-copy-status'])await reachable(page,page.locator('#'+id),{enabled:false});
+    const fileMenu=page.locator('#project-menu > summary');await fileMenu.focus();await fileMenu.press('Enter');
+    const portable=page.locator('#save-project');await reachable(page,portable);
+    await expect(portable).toHaveAccessibleName('Llevar o entregar');
+    const copyAuthoring=await page.evaluate(()=>studioProbe.editor.save());
+    const copyDownload=page.waitForEvent('download');await portable.focus();await portable.press('Enter');
+    expect((await copyDownload).suggestedFilename()).toMatch(/\.ggproj$/);
+    await expect.poll(()=>page.evaluate(()=>studioProbe.project.state().continuity.portable)).toBe('current');
+    expect(await page.evaluate(()=>studioProbe.editor.save())).toEqual(copyAuthoring);
+    await noPageOverflow(page);await portable.press('Escape');await expect(fileMenu).toBeFocused();
     await name.focus();await name.press('Tab');await expect(page.locator('#entry-toggle')).toBeFocused();
     await page.getByRole('link',{name:'Ir al programa',exact:true}).focus();await page.getByRole('link',{name:'Ir al programa',exact:true}).press('Enter');await expect(selector).toBeFocused();
     const before=await page.evaluate(()=>studioProbe.editor.save());

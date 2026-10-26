@@ -30,13 +30,35 @@ En escritorio desde 1060×700, web conserva la proporción 1.45:1, workspace de 
 
 Scratch y MakeCode son referencias funcionales para la proximidad de programa, resultado y consulta. La implementación conserva la identidad y los controles existentes. Las extensiones locales micro:bit, Scratch importado, 3D y web siguen el patrón 2D en modo Operate y ejecución code-led; el patrón funcional está implementado en los seis contextos. La revisión transversal del 23 de octubre está documentada en docs/product/E4-CROSS-CONTEXT-REVIEW.md, con ocho hallazgos priorizados. El rework visual (studio-visual-workspace-rework) está implementado; véase la sección siguiente. La aceptación con docentes, estudiantes, tecnologías de asistencia y equipos físicos siguen pendientes. Este alcance no constituye el cierre de toda E4.
 
+## Continuidad y recorrido 2D (25 de octubre de 2026)
+
+Implementados y verificados técnicamente en `scene2d-journey-stabilization` y
+`project-continuity-model`. La cabecera distingue cambios locales pendientes,
+commit confirmado, fallo y recuperación bloqueada de la solicitud de copia
+portable: sin registro, contenido actual o contenido anterior. Archivo →
+«Llevar o entregar» solicita un .ggproj para abrirlo en otra computadora, sin
+envío académico ni confirmación de escritura física. Los reintentos local y
+del registro son independientes; una copia no oculta un fallo de autosave.
+La identidad usa el contenido capturado, no fechas o número de revisión.
+Metadatos opcionales por proyecto quedan fuera de GGPROJ y respaldos; si falla
+IndexedDB, la solicitud conocida se recuerda solo durante esta página, incluso
+al abrir otro proyecto y volver. El cierre abrupto solo garantiza la última
+revisión confirmada.
+
+La [evidencia del recorrido](docs/engineering/SCENE2D-JOURNEY-STABILIZATION-RESULTS.md)
+y la [de continuidad](docs/engineering/PROJECT-CONTINUITY-RESULTS.md) distinguen
+las verificaciones parciales de la puerta completa aprobada: 435 Node, 74 herramientas, 3 smoke y 214 regresiones E2E (217 en navegador), OpenSpec 36/36 y tres upstreams preservados. La aprobación conserva fuentes estables y baseline avanzada. La corrida incluyó trabajo experimental pendiente de synced-code-views y no corresponde al commit separado. Ambos cambios están [archivados](openspec/changes/archive/INDEX.md) con fecha 25/10/2026. El
+[guion docente](docs/product/SCENE2D-CONTINUITY-TEACHER-OBSERVATION.md) está preparado
+y pendiente de realizar con personas. Este corte no habilita conversión de vistas,
+multi-sprite ni formatos nuevos.
+
 ## Rework visual del espacio (studio-visual-workspace-rework)
 
 El 23 de octubre de 2026 se implementó el rework de presentación de los seis contextos sobre la integración E4. El usuario confirmó conservar la identidad visual existente y organizar el espacio como Scratch con piezas de MakeCode. La cabecera compacta reúne proyecto, guardado, Inicio, Archivo y Preparar para clase. El programa ocupa la izquierda; a la derecha están el transporte (Ejecutar nombrado por su autoría y un único Detener), el resultado y la consulta con pestañas reales. «Editando…» y «Resultado de…» identifican qué se edita y de dónde viene el resultado; una nota avisa cuando el resultado pertenece a otro contexto o muestra una versión anterior, y ejecutar sigue siendo una acción explícita. Bloques 3D/web, propiedades, cobertura Scratch y diagnósticos conocidos se presentan en español con el detalle técnico disponible; las validaciones se explican dentro del formulario. El estado del original Scratch y su siguiente acción están junto a la importación. Las actividades E3 se muestran como tutorial por pasos y anuncian su destino 2D desde otros contextos. Resultados, pruebas y límites en docs/product/VISUAL-REWORK-RESULTS.md; la aceptación con docentes, estudiantes, lector humano y equipos físicos sigue pendiente.
 
 ## Programa único con vistas sincronizadas (decisión del 24 de octubre de 2026)
 
-El usuario aprobó adoptar el modelo de MakeCode para el paso de bloques a texto ([ADR-011](docs/adr/011-contrato-de-lenguaje-y-vistas-sincronizadas.md)). **Estado: dirección aprobada, implementación pendiente.** El comportamiento actual descrito en las secciones anteriores sigue vigente hasta que cada cambio apruebe su puerta.
+El usuario aprobó adoptar el modelo de MakeCode para el paso de bloques a texto ([ADR-011](docs/adr/011-contrato-de-lenguaje-y-vistas-sincronizadas.md)). **Estado: packs/versiones y contrato de lenguaje implementados; vistas sincronizadas pendientes.** El contrato de lenguaje está verificado y archivado en 1235693. El trabajo experimental de synced-code-views permanece fuera de este cierre. El comportamiento de lectura y copia independiente sigue vigente.
 
 - **Un programa, tres vistas.** Bloques, JavaScript y Python son vistas del mismo programa. El estudiante puede editar el texto y volver a bloques conservando los cambios, siempre que el código esté dentro del subconjunto que tiene bloques.
 - **Rechazo sin pérdida.** Si el código tiene un error o usa algo sin bloque, no se cambia de vista. Se explica la causa con su línea y se ofrece seguir editando, volver a la última versión en bloques o guardar el texto como copia independiente.
@@ -76,7 +98,7 @@ El piloto apunta a N3 en 2D, texto, micro:bit y actividades, y a N4 en 2D, activ
 | Ola | Contenido | Estado |
 |---|---|---|
 | 0 · Higiene | `repo-baseline-and-spec-consolidation`, `pack-versioning-and-migrations`, `test-gate-scaling` | Línea base aplicada el 24/10: commit `670ab20`, etiquetas, 22 cambios archivados y 26 especificaciones consolidadas ([acta](docs/engineering/REPO-BASELINE-RESULTS.md)). `pack-versioning-and-migrations` aplicado el 24/10 ([acta](docs/engineering/PACK-VERSIONING-RESULTS.md)); `test-gate-scaling` aplicado ([acta](docs/engineering/TEST-GATE-SCALING-RESULTS.md)) |
-| 1 · Núcleo 2D y texto | `block-language-contract`, multi-sprite, vocabulario 2D v2, `synced-code-views`, editor de código, modelo de continuidad, biblioteca de recursos | `block-language-contract` en curso (API v3 2D aplicada, [acta](docs/engineering/API3-2D-RESULTS.md)); `scene2d-multi-sprite`, `scene2d-vocabulary-v2`, `text-editor-codemirror`, `project-continuity-model` y `synced-code-views` propuestos |
+| 1 · Núcleo 2D y texto | `block-language-contract`, multi-sprite, vocabulario 2D v2, `synced-code-views`, editor de código, modelo de continuidad, biblioteca de recursos | `block-language-contract` verificado y archivado ([acta](docs/engineering/BLOCK-LANGUAGE-CONTRACT-RESULTS.md)); continuidad/estabilización verificadas técnicamente; synced-code-views pendiente en trabajo separado; multi-sprite, vocabulario v2 y editor de código siguen propuestos |
 | 2 · Aprendizaje | Actividades v3 con feedback graduado, unidades, entrada «actividad primero», catálogo CNB, contenido; **Exp. 1** en aula | Por redactar; requiere D1 y un docente |
 | 3 · Capacidades | micro:bit v2 con radio y prueba física, bloques tipados 3D/web, Scratch importado multi-sprite | Por redactar |
 | 4 · Distribución y acceso | Despliegue en seis orígenes HTTPS, cohortes opcionales, lector de pantalla humano, catálogo de cadenas; **Exp. 2** | Por redactar; requiere D2 |
@@ -103,5 +125,5 @@ Resueltas el 24/10: D1, el primer piloto es **primaria alta (10–12 años)**; D
 
 El primer piloto es para primaria alta (10–12 años), decisión del 24/10/2026. Currículo, nivel lector concreto, duración de clase, equipos escolares y alcance móvil final no están confirmados. Tampoco existe aquí una identidad visual oficial aprobada ni contrato implementado con Sócrates. Los sprites del proyecto son recursos de demostración.
 
-Fuentes: README, docs/phase-6/RESULTS.md, docs/phase-7/RESULTS.md, docs/phase-7/TEACHER-GUIDE.md, docs/product/PLAN-DE-ACCION-2026-10-22.md y los cambios openspec/changes/archive/2026-10-24-studio-integrated-2d-editor/, openspec/changes/archive/2026-10-24-studio-integrated-microbit-workspace/, openspec/changes/archive/2026-10-24-studio-integrated-scratch-workspace/, openspec/changes/archive/2026-10-24-studio-integrated-3d-workspace/ y openspec/changes/archive/2026-10-24-studio-integrated-web-workspace/. La dirección de vistas sincronizadas se rige por docs/adr/011-contrato-de-lenguaje-y-vistas-sincronizadas.md, docs/product/FEATURE-MATURATION-PLAN.md y los cambios openspec/changes/pack-versioning-and-migrations/, openspec/changes/block-language-contract/ y openspec/changes/synced-code-views/. La puerta micro:bit se registra en docs/product/INTEGRATED-MICROBIT-RESULTS.md y su integrated-microbit-evidence.json; el incremento Scratch conserva su estado de verificación en docs/product/INTEGRATED-SCRATCH-RESULTS.md, 3D en docs/product/INTEGRATED-3D-RESULTS.md y web en docs/product/INTEGRATED-WEB-RESULTS.md. La aceptación con docentes, estudiantes, tecnologías de asistencia, dispositivos escolares y hardware físico permanece separada de las pruebas automatizadas.
+Fuentes: README, docs/phase-6/RESULTS.md, docs/phase-7/RESULTS.md, docs/phase-7/TEACHER-GUIDE.md, docs/product/PLAN-DE-ACCION-2026-10-22.md y los cambios openspec/changes/archive/2026-10-24-studio-integrated-2d-editor/, openspec/changes/archive/2026-10-24-studio-integrated-microbit-workspace/, openspec/changes/archive/2026-10-24-studio-integrated-scratch-workspace/, openspec/changes/archive/2026-10-24-studio-integrated-3d-workspace/ y openspec/changes/archive/2026-10-24-studio-integrated-web-workspace/. La dirección de vistas sincronizadas se rige por docs/adr/011-contrato-de-lenguaje-y-vistas-sincronizadas.md, docs/product/FEATURE-MATURATION-PLAN.md y los cambios openspec/changes/pack-versioning-and-migrations/, openspec/changes/archive/2026-10-25-block-language-contract/ y openspec/changes/synced-code-views/. La puerta micro:bit se registra en docs/product/INTEGRATED-MICROBIT-RESULTS.md y su integrated-microbit-evidence.json; el incremento Scratch conserva su estado de verificación en docs/product/INTEGRATED-SCRATCH-RESULTS.md, 3D en docs/product/INTEGRATED-3D-RESULTS.md y web en docs/product/INTEGRATED-WEB-RESULTS.md. La aceptación con docentes, estudiantes, tecnologías de asistencia, dispositivos escolares y hardware físico permanece separada de las pruebas automatizadas.
 

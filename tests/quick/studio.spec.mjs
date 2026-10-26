@@ -62,7 +62,7 @@ test('Quick: confirmed autosave and an actual GGPROJ download reopen without aut
   const original = await authoring(page);
   await expect(page.locator('#project-status')).toHaveText('Guardado en este navegador');
   const downloaded = page.waitForEvent('download');
-  await clickVisible(page.getByRole('button', {name: 'Descargar proyecto', exact: true}));
+  await clickVisible(page.getByRole('button', {name: 'Llevar o entregar', exact: true}));
   const file = await downloaded;
   const bytes = await readFile(await file.path());
   expect([...bytes.subarray(0, 4)]).toEqual([80, 75, 3, 4]);

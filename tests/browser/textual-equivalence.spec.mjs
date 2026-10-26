@@ -82,7 +82,7 @@ for (const mobile of [false,true]) {
     await expect.poll(async () => (await settled(snapshot, page)).x).toBe(15);
     await page.evaluate(()=>studioProbe.project.flush());
     const downloadEvent=page.waitForEvent('download');
-    await clickVisible(page.getByRole('button',{name:'Descargar proyecto',exact:true}));
+    await clickVisible(page.getByRole('button',{name:'Llevar o entregar',exact:true}));
     const file=await downloadEvent;
     const path=artifactPath('independent-copy-'+(mobile?'mobile':'desktop')+'.ggproj');
     await file.saveAs(path);

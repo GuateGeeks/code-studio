@@ -41,7 +41,7 @@ for (const language of ['javascript', 'python']) {
     await page.evaluate(() => studioProbe.project.flush());
     const authoring = JSON.parse(await page.evaluate(() => studioProbe.project.export())).authoring;
     const downloadEvent = page.waitForEvent('download');
-    await clickVisible(page.getByRole('button', {name: 'Descargar proyecto', exact: true}));
+    await clickVisible(page.getByRole('button', {name: 'Llevar o entregar', exact: true}));
     const download = await downloadEvent;
     const path = artifactPath('text-' + language + '.ggproj');
     await download.saveAs(path);

@@ -1,3 +1,4 @@
+import {projectContentHash, deriveContinuity} from '../project-continuity.mjs';
 import {createProject, parseProject, serializeProject, projectLimits} from '../project-format.mjs';
 import {createProjectArchive, parseProjectArchive} from '../project-archive.mjs';
 import {createAutosaveStore} from '../autosave-store.mjs';
@@ -27,10 +28,79 @@ export function createProjectUI({editor, source, stop, textDocuments, authoring:
   let recoveryBlocked = false;
   let lastSaved = null;
   let recoveryStatus = 'pending';
+  let localPhase = 'recovering';
+  let contentHash = null, copyRecord = null, copyPersisted = true, copyWarning = '';
+  let projectEpoch = 0, copyGeneration = 0, beforeUnloadInstalled = false, reminderDismissed = false;
+  const sessionCopies = new Map();
+  const memoryCopyWarning = 'No se pudo guardar el registro de la copia. Solo se recuerda en esta sesión.';
+  const copyStatus = document.querySelector('#project-copy-status');
+  const copyWarningOutput = document.querySelector('#project-copy-warning');
+  const retryCopy = document.querySelector('#retry-copy-record');
+  const retrySave = document.querySelector('#retry-project-save');
+  const reminder = document.querySelector('#continuity-reminder');
+  const continuity = () => deriveContinuity({local: localPhase, projectId: metadata.id, contentHash, record: copyRecord, persisted: copyPersisted});
+  const beforeUnload = event => { event.preventDefault(); event.returnValue = ''; };
+  function renderContinuity() {
+    const value = continuity();
+    const text = (element, message) => { if (element && element.textContent !== message) element.textContent = message; };
+    text(status, value.localMessage);
+    text(copyStatus, value.portableSummary);
+    text(copyWarningOutput, copyWarning);
+    if (copyStatus) copyStatus.dataset.state = value.portable;
+    if (retryCopy) retryCopy.hidden = copyPersisted || !copyRecord;
+    if (retrySave) retrySave.hidden = !booted || recoveryBlocked || localPhase !== 'failed';
+    if (reminder) reminder.hidden = !value.reminder || reminderDismissed;
+    const pending = booted && changes > 0 && savedChanges !== changes;
+    if (pending !== beforeUnloadInstalled) {
+      window[pending ? 'addEventListener' : 'removeEventListener']('beforeunload', beforeUnload);
+      beforeUnloadInstalled = pending;
+    }
+  }
+  async function refreshContent() {
+    const epoch = projectEpoch, generation = changes;
+    try {
+      const model = await capture();
+      const hash = await projectContentHash(model);
+      if (epoch !== projectEpoch || generation !== changes) return;
+      contentHash = hash;
+      notify();
+    } catch {
+      // An incomplete draft has no current content identity. It stays editable;
+      // ordinary save/export validation owns actionable diagnostics.
+    }
+  }
+  async function loadPortableRecord() {
+    const epoch = projectEpoch, generation = ++copyGeneration, id = metadata.id;
+    const result = await store.loadCopyRecord(id);
+    if (epoch !== projectEpoch || generation !== copyGeneration) return;
+    const remembered = sessionCopies.get(id);
+    const memoryIsNewer = remembered && !remembered.persisted &&
+      (!result.record || remembered.record.requestedAt >= result.record.requestedAt);
+    let selected;
+    if (remembered && result.status !== 'invalid' && (result.status === 'unavailable' || memoryIsNewer))
+      selected = {...remembered, persisted: false, warning: memoryCopyWarning};
+    else selected = {record: result.record, persisted: true,
+      warning: result.status === 'invalid' ? 'El registro de copia no es válido. Puedes solicitar otra copia.' : ''};
+    copyRecord = selected.record; copyPersisted = selected.persisted; copyWarning = selected.warning;
+    if (copyRecord) sessionCopies.set(id, selected); else sessionCopies.delete(id);
+    notify();
+  }
+  async function persistPortableRecord(record, epoch, generation) {
+    const item = {record, persisted: false, warning: ''};
+    sessionCopies.set(record.projectId, item);
+    try { await store.saveCopyRecord(record); item.persisted = true; }
+    catch { item.warning = memoryCopyWarning; }
+    // A late result remains useful on returning to A, even with no IndexedDB.
+    // It cannot publish into B or supersede a newer request from A.
+    if (sessionCopies.get(record.projectId) !== item || epoch !== projectEpoch || generation !== copyGeneration) return;
+    copyRecord = item.record; copyPersisted = item.persisted; copyWarning = item.warning;
+    notify();
+  }
   const listeners = new Set();
   const state = () => ({ready: booted, name: name.value, id: metadata.id, revision: metadata.revision,
-    dirty: savedChanges !== changes, savedAt: lastSaved, recoveryBlocked, recoveryStatus, available: Boolean(catalog)});
-  const notify = () => { for (const listener of listeners) listener(state()); };
+    dirty: savedChanges !== changes, savedAt: lastSaved, recoveryBlocked, recoveryStatus, available: Boolean(catalog),
+    continuity: continuity(), contentHash, beforeUnloadPending: beforeUnloadInstalled});
+  const notify = () => { renderContinuity(); for (const listener of listeners) listener(state()); };
   let actions = Promise.resolve();
   let saveQueue = Promise.resolve();
   const exclusive = action => { const result = actions.then(action); actions = result.catch(() => {}); return result; };
@@ -48,10 +118,17 @@ export function createProjectUI({editor, source, stop, textDocuments, authoring:
   function changed() {
     if (suppress) return;
     changes++;
-    if (!booted || recoveryBlocked) return;
-    status.textContent = 'Cambios pendientes de guardar';
-    clearTimeout(timer);
-    timer = setTimeout(() => flush().catch(report), 400);
+    contentHash = null;
+    if (!booted) return;
+    queueMicrotask(() => { if (booted) void refreshContent(); });
+    // Corrupt snapshots block autosave, not continuity of the editable draft.
+    // Its portable identity and complementary exit warning still invalidate.
+    if (!recoveryBlocked) {
+      localPhase = 'pending';
+      status.textContent = 'Cambios pendientes de guardar';
+      clearTimeout(timer);
+      timer = setTimeout(() => flush().catch(report), 400);
+    }
     notify();
   }
   authoring.subscribe(changed);
@@ -71,7 +148,9 @@ export function createProjectUI({editor, source, stop, textDocuments, authoring:
       if (recoveryBlocked) throw new Error('Las copias locales están dañadas. Abre un archivo o guarda este proyecto como copia nueva.');
       if (savedChanges === changes) return lastSaved;
       const capturedChanges = changes;
+      localPhase = 'saving';
       status.textContent = 'Guardando…';
+      notify();
       try {
         const model = await capture();
         authoring.prepare(model,{allowRemoval:true});
@@ -81,12 +160,14 @@ export function createProjectUI({editor, source, stop, textDocuments, authoring:
         lastSaved = committed.savedAt;
         if (capturedChanges === changes) {
           savedChanges = capturedChanges;
+          localPhase = 'saved';
           status.textContent = 'Guardado en este navegador';
-        } else status.textContent = 'Cambios pendientes de guardar';
+        } else { localPhase = 'pending'; status.textContent = 'Cambios pendientes de guardar'; }
         errorOutput.textContent = '';
         notify();
         return committed;
       } catch (error) {
+        localPhase = 'failed';
         status.textContent = 'Sin guardar en este navegador';
         report(error);
         notify();
@@ -130,6 +211,9 @@ export function createProjectUI({editor, source, stop, textDocuments, authoring:
       if (failures.length) throw new AggregateError([error, ...failures], 'Falló la aplicación del proyecto. Revisa los diagnósticos de restauración antes de continuar.');
       throw error;
     } finally { suppress = false; }
+    projectEpoch++; copyGeneration++;
+    contentHash = null; copyRecord = null; copyPersisted = true; copyWarning = ''; reminderDismissed = false;
+    localPhase = startup ? 'saved' : 'pending';
     try { await stop(); }
     catch (error) {
       // A second Stop can supersede this bootstrap. Authoring is already valid;
@@ -141,6 +225,8 @@ export function createProjectUI({editor, source, stop, textDocuments, authoring:
     status.textContent = startup ? 'Proyecto recuperado de este navegador' : 'Proyecto abierto';
     recoveryStatus = startup ? (recovered ? 'restored' : 'recovered') : 'opened';
     notify();
+    void refreshContent();
+    await loadPortableRecord();
   }
   async function openDocument(serialized) {
     await ready;
@@ -211,6 +297,7 @@ export function createProjectUI({editor, source, stop, textDocuments, authoring:
         lastSaved = saved.savedAt;
       } else if (saved.status === 'corrupt') {
         recoveryStatus = 'corrupt';
+        localPhase = 'blocked';
         recoveryBlocked = true;
         newCopy.hidden = false;
         recovery.textContent = saved.warning;
@@ -218,32 +305,56 @@ export function createProjectUI({editor, source, stop, textDocuments, authoring:
         status.textContent = 'No se pudo recuperar el guardado local';
       } else if (saved.status === 'unavailable') {
         recoveryStatus = 'unavailable';
+        localPhase = 'failed';
         status.textContent = 'Guardado local no disponible';
         errorOutput.textContent = saved.warning;
-      } else { recoveryStatus = 'new'; status.textContent = 'Proyecto nuevo · guardado automático al editar'; }
-    } catch (error) { recoveryStatus = 'error'; report(error); status.textContent = 'No se pudo preparar la recuperación'; }
+      } else { localPhase = 'new'; recoveryStatus = 'new'; status.textContent = 'Proyecto nuevo · guardado automático al editar'; }
+    } catch (error) { localPhase = 'failed'; recoveryStatus = 'error'; report(error); status.textContent = 'No se pudo preparar la recuperación'; }
     finally {
       booted = true;
       download.disabled = fileInput.disabled = name.disabled = !catalog;
       for (const area of document.querySelectorAll('.authoring, .scene-inspector, .code-console')) area.inert = false;
       source.disabled = false;
       notify();
+      if (catalog) void refreshContent();
     }
   })();
 
-  download.addEventListener('click', async () => {
+  async function requestPortableCopy() {
+    await ready;
+    const epoch = projectEpoch;
+    const model = await capture();
+    authoring.prepare(model,{allowRemoval:true});
+    // Exactly one detached capture feeds all three outputs. Later authoring is
+    // neither recaptured nor replaced, even when preparation finishes in B.
+    const [archive, hash] = await Promise.all([createProjectArchive(model, {catalog}), projectContentHash(model)]);
+    const url = URL.createObjectURL(new Blob([archive], {type: 'application/zip'}));
     try {
-      await ready;
-      const model = await capture();
-      authoring.prepare(model,{allowRemoval:true});
-      const archive = await createProjectArchive(model, {catalog});
-      const url = URL.createObjectURL(new Blob([archive], {type: 'application/zip'}));
       const link = document.createElement('a');
       link.href = url;
       link.download = `${model.project.name.replace(/[\\/:*?"<>|]/g, '-').slice(0, 80)}.ggproj`;
       link.click();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-    } catch (error) { report(error); }
+    } finally { setTimeout(() => URL.revokeObjectURL(url), 1000); }
+    const record = {version: 1, projectId: model.project.id, contentHash: hash, requestedAt: new Date().toISOString()};
+    // Persist A's record for a later return, without publishing it into B.
+    const generation = epoch === projectEpoch && record.projectId === metadata.id ? ++copyGeneration : -1;
+    if (generation !== -1) {
+      copyRecord = record; copyPersisted = false; copyWarning = '';
+      notify();
+    }
+    await persistPortableRecord(record, epoch, generation);
+    return record;
+  }
+  download.addEventListener('click', () => { requestPortableCopy().catch(report); });
+  retryCopy?.addEventListener('click', () => {
+    if (copyRecord) void persistPortableRecord(copyRecord, projectEpoch, ++copyGeneration);
+  });
+  retrySave?.addEventListener('click', () => { flush().catch(report); });
+  document.querySelector('#continuity-continue')?.addEventListener('click', () => {
+    reminderDismissed = true; renderContinuity();
+    const menu = document.querySelector('#project-menu');
+    if (menu) menu.open = false;
+    document.querySelector('#authoring-context')?.focus({preventScroll: true});
   });
   fileInput.addEventListener('change', async () => {
     const file = fileInput.files?.[0];

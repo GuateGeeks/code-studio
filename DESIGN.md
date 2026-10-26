@@ -135,7 +135,7 @@ Familia del sistema para garantizar disponibilidad offline; monospace solo para 
 
 ## Layout
 
-**Cabecera (48px):** marca, nombre del proyecto y estado de guardado; a la derecha Inicio, Archivo (descargar, abrir GGPROJ) y Preparar para clase (offline y capacidades) como menús desplegables. Los avisos de recuperación y error del proyecto aparecen en una franja propia que se puede reconocer con «Entendido» y reaparece si el texto cambia. «Empezar o continuar» se abre como banda bajo la cabecera y se cierra al empezar o continuar, al cambiar de contexto o al ejecutar/detener; editar no la cierra, para no mover controles bajo el puntero.
+**Cabecera (48px):** marca, nombre del proyecto y dos estados de continuidad (guardado local y solicitud de copia portable); a la derecha Inicio, Archivo (descargar, abrir GGPROJ) y Preparar para clase (offline y capacidades) como menús desplegables. Los avisos de recuperación y error del proyecto aparecen en una franja propia que se puede reconocer con «Entendido» y reaparece si el texto cambia. «Empezar o continuar» se abre como banda bajo la cabecera y se cierra al empezar o continuar, al cambiar de contexto o al ejecutar/detener; editar no la cierra, para no mover controles bajo el puntero.
 
 **Escritorio (desde 1024×640):** rejilla de dos columnas `1.35fr | minmax(400px, 1fr)` con alto `100dvh − cabecera − avisos visibles` (mínimo 600px): un aviso toma su altura de la estación y nunca empuja la consulta fuera de la pantalla. Izquierda: autoría con su barra (Qué programas, modo Bloques · JavaScript · Python, identidad «Editando…» y ayuda de teclado) y el editor flexible. Derecha, de arriba abajo: barra de transporte, resultado y consulta con desplazamiento propio. El resultado mide `clamp(340px, 100dvh − 380px, 560px)` y la consulta conserva al menos 140px: si una nota (cambios sin ejecutar, resultado de otro contexto) o un aviso no caben, el resultado cede altura (mínimo 200px) en vez de ocultar la consulta; dentro del runner los controles de objetos se compactan a una fila para que la imagen 4:3 alcance al menos 240px de alto a 1280×720. Blockly conserva al menos 300px y la fuente editable al menos 240px. Placa y escena micro:bit comparten esa misma altura para que la consulta siga visible; cuando el resultado pertenece a otro contexto, su escena de referencia cede 120px a la consulta. El pie queda bajo la estación.
 
@@ -156,6 +156,16 @@ Controles con radio `control` de 6px, borde fino y altura mínima de 44px (36px 
 Duraciones `fast` 120ms para hover/estado y `panel` 200ms (tokens `--gg-duration-*` en CSS y en el sidecar) como máximo para paneles; nada supera 300ms. Solo color y fondo de controles cambian con transición. `prefers-reduced-motion: reduce` anula transiciones y conserva el cambio visible. Las animaciones del resultado (escena, placa, aplicación) pertenecen a la ejecución, no a este sistema.
 
 ## Components
+
+### Continuidad
+
+La cabecera distingue guardado local y copia portable mediante dos mensajes de
+texto, sin depender de color. Archivo conserva una sola acción «Llevar o entregar»
+que solicita el .ggproj; la ayuda pide comprobar descargas y explica que no envía
+a un docente. Un fallo local permanece visible aunque se solicite una copia.
+Los reintentos local y del registro de copia son independientes. El recordatorio
+permite seguir trabajando, sin modal repetitivo. Se usan tipografía, colores y
+espaciado existentes; en estrecho ambos estados envuelven dentro de la cabecera.
 
 ### Transporte
 

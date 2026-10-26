@@ -84,7 +84,7 @@ for (const mobile of [false, true]) {
     await expect(page.locator('#console-summary')).toHaveText('Sin mensajes');
     expect((await snapshot(page)).x).toBe(0);
     const download = page.waitForEvent('download');
-    await clickVisible(page.getByRole('button', {name: 'Descargar proyecto'}));
+    await clickVisible(page.getByRole('button', {name: 'Llevar o entregar'}));
     const file = await download;
     const filePath = artifactPath(`code-console-${mobile ? 'mobile' : 'desktop'}.ggproj`);
     await file.saveAs(filePath);

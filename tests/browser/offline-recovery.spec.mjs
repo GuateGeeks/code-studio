@@ -1,3 +1,4 @@
+import JSZip from 'jszip';
 import {selectContext,clickVisible,revealPanel,revealControl,settled} from './workspace-controls.mjs';
 import {test, expect, chromium} from '@playwright/test';
 import {spawn} from 'node:child_process';
@@ -149,6 +150,26 @@ test('GG-OFFLINE: immutable update and rollback survive full browser closure wit
     await expect(page.locator('#editor-heading')).toBeFocused();
     expect(await page.evaluate(()=>studioProbe.editor.save())).toEqual(blocks);
     expect((await snapshot(page)).x).toBe(0);
+    // PC-07/SJ-09: portable continuity is real in the new offline process.
+    await page.setViewportSize({width:390,height:844});
+    await expect(page.locator('#project-status')).toContainText('Guardado');
+    await expect(page.locator('#project-copy-status')).toHaveText('Sin registro de copia en este navegador');
+    const fileMenu=page.locator('#project-menu > summary');await fileMenu.focus();await fileMenu.press('Enter');
+    const portableButton=page.locator('#save-project');await portableButton.scrollIntoViewIfNeeded();await portableButton.focus();
+    const coldCopy=page.waitForEvent('download');await portableButton.press('Enter');const copied=await coldCopy;
+    const copyPath=artifactPath('offline-continuity.ggproj');await copied.saveAs(copyPath);
+    const copyZip=await JSZip.loadAsync(await readFile(copyPath)),copyManifest=JSON.parse(await copyZip.file('manifest.json').async('string'));
+    expect(copyManifest.authoring.blockly).toEqual(blocks);
+    expect(JSON.stringify(copyManifest)).not.toContain('contentHash');
+    await expect.poll(()=>page.evaluate(()=>studioProbe.project.state().continuity.portable)).toBe('current');
+    await expect.poll(()=>page.evaluate(()=>studioProbe.project.state().continuity.persisted)).toBe(true);
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+    await page.screenshot({path:artifactPath('offline-continuity-mobile.png'),fullPage:true});
+    evidence.offlineContinuity={keyboardDownload:true,path:copyPath,view:await page.evaluate(()=>studioProbe.project.state().continuity),authoringUnchanged:true};
+    await portableButton.press('Escape');await expect(fileMenu).toBeFocused();
+    expect(await page.evaluate(()=>studioProbe.editor.save())).toEqual(blocks);
+    expect((await snapshot(page)).x).toBe(0);
+    await page.setViewportSize({width:1280,height:900});
     // A fresh offline process can actually edit, run, check an activity and use both WASM engines.
     await edit(page,'lesson-story-first-n',30);await run(page,50);
     await edit(page,'lesson-story-first-n',40);await run(page,60);
