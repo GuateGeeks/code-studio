@@ -11,7 +11,7 @@ Hoy, para pasar de bloques a texto hay que crear una copia independiente: los bl
 - **Rechazo explicado**: si el código tiene un error de sintaxis o usa algo fuera del subconjunto, el sistema no cambia de vista. Indica la línea y la causa, y ofrece seguir editando, volver a la última versión en bloques o guardar el texto como copia independiente. Ninguna opción pierde trabajo.
 - **Ejecutar** usa el mismo programa desde cualquier vista. Cambiar de vista nunca ejecuta.
 - La **copia independiente** se conserva para el código libre que va más allá del subconjunto.
-- **Despliegue por contextos**: 2D JavaScript, después 2D Python, micro:bit TypeScript y 3D/web.
+- **Despliegue por contextos**: 2D JavaScript y después 2D Python. Re-alcance del 29/10/2026: el usuario decidió estabilizar 2D antes de ampliar; micro:bit TypeScript y 3D/web pasan a `synced-code-views-capability-contexts`. En esos contextos sigue la copia independiente.
 - La actividad «De bloques a tu propio código» se rediseña como **nueva revisión**; la revisión 1 y su progreso siguen legibles.
 
 ## Capabilities
@@ -30,4 +30,4 @@ Selector de modo y editor textual de la shell (`src/studio/*`, un único escrito
 
 **Depende de** `pack-versioning-and-migrations` y `block-language-contract`.
 
-Fuera de alcance: conversión de código arbitrario fuera del subconjunto, sincronización en tiempo real carácter a carácter, ejecución automática al editar y Python para micro:bit (Static Python).
+Fuera de alcance: vistas sincronizadas de micro:bit y 3D/web (trasladadas), conversión de código arbitrario fuera del subconjunto, sincronización en tiempo real carácter a carácter, ejecución automática al editar y Python para micro:bit (Static Python).

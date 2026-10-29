@@ -1,5 +1,7 @@
 # Plan de maduración por feature
 
+> **Estabilización 2D, 29/10/2026:** el orden vigente lo fija el [plan de estabilización 2D](STABILIZATION-PLAN-2D.md): primero el piloto 2D; micro:bit, 3D, web y Scratch quedan congelados.
+>
 > **Lectura al 29/10/2026:** consultar [estado consolidado](CURRENT-STATUS.md). Este plan conserva diagnóstico/propuesta del 24/10; sus etiquetas «hoy», «propuesto» y «sin commits» no son un inventario actualizado. Ola 0, contrato de lenguaje y continuidad implementados; sincronización 2D en curso (8/13 del cambio, full global pendiente). La continuación activa empieza por 4.2 micro:bit, antes de las demás propuestas. [Prompt de relevo](../engineering/AGENT-HANDOFF-PROMPT.md).
 
 24 de octubre de 2026, Guatemala. Plan de implementación posterior al rework visual (`studio-visual-workspace-rework`, puerta completa aprobada el 24/10). No modifica código ni contratos: propone cambios OpenSpec, su orden, criterios de aceptación y decisiones pendientes. Cada cambio se redacta y aprueba por separado antes de implementarse.
@@ -327,7 +329,7 @@ Ola 3  Contextos de capacidad (pistas paralelas)        Ola 4  Distribución y a
 | # | Decisión | Por qué bloquea | Valor por defecto si no se decide |
 |---|---|---|---|
 | D1 | ~~Segmento y grado del piloto~~ | — | **Resuelta el 24/10/2026: primaria alta (10–12 años)** |
-| D2 | Equipos escolares y conectividad del piloto | Umbrales del Exp. 2 y alcance de Python/3D offline | Portátil de gama baja con Chromium; Python opcional |
+| D2 | ~~Equipos escolares y conectividad del piloto~~ | — | **Resuelta el 29/10/2026: despliegue local en cada equipo** ([plan de estabilización 2D](STABILIZATION-PLAN-2D.md)); los equipos concretos siguen por confirmar |
 | D3 | ¿Habrá uso comercial? | Limita inspirarse en materiales CC BY-NC-SA | Tratar como comercial: solo contenido propio |
 | D4 | ¿Idiomas mayas? | Decide si `ui-strings-catalog` entra en la Ola 1 o la 4 | Ola 4, sin traducciones |
 | D5 | ~~Multi-sprite y GGPROJ v4~~ | — | **Resuelta el 24/10/2026: sí, en la Ola 1** (`scene2d-multi-sprite`) |

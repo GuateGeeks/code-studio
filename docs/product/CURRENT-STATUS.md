@@ -51,43 +51,10 @@ Los reportes de `artifacts/test-runs/` se reutilizan; preferir copias por corte.
 
 ## Continuación inmediata
 
-Continuar [synced-code-views](../../openspec/changes/synced-code-views/tasks.md):
+**Decisión del 29/10/2026:** estabilizar features y entregar valor con un piloto 2D en aula. Rige el [plan de estabilización 2D](STABILIZATION-PLAN-2D.md):
 
-1. **4.2 micro:bit:** Static TypeScript sobre plantillas y contrato de dispositivo instalados. Antes de UI, demostrar mismo programa, todos los IDs/layout y HEX idéntico tras ida y vuelta sin cambios. Conservar TypeScript independiente y el `forever` propio de dispositivo.
-2. **4.3 3D/web:** trabajar sobre IR1; no asumir que el parser IR0 soporta sus contratos. Registrar rechazo o bloques grises; el diseño propone rechazo por defecto.
-3. **5.1 actividad:** revisión 2 de «De bloques a tu propio código», preservando revisión 1/progreso.
-4. **5.2/5.3:** E2E por contexto, full con fuentes estables y documentación global. Marcar tareas solo con evidencia.
+1. **E0 · Cerrar lo abierto:** `synced-code-views` se limita a 2D; micro:bit (4.2) y 3D/web (4.3) pasan a `synced-code-views-capability-contexts`, que no se implementa en este plan. Revisión 2 de la actividad de transición, modo piloto 2D (`pilot-2d-mode`), E2E 2D, full global, archivo y commit.
+2. **E1–E4:** vocabulario 2D esencial, varios sprites, sensores y operadores, y recursos iniciales.
+3. **E5 · Listo para aula:** unidad 2D, instalación local por equipo y observación docente.
 
-En 2D se confirmó mantener el subconjunto instalado: rechazar `while`, `forever` y funciones propias sin bloque; no ampliar IR0/runtimes aquí. Las copias independientes siguen disponibles. Multi-sprite, vocabulario y CodeMirror son cambios separados.
-
-## Futuro de la plataforma
-
-El [plan de maduración por feature](FEATURE-MATURATION-PLAN.md) sustituye la secuencia posterior a E4 del [plan E0–E6](PLAN-DE-ACCION-2026-10-22.md). Sus diagnósticos «hoy» son del 24/10; este estado recoge avances posteriores. Las propuestas restantes requieren alcance y aceptación propios.
-
-| Ola | Resultado | Situación |
-|---|---|---|
-| 0 · Base | Compatibilidad de packs, repositorio/specs, pruebas escalables | Implementada. |
-| 1 · 2D/texto | Multi-sprite, vocabulario, sincronización, CodeMirror, biblioteca y panel de objetos | Parcial; contrato y continuidad completos, sincronización en curso, resto pendiente. |
-| 2 · Aprendizaje | Esquema v3, unidades, feedback parcial, contenido propio, catálogo CNB y experimento docente | Propuesta; observación humana pendiente. |
-| 3 · Capacidades | Sensores/música/radio y prueba física; cobertura Scratch; bloques tipados y profundidad 3D/web | Propuesta. |
-| 4 · Distribución/acceso | HTTPS con seis orígenes, cohortes opcionales, equipos escolares, lector humano e idioma | Pendiente. |
-| 5 · Docente/Sócrates | Entrega, contrato de asignación/recibo/revisión, autoría y diseño avanzado | Propuesta; depende de evidencia y coordinación externa. |
-
-Proyectos objetivo: «Atrapa la fruta», «Laberinto», diálogo entre personajes, dado/termómetro/radio, recolectar esferas/sistema solar y lista persistente/calculadora. Son criterios futuros, no capacidades completas ya entregadas.
-
-Pendientes externos: currículo con docente, equipos/conectividad, observación de comprensión/continuidad, lector humano, placas V1/V2 y USB, despliegue real. Decisiones abiertas: D2 equipos, D3 uso comercial, D4 idiomas mayas y D7 alcance del editor 3D. D1 público, D5 multi-sprite, D6 CodeMirror, D8 archivo y D9 sincronización están resueltas documentalmente.
-
-## Entrega y preview
-
-No introducir cuentas, backend obligatorio, telemetría o IA educativa por inferencia. Sócrates es futuro; «Llevar o entregar» no lo integra. Preservar seis orígenes, autoría, ejecución explícita, Stop y compatibilidad.
-
-La URL observada en **4583**, cohorte `35054db58fc468a2dec16e5981ff65f7c17e0c0afe2db6cf1656a20797077f2b`, es una release histórica del primer E4 2D, anterior al rework. No representa el árbol actual. No se verificó disponibilidad de otras previews durante el relevo: generar/verificar la preview del corte entregado.
-
-Para retomar: [prompt de continuación](../engineering/AGENT-HANDOFF-PROMPT.md). Este encargo fue **documentar y preparar el relevo**: no implementa 4.2, no delega automáticamente y no hace commit/push.
-
-## Validación del relevo documental (29/10/2026)
-
-- `npm run spec:validate`: **35 elementos aprobados, 0 fallidos**, validación estricta. Registro local: `artifacts/handoff-20261029/spec-validation.log`.
-- Diez enlaces Markdown locales de los dos documentos nuevos comprobados; destinos existentes.
-- `git diff --check` sobre las cuatro entradas documentales modificadas: aprobado.
-- Cambios de esta sesión: este archivo, el prompt, entradas en README/NEXT-SESSION/plan de maduración y corrección histórica en AGENTS. Sin cambios de runtime, pruebas de producto ni tareas OpenSpec. Las modificaciones anteriores del árbol se conservaron.
+Despliegue local en cada equipo (D2 resuelta). micro:bit, 3D, web y Scratch quedan congelados: sin funciones nuevas y con sus regresiones en la puerta.

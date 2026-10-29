@@ -29,8 +29,8 @@ Véanse `proposal.md`, ADR-011 y `block-language-contract`, que deja una tabla b
    - Las posiciones de los eventos raíz se conservan.
 4. **Rechazo con tres salidas.** Seguir editando; volver a la última versión en bloques (con confirmación si hay texto sin guardar); guardar como copia independiente (documento API v3 con el texto exacto). El mensaje nombra la línea, la construcción y, si existe, el bloque más cercano.
 5. **Puntos de restauración** en el autosave antes de aplicar una conversión, para que Deshacer recupere el estado previo exacto. La vista activa y el texto pendiente forman parte del estado de autoría guardado.
-6. **Despliegue y prueba de viabilidad.** La primera tarea es una prueba de ida y vuelta sobre el corpus: bloques → JS → bloques debe dar el mismo programa y los mismos IDs en el 100 % del corpus 2D. Después se habilitan 2D JavaScript, 2D Python, micro:bit TypeScript (sobre plantillas Static TypeScript) y 3D/web, cada uno con su puerta.
-7. **3D/web con código fuera del subconjunto.** Por defecto se rechaza, igual que en 2D. Los bloques grises de código (posibles porque estos contextos ejecutan en QuickJS) quedan como pregunta abierta.
+6. **Despliegue y prueba de viabilidad.** La primera tarea es una prueba de ida y vuelta sobre el corpus: bloques → JS → bloques debe dar el mismo programa y los mismos IDs en el 100 % del corpus 2D. Después se habilitan 2D JavaScript y 2D Python, cada uno con su puerta. micro:bit TypeScript y 3D/web se trasladaron a `synced-code-views-capability-contexts` (véase «Re-alcance a 2D»).
+7. **3D/web con código fuera del subconjunto.** Trasladado con 3D/web: el cambio posterior parte del rechazo por defecto y registra allí la decisión sobre bloques grises.
 8. **Actividad E3.** La revisión 2 de «De bloques a tu propio código» pide abrir JavaScript, cambiar el movimiento, volver a bloques y explicar qué cambió. Los checks son de programa (`position`, nuevo `edited-in-text`) y no de formato. La revisión 1 sigue disponible para el progreso existente.
 
 ## Risks / Trade-offs
@@ -47,7 +47,6 @@ Sin migración de datos aparte de añadir la vista activa y el texto pendiente a
 
 ## Open Questions
 
-- ¿Bloques grises de código en 3D/web o rechazo como en 2D?
 - ¿El modo sincronizado es el predeterminado o una opción que activa el docente? Propuesta: predeterminado, con la copia independiente como acción visible; confirmar en el Exp. 1.
 
 
@@ -92,3 +91,9 @@ El usuario eligió mantener el subconjunto actual y ajustar el diseño. La tarea
 ## Aplicación validada y orden lateral (26/10/2026)
 
 La shell no importa el parser. Un iframe del origen de lenguaje autentica el canal y crea un worker de análisis por solicitud. El editor valida la IR candidata y prepara un workspace separado; una generación de carga invalida resultados anteriores incluso al abrir otro proyecto con autoría idéntica. El mapa lateral scriptOrder conserva el orden de registro del texto y las posiciones originales de los eventos, sin cambiar IR0 ni las operaciones. Solo se admite la lista exacta, única y completa de raíces; un arrastre nativo de raíces restablece el orden visual. GGPROJ v5 conserva este mapa junto con las vistas y puntos de restauración; los archivos anteriores mantienen el orden visual histórico.
+
+## Re-alcance a 2D (29/10/2026)
+
+El usuario decidió priorizar la estabilización de features para empezar a entregar valor en un piloto 2D en aula ([plan de estabilización 2D](../../../docs/product/STABILIZATION-PLAN-2D.md)). Este cambio se cierra con 2D: vistas JavaScript/Python (ya verificadas), la revisión 2 de la actividad de transición, los E2E 2D, una puerta full y la documentación. Las tareas 4.2 (micro:bit TypeScript, HEX idéntico) y 4.3 (3D/web, bloques grises o rechazo) se trasladan sin marcar a `synced-code-views-capability-contexts`, como se hizo con la tarea 3.2 de `block-language-contract`. micro:bit y 3D/web conservan su documento o copia independiente. La disponibilidad honesta por contexto ya presenta esas vistas como no sincronizadas con su causa.
+
+El análisis previo para micro:bit, conservado como borrador fuera de `src/`, deja tres hallazgos para el cambio trasladado: el texto generado es exactamente la fuente que compila PXT, que además incrusta en el HEX, así que un HEX idéntico exige un texto byte a byte idéntico; un evento «al iniciar» vacío no tiene texto y hay que conservarlo al volver; y el grafo del dispositivo no admite comentarios, así que habrá que decidir entre rechazarlos con su línea o ampliar el contrato.

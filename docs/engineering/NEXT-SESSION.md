@@ -1,5 +1,7 @@
 # Estado y continuación
 
+**Cambio de rumbo, 29/10/2026:** el usuario priorizó la estabilización 2D para entregar valor en un piloto en aula. Rige el [plan de estabilización 2D](../product/STABILIZATION-PLAN-2D.md): E0 cierra `synced-code-views` con 2D (4.2/4.3 trasladadas a `synced-code-views-capability-contexts`), revisión 2 de la actividad, modo piloto 2D, full global y commit. Despliegue local; commits locales autorizados y sin push. El orden de continuación del relevo de abajo queda sustituido en lo que contradiga este plan.
+
 **Relevo documental, 29/10/2026:** empezar por [estado consolidado](../product/CURRENT-STATUS.md) y [prompt de continuación](AGENT-HANDOFF-PROMPT.md). HEAD comprobado `c1b8901`; conservar el trabajo sin commit. Siguiente: 4.2 micro:bit de `synced-code-views`, después 4.3 y 5.1–5.3; full global pendiente. Este relevo no cambia código ni marca tareas. Las entradas inferiores son cronológicas y pueden describir asuntos resueltos posteriormente.
 
 Continuación synced-code-views, 26 de octubre de 2026: base local **c1b8901**, sin commit, archivo ni push de este cambio. **8/13 tareas completas**: viabilidad 9/9 con todos los IDs, diff 491/491, conversión validada y vistas 2D JavaScript/Python, rechazo recuperable, Deshacer, GGPROJ v5 y plantillas nuevas API3. El usuario confirmó mantener el subconjunto actual; while/forever/funciones propias sin bloque 2D se rechazan con causa y línea, sin ampliar IR0 ni runtimes. [Acta del corte 2D](SYNCED-CODE-VIEWS-2D-RESULTS.md).

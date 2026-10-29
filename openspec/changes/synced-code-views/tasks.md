@@ -37,13 +37,13 @@
 - [x] 4.1 Habilitar Python en 2D (análisis con `ast`, carga bajo demanda) con su corpus de ida y vuelta.
 
   Verificada: ast de Pyodide cargado bajo demanda, nueve programas completos en worker real con IR, workspace, IDs y posiciones iguales; corpus AST local de 491 variantes con IDs no afectados, incluidos comentarios y dos rechazos explícitos de ámbito. Editar, ejecutar desde Python, rechazo y conversión offline fría aprobados. [Acta 2D](../../../docs/engineering/SYNCED-CODE-VIEWS-2D-RESULTS.md).
-- [ ] 4.2 Habilitar TypeScript en micro:bit sobre las plantillas Static TypeScript; HEX idéntico tras ida y vuelta sin cambios.
-- [ ] 4.3 Habilitar 3D y web; resolver la pregunta de bloques grises o rechazo y registrarla en este diseño.
+- [ ] 4.2 Habilitar TypeScript en micro:bit sobre las plantillas Static TypeScript; HEX idéntico tras ida y vuelta sin cambios. **Trasladada** a `synced-code-views-capability-contexts` 1.x, fuera del cierre de este cambio, por la decisión del usuario del 29/10/2026 de estabilizar primero 2D (plan de estabilización 2D). No implementada aquí; la casilla se conserva sin marcar. El borrador sin conectar ni probar de ese día se retiró de `src/` y se conserva en `artifacts/synced-code-views/microbit-20261029/draft/`.
+- [ ] 4.3 Habilitar 3D y web; resolver la pregunta de bloques grises o rechazo y registrarla en este diseño. **Trasladada** a `synced-code-views-capability-contexts` 2.x por la misma decisión del 29/10/2026; no implementada aquí.
 
 ## 5. Actividades, documentación y verificación
 
 - [ ] 5.1 Publicar la revisión 2 de «De bloques a tu propio código» con checks de programa; conservar la revisión 1 y su progreso.
-- [ ] 5.2 E2E por contexto: mirar y volver sin cambios, editar y volver, rechazo y copia, Deshacer, reapertura, teclado y zoom; `test:affected` y una `test:full`.
-- [ ] 5.3 Actualizar `PRODUCT.md`, ADR-011 (estado implementado), guía docente, guion de observación del Exp. 1 y acta de resultados con límites.
+- [ ] 5.2 E2E por contexto habilitado (2D tras el re-alcance del 29/10/2026): mirar y volver sin cambios, editar y volver, rechazo y copia, Deshacer, reapertura, teclado y zoom; `test:affected` y una `test:full`.
+- [ ] 5.3 Actualizar `PRODUCT.md`, ADR-011 (estado: implementada para 2D; micro:bit y 3D/web trasladados), guía docente, guion de observación del Exp. 1 y acta de resultados con límites.
 
   Nota de 5.3: documentación del corte 2D actualizada (PRODUCT, README, ADR-011 parcial, guía docente, guion Exp. 1 y acta). El estado implementado global de ADR-011 y el acta completa quedan pendientes de las extensiones, actividad y full.

@@ -71,6 +71,8 @@ Orden de implementación: `pack-versioning-and-migrations` → `block-language-c
 
 ## Hoja de ruta de maduración (propuesta del 24 de octubre de 2026)
 
+**29/10/2026:** el usuario priorizó estabilizar 2D y entregar un piloto en aula. El orden vigente está en el [plan de estabilización 2D](docs/product/STABILIZATION-PLAN-2D.md); micro:bit, 3D, web y Scratch quedan congelados hasta entonces.
+
 El [plan de maduración por feature](docs/product/FEATURE-MATURATION-PLAN.md) ordena la evolución posterior a E4 y al rework, y sustituye la secuencia E0–E6 del [plan de acción del 22/10](docs/product/PLAN-DE-ACCION-2026-10-22.md) desde ese punto. **Estado: propuesta.** Están decididos ADR-011 y D1, D5, D6 y D8. El resto depende de las decisiones abiertas D2, D3, D4 y D7 y de que cada cambio OpenSpec se apruebe por separado.
 
 **Diagnóstico.** El producto es ancho y poco profundo:
@@ -106,7 +108,7 @@ El piloto apunta a N3 en 2D, texto, micro:bit y actividades, y a N4 en 2D, activ
 
 **Decisiones abiertas del plan.**
 
-- D2: equipos y conectividad.
+- D2: resuelta el 29/10/2026 con despliegue local en cada equipo; los equipos concretos siguen por confirmar.
 - D3: uso comercial.
 - D4: idiomas mayas.
 - D7: editor de escena 3D en el piloto.
