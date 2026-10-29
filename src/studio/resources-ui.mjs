@@ -4,9 +4,11 @@ import {promoteLegacyResources,validateResources,createResourceView,applyResourc
 import {inspectWavPcm16} from '../contracts/media-wav.mjs';
 import {createAssetProcessor} from '../import/asset-processor.mjs';
 import {scratchOpcodeLabel} from './presentation-text.mjs';
+import {createStarterLibraryUI} from './starter-library-ui.mjs';
+import {applyStarterLibraryEntry,restoreInitialBackdrop,decodeStarterLibraryEntry,starterLibraryMedia,stageBackdropAssetId} from '../contracts/starter-library.mjs';
 export function createResourcesUI({store,contexts,getAuthoring,getProject,editor,runCompatibility,stop,exportSb3,onDiagnostic=()=>{}}) {
   const pick=id=>document.querySelector('#'+id),processor=createAssetProcessor(),listeners=new Set(),checkpoints=new WeakMap();
-  let config=null,report=null,busy=false,ready=false,runnerReady=false,epoch=0,previewURL=null,previewAudio=null,previewIdentity=null;
+  let config=null,report=null,busy=false,ready=false,runnerReady=false,epoch=0,previewURL=null,previewAudio=null,previewIdentity=null,initialBackdrop=null,initialBackdropPending=null;
   function stopPreview(){previewAudio?.close().catch(()=>{});previewAudio=null;pick('resource-audio').textContent='Escuchar vista previa';}
   const notify=()=>{for(const listener of listeners)listener();};
   function error(failure){if(failure.name==='AbortError')return;pick('resources-status').textContent='No se completó la acción. Revisa el mensaje e inténtalo de nuevo.';pick('resources-error').textContent=failure.message;onDiagnostic({level:'error',code:'RESOURCE_ERROR',origin:'shell',message:failure.message});}
@@ -88,6 +90,7 @@ export function createResourcesUI({store,contexts,getAuthoring,getProject,editor
       li.append(details);return li;
     }));
     preview();
+    renderLibrary();
     if(focused===pick('cancel-resource-work')&&focused.hidden){const destination=pick(contexts.current()==='sb3'?'import-sb3':'import-media');(destination.disabled?pick('authoring-context'):destination).focus({preventScroll:true});}
   }
   async function working(action) {
@@ -178,6 +181,49 @@ export function createResourcesUI({store,contexts,getAuthoring,getProject,editor
     await replace(copied.resources,{blockly,isCurrent});contexts.select('2d');
   }).catch(error));
   pick('export-sb3').addEventListener('click',async()=>{try{const bytes=await exportSb3({ir:editor.program(),resources:await baseResources()});download(bytes,'programa-gg.sb3','application/zip');}catch(failure){error(failure);}});
+  // Starter library: same worker normalization, contracts and transaction as an
+  // uploaded medium; the prepared ID must equal the entry's declared SHA-256.
+  function renderLibrary(){
+    if(ready&&!initialBackdrop&&!initialBackdropPending)initialBackdropPending=promoteLegacyResources(getProject().catalog())
+      .then(resources=>{
+        // A project still on the legacy catalog view names the same backdrop by its MD5 ID.
+        const catalog=getProject().catalog();
+        initialBackdrop=[stageBackdropAssetId(createResourceView(resources)),stageBackdropAssetId(createResourceView(catalog.resources,{catalog}))].filter(Boolean);renderLibrary();}).catch(()=>{}).finally(()=>{initialBackdropPending=null;});
+    library.render({ready,view:store.view(),initialBackdrop});
+  }
+  async function addFromLibrary(entry){
+    const result=await working(async isCurrent=>{
+      const prepared=await processor.process('prepare-media',{bytes:await decodeStarterLibraryEntry(entry),...starterLibraryMedia(entry)});
+      if(!isCurrent())throw new Error('El proyecto cambió durante la preparación. Inténtalo de nuevo.');
+      const applied=await applyStarterLibraryEntry(await baseResources(),entry,prepared);
+      if(applied.status!=='present')await replace(applied.resources,{isCurrent});
+      return applied;
+    });
+    if(result.status==='present')pick('resources-status').textContent='Sin cambios de recursos';
+    const kind=entry.kind==='sound'?'sounds':'costumes';
+    if([...pick('resource-list').options].some(option=>option.value===kind+'|'+result.descriptorId)){pick('resource-list').value=kind+'|'+result.descriptorId;preview();}
+    return result;
+  }
+  async function restoreBackdrop(){
+    const result=await working(async isCurrent=>{
+      const restored=await restoreInitialBackdrop(await baseResources(),await promoteLegacyResources(getProject().catalog()));
+      if(restored.status!=='present')await replace(restored.resources,{isCurrent});
+      return restored;
+    });
+    if(result.status==='present')pick('resources-status').textContent='Sin cambios de recursos';
+    return result;
+  }
+  async function previewLibrarySound(entry,ended){
+    const context=new AudioContext(),resume=context.resume();let closed=false;
+    const stop=()=>{if(closed)return;closed=true;context.close().catch(()=>{});};
+    try{
+      const bytes=await decodeStarterLibraryEntry(entry);await resume;
+      const source=context.createBufferSource();source.buffer=await context.decodeAudioData(bytes.slice().buffer);
+      source.connect(context.destination);source.onended=()=>{stop();ended();};source.start();return stop;
+    }catch(failure){stop();throw failure;}
+  }
+  const library=createStarterLibraryUI({pick,onAdd:entry=>addFromLibrary(entry).catch(failure=>{error(failure);throw failure;}),
+    onRestore:()=>restoreBackdrop().catch(failure=>{error(failure);throw failure;}),onPreview:previewLibrarySound});
   contexts.register({id:'sb3',label:'Scratch importado',title:'Proyecto Scratch',setVisible:value=>{pick('sb3-authoring').hidden=!value;if(value&&reference()&&!report&&!busy)void refreshReport();}});
   const participant={
     id:'gg.sb3',context:'scratch-compatibility',captureConfig:()=>config==null?null:structuredClone(config),
@@ -189,7 +235,7 @@ export function createResourcesUI({store,contexts,getAuthoring,getProject,editor
   };
   render();
   return Object.freeze({participant,reference,importSb3,refreshReport,render,setReady:value=>{ready=Boolean(value);render();},
-    authoringChanged:()=>{epoch++;if(!busy)processor.cancel();},invalidate:()=>{epoch++;processor.cancel();stopPreview();},
+    authoringChanged:()=>{epoch++;if(!busy)processor.cancel();},invalidate:()=>{epoch++;processor.cancel();stopPreview();library.stopPreview();},
     setRunnerReady:value=>{runnerReady=Boolean(value);pick('run-sb3').disabled=busy||!ready||!runnerReady||!reference()||!report||report.status==='unsupported';},
-    state:()=>({busy,sourceAssetId:reference(),report:structuredClone(report)}),dispose:()=>{processor.dispose();if(previewURL)URL.revokeObjectURL(previewURL);listeners.clear();}});
+    state:()=>({busy,sourceAssetId:reference(),report:structuredClone(report),library:library.state()}),openLibrary:()=>library.ensure(),dispose:()=>{processor.dispose();library.dispose();if(previewURL)URL.revokeObjectURL(previewURL);listeners.clear();}});
 }
