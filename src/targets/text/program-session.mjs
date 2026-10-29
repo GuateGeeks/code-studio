@@ -82,7 +82,11 @@ export function createTextProgramSession({rpc, invoke, cancel = () => {}, releas
 export const contextOperations = Object.freeze({
   move: 1, wait: 1, setVariable: 2, changeVariable: 2, compare: 3,
   broadcastAndWait: 1, createClone: 0, deleteClone: 0, playSound: 2,
-  stopSounds: 0, setCostume: 1
+  stopSounds: 0, setCostume: 1,
+  // gg.sprites@0.2.0 (E1); frame is the core yield inserted in while loops.
+  turnRight: 1, turnLeft: 1, pointInDirection: 1, goTo: 2, glide: 3, changeX: 1, setX: 1, changeY: 1, setY: 1,
+  bounceOnEdge: 0, say: 1, think: 1, sayFor: 2, thinkFor: 2, nextCostume: 0, changeSize: 1, setSize: 1,
+  show: 0, hide: 0, stopAll: 0, frame: 0
 });
 export function variableReference(id) {
   if (typeof id !== 'string' || !id.trim() || id.length > 128 || ['__proto__', 'constructor', 'prototype'].includes(id)) throw new Error('ID de variable no válido.');

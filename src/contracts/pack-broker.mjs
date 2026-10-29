@@ -7,7 +7,18 @@ import {validateTextProgram} from './text-program.mjs';
 const fail = message => { throw new Error('GG permissions: ' + message); };
 const operationOf = Object.freeze({move: 'program.move', wait: 'program.wait', setVariable: 'program.setVariable',
   changeVariable: 'program.changeVariable', broadcastWait: 'program.broadcastAndWait', createClone: 'program.createClone',
-  deleteClone: 'program.deleteClone', playSound: 'program.playSound', stopSounds: 'program.stopSounds', setCostume: 'program.setCostume'});
+  deleteClone: 'program.deleteClone', playSound: 'program.playSound', stopSounds: 'program.stopSounds', setCostume: 'program.setCostume',
+  turnRight: 'program.turnRight', turnLeft: 'program.turnLeft', pointDirection: 'program.pointInDirection', goTo: 'program.goTo', glide: 'program.glide',
+  changeX: 'program.changeX', setX: 'program.setX', changeY: 'program.changeY', setY: 'program.setY', bounce: 'program.bounceOnEdge',
+  say: 'program.say', sayFor: 'program.sayFor', think: 'program.think', thinkFor: 'program.thinkFor', nextCostume: 'program.nextCostume',
+  changeSize: 'program.changeSize', setSize: 'program.setSize', show: 'program.show', hide: 'program.hide', stopAll: 'program.stopAll'});
+// IR value fields and text RPC argument positions that may read a variable.
+const expressionFields = Object.freeze({move: ['steps'], turnRight: ['degrees'], turnLeft: ['degrees'], pointDirection: ['direction'], goTo: ['x', 'y'],
+  glide: ['x', 'y'], changeX: ['dx'], setX: ['x'], changeY: ['dy'], setY: ['y'], changeSize: ['delta'], setSize: ['size']});
+const expressionArguments = Object.freeze(Object.fromEntries(Object.entries(expressionFields).map(([kind, fields]) =>
+  [operationOf[kind], kind === 'glide' ? [2, 3] : fields.map((_, index) => index + 1)])));
+// Yielding one frame is core control flow (loops), not a pack capability.
+const coreOperations = new Set(['program.frame']);
 function defaults(variables, plan) {
   const result = structuredClone(variables ?? []);
   if (!Array.isArray(result)) fail('declaraciones inválidas');
@@ -37,8 +48,10 @@ function authorize(plan, method, args, variables, principal = null,resourceView=
   const variableIds = [];
   if (method === 'variables.get' || method === 'variables.set') variableIds.push(args[0]);
   if (method === 'program.setVariable' || method === 'program.changeVariable') variableIds.push(args[1]);
+  if (coreOperations.has(method)) return;
   const refs = method === 'program.compare' ? args.slice(2) :
-    ['program.move', 'program.setVariable', 'program.changeVariable'].includes(method) ? [args.at(-1)] : [];
+    ['program.setVariable', 'program.changeVariable'].includes(method) ? [args.at(-1)] :
+      Object.hasOwn(expressionArguments, method) ? expressionArguments[method].map(index => args[index]) : [];
   for (const ref of refs) if (ref && typeof ref === 'object') variableIds.push(ref.variableId);
   const allowed = packs.some(pack => {
     const permissions = pack.manifest.permissions;
@@ -77,17 +90,21 @@ export function authorizeProgram(capabilities, ir,{resourceView}={}) {
   }
   function statements(body) {
     for (const node of body) {
-      if (node.kind === 'repeat') { statements(node.body); continue; }
+      if (node.kind === 'repeat' || node.kind === 'forever') { statements(node.body); continue; }
       if (node.kind === 'if') { valueReference(node.condition); statements(node.body); statements(node.elseBody ?? []); continue; }
+      if (node.kind === 'repeatUntil') { valueReference(node.condition); statements(node.body); continue; }
+      if (node.kind === 'waitUntil') { valueReference(node.condition); continue; }
+      if (node.kind === 'stopScript') continue;
       const method = operationOf[node.kind];
       if (!method) fail('IR sin operación autorizable');
       const args = ['context'];
       if (['setVariable', 'changeVariable'].includes(node.kind)) args.push(node.variableId, node.value);
       else if (node.kind === 'playSound') args.push(node.sound, node.wait);
       else if (node.kind === 'setCostume') args.push(node.costume);
-      else if (node.kind === 'move') args.push(node.steps);
+      else if (node.kind === 'glide') args.push(node.seconds, node.x, node.y);
+      else if (Object.hasOwn(expressionFields, node.kind)) args.push(...expressionFields[node.kind].map(field => node[field]));
       authorize(plan, method, args, variables,null,resourceView);
-      valueReference(node.value); valueReference(node.steps);
+      valueReference(node.value); for (const field of expressionFields[node.kind] ?? []) valueReference(node[field]);
     }
   }
   for (const script of result.scripts) statements(script.body);

@@ -1,5 +1,5 @@
 import {createResourceView} from './resources.mjs';
-import {localPackCatalog, latestPackVersions, localPackMigrations} from '../packs/catalog.mjs';
+import {localPackCatalog, latestPackVersions, localPackMigrations, localPackCompatibility, legacyPackVersions} from '../packs/catalog.mjs';
 import {validatePackJSON,validatePackConfigSchema} from './pack-config-schema.mjs';
 import {validateLocalPackConfig,validateLocalPackReferences,validateLocalPackFeatures} from './pack-config-validators.mjs';
 import {findMigrationChain,transformWorkspace} from './pack-migrations.mjs';
@@ -19,6 +19,17 @@ export function canonicalPackData(value) {
 function plain(value) { return value && typeof value === 'object' && !Array.isArray(value) && [Object.prototype, null].includes(Object.getPrototypeOf(value)); }
 function fields(value, required, label) {
   if (!plain(value) || Object.keys(value).some(key=>!Object.hasOwn(Object.getOwnPropertyDescriptor(value,key),'value')) || Object.keys(value).length !== required.length || required.some(key => !own(value, key))) fail(label + ': propiedades inválidas');
+}
+// A dependency on `required` is met by the same version or by a reviewed
+// newer version that declares it keeps `required` intact (catalog data).
+export function satisfiesPackVersion(id, installed, required, {compatibility = localPackCompatibility} = {}) {
+  return installed === required || compatibility.some(item => item.id === id && item.version === installed && item.satisfies.includes(required));
+}
+// Versions to keep when a project's capabilities are rebuilt (adding a
+// context, resources…): its locks, or the legacy versions when it has none.
+// Promoting a legacy project never upgrades a pack implicitly (E1).
+export function lockedPackVersions(capabilities) {
+  return capabilities == null ? {...legacyPackVersions} : Object.fromEntries(capabilities.locks.map(lock => [lock.id, lock.version]));
 }
 function entry(id, version, catalog = localPackCatalog) {
   const found = catalog.find(item => item.manifest.id === id && item.manifest.version === version);
@@ -54,7 +65,7 @@ export function validateCapabilities(capabilities, {catalog = localPackCatalog} 
   if (!seen.has('gg.sprites')&&!capabilities.locks.some(lock=>entry(lock.id,lock.version,catalog).manifest.contextProvider===true)) fail('falta proveedor de contexto');
   for (const lock of capabilities.locks) {
     for (const dependency of entry(lock.id, lock.version, catalog).manifest.dependencies) {
-      if (!capabilities.locks.some(item => item.id === dependency.id && item.version === dependency.version)) fail('dependencia incompatible: ' + dependency.id);
+      if (!capabilities.locks.some(item => item.id === dependency.id && satisfiesPackVersion(item.id, item.version, dependency.version))) fail('dependencia incompatible: ' + dependency.id);
     }
   }
   for(const lock of capabilities.locks){const manifest=entry(lock.id,lock.version,catalog).manifest;validateLocalPackFeatures(manifest.featureValidator,capabilities.config[lock.id],mergeInstalledFeatures(capabilities.locks,manifest.context,catalog));}
@@ -65,13 +76,22 @@ export function validateCapabilities(capabilities, {catalog = localPackCatalog} 
 export function createCapabilities(ids = ['gg.sprites'], {config = {}, versions = {}, catalog = localPackCatalog} = {}) {
   if (!Array.isArray(ids) || !ids.length || ids.length > packLimits.packs || Object.keys(ids).length !== ids.length || new Set(ids).size !== ids.length) fail('selección inválida');
   if (!plain(config) || !plain(versions)) fail('opciones de selección inválidas');
+  // Requested packs first, then their dependencies: a requested version that
+  // satisfies a dependency (reviewed compatibility) is kept; any other
+  // difference is a conflict.
   const selected = new Map();
-  function add(id, version) {
-    if (selected.has(id)) { if (selected.get(id).manifest.version !== version) fail('dependencias en conflicto'); return; }
-    const installed = entry(id, version, catalog); selected.set(id, installed);
-    for (const dependency of installed.manifest.dependencies) add(dependency.id, dependency.version);
+  for (const id of ids) {
+    if (selected.has(id)) fail('dependencias en conflicto');
+    selected.set(id, entry(id, versions[id] ?? latestPackVersions[id], catalog));
   }
-  for (const id of ids) add(id, versions[id] ?? latestPackVersions[id]);
+  const pending = [...selected.values()];
+  while (pending.length) {
+    for (const dependency of pending.shift().manifest.dependencies) {
+      const chosen = selected.get(dependency.id);
+      if (chosen) { if (!satisfiesPackVersion(dependency.id, chosen.manifest.version, dependency.version)) fail('dependencias en conflicto'); continue; }
+      const installed = entry(dependency.id, dependency.version, catalog); selected.set(dependency.id, installed); pending.push(installed);
+    }
+  }
   if (Object.keys(config).some(id => !selected.has(id))) fail('configuración de pack no seleccionado');
   const locks = []; const configs = {};
   for (const [id, item] of selected) {
@@ -81,7 +101,7 @@ export function createCapabilities(ids = ['gg.sprites'], {config = {}, versions 
   return validateCapabilities({locks, config: configs}, {catalog});
 }
 export function resolveCapabilities(capabilities = null, {catalog = localPackCatalog} = {}) {
-  const resolved = capabilities == null ? createCapabilities(['gg.sprites'], {catalog}) : validateCapabilities(capabilities, {catalog});
+  const resolved = capabilities == null ? createCapabilities(['gg.sprites'], {catalog, versions: legacyPackVersions}) : validateCapabilities(capabilities, {catalog});
   const packs = resolved.locks.map(lock => ({id: lock.id, version: lock.version, manifest: structuredClone(entry(lock.id, lock.version, catalog).manifest),
     config: structuredClone(resolved.config[lock.id])}));
   const variables = [];
@@ -161,6 +181,6 @@ function mergeInstalledFeatures(locks,contextId,catalog){
  return merged;
 }
 export function resolveCapabilityFeatures(capabilities,contextId,{catalog=localPackCatalog}={}){
- const profile=capabilities==null?createCapabilities(['gg.sprites'],{catalog}):validateCapabilities(capabilities,{catalog});
+ const profile=capabilities==null?createCapabilities(['gg.sprites'],{catalog,versions:legacyPackVersions}):validateCapabilities(capabilities,{catalog});
  return structuredClone(mergeInstalledFeatures(profile.locks,contextId,catalog));
 }

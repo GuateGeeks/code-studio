@@ -1,4 +1,4 @@
-import {createCapabilities,resolveCapabilityFeatures} from '../contracts/packs.mjs';
+import {createCapabilities,resolveCapabilityFeatures, lockedPackVersions} from '../contracts/packs.mjs';
 import {defaultScene3DConfig,validateScene3DConfig} from '../contracts/scene3d-program.mjs';
 import {defaultWebAppConfig,validateWebAppConfig} from '../contracts/webapp-program.mjs';
 import {generateApi3CapabilitySource} from '../generated-capability-source.mjs';
@@ -153,7 +153,7 @@ export function createCapabilityContextsUI({contexts,getCapabilities,activate,te
    async function enablePack(id=def.packId){
      if(activating)return;const returnFocus=document.activeElement===enable;activating=true;render();
      try{const previous=getCapabilities(),ids=[...new Set([...(previous?.locks.map(l=>l.id)??['gg.sprites']),id])];
-     await activate(createCapabilities(ids,{config:previous?.config??{},versions:{...Object.fromEntries((previous?.locks??[]).map(l=>[l.id,l.version])),'gg.assets':'0.2.0',...(previous?.locks.some(l=>l.id==='gg.sb3')?{'gg.sb3':'0.2.0'}:{})}}));}finally{activating=false;render();if(returnFocus&&config&&!section.hidden&&[document.body,enable].includes(document.activeElement))mode.querySelector('input:checked')?.focus({preventScroll:true});}
+     await activate(createCapabilities(ids,{config:previous?.config??{},versions:{...lockedPackVersions(previous),'gg.assets':'0.2.0',...(previous?.locks.some(l=>l.id==='gg.sb3')?{'gg.sb3':'0.2.0'}:{})}}));}finally{activating=false;render();if(returnFocus&&config&&!section.hidden&&[document.body,enable].includes(document.activeElement))mode.querySelector('input:checked')?.focus({preventScroll:true});}
    }
    enable.addEventListener('click',()=>enablePack().catch(e=>report(entry,e)));
    function createCopy(language){try{const generated=generateApi3CapabilitySource(blockEditor.program(),language,{targets:objects().map(item=>item.id)});const document=textDocuments.add({language,name:def.title+' · '+(language==='javascript'?'JavaScript':'Python'),source:generated.text,api:'api3',variableIds:generated.variableIds,targetIds:generated.targetIds});config.mode=language;config.selectedTextDocumentId=document.id;changed();const input=section.ownerDocument.querySelector('#text-source');input.focus({preventScroll:true});input.scrollIntoView({block:'nearest'});}catch(e){report(entry,e);}}

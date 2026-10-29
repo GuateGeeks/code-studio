@@ -4,18 +4,48 @@
 
 Véanse `proposal.md`, `block-language-contract` (tabla de lenguaje y API v3) y la matriz F5 (84 opcodes ejecutables). La IR 2D actual solo admite número o variable como expresión.
 
+**Re-alcance del 29/10/2026** (plan de estabilización 2D, etapa E1, aprobado por el usuario): la tanda 1 se divide. **E1** entrega solo los bloques que funcionan con un único sprite; «ir a objeto» y «fondo» pasan a E2 junto con `scene2d-multi-sprite`, y todo reporter, expresión anidada, sensor u operador sigue en la tanda 2 (E3). E1 va **antes** que varios sprites, por lo que se invierte el orden de versiones previsto.
+
 ## Decisions
 
-1. **Entradas de la tabla.** Cada bloque nuevo es una entrada `apiVersion: 2` en `gg.sprites@0.3.0`, con bajada a un opcode revisado de la matriz F5. No se añaden opcodes sin revisar.
-2. **Expresiones anidadas en la IR 2D.** Operadores, sensores y aleatorio se representan como expresiones tipadas con profundidad limitada. En la API v3 aparecen como expresiones JS/Python naturales (`a + b`, `random(1, 10)`, `hero.touching(fruta)`). Los traductores las bajan a llamadas de lectura atómica del contexto.
+1. **Entradas de la tabla.** Cada bloque nuevo es una entrada de la tabla de `gg.sprites@0.2.0` (manifiesto `apiVersion: 2` que lleva su tabla `language`, la misma `spriteLanguage02` de `src/packs/language-tables.mjs`), con bajada a un opcode revisado. No se añaden opcodes sin revisar. Las formas, argumentos y orden salen de la tabla; `src/packs/scene2d-forms.mjs` une cada entrada con su regla instalada para el generador y la identidad de shadows.
+2. **Expresiones anidadas en la IR 2D.** (Tanda 2.) Operadores, sensores y aleatorio se representan como expresiones tipadas con profundidad limitada. En la API v3 aparecen como expresiones JS/Python naturales (`a + b`, `random(1, 10)`, `hero.touching(fruta)`). Los traductores las bajan a llamadas de lectura atómica del contexto.
 3. **Semántica declarada.** División, aleatorio, coerción texto/número y comparación siguen la semántica de Scratch. Se documentan en ADR-004 ampliado. El aleatorio usa semilla en las pruebas.
-4. **Dos tandas.** Primero movimiento, apariencia y control, que habilita «Diálogo»; después sensores y operadores, que habilitan «Atrapa la fruta» y «Laberinto». Cada tanda cierra con su puerta.
+4. **Tandas.** E1: movimiento, apariencia y control de un sprite. E2 (con `scene2d-multi-sprite`): «ir a objeto», «fondo» y «Diálogo». Tanda 2 (E3): sensores y operadores, que habilitan «Atrapa la fruta» y «Laberinto». Cada etapa cierra con su puerta.
+
+### Decisiones de E1 (29/10/2026)
+
+5. **Versionado.** Vocabulario = `gg.sprites@0.2.0`; varios sprites pasa a `0.3.0` (artefactos de `scene2d-multi-sprite` actualizados). Razón: E1 se entrega primero y los manifiestos publicados están congelados por hash; `0.1.0` no cambia (`225d6c99…`). `0.2.0` conserva bloques, reglas, configuración, recursos y permisos de `0.1.0` y solo añade (prueba VOC-001).
+   - **Migración** `0.1.0 → 0.2.0` como registro del catálogo (`localPackMigrations`), sin transformar bloques: IDs, tipos y configuración idénticos. «Actualizar packs» la ofrece y no ejecuta. No se declara la inversa: un proyecto con bloques nuevos no cabe en 0.1.0; «Revertir» restaura la instantánea.
+   - **Compatibilidad de dependencias.** `gg.score`, `gg.microbit`, `gg.assets@0.1.0` y `gg.sb3@0.2.0` declaran dependencia exacta de `gg.sprites@0.1.0` en manifiestos congelados. El catálogo añade `localPackCompatibility` (`0.2.0` satisface dependencias de `0.1.0`, en un solo sentido) y `createCapabilities`/`validateCapabilities` la consultan. Alternativa descartada: publicar versiones nuevas de cuatro packs (y de micro:bit, congelado) solo para cambiar su dependencia.
+   - **Qué crea cada camino.** `latestPackVersions['gg.sprites'] = '0.2.0'`: actividades, plantillas cargadas con `loadStarter` y selección de packs crean proyectos 0.2.0. Los proyectos **sin capacidades explícitas** (GGPROJ v1/v2 y el proyecto inicial sin guardar) resuelven a `0.1.0` (`legacyPackVersions`), de modo que abren idénticos y con la misma caja de herramientas. Cambiar el proyecto inicial a capacidades explícitas cambiaría su formato de v1 a v3 y varias suites (p. ej. el inspector exige `scene` en la exportación inicial): queda como decisión pendiente del usuario, no de E1.
+   - **Actividades.** Sus starters, IDs y checks no cambian; al cargarse obtienen la caja 0.2.0. La revisión 1/2 de «De bloques a tu propio código» conserva sus textos: el subconjunto sincronizado solo crece (sigue rechazando `while` libre y funciones propias).
+6. **Estructuras de control del núcleo.** «Por siempre», «repetir hasta», «esperar hasta» y «detener este programa» pertenecen al núcleo (spec `block-language`): bloques en `src/editor/core-blocks.mjs`, entradas en `coreLanguageEntries`, bajada en `block-program`/`workspace-from-ir`, sintaxis en parser y traductores. Un contexto las **ofrece** solo si un pack activo las lista en su caja (`offeredCoreStructures`): 0.2.0 sí, 0.1.0 y legado no. Así un proyecto 0.1.0 sigue rechazando `while (true)` como antes (pruebas CV-* intactas) y un IR fabricado con esos nodos se rechaza al bajar los bloques. «Repetir N veces» y «si» siguen siempre disponibles.
+7. **Formas textuales** (coherentes con `onStart`, `hero.move`, `wait`; Python sin lambdas multilínea):
+
+   | Bloque | JavaScript | Python |
+   |---|---|---|
+   | por siempre | `while (true) { … }` | `while True:` |
+   | repetir hasta que c | `while (!(a > b)) { … }` | `while not (a > b):` |
+   | esperar hasta que c | `waitUntil(() => a > b);` | `wait_until(lambda: a > b)` |
+   | detener este programa | `return;` | `return` |
+   | detener todo | `stopAll();` | `stop_all()` |
+   | movimiento / apariencia | `hero.turnRight(15)`, `hero.goTo(x, y)`, `hero.glide(s, x, y)`, `hero.say("…")`, `hero.sayFor("…", s)`, `hero.setSize(n)`… | `hero.turn_right(15)`, `hero.go_to(x, y)`, `hero.glide(s, x, y)`, `hero.say("…")`, `hero.say_for("…", s)`, `hero.set_size(n)`… |
+
+   El orden de argumentos es el de los huecos del bloque (Scratch). Las condiciones son las comparaciones existentes (`==`, `<`, `>` entre números y variables). Solo esos dos `while` tienen bloque: un `while` libre, `do…while` o una función propia se rechazan con causa y línea.
+8. **Semántica (ADR-004 ampliado).** Como Scratch, **cada vuelta de un `while` cede un fotograma**: los traductores API v3 (y el generador API1) insertan `await ctx.frame()` al final del cuerpo, y `program.frame` se resuelve tras el siguiente paso de la VM (operación del núcleo, permitida en todas las versiones). Los `for` conservan su comportamiento API v3 (sin ceder entre vueltas). `waitUntil` comprueba y cede un fotograma mientras sea falsa. `stopAll` llama a `runtime.stopAll()`: detiene hilos y clones, revoca todas las invocaciones de texto y el texto vuelve de inmediato (`if (await ctx.stopAll()) return;`). Es distinto del único «Detener» del estudio, que además restaura la escena inicial. Los globos de decir/pensar, el tamaño y el rebote usan las primitivas de la VM; el deslizamiento textual ejecuta la misma primitiva una vez por paso.
+9. **Opcodes.** La bajada usa la matriz F5 más siete opcodes del núcleo revisados para la bajada (`motion_glidesecstoxy`, `motion_ifonedgebounce`, `looks_say`, `looks_sayforsecs`, `looks_think`, `looks_thinkforsecs`, `control_stop`), registrados en `src/contracts/scene2d-opcodes.mjs` y en la sección «Revisión E1» de `docs/phase-5/OPCODE-MATRIX.md`. **No** se añaden a la importación SB3 (contexto congelado E-1); `toScratchProject` rechaza cualquier opcode fuera de la unión.
+10. **Decir/pensar con texto literal.** El mensaje es un campo de texto del bloque (≤ 330 caracteres, sin saltos de línea; vacío borra el globo). Decir una variable o una expresión es de la tanda 2: requerirá un bloque con entrada y una migración de tipo, porque las migraciones actuales no convierten campos en entradas.
+11. **Límites de la IR.** Literales: posición x ±240 e y ±180, giros y dirección ±3600, cambios de x/y ±480, tamaño 0–1000 y su cambio ±1000, segundos 0–60. «Por siempre» y los dos «detener» terminan su pila. Profundidad y nodos siguen los límites existentes. Los valores leídos de variables se acotan en ejecución (dominio finito) y la VM aplica su «fence».
 
 ## Risks / Trade-offs
 
 - [Equivalencia con vocabulario mayor] → corpus por bloque y prueba de ida y vuelta generada desde la tabla.
 - [«Por siempre» y Stop] → la semántica de Stop ya está demostrada en F0; se añade un caso al corpus de Stop.
+- [Ceder en todos los `while` cambia el ritmo de copias API v3 libres con `while`] → solo el ritmo (una vuelta por fotograma, como Scratch); antes un `while` sin espera agotaba el turno de 300 ms del intérprete. Las copias API1/API2 no cambian.
+- [Proyecto inicial en 0.1.0] → el estudiante recibe el vocabulario E1 por actividades, plantillas, selección de packs o «Actualizar packs», no en el proyecto inicial sin guardar, hasta que se decida migrar ese arranque.
+- [Siete opcodes fuera de la importación SB3] → una copia Scratch con decir o rebotar sigue sin ejecutarse; ampliarla es decisión posterior al congelamiento.
 
 ## Migration Plan
 
-`gg.sprites@0.2.0` → `0.3.0` con migración vacía de bloques (solo añade entradas). Los proyectos anteriores abren igual.
+`gg.sprites@0.1.0` → `0.2.0` (E1) con migración vacía de bloques (solo añade entradas). Los proyectos anteriores abren igual. `scene2d-multi-sprite` publicará `0.3.0` con migración desde `0.2.0` (la cadena 0.1.0 → 0.2.0 → 0.3.0 la resuelve `findMigrationChain`). La tanda 2 añadirá su propia versión después.

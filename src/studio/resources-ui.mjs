@@ -1,4 +1,4 @@
-import {createCapabilities} from '../contracts/packs.mjs';
+import {createCapabilities, lockedPackVersions} from '../contracts/packs.mjs';
 import {createProject} from '../project-format.mjs';
 import {promoteLegacyResources,validateResources,createResourceView,applyResourceEdit,copyResourceOwner,decodeResourceAsset} from '../contracts/resources.mjs';
 import {inspectWavPcm16} from '../contracts/media-wav.mjs';
@@ -108,7 +108,7 @@ export function createResourcesUI({store,contexts,getAuthoring,getProject,editor
       const ids=[...new Set([...(previous?.locks.map(lock=>lock.id)??['gg.sprites']),'gg.assets',...(sourceAssetId!==undefined?['gg.sb3']:[])])];
       const settings={...(previous?.config??{}),...(sourceAssetId!==undefined?{'gg.sb3':{sourceAssetId,mode:'compatibility'}}:{})};
       return createProject({...metadata,...captured,blockly:blockly??captured.blockly,resources,
-        catalog:project.catalog(),capabilities:createCapabilities(ids,{config:settings,versions:{...Object.fromEntries((previous?.locks??[]).map(lock=>[lock.id,lock.version])),...(resources.version===2?{'gg.assets':'0.2.0',...(ids.includes('gg.sb3')?{'gg.sb3':'0.2.0'}:{})}:{})}})});
+        catalog:project.catalog(),capabilities:createCapabilities(ids,{config:settings,versions:{...lockedPackVersions(previous),...(resources.version===2?{'gg.assets':'0.2.0',...(ids.includes('gg.sb3')?{'gg.sb3':'0.2.0'}:{})}:{})}})});
     },{isCurrent});
   }
   async function refreshReport() {
@@ -176,7 +176,7 @@ export function createResourcesUI({store,contexts,getAuthoring,getProject,editor
     const ir=structuredClone(native.ir);
     function remap(value){if(!value||typeof value!=='object')return;for(const [key,item]of Object.entries(value)){if(typeof item==='string'&&(key==='costume'||key==='sound'))value[key]=copied.mapping[key==='costume'?'costumes':'sounds'][item]??item;else remap(item);}}
     remap(ir);const captured=getAuthoring().captureCapabilities();
-    const capabilities=createCapabilities([...new Set([...(captured?.locks.map(lock=>lock.id)??['gg.sprites']),'gg.assets'])],{config:captured?.config??{},versions:Object.fromEntries((captured?.locks??[]).map(lock=>[lock.id,lock.version]))});
+    const capabilities=createCapabilities([...new Set([...(captured?.locks.map(lock=>lock.id)??['gg.sprites']),'gg.assets'])],{config:captured?.config??{},versions:lockedPackVersions(captured)});
     const blockly=GGEditor.workspaceFromIR(ir,{capabilities,resourceView:createResourceView(copied.resources),layout:native.layout});
     await replace(copied.resources,{blockly,isCurrent});contexts.select('2d');
   }).catch(error));

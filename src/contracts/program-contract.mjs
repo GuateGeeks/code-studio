@@ -52,12 +52,35 @@ export function validateProgram(ir,{resourceView,resourceOwnerId='hero'}={}) {
       expression(value.left, depth + 1); expression(value.right, depth + 1);
     } else fail('unsupported expression');
   }
+  // E1 literals stay within the stage and Scratch-like ranges; variables are
+  // checked at run time by the finite domain (and fenced by the engine).
+  function bounded(value, minimum, maximum, label) { if (typeof value === 'number' && (value < minimum || value > maximum)) fail(`${label} outside ${minimum}..${maximum}`); }
+  function message(value) { if (typeof value !== 'string' || value.length > 330 || /[\u0000-\u001f\u007f]/.test(value)) fail('invalid message text'); }
+  function seconds(value) { number(value, 60); if (value < 0) fail('negative duration'); }
   function statements(body, depth) {
     if (!Array.isArray(body)) fail('expected statement list');
-    for (const node of body) {
+    for (const [index, node] of body.entries()) {
       if (!node || typeof node !== 'object') fail('expected statement');
       const common = ['kind', 'sourceBlockId']; source(node, depth);
+      // «por siempre» and both «detener» end their stack, as in Scratch.
+      if (['forever', 'stopScript', 'stopAll'].includes(node.kind) && index !== body.length - 1) fail(`${node.kind} must be the last statement`);
       switch (node.kind) {
+        case 'turnRight': case 'turnLeft': object(node, [...common, 'degrees']); expression(node.degrees, depth + 1); bounded(node.degrees, -3600, 3600, 'degrees'); break;
+        case 'pointDirection': object(node, [...common, 'direction']); expression(node.direction, depth + 1); bounded(node.direction, -3600, 3600, 'direction'); break;
+        case 'goTo': object(node, [...common, 'x', 'y']); expression(node.x, depth + 1); expression(node.y, depth + 1); bounded(node.x, -240, 240, 'x'); bounded(node.y, -180, 180, 'y'); break;
+        case 'glide': object(node, [...common, 'seconds', 'x', 'y']); seconds(node.seconds); expression(node.x, depth + 1); expression(node.y, depth + 1); bounded(node.x, -240, 240, 'x'); bounded(node.y, -180, 180, 'y'); break;
+        case 'setX': object(node, [...common, 'x']); expression(node.x, depth + 1); bounded(node.x, -240, 240, 'x'); break;
+        case 'setY': object(node, [...common, 'y']); expression(node.y, depth + 1); bounded(node.y, -180, 180, 'y'); break;
+        case 'changeX': object(node, [...common, 'dx']); expression(node.dx, depth + 1); bounded(node.dx, -480, 480, 'dx'); break;
+        case 'changeY': object(node, [...common, 'dy']); expression(node.dy, depth + 1); bounded(node.dy, -480, 480, 'dy'); break;
+        case 'say': case 'think': object(node, [...common, 'message']); message(node.message); break;
+        case 'sayFor': case 'thinkFor': object(node, [...common, 'message', 'seconds']); message(node.message); seconds(node.seconds); break;
+        case 'setSize': object(node, [...common, 'size']); expression(node.size, depth + 1); bounded(node.size, 0, 1000, 'size'); break;
+        case 'changeSize': object(node, [...common, 'delta']); expression(node.delta, depth + 1); bounded(node.delta, -1000, 1000, 'size change'); break;
+        case 'bounce': case 'show': case 'hide': case 'nextCostume': case 'stopAll': case 'stopScript': object(node, common); break;
+        case 'forever': object(node, [...common, 'body']); statements(node.body, depth + 1); break;
+        case 'repeatUntil': object(node, [...common, 'condition', 'body']); expression(node.condition, depth + 1, true); statements(node.body, depth + 1); break;
+        case 'waitUntil': object(node, [...common, 'condition']); expression(node.condition, depth + 1, true); break;
         case 'move': object(node, [...common, 'steps']); expression(node.steps, depth + 1); if (typeof node.steps === 'number') number(node.steps, 480); break;
         case 'wait': object(node, [...common, 'seconds']); number(node.seconds, 60); if (node.seconds < 0) fail('negative wait'); break;
         case 'repeat': object(node, [...common, 'count', 'body']); number(node.count, 1000); if (!Number.isInteger(node.count) || node.count < 0) fail('invalid repeat'); statements(node.body, depth + 1); break;

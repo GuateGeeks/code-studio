@@ -8,12 +8,15 @@ const vocabulary = JSON.stringify({
   events: Object.fromEntries(Object.values(scene2DApi3.events).map(item => [item.python, item])),
   shared: scene2DApi3.shared
 });
+// Python spelling of the core «esperar hasta» (E1); see coreLanguageEntries.
+const waitUntilName = 'wait_until';
 
 export const api3PythonCompiler = String.raw`
 import ast as _gg_ast, json as _gg_json
 _GG_VOCABULARY = _gg_json.loads(${JSON.stringify(vocabulary)})
 _GG_COMPARE = {_gg_ast.Eq: "EQ", _gg_ast.Lt: "LT", _gg_ast.Gt: "GT"}
-_GG_RESERVED = {"GG", "ctx", "hero", "shared", "wait", "on_start", "on_key", "on_message"}
+_GG_RESERVED = {"GG", "ctx", "hero", "shared", "wait", "on_start", "on_key", "on_message", "stop_all", "${waitUntilName}"}
+_GG_WAIT_UNTIL = "${waitUntilName}"
 
 def _gg_api3_compile(source, variable_ids_json):
     ast = _gg_ast
@@ -75,6 +78,15 @@ def _gg_api3_compile(source, variable_ids_json):
         if is_variable(node): return ref(node)
         check(node)
         return node
+    # A comparison ==, < or > reading a program variable becomes one atomic ctx.compare; not may wrap it.
+    def condition(test):
+        if isinstance(test, ast.UnaryOp) and isinstance(test.op, ast.Not):
+            test.operand = condition(test.operand)
+            return test
+        if isinstance(test, ast.Compare) and len(test.ops) == 1 and type(test.ops[0]) in _GG_COMPARE and (is_variable(test.left) or is_variable(test.comparators[0])):
+            return at(ast.Await(value=ast.Call(func=attr("ctx", "compare"), args=[ast.Constant(_GG_COMPARE[type(test.ops[0])]), argument(test.left), argument(test.comparators[0])], keywords=[])), test)
+        check(test)
+        return test
     def handler_body(items):
         out = []
         for node in items:
@@ -86,7 +98,7 @@ def _gg_api3_compile(source, variable_ids_json):
                 call, action = node.value, statements[dotted(node.value.func)]
                 if len(call.args) != action["arity"] or call.keywords: fail(dotted(call.func) + " recibe " + str(action["arity"]) + (" valor." if action["arity"] == 1 else " valores."), call)
                 if action.get("stops"):
-                    out.append(at(ast.If(test=ast.Await(value=ast.Call(func=attr("ctx", "deleteClone"), args=[], keywords=[])), body=[ast.Return(value=None)], orelse=[]), node))
+                    out.append(at(ast.If(test=ast.Await(value=ast.Call(func=attr("ctx", action["ctx"]), args=[], keywords=[])), body=[ast.Return(value=None)], orelse=[]), node))
                     continue
                 args = [argument(item) for item in call.args] + ([ast.Constant(action["append"])] if "append" in action else [])
                 out.append(at(ast.Expr(value=ast.Await(value=ast.Call(func=attr("ctx", action["ctx"]), args=args, keywords=[]))), node))
@@ -102,15 +114,26 @@ def _gg_api3_compile(source, variable_ids_json):
                 if isinstance(node.op, ast.Sub): value = at(ast.UnaryOp(op=ast.USub(), operand=value), node.value)
                 out.append(at(ast.Expr(value=ast.Await(value=ast.Call(func=attr("ctx", "changeVariable"), args=[ast.Constant(variables[node.target.id]["id"]), value], keywords=[]))), node))
                 continue
+            # wait_until(lambda: condición): Scratch «esperar hasta», one frame per check.
+            if isinstance(node, ast.Expr) and isinstance(node.value, ast.Call) and dotted(node.value.func) == _GG_WAIT_UNTIL:
+                call = node.value
+                if len(call.args) != 1 or call.keywords or not isinstance(call.args[0], ast.Lambda) or call.args[0].args.args or call.args[0].args.vararg or call.args[0].args.kwarg or call.args[0].args.kwonlyargs or call.args[0].args.posonlyargs:
+                    fail("wait_until recibe una condición: wait_until(lambda: a > b).", call)
+                frame = at(ast.Expr(value=ast.Await(value=ast.Call(func=attr("ctx", "frame"), args=[], keywords=[]))), node)
+                out.append(at(ast.While(test=at(ast.UnaryOp(op=ast.Not(), operand=condition(call.args[0].body)), node), body=[frame], orelse=[]), node))
+                continue
             if isinstance(node, ast.If):
-                test = node.test
-                if isinstance(test, ast.Compare) and len(test.ops) == 1 and type(test.ops[0]) in _GG_COMPARE and (is_variable(test.left) or is_variable(test.comparators[0])):
-                    node.test = at(ast.Await(value=ast.Call(func=attr("ctx", "compare"), args=[ast.Constant(_GG_COMPARE[type(test.ops[0])]), argument(test.left), argument(test.comparators[0])], keywords=[])), test)
-                else: check(test)
+                node.test = condition(node.test)
                 node.body, node.orelse = handler_body(node.body), handler_body(node.orelse)
                 out.append(node); continue
-            if isinstance(node, (ast.For, ast.While)):
-                for part in (getattr(node, "iter", None), getattr(node, "test", None), getattr(node, "target", None)):
+            # Every while loop yields one frame per turn (Scratch «por siempre», «repetir hasta»).
+            if isinstance(node, ast.While):
+                node.test = condition(node.test)
+                node.body, node.orelse = handler_body(node.body), handler_body(node.orelse)
+                node.body.append(at(ast.Expr(value=ast.Await(value=ast.Call(func=attr("ctx", "frame"), args=[], keywords=[]))), node))
+                out.append(node); continue
+            if isinstance(node, ast.For):
+                for part in (getattr(node, "iter", None), getattr(node, "target", None)):
                     if part is not None: check(part)
                 node.body, node.orelse = handler_body(node.body), handler_body(node.orelse)
                 out.append(node); continue

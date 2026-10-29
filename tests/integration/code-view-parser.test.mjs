@@ -82,7 +82,8 @@ test('CV-JS-005: changing a reviewed table changes the callable spelling without
   sprites.manifest.language = structuredClone(languageTables['gg.sprites@0.1.0']);
   const entry = sprites.manifest.language.find(item => item.block === 'gg_move');
   entry.js = 'advance'; entry.python = 'advance';
-  const capabilities = createCapabilities(['gg.sprites'], {catalog});
+  // The modified table is the 0.1.0 manifest's; 0.2.0 (latest) keeps its own frozen table.
+  const capabilities = createCapabilities(['gg.sprites'], {catalog, versions: {'gg.sprites': '0.1.0'}});
   const result = parseJavaScriptCodeView('onStart(()=>{hero.advance(23)})', {capabilities, catalog});
   assert.equal(result.ir.scripts[0].body[0].steps, 23);
   assert.throws(() => parseJavaScriptCodeView('onStart(()=>{hero.move(23)})', {capabilities, catalog}), /no tiene un bloque/);

@@ -17,3 +17,14 @@ Las copias JS/Python son explícitas, persistidas en GGPROJ2, independientes y s
 
 ## Evidencia
 [OpenSpec](../../openspec/changes/archive/2026-10-24-phase-2-textual-equivalence/design.md), [resultados F2](../phase-2/RESULTS.md), pruebas de contratos/VM y motores/cola, y matriz Chromium por backend. El perfil local WSL registra tiempos/RSS aproximados; las máquinas escolares y validación física requieren evidencia independiente.
+
+## Ampliación E1 (29 de octubre de 2026): bucles, esperar hasta y detener
+
+Vocabulario 2D esencial (`scene2d-vocabulary-v2`, `gg.sprites@0.2.0`). Se mantienen el contexto por invocación, la atomicidad y la revocación en Stop.
+
+- **Cada vuelta de un `while` cede un fotograma**, como «por siempre» y «repetir hasta» en Scratch. Los traductores API v3 y el generador API1 añaden `await ctx.frame()` al final del cuerpo; `program.frame` se resuelve después del siguiente paso de la VM. Es una operación de control del núcleo: no depende de permisos de pack. Los `for` («repetir N veces») conservan su comportamiento: no ceden entre vueltas. Antes, un `while` sin esperas agotaba el turno de 300 ms del intérprete.
+- **Esperar hasta** (`waitUntil(() => a > b)`, `wait_until(lambda: a > b)`) comprueba la condición con un `ctx.compare` atómico y cede un fotograma mientras sea falsa.
+- **Detener este programa** es `return` dentro del evento: termina esa invocación, como `stopThisScript`.
+- **Detener todo** (`stopAll()`, `stop_all()`) llama a `runtime.stopAll()` en el adaptador: detiene hilos y clones, borra globos y revoca todas las invocaciones de texto; el código traducido vuelve en el acto. Los eventos siguen registrados (una tecla vuelve a iniciar su programa), igual que en Scratch. No sustituye al único «Detener» del estudio, que además restaura la escena inicial.
+- **Deslizar** y **decir/pensar por segundos** usan las mismas primitivas de la VM; el adaptador textual ejecuta la de deslizar una vez por paso de la VM. Rebote y tamaño dependen del renderer.
+- **Corpus:** cada programa E1 produce la misma secuencia de llamadas en API1 y API3, en JavaScript y Python (VOC-012); la traza de posiciones de «por siempre + rebotar» coincide en bloques, JavaScript y Python, y nada se mueve tras Detener (E1-03). La equivalencia de trazas no se afirma para programas con temporizadores (deslizar, esperar), cuyos fotogramas intermedios dependen del reloj.

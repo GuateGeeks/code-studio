@@ -105,7 +105,9 @@ test('GG-PACK-001/002: resolution is explicit, detached, dependency-complete and
   assert.equal(resolveCapabilities().capabilities, null);
   const capabilities = packs();
   const profile = resolveCapabilities(capabilities);
-  assert.deepEqual(profile.packs.map(pack => [pack.id, pack.version]), [['gg.score', '0.2.0'], ['gg.sprites', '0.1.0']]);
+  // gg.sprites@0.2.0 is the latest and satisfies gg.score's dependency on 0.1.0.
+  assert.deepEqual(profile.packs.map(pack => [pack.id, pack.version]), [['gg.score', '0.2.0'], ['gg.sprites', '0.2.0']]);
+  assert.deepEqual(resolveCapabilities(createCapabilities(['gg.sprites', 'gg.score'], {versions: {'gg.sprites': '0.1.0'}})).packs.map(pack => [pack.id, pack.version]), [['gg.score', '0.2.0'], ['gg.sprites', '0.1.0']]);
   assert.equal(profile.variables[0].id, 'gg-pack-score');
   profile.variables[0].initialValue = 42;
   assert.equal(resolveCapabilities(capabilities).variables[0].initialValue, 0);

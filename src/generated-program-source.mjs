@@ -2,6 +2,7 @@ import {generateCapabilityProgramSource} from './generated-capability-source.mjs
 import {validateProgram} from './contracts/program-contract.mjs';
 import {api3Identifier} from './contracts/api3-names.mjs';
 import {languageTables} from './packs/language-tables.mjs';
+import {scene2DCallForms} from './packs/scene2d-forms.mjs';
 export {api3Identifier};
 
 const sourceBytes = 65536;
@@ -90,7 +91,30 @@ export function generateProgramSource(ir, language,options={}) {
           costumes.add(node.costume);
           call('setCostume', [quote(node.costume)], ids, depth);
           break;
-        default: throw Object.assign(new Error(`Unsupported generated operation: ${node.kind}`), {sourceBlockId: node.sourceBlockId});
+        // E1 (gg.sprites@0.2.0): while loops yield one frame per turn, like the API v3 translators.
+        case 'forever': case 'repeatUntil':
+          line(python ? `while ${node.kind === 'forever' ? 'True' : `not (${condition(node.condition, ids)})`}:`
+            : `while (${node.kind === 'forever' ? 'true' : `!(${condition(node.condition, ids)})`}) {`, ids, depth);
+          statements(node.body, depth + 1, node.sourceBlockId);
+          call('frame', [], [node.sourceBlockId], depth + 1);
+          if (!python) line('}', ids, depth);
+          break;
+        case 'waitUntil':
+          line(python ? `while not (${condition(node.condition, ids)}):` : `while (!(${condition(node.condition, ids)})) {`, ids, depth);
+          call('frame', [], ids, depth + 1);
+          if (!python) line('}', ids, depth);
+          break;
+        case 'stopScript': line(python ? 'return' : 'return;', ids, depth); break;
+        default: {
+          const form = scene2DCallForms.find(item => item.kind === node.kind && item.append === undefined);
+          if (!form) throw Object.assign(new Error(`Unsupported generated operation: ${node.kind}`), {sourceBlockId: node.sourceBlockId});
+          if (form.stops) {
+            line(python ? `if await ctx.${form.js}():` : `if (await ctx.${form.js}()) return;`, ids, depth);
+            if (python) line('return', ids, depth + 1);
+            break;
+          }
+          call(form.js, form.args.map(arg => arg.type === 'expression' ? expression(node[arg.field], ids) : typeof node[arg.field] === 'number' ? String(node[arg.field]) : quote(node[arg.field])), ids, depth);
+        }
       }
     }
   }
@@ -147,7 +171,7 @@ export function generateApi3ProgramSource(ir, language, options = {}) {
   // in metadata and leave their initial value to the pack, as blocks do.
   (function external(nodes) {
     for (const node of nodes ?? []) {
-      for (const candidate of [node, node.value, node.steps, node.condition?.left, node.condition?.right]) {
+      for (const candidate of [node, node.value, node.steps, node.condition?.left, node.condition?.right, node.degrees, node.direction, node.x, node.y, node.dx, node.dy, node.size, node.delta]) {
         if (candidate && typeof candidate === 'object' && typeof candidate.variableId === 'string' && !names.has(candidate.variableId)) {
           const identifier = api3Identifier(candidate.name ?? candidate.variableId, taken); names.set(candidate.variableId, identifier); variableIds[identifier] = candidate.variableId;
         }
@@ -159,7 +183,7 @@ export function generateApi3ProgramSource(ir, language, options = {}) {
   const loopNames = ['i', 'j', 'k'];
   const call = (js, py, args, ids, depth) => line(`${python ? py : js}(${args.join(', ')})${python ? '' : ';'}`, ids, depth);
   // Action names come from the sprite language table (ADR-011); playSound picks its variant by `wait`.
-  const actions = languageTables['gg.sprites@0.1.0'].filter(entry => entry.kind === 'call');
+  const actions = languageTables['gg.sprites@0.2.0'].filter(entry => entry.kind === 'call');
   const action = (node, args, ids, depth) => {
     const entry = actions.find(item => item.lower.ir === node.kind && (item.append === undefined || item.append === Boolean(node.wait)));
     if (!entry) throw Object.assign(new Error(`Unsupported generated operation: ${node.kind}`), {sourceBlockId: node.sourceBlockId});
@@ -208,9 +232,29 @@ export function generateApi3ProgramSource(ir, language, options = {}) {
         case 'createClone': case 'deleteClone': case 'stopSounds': action(node, [], ids, depth); break;
         case 'playSound': audio.add(node.sound); action(node, [quote(node.sound)], ids, depth); break;
         case 'setCostume': costumes.add(node.costume); action(node, [quote(node.costume)], ids, depth); break;
-        default: throw Object.assign(new Error(`Unsupported generated operation: ${node.kind}`), {sourceBlockId: node.sourceBlockId});
+        // E1 core structures: while (true) / while not, waitUntil(lambda) and return.
+        case 'forever': case 'repeatUntil': {
+          let test = python ? 'True' : 'true';
+          if (node.kind === 'repeatUntil') { ids.push(node.condition.sourceBlockId); test = python ? `not (${comparison(node.condition, ids)})` : `!(${comparison(node.condition, ids)})`; }
+          line(python ? `while ${test}:` : `while (${test}) {`, ids, depth);
+          statements(node.body, depth + 1, node.sourceBlockId, loopDepth);
+          if (!python) line('}', ids, depth);
+          break;
+        }
+        case 'waitUntil': ids.push(node.condition.sourceBlockId); line(python ? `wait_until(lambda: ${comparison(node.condition, ids)})` : `waitUntil(() => ${comparison(node.condition, ids)});`, ids, depth); break;
+        case 'stopScript': line(python ? 'return' : 'return;', ids, depth); break;
+        default: {
+          // E1 calls: forms and argument order come from the table (scene2d-forms).
+          const form = scene2DCallForms.find(item => item.kind === node.kind && item.append === undefined);
+          if (!form) throw Object.assign(new Error(`Unsupported generated operation: ${node.kind}`), {sourceBlockId: node.sourceBlockId});
+          const owner = form.target === 'sprite' ? 'hero.' : '';
+          call(owner + form.js, owner + form.python, form.args.map(arg => arg.type === 'expression' ? value(node[arg.field], ids) : typeof node[arg.field] === 'number' ? String(node[arg.field]) : quote(node[arg.field])), ids, depth);
+        }
       }
     }
+  }
+  function comparison(condition, ids) {
+    return `${value(condition.left, ids)} ${{EQ: '==', LT: '<', GT: '>'}[condition.operator]} ${value(condition.right, ids)}`;
   }
   const comment = python ? '#' : '//';
   line(`${comment} ${python ? 'Python' : 'JavaScript'} de tus bloques. Crear una copia no cambia tus bloques.`);

@@ -1,0 +1,211 @@
+{
+  "format": "gg-canonical-fixture",
+  "version": 1,
+  "context": "scene2d",
+  "name": "Canónico · Hero se presenta",
+  "packIds": [
+    "gg.sprites"
+  ],
+  "blockly": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "gg_when_start",
+          "id": "hero-start",
+          "x": 20,
+          "y": 20,
+          "inputs": {
+            "DO": {
+              "block": {
+                "type": "gg_go_to",
+                "id": "hero-home",
+                "inputs": {
+                  "X": {
+                    "shadow": {
+                      "type": "math_number",
+                      "id": "hero-home-x",
+                      "fields": {
+                        "NUM": 0
+                      }
+                    }
+                  },
+                  "Y": {
+                    "shadow": {
+                      "type": "math_number",
+                      "id": "hero-home-y",
+                      "fields": {
+                        "NUM": 0
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "gg_point_direction",
+                    "id": "hero-aim",
+                    "inputs": {
+                      "DIRECTION": {
+                        "shadow": {
+                          "type": "math_number",
+                          "id": "hero-aim-direction",
+                          "fields": {
+                            "NUM": 90
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "gg_show",
+                        "id": "hero-show",
+                        "next": {
+                          "block": {
+                            "type": "gg_say_for",
+                            "id": "hero-hello",
+                            "fields": {
+                              "MESSAGE": "¡Hola! Soy Hero"
+                            },
+                            "inputs": {
+                              "SECONDS": {
+                                "shadow": {
+                                  "type": "math_number",
+                                  "id": "hero-hello-seconds",
+                                  "fields": {
+                                    "NUM": 1
+                                  }
+                                }
+                              }
+                            },
+                            "next": {
+                              "block": {
+                                "type": "gg_glide",
+                                "id": "hero-glide",
+                                "inputs": {
+                                  "SECONDS": {
+                                    "shadow": {
+                                      "type": "math_number",
+                                      "id": "hero-glide-seconds",
+                                      "fields": {
+                                        "NUM": 1
+                                      }
+                                    }
+                                  },
+                                  "X": {
+                                    "shadow": {
+                                      "type": "math_number",
+                                      "id": "hero-glide-x",
+                                      "fields": {
+                                        "NUM": 100
+                                      }
+                                    }
+                                  },
+                                  "Y": {
+                                    "shadow": {
+                                      "type": "math_number",
+                                      "id": "hero-glide-y",
+                                      "fields": {
+                                        "NUM": 0
+                                      }
+                                    }
+                                  }
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "gg_think_for",
+                                    "id": "hero-think",
+                                    "fields": {
+                                      "MESSAGE": "¿Y ahora?"
+                                    },
+                                    "inputs": {
+                                      "SECONDS": {
+                                        "shadow": {
+                                          "type": "math_number",
+                                          "id": "hero-think-seconds",
+                                          "fields": {
+                                            "NUM": 1
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "gg_change_size",
+                                        "id": "hero-grow",
+                                        "inputs": {
+                                          "DELTA": {
+                                            "shadow": {
+                                              "type": "math_number",
+                                              "id": "hero-grow-delta",
+                                              "fields": {
+                                                "NUM": 20
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "next": {
+                                          "block": {
+                                            "type": "gg_next_costume",
+                                            "id": "hero-costume",
+                                            "next": {
+                                              "block": {
+                                                "type": "gg_say",
+                                                "id": "hero-bounce-say",
+                                                "fields": {
+                                                  "MESSAGE": "¡Mira cómo reboto!"
+                                                },
+                                                "next": {
+                                                  "block": {
+                                                    "type": "gg_forever",
+                                                    "id": "hero-loop",
+                                                    "inputs": {
+                                                      "DO": {
+                                                        "block": {
+                                                          "type": "gg_move",
+                                                          "id": "hero-step",
+                                                          "inputs": {
+                                                            "STEPS": {
+                                                              "shadow": {
+                                                                "type": "math_number",
+                                                                "id": "hero-step-steps",
+                                                                "fields": {
+                                                                  "NUM": 10
+                                                                }
+                                                              }
+                                                            }
+                                                          },
+                                                          "next": {
+                                                            "block": {
+                                                              "type": "gg_bounce",
+                                                              "id": "hero-bounce"
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

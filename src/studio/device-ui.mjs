@@ -1,5 +1,5 @@
 import {validateDeviceConfig,prepareDeviceCompilation} from '../contracts/device-program.mjs';
-import {createCapabilities} from '../contracts/packs.mjs';
+import {createCapabilities, lockedPackVersions} from '../contracts/packs.mjs';
 import {sameDeviceScope,sameSimulatorDeviceScope,selectFirmwareHex} from '../contracts/device-runtime.mjs';
 import {openDeviceTransfer} from '../device-transfer/opener.mjs';
 
@@ -59,7 +59,7 @@ export function createDeviceUI({contexts,editor,source,getCapabilities,activate,
   pick('enable-device').addEventListener('click',async()=>{
     try{
       const previous=getCapabilities();const ids=[...new Set([...(previous?.locks.map(x=>x.id)??['gg.sprites']),'gg.microbit'])];
-      await activate(createCapabilities(ids,{config:previous?.config??{},versions:Object.fromEntries((previous?.locks??[]).map(x=>[x.id,x.version]))}));
+      await activate(createCapabilities(ids,{config:previous?.config??{},versions:lockedPackVersions(previous)}));
       pick('device-status').textContent='Dispositivo añadido · sin ejecutar';render();
     }catch(error){report(error);}
   });

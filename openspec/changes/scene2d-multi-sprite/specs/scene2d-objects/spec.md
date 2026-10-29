@@ -24,7 +24,7 @@ Cada objeto SHALL tener sus propios scripts. Seleccionar un objeto SHALL mostrar
 
 ### Requirement: Proyectos anteriores intactos
 
-Un proyecto con `gg.sprites@0.1.0` SHALL abrirse sin cambios. Actualizarlo a 0.2.0 SHALL producir un único sprite `hero` con el mismo estado inicial, los mismos scripts e IDs, y el mismo resultado al ejecutar.
+Un proyecto con `gg.sprites@0.1.0` o `0.2.0` SHALL abrirse sin cambios. Actualizarlo a 0.3.0 SHALL producir un único sprite `hero` con el mismo estado inicial, los mismos scripts e IDs, y el mismo resultado al ejecutar.
 
 #### Scenario: Actualizar un proyecto de la alpha
 - **WHEN** se actualizan los packs de un proyecto de la alpha 0.1.0

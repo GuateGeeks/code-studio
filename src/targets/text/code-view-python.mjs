@@ -24,6 +24,11 @@ def _cv_python_read(source, vocabulary_json):
             if len(node.args)!=1 or node.keywords: fail("shared recibe un valor inicial.",node)
             return "shared("+expr(node.args[0])+")"
         fail("Esta expresión no tiene bloque instalado.",node)
+    structures=set(vocab.get("$structures",[]))
+    def compare(test):
+        if not isinstance(test,ast.Compare) or len(test.ops)!=1 or len(test.comparators)!=1 or type(test.ops[0]) not in (ast.Eq,ast.Lt,ast.Gt):
+            fail("La comparación bloqueable usa ==, < o >.",test)
+        return expr(test.left)+" "+{ast.Eq:"==",ast.Lt:"<",ast.Gt:">"}[type(test.ops[0])]+" "+expr(test.comparators[0])
     tree=ast.parse(source,"program.py")
     variables={node.targets[0].id for node in tree.body if isinstance(node,ast.Assign) and len(node.targets)==1 and isinstance(node.targets[0],ast.Name)}
     def statement(node,depth):
@@ -32,6 +37,11 @@ def _cv_python_read(source, vocabulary_json):
         if isinstance(node,ast.Global):
             if any(name not in variables for name in node.names): fail("global solo declara variables numéricas del programa.",node)
             return
+        if isinstance(node,ast.Expr) and isinstance(node.value,ast.Call) and "waitUntil" in structures and isinstance(node.value.func,ast.Name) and node.value.func.id=="wait_until":
+            call=node.value
+            if len(call.args)!=1 or call.keywords or not isinstance(call.args[0],ast.Lambda) or call.args[0].args.args or call.args[0].args.vararg or call.args[0].args.kwarg or call.args[0].args.kwonlyargs or call.args[0].args.posonlyargs:
+                fail("Esperar hasta se escribe wait_until(lambda: a > b), con una comparación ==, < o >.",call)
+            emit("waitUntil(() => "+compare(call.args[0].body)+");",node);return
         if isinstance(node,ast.Expr) and isinstance(node.value,ast.Call):
             call=node.value;name=dotted(call.func);definition=vocab.get(name)
             if not definition or definition["kind"]!="call": fail("La llamada «"+name+"» no tiene bloque instalado en esta posición.",node)
@@ -61,6 +71,19 @@ def _cv_python_read(source, vocabulary_json):
                 emit("} else {",node)
                 for child in node.orelse: statement(child,depth+1)
             emit("}",node);return
+        if isinstance(node,ast.While) and structures&{"forever","repeatUntil"}:
+            test=node.test
+            if node.orelse: fail("El bucle while bloqueable no lleva else.",node)
+            if "forever" in structures and isinstance(test,ast.Constant) and test.value is True:
+                emit("while (true) {",node)
+            elif "repeatUntil" in structures and isinstance(test,ast.UnaryOp) and isinstance(test.op,ast.Not):
+                emit("while (!("+compare(test.operand)+")) {",node)
+            else: fail("Solo dos bucles while tienen bloque: while True: (por siempre) y while not (a > b): (repetir hasta que).",node)
+            for child in node.body: statement(child,depth+1)
+            emit("}",node);return
+        if isinstance(node,ast.Return) and "stopScript" in structures:
+            if node.value is not None: fail("Detener este programa se escribe return, sin valor.",node)
+            emit("return;",node);return
         if isinstance(node,ast.While): fail("Este bucle no tiene bloque 2D instalado; usa for i in range(cantidad) o conserva una copia independiente.",node)
         if isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef)): fail("Las funciones propias no tienen bloque 2D instalado; conserva una copia independiente.",node)
         fail("La construcción «"+type(node).__name__+"» no tiene bloque 2D instalado.",node)

@@ -1,7 +1,7 @@
 import {parse} from 'acorn';
 import {resolveCapabilities} from '../../contracts/packs.mjs';
 import {validateProgram, programLimits} from '../../contracts/program-contract.mjs';
-import {validateLanguageTables, tablesForLocks, languageAvailability} from '../../contracts/language-table.mjs';
+import {validateLanguageTables, tablesForLocks, languageAvailability, offeredCoreStructures} from '../../contracts/language-table.mjs';
 import {languageTables, coreLanguageEntries} from '../../packs/language-tables.mjs';
 import {api3Keywords} from '../../contracts/api3-names.mjs';
 
@@ -34,6 +34,7 @@ export function parseJavaScriptCodeView(source, {capabilities = null, resourceVi
   validateLanguageTables({core: coreLanguageEntries, ...tables});
   const availability = languageAvailability(tables, {lowering: 'ir'}).javascript;
   if (!availability.available) reject(availability.reason, null, 'CV_LANGUAGE_UNAVAILABLE');
+  const offered = offeredCoreStructures(packs);
   const forms = new Map();
   for (const pack of packs) for (const entry of tables[pack.id + '@' + pack.version] ?? []) {
     if (!entry.js || !['call', 'event'].includes(entry.kind) || !entry.lower.ir) continue;
@@ -128,6 +129,8 @@ export function parseJavaScriptCodeView(source, {capabilities = null, resourceVi
       if (!arg) reject('La tabla no declara el argumento ' + field + '.', call, 'CV_TABLE');
       const value = binding.type === 'expression' ? expression(arg) : binding.type === 'number' ? number(arg) : literal(arg);
       if (binding.enum && !binding.enum.includes(value)) reject('Elige uno de estos valores: ' + binding.enum.join(', ') + '.', arg);
+      if (binding.type === 'text' && (typeof value !== 'string' || value.length > 330 || /[\u0000-\u001f\u007f]/.test(value)))
+        reject('Este bloque necesita un texto entre comillas, de hasta 330 caracteres y sin saltos de línea.', arg);
       if (binding.type === 'message' && (typeof value !== 'string' || !value.trim() || value !== value.trim() || value.length > 64))
         reject('El mensaje necesita texto de 1 a 64 caracteres, sin espacios en los extremos.', arg);
       if (binding.type === 'key' && (typeof value !== 'string' || !/^(space|up arrow|down arrow|left arrow|right arrow|[a-z0-9])$/.test(value)))
@@ -138,14 +141,35 @@ export function parseJavaScriptCodeView(source, {capabilities = null, resourceVi
     }
     return result;
   }
+  const terminal = {forever: 'por siempre (while (true))', stopScript: 'return', stopAll: 'stopAll()'};
   function body(node, depth) {
     if (depth > programLimits.depth) reject('El programa supera la profundidad de bloques permitida.', node, 'CV_DEPTH_LIMIT');
-    const statements = node.type === 'BlockStatement' ? node.body : [node];
-    return statements.flatMap(item => item.type === 'EmptyStatement' ? [] : [statement(item, depth)]);
+    const statements = (node.type === 'BlockStatement' ? node.body : [node]).filter(item => item.type !== 'EmptyStatement');
+    return statements.map((item, index) => {
+      const result = statement(item, depth);
+      if (Object.hasOwn(terminal, result.kind) && index < statements.length - 1)
+        reject('Nada se ejecuta después de ' + terminal[result.kind] + ': su bloque termina la pila. Quita o mueve las instrucciones siguientes.', statements[index + 1]);
+      return result;
+    });
   }
+  // ==, < or > between numbers or program variables (logic_compare).
+  function comparison(test) {
+    const operator = {'==': 'EQ', '<': 'LT', '>': 'GT'}[test?.operator];
+    if (test?.type !== 'BinaryExpression' || !operator) reject('La comparación bloqueable usa ==, < o >.', test);
+    return {kind: 'compare', operator, sourceBlockId: identity(test), left: expression(test.left), right: expression(test.right)};
+  }
+  const structureMissing = (node, what) => reject(what + ' no tiene bloque 2D instalado en este proyecto; actualiza sus packs o conserva una copia independiente.', node);
   function statement(node, depth) {
     if (node.type === 'ExpressionStatement') {
       const exp = node.expression;
+      if (exp.type === 'CallExpression' && calleeName(exp.callee) === 'waitUntil' && !forms.has('waitUntil')) {
+        if (!offered.has('waitUntil')) structureMissing(exp, '«waitUntil» (esperar hasta)');
+        const condition = exp.arguments[0];
+        if (exp.arguments.length !== 1 || condition.type !== 'ArrowFunctionExpression' || condition.params.length || condition.async || condition.body.type === 'BlockStatement')
+          reject('Esperar hasta se escribe waitUntil(() => a > b), con una comparación ==, < o >.', exp);
+        const sourceBlockId = identity(node);
+        return {kind: 'waitUntil', sourceBlockId, condition: comparison(condition.body)};
+      }
       if (exp.type === 'CallExpression') return lower(exp, 'call', node);
       if (['AssignmentExpression', 'UpdateExpression'].includes(exp.type)) {
         const target = exp.left ?? exp.argument, model = target?.type === 'Identifier' && variables.get(target.name);
@@ -180,8 +204,25 @@ export function parseJavaScriptCodeView(source, {capabilities = null, resourceVi
       return {kind: 'if', sourceBlockId, condition, body: body(node.consequent, depth + 1),
         elseBody: node.alternate ? body(node.alternate, depth + 1) : []};
     }
+    // E1: while (true) is «por siempre»; while (!(a > b)) is «repetir hasta».
+    if (node.type === 'WhileStatement' && (offered.has('forever') || offered.has('repeatUntil'))) {
+      const test = node.test;
+      if (test.type === 'Literal' && test.value === true && offered.has('forever')) {
+        const sourceBlockId = identity(node);
+        return {kind: 'forever', sourceBlockId, body: body(node.body, depth + 1)};
+      }
+      if (test.type === 'UnaryExpression' && test.operator === '!' && test.argument.type === 'BinaryExpression' && offered.has('repeatUntil')) {
+        const sourceBlockId = identity(node), condition = comparison(test.argument);
+        return {kind: 'repeatUntil', sourceBlockId, condition, body: body(node.body, depth + 1)};
+      }
+      reject('Solo dos bucles while tienen bloque: while (true) { … } (por siempre) y while (!(a > b)) { … } (repetir hasta que).', node);
+    }
+    if (node.type === 'ReturnStatement' && offered.has('stopScript')) {
+      if (node.argument) reject('Detener este programa se escribe return; sin valor.', node.argument);
+      return {kind: 'stopScript', sourceBlockId: identity(node)};
+    }
     if (['WhileStatement', 'DoWhileStatement', 'ForOfStatement', 'ForInStatement'].includes(node.type))
-      reject('Este bucle no tiene bloque 2D instalado; usa la repetición for del programa o conserva una copia independiente.', node);
+      reject('Este bucle no tiene bloque 2D instalado; usa la repetición for del programa' + (offered.has('forever') ? ', while (true) o while (!(a > b))' : '') + ' o conserva una copia independiente.', node);
     if (node.type === 'FunctionDeclaration') reject('Las funciones propias no tienen bloque 2D instalado; conserva este texto como copia independiente.', node);
     reject('La construcción «' + node.type + '» no tiene bloque 2D instalado.', node);
   }
@@ -234,5 +275,7 @@ export function pythonCodeViewVocabulary({capabilities=null,catalog}={}) {
     const owner=entry.target==='sprite'?'hero.':'';
     result[owner+entry.python]={js:owner+entry.js,kind:entry.kind,option:Boolean(entry.option)};
   }
+  // E1 core structures offered by the active packs (while True, while not, wait_until, return).
+  result['$structures']=[...offeredCoreStructures(packs)].sort();
   return result;
 }

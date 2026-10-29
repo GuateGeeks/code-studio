@@ -116,3 +116,15 @@ export function languageCoverage(catalog, {tables, core = []}) {
   }
   return {missing, orphan, core: core.map(entry => entry.block)};
 }
+
+// Core control structures that a context offers only when an active pack lists
+// their block in its toolbox (scene2d-vocabulary-v2 E1). Blocks, parser and
+// translators share this gate, so gg.sprites@0.1.0 projects keep exactly
+// their previous vocabulary. Existing core structures (repeat, if) are always on.
+export const gatedCoreStructures = Object.freeze({gg_forever: 'forever', gg_repeat_until: 'repeatUntil', gg_wait_until: 'waitUntil', gg_stop_script: 'stopScript'});
+export function offeredCoreStructures(packs, {context = 'scratch-2d'} = {}) {
+  const types = new Set();
+  const visit = items => { for (const item of items ?? []) { if (item?.kind === 'block' && typeof item.type === 'string') types.add(item.type); if (Array.isArray(item?.contents)) visit(item.contents); } };
+  for (const pack of packs ?? []) if ((pack.manifest.context ?? 'scratch-2d') === context) visit(pack.manifest.contributions?.toolbox);
+  return new Set(Object.entries(gatedCoreStructures).filter(([block]) => types.has(block)).map(([, kind]) => kind));
+}
