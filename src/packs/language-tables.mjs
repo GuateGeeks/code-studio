@@ -26,6 +26,35 @@ const sprite2D = [
   {block: 'gg_set_costume', kind: 'call', target: 'sprite', js: 'setCostume', python: 'set_costume', ctx: 'setCostume', args: ['COSTUME'], lower: {ir: 'setCostume'}},
   {block: 'gg_set_global', kind: 'assign', args: ['VAR', 'VALUE'], lower: {ir: 'setVariable'}}
 ];
+// gg.sprites@0.2.0 (scene2d-vocabulary-v2, tanda E1): the 0.1.0 entries plus
+// single-sprite motion and looks. The 0.2.0 manifest (apiVersion 2) carries
+// this same frozen table as its `language`.
+const sprite = (block, js, python, args, ir, extra = {}) => ({block, kind: 'call', target: 'sprite', js, python, ctx: js, args, lower: {ir}, ...extra});
+const sprite2DV2 = [
+  ...sprite2D,
+  sprite('gg_turn_right', 'turnRight', 'turn_right', ['DEGREES'], 'turnRight'),
+  sprite('gg_turn_left', 'turnLeft', 'turn_left', ['DEGREES'], 'turnLeft'),
+  sprite('gg_point_direction', 'pointInDirection', 'point_in_direction', ['DIRECTION'], 'pointDirection'),
+  sprite('gg_go_to', 'goTo', 'go_to', ['X', 'Y'], 'goTo'),
+  sprite('gg_glide', 'glide', 'glide', ['SECONDS', 'X', 'Y'], 'glide'),
+  sprite('gg_change_x', 'changeX', 'change_x', ['DX'], 'changeX'),
+  sprite('gg_set_x', 'setX', 'set_x', ['X'], 'setX'),
+  sprite('gg_change_y', 'changeY', 'change_y', ['DY'], 'changeY'),
+  sprite('gg_set_y', 'setY', 'set_y', ['Y'], 'setY'),
+  sprite('gg_bounce', 'bounceOnEdge', 'bounce_on_edge', [], 'bounce'),
+  sprite('gg_say_for', 'sayFor', 'say_for', ['MESSAGE', 'SECONDS'], 'sayFor'),
+  sprite('gg_say', 'say', 'say', ['MESSAGE'], 'say'),
+  sprite('gg_think_for', 'thinkFor', 'think_for', ['MESSAGE', 'SECONDS'], 'thinkFor'),
+  sprite('gg_think', 'think', 'think', ['MESSAGE'], 'think'),
+  sprite('gg_next_costume', 'nextCostume', 'next_costume', [], 'nextCostume'),
+  sprite('gg_change_size', 'changeSize', 'change_size', ['DELTA'], 'changeSize'),
+  sprite('gg_set_size', 'setSize', 'set_size', ['SIZE'], 'setSize'),
+  sprite('gg_show', 'show', 'show', [], 'show'),
+  sprite('gg_hide', 'hide', 'hide', [], 'hide'),
+  // Ends every script (Scratch «detener todo»); text returns after the call.
+  {block: 'gg_stop_all', kind: 'call', js: 'stopAll', python: 'stop_all', ctx: 'stopAll', args: [], stops: true, lower: {ir: 'stopAll'}}
+].map(entry => Object.freeze(entry));
+export const spriteLanguage02 = Object.freeze(sprite2DV2);
 // gg.assets offers resource-backed versions of the same actions. When both
 // packs are active the assets block is the one text maps back to.
 const assets2D = [
@@ -61,11 +90,19 @@ export const coreLanguageEntries = Object.freeze([
   {block: 'math_number', kind: 'value', args: [], lower: {ir: 'number'}},
   {block: 'math_change', kind: 'change', args: ['VAR', 'DELTA'], lower: {ir: 'changeVariable'}},
   {block: 'variables_get', kind: 'read', args: ['VAR'], lower: {ir: 'variable'}},
-  {block: 'variables_set', kind: 'assign', args: ['VAR', 'VALUE'], lower: {ir: 'setVariable'}}
+  {block: 'variables_set', kind: 'assign', args: ['VAR', 'VALUE'], lower: {ir: 'setVariable'}},
+  // E1 control structures (core syntax). A context offers them only when an
+  // active pack lists them in its toolbox (gg.sprites@0.2.0); see
+  // offeredCoreStructures. Text: while (true), while (!(c)), waitUntil(() => c), return.
+  {block: 'gg_forever', kind: 'control', args: [], lower: {ir: 'forever'}},
+  {block: 'gg_repeat_until', kind: 'control', args: ['CONDITION'], lower: {ir: 'repeatUntil'}},
+  {block: 'gg_wait_until', kind: 'control', js: 'waitUntil', python: 'wait_until', args: ['CONDITION'], lower: {ir: 'waitUntil'}},
+  {block: 'gg_stop_script', kind: 'control', args: [], lower: {ir: 'stopScript'}}
 ].map(entry => Object.freeze(entry)));
 
 export const languageTables = Object.freeze({
   'gg.sprites@0.1.0': Object.freeze(sprite2D),
+  'gg.sprites@0.2.0': spriteLanguage02,
   'gg.assets@0.1.0': Object.freeze(assets2D),
   'gg.assets@0.2.0': Object.freeze(assets2D),
   'gg.score@0.1.0': Object.freeze(score2D),
@@ -79,7 +116,7 @@ export const languageTables = Object.freeze({
 // the sprite and assets tables (one source of truth).
 export function scene2DVocabularyFromTables(tables = languageTables) {
   const statements = {}, events = {};
-  for (const entry of [...tables['gg.sprites@0.1.0'], ...tables['gg.assets@0.2.0']]) {
+  for (const entry of [...tables['gg.sprites@0.2.0'], ...tables['gg.assets@0.2.0']]) {
     const key = (entry.target === 'sprite' ? 'hero.' : '') + entry.js;
     const python = (entry.target === 'sprite' ? 'hero.' : '') + entry.python;
     if (entry.kind === 'call' && !statements[key]) statements[key] = {python, ctx: entry.ctx, arity: entry.args.length, ...(entry.append !== undefined ? {append: entry.append} : {}), ...(entry.stops ? {stops: true} : {})};

@@ -4,6 +4,9 @@ import 'blockly/blocks';
 import {createContributions, registerContributions} from './contributions.mjs';
 import {authorizeProgram} from '../contracts/pack-broker.mjs';
 import {getWorkspaceResourceView,setWorkspaceResourceView} from './resource-menus.mjs';
+import {registerCoreBlocks} from './core-blocks.mjs';
+import {offeredCoreStructures} from '../contracts/language-table.mjs';
+registerCoreBlocks(Blockly);
 registerContributions(Blockly, createContributions());
 
 function blockError(message, block) {
@@ -55,6 +58,8 @@ export function workspaceToIR(workspace, {capabilities = null, resourceView = ge
           value = value.toLowerCase();
           if (!/^(space|up arrow|down arrow|left arrow|right arrow|[a-z0-9])$/.test(value)) throw blockError('Invalid key at ' + block.id, block);
         }
+        if (source.type === 'text' && (typeof value !== 'string' || value.length > 330 || /[\u0000-\u001f\u007f]/.test(value)))
+          throw blockError('Texto no válido (hasta 330 caracteres, sin saltos de línea) en ' + block.id, block);
       } else throw blockError('Unsupported declarative lowering at ' + block.id, block);
       if (source.resource && !(resourceView?.[source.resource] ?? []).some(item => item.id === value && item.ownerId === source.ownerId)) throw blockError('Recurso no disponible en este objeto: ' + value,block);
       if (source.enum && !source.enum.includes(value)) throw blockError('Unsupported local ' + key + ' ' + value + ' at ' + block.id, block);
@@ -84,10 +89,19 @@ export function workspaceToIR(workspace, {capabilities = null, resourceView = ge
     if (!['EQ', 'LT', 'GT'].includes(operator)) throw blockError(`Unsupported comparison ${operator} at ${block.id}`, block);
     return {kind: 'compare', operator, left: expression(block.getInputTargetBlock('A')), right: expression(block.getInputTargetBlock('B')), sourceBlockId: block.id};
   }
+  // E1 core structures exist only where an active pack offers them.
+  const offered = offeredCoreStructures(contributions.plan.packs);
+  const conditionOf = block => { const target = block.getInputTargetBlock('CONDITION'); if (!target) throw blockError('Falta la condición en ' + block.id, block); return condition(target); };
+  const structure = block => { const kind = {gg_forever: 'forever', gg_repeat_until: 'repeatUntil', gg_wait_until: 'waitUntil', gg_stop_script: 'stopScript'}[block.type]; if (kind && !offered.has(kind)) unsupported(block); return kind; };
   function statements(first) {
     const nodes = [];
     for (let block = first; block; block = block.getNextBlock()) {
-      if (block.type === 'controls_repeat_ext') {
+      const core = structure(block);
+      if (core === 'forever') nodes.push({kind: 'forever', body: statements(block.getInputTargetBlock('DO')), sourceBlockId: block.id});
+      else if (core === 'repeatUntil') nodes.push({kind: 'repeatUntil', condition: conditionOf(block), body: statements(block.getInputTargetBlock('DO')), sourceBlockId: block.id});
+      else if (core === 'waitUntil') nodes.push({kind: 'waitUntil', condition: conditionOf(block), sourceBlockId: block.id});
+      else if (core === 'stopScript') nodes.push({kind: 'stopScript', sourceBlockId: block.id});
+      else if (block.type === 'controls_repeat_ext') {
         const count = numericInput(block, 'TIMES');
         if (!Number.isInteger(count) || count < 0) throw blockError(`Invalid repeat count at ${block.id}`, block);
         nodes.push({kind: 'repeat', count, body: statements(block.getInputTargetBlock('DO')), sourceBlockId: block.id});

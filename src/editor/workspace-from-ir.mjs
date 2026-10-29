@@ -150,6 +150,14 @@ export function workspaceFromIR(input, {capabilities = null, resourceView = null
       if (no) inputs.ELSE = attach(no);
       return {type: 'controls_if', id: node.sourceBlockId, extraState: {hasElse: true}, inputs};
     }
+    // E1 core structures; the final workspaceToIR check rejects them where no pack offers them.
+    if (node.kind === 'forever' || node.kind === 'repeatUntil') {
+      const inputs = node.kind === 'repeatUntil' ? {CONDITION: expression(node.condition, node.sourceBlockId, 'CONDITION')} : {}, body = stack(node.body);
+      if (body) inputs.DO = attach(body);
+      return {type: node.kind === 'forever' ? 'gg_forever' : 'gg_repeat_until', id: node.sourceBlockId, ...(Object.keys(inputs).length ? {inputs} : {})};
+    }
+    if (node.kind === 'waitUntil') return {type: 'gg_wait_until', id: node.sourceBlockId, inputs: {CONDITION: expression(node.condition, node.sourceBlockId, 'CONDITION')}};
+    if (node.kind === 'stopScript') return {type: 'gg_stop_script', id: node.sourceBlockId};
     const local = contributed(node, 'statements');
     if (local) return local.block;
     if (['setVariable', 'changeVariable'].includes(node.kind)) {

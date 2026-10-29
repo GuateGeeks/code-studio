@@ -1,8 +1,9 @@
 import {validateProgram, programLimits} from './contracts/program-contract.mjs';
+import {scene2DNumericSlots} from './packs/scene2d-forms.mjs';
 
 // Studio-owned correspondence over validated data, with no parser or editor
 // internals. Candidate IDs are temporary and never trusted as prior identity.
-const childKeys = ['body', 'elseBody', 'condition', 'left', 'right', 'steps', 'value'];
+const childKeys = ['body', 'elseBody', 'condition', 'left', 'right', 'steps', 'value', 'degrees', 'direction', 'x', 'y', 'dx', 'dy', 'size', 'delta'];
 const canonical = value => Array.isArray(value) ? value.map(canonical) : value && typeof value === 'object'
   ? Object.fromEntries(Object.keys(value).filter(key => key !== 'sourceBlockId').sort().map(key => [key, canonical(value[key])])) : value;
 const signature = node => JSON.stringify(canonical(node));
@@ -16,10 +17,11 @@ function nodes(root) {
   }
   visit(root); return out;
 }
+// Core slots, then the E1 sprite slots derived from the installed rules.
 const numericSlots = node => ({
   move: {STEPS: node.steps}, wait: {SECONDS: node.seconds}, repeat: {TIMES: node.count},
   compare: {A: node.left, B: node.right}, setVariable: {VALUE: node.value}, changeVariable: {DELTA: node.value}
-}[node.kind] ?? {});
+}[node.kind] ?? Object.fromEntries(Object.entries(scene2DNumericSlots[node.kind] ?? {}).map(([input, field]) => [input, node[field]])));
 
 // Ordered tree edit distance: exact subtrees cost 0; a same-type edit costs 3;
 // insertion/deletion costs 2. This prefers an exact anchor over two same-type

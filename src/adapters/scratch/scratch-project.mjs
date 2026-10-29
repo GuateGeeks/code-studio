@@ -1,4 +1,15 @@
 import {validateProgram} from '../../contracts/program-contract.mjs';
+import {isScene2DLoweringOpcode} from '../../contracts/scene2d-opcodes.mjs';
+
+// E1 vocabulary: IR kind → reviewed opcode and its numeric/variable inputs.
+const simple = Object.freeze({
+  turnRight: ['motion_turnright', {DEGREES: 'degrees'}], turnLeft: ['motion_turnleft', {DEGREES: 'degrees'}],
+  pointDirection: ['motion_pointindirection', {DIRECTION: 'direction'}], goTo: ['motion_gotoxy', {X: 'x', Y: 'y'}],
+  changeX: ['motion_changexby', {DX: 'dx'}], setX: ['motion_setx', {X: 'x'}], changeY: ['motion_changeyby', {DY: 'dy'}], setY: ['motion_sety', {Y: 'y'}],
+  bounce: ['motion_ifonedgebounce', {}], show: ['looks_show', {}], hide: ['looks_hide', {}], nextCostume: ['looks_nextcostume', {}],
+  setSize: ['looks_setsizeto', {SIZE: 'size'}], changeSize: ['looks_changesizeby', {CHANGE: 'delta'}]
+});
+const speech = Object.freeze({say: 'looks_say', think: 'looks_think', sayFor: 'looks_sayforsecs', thinkFor: 'looks_thinkforsecs'});
 
 export function toScratchProject(ir, options = {}) {
   validateProgram(ir, options);
@@ -98,6 +109,37 @@ export function toScratchProject(ir, options = {}) {
       } else if (node.kind === 'stopSounds') {
         block.opcode = 'sound_stopallsounds';
         reserve(id, block);
+      } else if (Object.hasOwn(simple, node.kind)) {
+        const [opcode, inputs] = simple[node.kind];
+        block.opcode = opcode;
+        for (const [input, field] of Object.entries(inputs)) block.inputs[input] = valueInput(node[field], id);
+        reserve(id, block);
+      } else if (node.kind === 'glide') {
+        block.opcode = 'motion_glidesecstoxy';
+        block.inputs.SECS = [1, [4, String(node.seconds)]];
+        block.inputs.X = valueInput(node.x, id);
+        block.inputs.Y = valueInput(node.y, id);
+        reserve(id, block);
+      } else if (Object.hasOwn(speech, node.kind)) {
+        block.opcode = speech[node.kind];
+        block.inputs.MESSAGE = [1, [10, node.message]];
+        if (node.kind.endsWith('For')) block.inputs.SECS = [1, [4, String(node.seconds)]];
+        reserve(id, block);
+      } else if (node.kind === 'stopAll' || node.kind === 'stopScript') {
+        block.opcode = 'control_stop';
+        block.fields.STOP_OPTION = [node.kind === 'stopAll' ? 'all' : 'this script', null];
+        block.mutation = {tagName: 'mutation', children: [], hasnext: 'false'};
+        reserve(id, block);
+      } else if (node.kind === 'forever' || node.kind === 'repeatUntil') {
+        block.opcode = node.kind === 'forever' ? 'control_forever' : 'control_repeat_until';
+        if (node.kind === 'repeatUntil') block.inputs.CONDITION = valueInput(node.condition, id);
+        reserve(id, block);
+        const substack = stack(node.body, id);
+        if (substack) block.inputs.SUBSTACK = [2, substack];
+      } else if (node.kind === 'waitUntil') {
+        block.opcode = 'control_wait_until';
+        block.inputs.CONDITION = valueInput(node.condition, id);
+        reserve(id, block);
       } else throw new Error(`Unsupported IR node: ${node.kind}`);
       if (previous) blocks[previous].next = id;
       first ??= id;
@@ -113,6 +155,7 @@ export function toScratchProject(ir, options = {}) {
     reserve(id, {opcode, next: null, parent: null, inputs: {}, fields, shadow: false, topLevel: true, x: 20, y: 20});
     blocks[id].next = stack(script.body, id);
   }
+  for (const [id, block] of Object.entries(blocks)) if (!isScene2DLoweringOpcode(block.opcode)) throw new Error(`Unreviewed opcode ${block.opcode} at ${id}`);
   // The headless fixture has no renderer; SB3 still requires a costume descriptor.
   const costume = {assetId: 'cd21514d0531fdffb22204e0ec5ed84a', name: 'blank', md5ext: 'cd21514d0531fdffb22204e0ec5ed84a.svg', dataFormat: 'svg', rotationCenterX: 0, rotationCenterY: 0};
   const common = {variables: {}, lists: {}, broadcasts: {}, comments: {}, currentCostume: 0, costumes: [costume], sounds: [], volume: 100};

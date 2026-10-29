@@ -23,7 +23,9 @@ test('LANG-002: the API v3 2D vocabulary is derived from the tables, not written
   const derived = scene2DVocabularyFromTables();
   assert.deepEqual(scene2DApi3.statements, derived.statements);
   assert.deepEqual(scene2DApi3.events, derived.events);
-  assert.deepEqual(Object.keys(derived.statements).sort(), ['broadcastAndWait', 'createClone', 'deleteClone', 'hero.move', 'hero.setCostume', 'playSound', 'playSoundUntilDone', 'stopSounds', 'wait']);
+  // gg.sprites@0.2.0 (E1) adds its single-sprite vocabulary and stopAll to the 0.1.0 forms.
+  assert.deepEqual(Object.keys(derived.statements).sort(), ['broadcastAndWait', 'createClone', 'deleteClone', 'hero.bounceOnEdge', 'hero.changeSize', 'hero.changeX', 'hero.changeY', 'hero.glide', 'hero.goTo', 'hero.hide', 'hero.move', 'hero.nextCostume', 'hero.pointInDirection', 'hero.say', 'hero.sayFor', 'hero.setCostume', 'hero.setSize', 'hero.setX', 'hero.setY', 'hero.show', 'hero.think', 'hero.thinkFor', 'hero.turnLeft', 'hero.turnRight', 'playSound', 'playSoundUntilDone', 'stopAll', 'stopSounds', 'wait']);
+  for (const name of ['broadcastAndWait', 'createClone', 'deleteClone', 'hero.move', 'hero.setCostume', 'playSound', 'playSoundUntilDone', 'stopSounds', 'wait']) assert.ok(scene2DVocabularyFromTables({...languageTables, 'gg.sprites@0.2.0': languageTables['gg.sprites@0.1.0']}).statements[name], name);
 });
 
 test('LANG-003: blockable rules reject ambiguous, reserved or inconsistent entries', () => {
@@ -53,9 +55,10 @@ test('LANG-005: an apiVersion 2 manifest is accepted only with a valid language 
   const sprites = localPackCatalog.find(item => item.manifest.id === 'gg.sprites');
   const next = structuredClone(sprites); next.manifest.apiVersion = 2; next.manifest.language = structuredClone(languageTables['gg.sprites@0.1.0']);
   const catalog = localPackCatalog.filter(item => item !== sprites).concat(next);
-  assert.equal(createCapabilities(['gg.sprites'], {catalog}).locks[0].id, 'gg.sprites');
+  // The synthetic manifest replaces 0.1.0; pin it, since 0.2.0 is the latest.
+  assert.equal(createCapabilities(['gg.sprites'], {catalog, versions: {'gg.sprites': '0.1.0'}}).locks[0].id, 'gg.sprites');
   next.manifest.language = [...next.manifest.language, {...next.manifest.language.find(entry => entry.block === 'gg_move'), block: 'gg_move_again'}];
-  assert.throws(() => createCapabilities(['gg.sprites'], {catalog}), /misma forma/);
+  assert.throws(() => createCapabilities(['gg.sprites'], {catalog, versions: {'gg.sprites': '0.1.0'}}), /misma forma/);
 });
 
 test('LANG-006: each context offers only the languages its active packs declare and names the pack that blocks one', () => {
