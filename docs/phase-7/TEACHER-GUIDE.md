@@ -88,7 +88,29 @@ archivos anteriores siguen legibles. Texto 2D conserva las copias anteriores;
 los documentos nuevos usan API3 con eventos y acciones legibles, sin empezar
 por GG/await. La consulta Código sigue siendo una lectura derivada.
 
-Micro:bit y 3D/web conservan sus documentos independientes. La revisión 1 de
-la actividad De bloques a tu propio código sigue disponible; la revisión 2
-basada en editar y volver aún está pendiente. No interpretar este corte como
-validación con estudiantes ni como cierre de todo synced-code-views.
+Micro:bit y 3D/web conservan sus documentos independientes; sus vistas
+sincronizadas quedan para después del piloto 2D (decisión del 29/10/2026).
+No interpretar este corte como validación con estudiantes.
+
+## «De bloques a tu propio código», revisión 2 (29/10/2026)
+
+La actividad pide abrir JavaScript o Python sobre el mismo programa, cambiar
+solo el número del movimiento para llegar a x=18, ejecutar y volver a Bloques
+para encontrar el 6 dentro de la repetición. El reto variante llega a x=24
+cambiando repeticiones o pasos desde el texto. Pedir la predicción antes de
+abrir el texto y la explicación al volver.
+
+Comprobar verifica condiciones del programa: que hubo un cambio aplicado desde
+el texto, la posición y el valor del bloque Mover. No verifica la explicación.
+La revisión 1, basada en una copia independiente, sigue en la lista como
+«revisión anterior 1» y conserva su progreso. Al abrir la revisión 2 en el mismo
+proyecto se informa ese progreso sin mezclarlo.
+
+## Instalación del piloto: solo Escena 2D y Texto
+
+En cada equipo, quien instala arranca el estudio con `npm run serve:pilot`.
+El selector «Qué programas» muestra entonces solo Escena 2D y Texto 2D. Si un
+proyecto traído de otra instalación incluye micro:bit, Scratch, 3D o web, un
+aviso lo indica: esos datos no se muestran aquí, pero se conservan al guardar
+y descargar. El estudiante no puede cambiar esta configuración desde la
+interfaz.

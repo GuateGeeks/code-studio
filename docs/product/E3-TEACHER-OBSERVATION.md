@@ -51,5 +51,8 @@ y usar Deshacer. Repetir con teclado y con la ampliación habitual de la persona
 Registrar palabras de la persona, ayudas requeridas, tiempo de preparación de
 Python, comprensión del aviso de formato y recuperación del texto pendiente
 al abrir el archivo en otro perfil. Un check de programa no demuestra esa
-comprensión. La actividad automatizada revisión 2 todavía no está publicada;
-el guion no se presenta como evidencia de su implementación.
+comprensión. Desde el 29/10/2026 la revisión 2 automatizada de «De bloques
+a tu propio código» sirve como recorrido sincronizado y la revisión anterior 1
+como recorrido de copia. Usar la instalación del piloto (solo 2D y Texto).
+La publicación de la actividad no es evidencia de comprensión; este guion
+sigue sin realizarse.
