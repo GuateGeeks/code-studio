@@ -28,15 +28,19 @@ Cada medio de la biblioteca MUST superar los contratos de medios instalados (SVG
 - **THEN** la acción falla con un mensaje en español y la autoría, los recursos y la ejecución anteriores no cambian
 
 ### Requirement: GG-LIB-004 Available without network
-El paquete de la biblioteca MUST publicarse en el origen del estudio y formar parte de la cohorte de preparación sin red. Una vez cargado en la página, añadir desde la biblioteca MUST NOT requerir red.
+El paquete de la biblioteca MUST publicarse en el origen del estudio y formar parte de la cohorte de preparación sin red. En un equipo preparado, abrir la biblioteca y añadir desde ella MUST NOT requerir red. El arranque del estudio MUST NOT descargar la biblioteca.
 
 #### Scenario: Offline cohort inventory
 - **WHEN** se crea la instantánea de release
 - **THEN** el manifiesto del rol del estudio incluye el paquete de la biblioteca con su hash, dentro del paquete offline del estudio
 
 #### Scenario: Add while disconnected
-- **WHEN** la biblioteca ya está cargada y se pierde la red
-- **THEN** añadir un disfraz, un sonido o un fondo sigue funcionando y el proyecto se guarda y se descarga
+- **WHEN** el equipo se preparó para usarse sin red y se abre el estudio con la red cortada
+- **THEN** la biblioteca se abre desde la cohorte preparada, añadir un disfraz, un sonido o un fondo funciona y el proyecto se guarda y se descarga
+
+#### Scenario: Startup does not fetch the library
+- **WHEN** se abre el estudio sin abrir la sección Biblioteca
+- **THEN** no se solicita el paquete de la biblioteca
 
 ### Requirement: GG-LIB-005 Add costumes and sounds to the current sprite
 Añadir un disfraz o un sonido MUST copiar el medio al proyecto como recurso del objeto `hero`, con nombre en español, sin ejecutar el programa. El recurso MUST aparecer en los menús de recursos de bloques. Añadir dos veces la misma entrada MUST NOT duplicarla.
