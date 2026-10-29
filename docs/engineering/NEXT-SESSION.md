@@ -1,5 +1,7 @@
 # Estado y continuación
 
+**Pistas paralelas en curso, 29/10/2026 (tarde):** tres agentes trabajan en worktrees hermanos, cada uno en su rama y sus puertos: `../gcs-e1-vocabulary` (`stab/e1-vocabulary`, E1 vocabulario 2D, puertos 5400–5409), `../gcs-e4-resources` (`stab/e4-resources`, E4 biblioteca de recursos, 5500–5509) y `../gcs-startup-hang` (`stab/startup-hang`, causa del arranque bloqueado intermitente, 5600–5609). No escribir en esos worktrees. El coordinador integra las ramas en `main` y ejecuta una puerta full conjunta, que también cierra la puerta pendiente de E0 ([acta](STABILIZATION-E0-RESULTS.md)).
+
 **Cambio de rumbo, 29/10/2026:** el usuario priorizó la estabilización 2D para entregar valor en un piloto en aula. Rige el [plan de estabilización 2D](../product/STABILIZATION-PLAN-2D.md): E0 cierra `synced-code-views` con 2D (4.2/4.3 trasladadas a `synced-code-views-capability-contexts`), revisión 2 de la actividad, modo piloto 2D, full global y commit. Despliegue local; commits locales autorizados y sin push. El orden de continuación del relevo de abajo queda sustituido en lo que contradiga este plan.
 
 **Relevo documental, 29/10/2026:** empezar por [estado consolidado](../product/CURRENT-STATUS.md) y [prompt de continuación](AGENT-HANDOFF-PROMPT.md). HEAD comprobado `c1b8901`; conservar el trabajo sin commit. Siguiente: 4.2 micro:bit de `synced-code-views`, después 4.3 y 5.1–5.3; full global pendiente. Este relevo no cambia código ni marca tareas. Las entradas inferiores son cronológicas y pueden describir asuntos resueltos posteriormente.
