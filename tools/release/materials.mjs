@@ -56,7 +56,15 @@ async function sbom(options,runtimeComponents){
   packages.push({group,name:pkg.name??path,version:pkg.version??'unknown',license:pkg.license??'NOASSERTION',installationPath:path,resolved:locked?.resolved??null,integrity:locked?.integrity??null});
  }
  packages.sort((a,b)=>(a.group+'/'+a.installationPath).localeCompare(b.group+'/'+b.installationPath,'en'));
- return {schemaVersion:1,scope:'Conservative installed dependency universe; includes development and build tools. Not an exact browser runtime inventory.',runtimeComponents,packages};
+ return {schemaVersion:1,scope:'Conservative installed dependency universe; includes development and build tools. Not an exact browser runtime inventory.',runtimeComponents,packages,ownedContent:await ownedContent(options)};
+}
+// Project-owned media distributed with the Studio. The lock is the reviewed
+// inventory; the bundle itself is generated from tools/resources at build time.
+async function ownedContent(options){
+ let lock;try{lock=JSON.parse(await readFile(resolve(options.projectRoot,'tools/resources/starter-library.lock.json'),'utf8'));}catch(error){if(error.code==='ENOENT')return [];throw error;}
+ if(lock.format!=='gg-starter-library-lock'||lock.license!=='CC0-1.0')throw new Error('Starter library lock not recognized');
+ return [{name:'gg-starter-library',version:lock.version,license:lock.license,attribution:lock.attribution,generator:'tools/resources/starter-library.mjs',
+  lock:'tools/resources/starter-library.lock.json',bundle:{path:'shell/starter-library.json',bytes:lock.bundle.bytes,sha256:lock.bundle.sha256},counts:lock.counts}];
 }
 function mapSources(item,bytes){
  const map=JSON.parse(Buffer.from(bytes).toString('utf8')),result=[];

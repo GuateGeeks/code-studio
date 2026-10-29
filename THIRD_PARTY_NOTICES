@@ -32,6 +32,11 @@ no una afirmación de reconstrucción C++ desde cero. Las marcas Scratch,
 micro:bit, Microsoft, Raspberry Pi y Babylon.js pertenecen a sus titulares.
 Los veinte fixtures SB3 propios declaran CC0-1.0 en su manifest.json; otros
 recursos propios se documentan por separado, sin atribuirles licencias ajenas.
+La biblioteca inicial del estudio (20 disfraces, 8 fondos y 10 sonidos) es obra
+original del proyecto, generada por tools/resources/starter-library.mjs, y se
+declara CC0-1.0 (https://creativecommons.org/publicdomain/zero/1.0/) en su
+índice y en tools/resources/starter-library.lock.json. No contiene medios de
+Scratch, MakeCode ni Code.org. SBOM.json la lista en ownedContent.
 
 Fuentes externas fijadas de los motores WASM (no se incluye aquí su código C
 completo y no se afirma reconstrucción WASM desde cero):

@@ -113,6 +113,21 @@ const fixtures = await run('fixtures', {
   }
 });
 
+// Starter library: original media generated from code, verified against its
+// versioned lock, published once in the Studio origin (offline studio-core pack).
+const starterLibraryGenerator = resolve(projectRoot, 'tools/resources/starter-library.mjs');
+const starterLibrary = await run('starter-library', {
+  inputs: [...localModuleInputs([starterLibraryGenerator]), resolve(projectRoot, 'tools/resources/starter-library.lock.json')],
+  execute: async () => {
+    const {buildStarterLibrary, starterLibraryLock, readStarterLibraryLock} = await import('../resources/starter-library.mjs');
+    const built = buildStarterLibrary();
+    if (JSON.stringify(starterLibraryLock(built)) !== JSON.stringify(readStarterLibraryLock())) throw new Error('Starter library does not match tools/resources/starter-library.lock.json');
+    const file = resolve(shell, 'starter-library.json');
+    writeChanged(file, built.bytes);
+    return {outputs: [file], metadata: {bytes: built.bytes.length, sha256: built.sha256, entries: built.bundle.entries.length}};
+  }
+});
+
 const core = resolve(microbitRoot, 'node_modules/pxt-core');
 const pxtCopies = [
   [resolve(core, 'built/web/pxtsim.js'), resolve(simulator, 'vendor/pxtsim.js')],
@@ -192,7 +207,7 @@ const manifestPath = resolve(output, 'build-manifest.json');
 let previousManifest;
 try { previousManifest = JSON.parse(readFileSync(manifestPath, 'utf8')); } catch {}
 const anyBuilt = cache.reports.some(stage => stage.status === 'built');
-writeChanged(manifestPath, JSON.stringify({builtAt: anyBuilt || !previousManifest?.builtAt ? new Date().toISOString() : previousManifest.builtAt, files, audioFixture: fixtures.metadata.audioFixture}, null, 2));
+writeChanged(manifestPath, JSON.stringify({builtAt: anyBuilt || !previousManifest?.builtAt ? new Date().toISOString() : previousManifest.builtAt, files, audioFixture: fixtures.metadata.audioFixture, starterLibrary: starterLibrary.metadata}, null, 2));
 const report = {recordedAt: new Date().toISOString(), forced: cache.force, totalMs: performance.now() - startedAt, stages: cache.reports};
 writeChanged(resolve(output, 'build-report.json'), JSON.stringify(report, null, 2) + '\n');
 for (const stage of report.stages) console.log(`${stage.name}: ${stage.status} (${stage.reason})`);

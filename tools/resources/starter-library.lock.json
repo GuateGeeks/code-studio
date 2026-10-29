@@ -1,0 +1,322 @@
+{
+  "format": "gg-starter-library-lock",
+  "schemaVersion": 1,
+  "version": "1.0.0",
+  "license": "CC0-1.0",
+  "attribution": "Biblioteca inicial de GuateGeeks Code Studio. Obra original del proyecto, generada por tools/resources/starter-library.mjs.",
+  "bundle": {
+    "bytes": 389287,
+    "sha256": "d59b51f3a027fb6b663fb582237206bd4d232e6b7a0039dfaa72d7caacb703d7"
+  },
+  "counts": {
+    "costume": 20,
+    "backdrop": 8,
+    "sound": 10
+  },
+  "entries": [
+    {
+      "id": "gato",
+      "kind": "costume",
+      "name": "Gato",
+      "format": "svg",
+      "bytes": 1769,
+      "sha256": "0f39bbbdc2a0575e36798dcfb60374c339ef2d8bd32f249b44371be6ee864482"
+    },
+    {
+      "id": "gato-saltando",
+      "kind": "costume",
+      "name": "Gato saltando",
+      "format": "svg",
+      "bytes": 2135,
+      "sha256": "8a374393eaf9dcfff2884b24e36e613b79127e86748a2e93d96fc4bcb9df8f94"
+    },
+    {
+      "id": "quetzal",
+      "kind": "costume",
+      "name": "Quetzal",
+      "format": "svg",
+      "bytes": 1364,
+      "sha256": "3b5961aa4e51f089b2dcef163be16c6774eaeacf6ed09eabc6c449486f103ed0"
+    },
+    {
+      "id": "quetzal-volando",
+      "kind": "costume",
+      "name": "Quetzal volando",
+      "format": "svg",
+      "bytes": 1363,
+      "sha256": "1ce36d73c651c5d1233939915d4baab7757f915c278b1d590284bcbe7e56e388"
+    },
+    {
+      "id": "robot",
+      "kind": "costume",
+      "name": "Robot",
+      "format": "svg",
+      "bytes": 1485,
+      "sha256": "bf6e5b58635e2bde438245b01380bdb84a9162108635180c8db087cd98f9c724"
+    },
+    {
+      "id": "robot-saludando",
+      "kind": "costume",
+      "name": "Robot saludando",
+      "format": "svg",
+      "bytes": 1363,
+      "sha256": "f84aa8e05c223440394da12a1daa9dd1b8611a578bbde6773b822789376a63f9"
+    },
+    {
+      "id": "pez",
+      "kind": "costume",
+      "name": "Pez",
+      "format": "svg",
+      "bytes": 821,
+      "sha256": "dc8893cc40ed61cb89417db7b711b7c7ddc3e617379751f19ee9621b3e85b785"
+    },
+    {
+      "id": "pez-nadando",
+      "kind": "costume",
+      "name": "Pez nadando",
+      "format": "svg",
+      "bytes": 822,
+      "sha256": "6caa7839d47a37aa18e2993344b96793275f92c5d4b0e2b05a0920e3064650fc"
+    },
+    {
+      "id": "perro",
+      "kind": "costume",
+      "name": "Perro",
+      "format": "svg",
+      "bytes": 1390,
+      "sha256": "465fb439939f60b906a9cd11ec5476c569f460ace297a1421483820250b9da45"
+    },
+    {
+      "id": "tortuga",
+      "kind": "costume",
+      "name": "Tortuga",
+      "format": "svg",
+      "bytes": 1527,
+      "sha256": "d699f34fe3690614bfa54618f444fe60541d278699e886b005ccb324af0892c8"
+    },
+    {
+      "id": "cohete",
+      "kind": "costume",
+      "name": "Cohete",
+      "format": "svg",
+      "bytes": 822,
+      "sha256": "7a76bc8c1c888884ae6ceed3d1f580aa87f183fe6a01c61b284e1f822393b75b"
+    },
+    {
+      "id": "pelota",
+      "kind": "costume",
+      "name": "Pelota",
+      "format": "svg",
+      "bytes": 527,
+      "sha256": "e7b351d8fb79c3e6945b558f27fb56e61c57d2184c44818092e024f40616b526"
+    },
+    {
+      "id": "estrella",
+      "kind": "costume",
+      "name": "Estrella",
+      "format": "svg",
+      "bytes": 830,
+      "sha256": "8fdc80b8e1fa9bc31556df10b56a73f4cbbba0b5195f305ea4d32d079bd1d0b6"
+    },
+    {
+      "id": "corazon",
+      "kind": "costume",
+      "name": "Corazón",
+      "format": "svg",
+      "bytes": 436,
+      "sha256": "98126b7c225004ef4d411b7e45d5ab55bf089f3a6d3338780fa29d2b60ddc1a8"
+    },
+    {
+      "id": "manzana",
+      "kind": "costume",
+      "name": "Manzana",
+      "format": "svg",
+      "bytes": 570,
+      "sha256": "f552915455eee9aa1ab803de97af3aaabe7acef6a91190a52f21b8354e1f469c"
+    },
+    {
+      "id": "aguacate",
+      "kind": "costume",
+      "name": "Aguacate",
+      "format": "svg",
+      "bytes": 823,
+      "sha256": "de96b1ffd1990014ead145d723b2930491f7f236645ef276294fab9c1e049af1"
+    },
+    {
+      "id": "cesta",
+      "kind": "costume",
+      "name": "Cesta",
+      "format": "svg",
+      "bytes": 849,
+      "sha256": "6b8e872b2d70ecc3851106fc978a6da0f824205c381147c2a5c286735f8b46a0"
+    },
+    {
+      "id": "llave",
+      "kind": "costume",
+      "name": "Llave",
+      "format": "svg",
+      "bytes": 581,
+      "sha256": "f873b9e69ddc477415945dbc3f8fa2d2837b72e697f17a398c4b4ca8219445e6"
+    },
+    {
+      "id": "moneda",
+      "kind": "costume",
+      "name": "Moneda",
+      "format": "svg",
+      "bytes": 544,
+      "sha256": "5ae8e15b759d43f08bfcfe6a475fefb865dd0d8bf98e3854fb67a646e28e61ce"
+    },
+    {
+      "id": "muro",
+      "kind": "costume",
+      "name": "Muro",
+      "format": "svg",
+      "bytes": 1005,
+      "sha256": "f6f4113aee5a0310dc7c2125bfce1811649b9a43842a9549774ca25175023be3"
+    },
+    {
+      "id": "pradera",
+      "kind": "backdrop",
+      "name": "Pradera",
+      "format": "svg",
+      "bytes": 3496,
+      "sha256": "2e0e03b16a3a1d89e0f2aac6230967f7185c56c1ecb17f24a164830915a26668"
+    },
+    {
+      "id": "bosque",
+      "kind": "backdrop",
+      "name": "Bosque",
+      "format": "svg",
+      "bytes": 2912,
+      "sha256": "44cbdffe4f97f120d7c60a16ec5da4e48ef70014e181dcc42fc7024b10f0fbf9"
+    },
+    {
+      "id": "playa",
+      "kind": "backdrop",
+      "name": "Playa",
+      "format": "svg",
+      "bytes": 1800,
+      "sha256": "eacf8a8cc53c7d258bec3e8eba62898956e0f4aca24e250cdda835898838d740"
+    },
+    {
+      "id": "espacio",
+      "kind": "backdrop",
+      "name": "Espacio",
+      "format": "svg",
+      "bytes": 5844,
+      "sha256": "ed0424ffefff0833cc1764cfc169b2c2c7d0546189e02266a757096a4e61bdb5"
+    },
+    {
+      "id": "calle-de-colores",
+      "kind": "backdrop",
+      "name": "Calle de colores",
+      "format": "svg",
+      "bytes": 4142,
+      "sha256": "9ce23f7409908913cf4dcb2f0a436e194f2b134120ab3c170887141b88b37302"
+    },
+    {
+      "id": "lago-y-volcanes",
+      "kind": "backdrop",
+      "name": "Lago y volcanes",
+      "format": "svg",
+      "bytes": 1520,
+      "sha256": "9712248f039ae287e6a3cc9d9b22ed5e8020c0d851cbaa073a85e79fd8c948d1"
+    },
+    {
+      "id": "fondo-del-mar",
+      "kind": "backdrop",
+      "name": "Fondo del mar",
+      "format": "svg",
+      "bytes": 2578,
+      "sha256": "0570e58a47e597e3395524422ecf72c5bda44bc075d0e62acb9130800e7798a7"
+    },
+    {
+      "id": "teatro",
+      "kind": "backdrop",
+      "name": "Teatro",
+      "format": "svg",
+      "bytes": 1647,
+      "sha256": "dda954bfa90d5c81ab8cc0622d153582f1e2a74a8e5be93037ddd90edaa72aae"
+    },
+    {
+      "id": "sonido-salto",
+      "kind": "sound",
+      "name": "Salto",
+      "format": "wav",
+      "bytes": 16802,
+      "sha256": "acf81a5d0a1224a17d65419f2758c100228ef0a9eb1724c16445cb4e5a5d188c"
+    },
+    {
+      "id": "sonido-moneda",
+      "kind": "sound",
+      "name": "Moneda",
+      "format": "wav",
+      "bytes": 21212,
+      "sha256": "37a2e79061414e0f323b184eae106df68a442b733aecd2a33d4d315afa5291c5"
+    },
+    {
+      "id": "sonido-pop",
+      "kind": "sound",
+      "name": "Pop",
+      "format": "wav",
+      "bytes": 6218,
+      "sha256": "0934ba4993a02fb21bcce5875eb585489abe46e15939173125fb41d7ed6d70b5"
+    },
+    {
+      "id": "sonido-campana",
+      "kind": "sound",
+      "name": "Campana",
+      "format": "wav",
+      "bytes": 52964,
+      "sha256": "297892d419d7b1075e724eb88e15c59547bc9179e30978a99e97532349fcca92"
+    },
+    {
+      "id": "sonido-tambor",
+      "kind": "sound",
+      "name": "Tambor",
+      "format": "wav",
+      "bytes": 22094,
+      "sha256": "89e42453eeddeb0b70489c992d570e037f61c197dd132493a6443b7168849d38"
+    },
+    {
+      "id": "sonido-victoria",
+      "kind": "sound",
+      "name": "Victoria",
+      "format": "wav",
+      "bytes": 37970,
+      "sha256": "073fc7b6f0c3aa48135e44240ed04bf23db1cc355ad3c098c71b33005a081b84"
+    },
+    {
+      "id": "sonido-ups",
+      "kind": "sound",
+      "name": "Ups",
+      "format": "wav",
+      "bytes": 26504,
+      "sha256": "b5c870a1d3f4985acb3763c005e89cec373c608955f3a3f833f2ec0259906f86"
+    },
+    {
+      "id": "sonido-laser",
+      "kind": "sound",
+      "name": "Láser",
+      "format": "wav",
+      "bytes": 14156,
+      "sha256": "3c7af75c919486a0d0a6ad8da13aa37d5f6567961846f820aba7895afd2432a1"
+    },
+    {
+      "id": "sonido-clic",
+      "kind": "sound",
+      "name": "Clic",
+      "format": "wav",
+      "bytes": 2690,
+      "sha256": "412b3bc70d34b61aec2b623f5e4b26fe9a3cd188e0f66795988d4566d83eaa5b"
+    },
+    {
+      "id": "sonido-burbujas",
+      "kind": "sound",
+      "name": "Burbujas",
+      "format": "wav",
+      "bytes": 39734,
+      "sha256": "6888729350bdcd6f782f9d6a8aabf7f7c5450d598020e8f1d00c0cbb6cd56461"
+    }
+  ]
+}
