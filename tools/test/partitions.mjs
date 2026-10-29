@@ -7,7 +7,7 @@ import {resolve} from 'node:path';
 // tests/tools/test-partitions.test.mjs fails if a suite outside this list
 // starts naming default origins, so the list cannot silently go stale.
 export const defaultPortSuites = Object.freeze([
-  'accessibility-zoom', 'audio-variables', 'code-console', 'device-integration', 'isolation', 'language-runtime',
+  'accessibility-zoom', 'audio-variables', 'code-console', 'device-integration', 'device-transfer', 'isolation', 'language-runtime',
   'offline-recovery', 'pilot-2d-mode', 'project-persistence', 'pxt-worker', 'runner', 'scene-inspector', 'simulator',
   'standalone-contexts', 'textual-corpus'
 ].map(name => `tests/browser/${name}.spec.mjs`));

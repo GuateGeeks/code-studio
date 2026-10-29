@@ -42,7 +42,8 @@ test('TEST-PARTITION: partition ports are distinct and avoid default, helper and
 });
 
 test('TEST-PARTITION: suites naming default origins or starting servers are pinned to partition 0', () => {
-  const pattern = /127\.0\.0\.1:41(?:7[3-9]|8[0-2])|location\.port\s*[!=]==\s*'41|serve-browser|GG_SHELL_PORT/;
+  // Also URLs assembled from a default port list (device-transfer, 29/10/2026).
+  const pattern = /127\.0\.0\.1:41(?:7[3-9]|8[0-2])|'http:\/\/127\.0\.0\.1:'\s*\+|\[\s*41(?:7[3-9]|8[0-2])\s*,|location\.port\s*[!=]==\s*'41|serve-browser|GG_SHELL_PORT/;
   for (const file of readdirSync(resolve(root, 'tests/browser')).filter(name => name.endsWith('.spec.mjs'))) {
     const path = `tests/browser/${file}`;
     if (pattern.test(readFileSync(resolve(root, path), 'utf8'))) assert.ok(defaultPortSuites.includes(path), `${path} must be listed in defaultPortSuites`);
