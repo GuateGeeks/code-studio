@@ -75,3 +75,24 @@ Foco 1: `scene2d-vocabulary`, `canonical-projects`, `code-views`, `code-view-con
 - Las copias API v3 libres con `while` ceden ahora un fotograma por vuelta (antes agotaban el turno de 300 ms si no esperaban). API1/API2 no cambian.
 - El proyecto inicial sin guardar sigue en 0.1.0: el estudiante recibe E1 por actividades, plantillas, selección de packs o «Actualizar packs». Cambiarlo es decisión del usuario.
 - Una copia Scratch con decir, rebotar o detener sigue sin ejecutarse (importación congelada).
+
+## Para la puerta conjunta (coordinador)
+
+- **Full completa** (`npm run test:full`, puertos por defecto) con estas fuentes: incluye Node, herramientas, smoke y todo el inventario de navegador. Spec nueva inventariada: `tests/browser/scene2d-vocabulary.spec.mjs` (no fija orígenes: fuera de `defaultPortSuites`).
+- **Partición 0 que esta pista no pudo correr** y que el cambio toca: `code-console` (notación educativa y API3), `language-runtime` (traductores y `program.frame`), `textual-corpus`, `project-persistence` (reapertura GGPROJ), `scene-inspector` (snapshot ampliado con `hero`), `pilot-2d-mode`, `offline-recovery` (módulos nuevos en el bundle), `audio-variables`, `runner`, `isolation`, `accessibility-zoom`, `standalone-contexts`, `device-integration`, `pxt-worker`, `simulator`, y el smoke `tests/quick/studio.spec.mjs`.
+- **Ya aprobadas aquí** (foco 1 y 2, arriba); repetirlas dentro de la full es lo normal.
+
+## Archivos tocados (para prever conflictos)
+
+- Contratos y packs: `src/packs/{catalog,language-tables,scene2d-forms}.mjs`, `src/packs/gg.sprites/{blocks,manifest}.mjs`, `src/contracts/{packs,pack-broker,program-contract,language-table,text-program,api3-names,scene2d-opcodes}.mjs`.
+- Editor/IR: `src/editor/{block-program,workspace-from-ir,core-blocks}.mjs`, `src/code-view-identity.mjs`, `src/generated-program-source.mjs`, `src/generated-code.mjs`.
+- Adaptador: `src/adapters/scratch/{scratch-project,text-program,browser-scene}.mjs` (este último: solo el snapshot).
+- Texto: `src/targets/text/{api-v3,api-v3-python,api-v3-vocabulary,program-session,code-view-parser,code-view-python}.mjs`.
+- Studio (sin tocar los archivos del escritor único): `src/studio/{device-ui,capability-contexts-ui,resources-ui}.mjs`, una línea cada uno.
+- Pruebas: `tests/integration/scene2d-vocabulary.test.mjs` (nueva) y ajustes en `code-view-parser`, `language-table`, `packs`, `project-compatibility`, `text-program-engines`; `tests/browser/{scene2d-vocabulary (nueva),canonical-projects}.spec.mjs`; fixtures `tests/fixtures/scene2d-vocabulary.mjs` y `tests/fixtures/canonical/scene2d/hero-presents/`; `tools/test/impact.mjs`.
+- Documentación: este acta, `docs/adr/004-…`, `docs/phase-5/OPCODE-MATRIX.md`, `tests/fixtures/canonical/README.md`, `openspec/changes/scene2d-vocabulary-v2/*`, `openspec/changes/scene2d-multi-sprite/*`. No se tocaron `TESTING.md`, `CURRENT-STATUS.md` ni el plan de estabilización (los actualiza el coordinador).
+
+## Decisiones que quedan para el usuario
+
+1. **Proyecto inicial sin guardar en 0.1.0.** Pasarlo a capacidades explícitas 0.2.0 daría E1 al crear la primera escena, pero cambia el formato inicial de v1 a v3 y expectativas de varias suites (inspector, persistencia).
+2. **Abrir los siete opcodes revisados a la importación SB3** cuando termine el congelamiento.
