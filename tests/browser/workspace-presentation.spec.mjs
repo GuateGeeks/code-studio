@@ -47,7 +47,7 @@ for(const [width,height] of [[1280,720],[1440,900]])test(`E4-01: programa, trans
   const samples=[];
   const steps=[
     ['2d',async()=>{}],
-    ['text',async()=>{await chooseMode(page,'program-mode','javascript');await clickVisible(page.locator('#new-javascript'));}],
+    ['text',async()=>{await selectContext(page,'text');await clickVisible(page.locator('#new-javascript'));}],
     ['microbit',async()=>enable(page,'microbit')],
     ['sb3',async()=>{await selectContext(page,'sb3');}],
     ['scene3d',async()=>enable(page,'scene3d')],
@@ -176,7 +176,7 @@ test('E4-05: un identificador duplicado se explica junto al formulario y conserv
 });
 
 test('E4-04: un error de sintaxis se explica en español y conserva el detalle técnico y la línea',async({page})=>{
-  await open(page);await chooseMode(page,'program-mode','javascript');
+  await open(page);await selectContext(page,'text');
   await expect(page.locator('#text-empty')).toBeVisible();
   await clickVisible(page.locator('#new-javascript'));await expect(page.locator('#text-empty')).toBeHidden();
   await page.locator('#text-source').fill('const valor = ;');

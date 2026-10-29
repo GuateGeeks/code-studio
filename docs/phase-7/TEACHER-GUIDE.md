@@ -65,3 +65,30 @@ da x21. Esta captura del canvas acompaña la medición del test, no la reemplaza
 La primera escena del alumno conserva su historia propia.
 
 ![Escenario real tras ejecutar la semilla de 21 pasos](../product/scene2d-continuity-images/result-21.png)
+
+
+## Vistas del mismo programa 2D (working tree del 26/10/2026)
+
+En Escena 2D, Bloques, JavaScript y Python muestran el mismo programa. Pedir
+primero una predicción; abrir JavaScript, cambiar un número de hero.move y
+volver a Bloques. Ese paso comprueba el texto y modifica la autoría; no ejecuta
+ni borra el resultado anterior. Ejecutar usa el programa validado desde cualquiera
+de las vistas. Python prepara su analizador bajo demanda y puede tardar más.
+
+Si se rechaza el texto, leer la línea y la causa con el estudiante. Seguir
+editando vuelve al código; recuperar bloques pide confirmación antes de
+descartar texto; Crear copia independiente conserva exactamente el borrador
+como otro documento. Deshacer conversión recupera el programa previo sin
+reiniciar el resultado. No se ofrecen while, forever ni funciones propias
+como bloques 2D en este corte.
+
+La vista activa y el texto pendiente viajan en GGPROJ v5 y autosave; esperar
+confirmación local o comprobar la copia descargada antes de cerrar. Los
+archivos anteriores siguen legibles. Texto 2D conserva las copias anteriores;
+los documentos nuevos usan API3 con eventos y acciones legibles, sin empezar
+por GG/await. La consulta Código sigue siendo una lectura derivada.
+
+Micro:bit y 3D/web conservan sus documentos independientes. La revisión 1 de
+la actividad De bloques a tu propio código sigue disponible; la revisión 2
+basada en editar y volver aún está pendiente. No interpretar este corte como
+validación con estudiantes ni como cierre de todo synced-code-views.

@@ -1,3 +1,4 @@
+import {validateCodeViews} from './code-views-state.mjs';
 import {validateTextDocuments} from './text-documents.mjs';
 import {validateResources,createResourceView,cloneValidatedResources,promoteLegacyResources,promoteResources2} from './contracts/resources.mjs';
 import {validateCapabilities,resolveResourcePolicy,validateCapabilityReferences} from './contracts/packs.mjs';
@@ -42,13 +43,13 @@ function timestamp(value, field) {
 }
 // Capabilities live in v3 and in v4 projects that had them; a v4 without them
 // keeps the v2 shape (scene) and only adds declared text APIs.
-export const hasCapabilityProfile = document => document?.version === 3 || (document?.version === 4 && Object.hasOwn(document, 'capabilities'));
+export const hasCapabilityProfile = document => document?.version === 3 || ([4,5].includes(document?.version) && Object.hasOwn(document, 'capabilities'));
 function structure(document) {
   jsonTree(document);
   // Format and version first: a newer file is explained before its fields are checked.
   if (!document || typeof document !== 'object' || document.format !== 'ggproj') fail('formato o versión no soportada');
-  if (Number.isSafeInteger(document.version) && document.version > 4) fail(`formato o versión no soportada: GGPROJ v${document.version} es de una versión más reciente de Code Studio; ábrelo con esa versión`);
-  if (![1, 2, 3, 4].includes(document.version)) fail('formato o versión no soportada');
+  if (Number.isSafeInteger(document.version) && document.version > 5) fail(`formato o versión no soportada: GGPROJ v${document.version} es de una versión más reciente de Code Studio; ábrelo con esa versión`);
+  if (![1, 2, 3, 4, 5].includes(document.version)) fail('formato o versión no soportada');
   object(document, hasCapabilityProfile(document) ? ['format', 'version', 'project', 'authoring', 'capabilities', 'resources', 'locks'] : ['format', 'version', 'project', 'authoring', 'scene', 'resources', 'locks'], 'documento');
   object(document.project, ['id', 'name', 'revision', 'createdAt', 'updatedAt'], 'project');
   const model = document.project;
@@ -57,7 +58,8 @@ function structure(document) {
   if (!Number.isSafeInteger(model.revision) || model.revision < 0) fail('revisión inválida');
   timestamp(model.createdAt, 'createdAt'); timestamp(model.updatedAt, 'updatedAt');
   if (Date.parse(model.updatedAt) < Date.parse(model.createdAt)) fail('updatedAt es anterior a createdAt');
-  object(document.authoring, document.version === 1 ? ['blockly', 'deviceSource'] : ['blockly', 'deviceSource', 'textDocuments', 'selectedTextDocumentId'], 'authoring');
+  object(document.authoring, document.version === 1 ? ['blockly', 'deviceSource'] : document.version === 5 ? ['blockly', 'deviceSource', 'textDocuments', 'selectedTextDocumentId', 'codeViews'] : ['blockly', 'deviceSource', 'textDocuments', 'selectedTextDocumentId'], 'authoring');
+  if (document.version === 5) validateCodeViews(document.authoring.codeViews);
   if (document.version >= 2) validateTextDocuments(document.authoring.textDocuments, document.authoring.selectedTextDocumentId);
   // GGPROJ v4 is v3 plus a declared text API; it is written only when needed.
   if (document.version >= 2 && document.version < 4 && document.authoring.textDocuments.some(item => Object.hasOwn(item.runtime ?? {}, 'api'))) fail('la API textual declarada requiere GGPROJ v4');
@@ -115,12 +117,13 @@ export async function validateProject(document, {catalog, engineHistory = engine
   const result=structuredClone(document);createResourceView(result.resources,{catalog});validateCapabilityReferences(result.capabilities,{resources:result.resources,textDocuments:result.authoring.textDocuments});return result;
 }
 
-export async function createProject({name, blockly, deviceSource, catalog, resources, capabilities, textDocuments, selectedTextDocumentId = null, id = crypto.randomUUID(), revision = 0, createdAt = new Date().toISOString(), updatedAt = new Date().toISOString()}) {
+export async function createProject({name, blockly, deviceSource, catalog, resources, capabilities, textDocuments, selectedTextDocumentId = null, codeViews, id = crypto.randomUUID(), revision = 0, createdAt = new Date().toISOString(), updatedAt = new Date().toISOString()}) {
   const profile = capabilities == null ? null : validateCapabilities(capabilities);
-  const textAuthoring = textDocuments === undefined ? (profile ? {textDocuments: [], selectedTextDocumentId: null} : null) : validateTextDocuments(textDocuments, selectedTextDocumentId);
+  const views = validateCodeViews(codeViews);
+  const textAuthoring = textDocuments === undefined ? (profile || views ? {textDocuments: [], selectedTextDocumentId: null} : null) : validateTextDocuments(textDocuments, selectedTextDocumentId);
   const declaresApi = Boolean(textAuthoring?.textDocuments.some(item => Object.hasOwn(item.runtime, 'api')));
-  const document = {format: 'ggproj', version: declaresApi ? 4 : profile ? 3 : textAuthoring ? 2 : 1, project: {id, name, revision, createdAt, updatedAt},
-    authoring: {blockly: structuredClone(blockly), deviceSource, ...(textAuthoring ?? {})},
+  const document = {format: 'ggproj', version: views ? 5 : declaresApi ? 4 : profile ? 3 : textAuthoring ? 2 : 1, project: {id, name, revision, createdAt, updatedAt},
+    authoring: {blockly: structuredClone(blockly), deviceSource, ...(textAuthoring ?? {}), ...(views ? {codeViews: views} : {})},
     ...(profile ? {capabilities: profile} : {scene: {...scene}}), resources: structuredClone(resources??catalog?.resources), locks: structuredClone(catalog?.locks)};
   return validateProject(document, {catalog});
 }
@@ -146,7 +149,7 @@ export async function upgradeProject(document, {capabilities, catalog} = {}) {
   const profile = validateCapabilities(capabilities);
   if (!profile) fail('la actualización requiere capacidades explícitas');
   const declaresApi = (previous.authoring.textDocuments ?? []).some(item => Object.hasOwn(item.runtime, 'api'));
-  const candidate = {...previous, version: declaresApi ? 4 : 3, capabilities: profile,
+  const candidate = {...previous, version: previous.authoring.codeViews ? 5 : declaresApi ? 4 : 3, capabilities: profile,
     authoring: {...previous.authoring, textDocuments: previous.authoring.textDocuments ?? [],
       selectedTextDocumentId: previous.authoring.selectedTextDocumentId ?? null}};
   delete candidate.scene;

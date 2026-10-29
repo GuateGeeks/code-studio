@@ -57,9 +57,9 @@ async function textRun(page,language,x) {
   await selectContext(page,'text');
   await clickVisible(page.locator('#new-'+language));
   await selectContext(page,'text');
-  await page.locator('#text-source').fill(language==='javascript'?"await GG.sprite.move('hero', "+x+");\nconsole.log(await GG.scene.get());":"await GG.sprite.move('hero', "+x+")\nprint(await GG.scene.get())");
+  await page.locator('#text-source').fill(language==='javascript'?"onStart(() => { hero.move("+x+"); console.log('offline'); });":"@on_start\ndef al_iniciar():\n    hero.move("+x+")\n    print('offline')");
   await clickVisible(page.locator('#run-document'));
-  await expect(page.locator('#text-run-status')).toHaveText('Documento terminado',{timeout:60000});
+  await expect(page.locator('#text-run-status')).toHaveText('Documento activo · eventos disponibles',{timeout:60000});
   await expect.poll(async () => (await settled(snapshot, page)).x).toBe(x);
   await selectContext(page,'text');
   await clickVisible(page.locator('#stop-result'));await expect(page.locator('#run-editor')).toBeEnabled();
@@ -193,6 +193,27 @@ test('GG-OFFLINE: immutable update and rollback survive full browser closure wit
     await expect(page.locator('#lesson-reflection')).not.toBeEmpty();
     evidence.offlineActivities={mode:educational.mode,checkedStepIds:educational.results.map(step=>step.id),hintsRevealed:1,position:(await snapshot(page)).x};
     const variantBlocks=await page.evaluate(()=>studioProbe.editor.save());
+
+    // Real cross-origin conversions after a new Chromium process, six servers
+    // down: language resources must come from the prepared immutable release.
+    for(const language of ['javascript','python']){
+      await selectContext(page,'2d');
+      await clickVisible(page.locator('#program-mode input[value="'+language+'"]'));
+      const code=page.locator('#text-source');await expect(code).toBeEditable();
+      await code.fill((await code.inputValue()).replace('hero.move(40)','hero.move(41)'));
+      await clickVisible(page.locator('#program-mode input[value=blocks]'));
+      await expect(page.locator('#program-mode input[value=blocks]')).toBeChecked();
+      await expect(page.locator('#blockly-editor [data-id="lesson-story-first-n"] .blocklyText')).toHaveText('41');
+      expect((await snapshot(page)).x).toBe(80);
+      await clickVisible(page.locator('#code-view-undo'));
+      await expect(page.locator('#blockly-editor [data-id="lesson-story-first-n"] .blocklyText')).toHaveText('40');
+      expect(await page.evaluate(()=>studioProbe.editor.save())).toEqual(variantBlocks);
+    }
+    evidence.offlineSynchronizedViews=['javascript','python'];
+    await writeFile(artifactPath('offline-synced-views.json'),JSON.stringify({
+      serversStopped:evidence.serversStopped,languages:evidence.offlineSynchronizedViews,
+      cohort:first.cohort,programRestoredExactly:true,runtimeX:(await snapshot(page)).x
+    },null,2));
     await textRun(page,'javascript',7);await textRun(page,'python',9);
     await selectContext(page,'microbit');
     await clickVisible(page.locator('#simulate'));
@@ -257,6 +278,7 @@ test('GG-OFFLINE: immutable update and rollback survive full browser closure wit
       await page.locator('#authoring-context').selectOption(id);
       const surface=page.locator('#'+id+'-authoring');
       await clickVisible(surface.getByRole('button',{name:id==='scene3d'?'Añadir escena 3D':'Añadir aplicación web',exact:true}));
+      await expect(page.locator('#'+id+'-mode')).toBeVisible();
       await clickVisible(page.getByRole('button',{name:'Crear copia Python',exact:true}));
       await clickVisible(page.getByRole('button',{name:id==='scene3d'?'Ejecutar escena 3D':'Ejecutar aplicación web',exact:true}));
       await expect.poll(()=>page.evaluate(()=>studioProbe.capabilityExecution.state().contextId),{timeout:60000}).toBe(id);

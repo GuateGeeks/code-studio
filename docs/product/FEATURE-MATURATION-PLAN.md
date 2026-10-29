@@ -1,5 +1,7 @@
 # Plan de maduración por feature
 
+> **Lectura al 29/10/2026:** consultar [estado consolidado](CURRENT-STATUS.md). Este plan conserva diagnóstico/propuesta del 24/10; sus etiquetas «hoy», «propuesto» y «sin commits» no son un inventario actualizado. Ola 0, contrato de lenguaje y continuidad implementados; sincronización 2D en curso (8/13 del cambio, full global pendiente). La continuación activa empieza por 4.2 micro:bit, antes de las demás propuestas. [Prompt de relevo](../engineering/AGENT-HANDOFF-PROMPT.md).
+
 24 de octubre de 2026, Guatemala. Plan de implementación posterior al rework visual (`studio-visual-workspace-rework`, puerta completa aprobada el 24/10). No modifica código ni contratos: propone cambios OpenSpec, su orden, criterios de aceptación y decisiones pendientes. Cada cambio se redacta y aprueba por separado antes de implementarse.
 
 > **Actualización del 24/10/2026:** el usuario aprobó vistas sincronizadas bloques↔texto, API legible sin `GG` visible y packs como tabla de lenguaje ([ADR-011](../adr/011-contrato-de-lenguaje-y-vistas-sincronizadas.md)). Están propuestos en `openspec/changes/` los tres cambios de la Ola 0 (`repo-baseline-and-spec-consolidation`, `pack-versioning-and-migrations`, `test-gate-scaling`) y dos de la Ola 1 (`block-language-contract`, `synced-code-views`); la hoja de ruta está resumida en `PRODUCT.md` como propuesta. Sustituyen a `text-api-v2-idiomatic` y `text-compare-view` (F5), resuelven la decisión D9 y cambian el orden de la Ola 1.

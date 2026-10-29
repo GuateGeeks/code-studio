@@ -7,6 +7,8 @@ import {buildProjectCatalog} from '../../tools/f1/build-project-catalog.mjs';
 import {createTone} from '../../tools/f0/tone.mjs';
 import {createProject, parseProject, serializeProject, validateProject, projectLimits} from '../../src/project-format.mjs';
 import {createProjectArchive, parseProjectArchive, archiveLimits} from '../../src/project-archive.mjs';
+import {emptyCodeView} from '../../src/code-views-state.mjs';
+import {createCapabilities} from '../../src/contracts/packs.mjs';
 import {editableExample} from '../fixtures/corpus.blocks.mjs';
 import {loadWorkspace, workspaceToIR} from '../../spikes/block-program.mjs';
 
@@ -162,5 +164,33 @@ test('GG-PROJ-002: unsupported ZIP compression, encryption and symlinks fail exp
     if (kind === 'encrypted') data.setUint16(cd + 8, 1, true);
     else data.setUint32(cd + 38, 0xa1ff0000, true);
     await assert.rejects(parseProjectArchive(changed, {catalog}), /cifrado, enlaces/);
+  }
+});
+
+test('GGPROJ5: exact pending source, active view and restoration survive JSON and the real ZIP container without parsing or autorun', async () => {
+  const codeViews={version:1,activeContext:'2d',entries:[{...emptyCodeView('2d'),language:'javascript',
+    source:'// exact pending\r\nonStart(()=>{while(true){}})',baselineSource:'old valid source',
+    scriptOrder:['editable-start','editable-boost'],restorePoint:{id:'00000000-0000-4000-8000-000000000001',workspace:structuredClone(editableExample),appliedHash:'a'.repeat(64),scriptOrder:null}}]};
+  const document=await createProject({name:'Vista pendiente',blockly:editableExample,deviceSource:'basic.showNumber(7)',codeViews,catalog});
+  assert.equal(document.version,5);assert.ok(document.scene);assert.ok(!document.capabilities);
+  assert.deepEqual((await parseProject(serializeProject(document),{catalog})).authoring.codeViews,codeViews);
+  const archive=await createProjectArchive(document,{catalog});
+  const restored=await parseProjectArchive(archive,{catalog});
+  assert.deepEqual(restored.authoring.codeViews,codeViews);
+  assert.deepEqual(restored.authoring.blockly,document.authoring.blockly);
+  assert.equal(globalThis.__viewSourceExecuted,undefined);
+});
+test('GGPROJ5: explicit capability profiles and malformed view data retain the existing validation boundaries', async () => {
+  const codeViews={version:1,activeContext:'2d',entries:[{...emptyCodeView('2d'),language:'javascript',source:'pending'}]};
+  const document=await createProject({name:'Vista con packs',blockly:editableExample,deviceSource:'',codeViews,
+    capabilities:createCapabilities(['gg.sprites']),catalog});
+  assert.equal(document.version,5);assert.ok(document.capabilities);assert.ok(!document.scene);
+  for(const edit of [
+    value=>value.authoring.codeViews.entries[0].language='typescript',
+    value=>value.authoring.codeViews.entries[0].source='x'.repeat(65537),
+    value=>value.authoring.codeViews.version=2
+  ]){
+    const bad=structuredClone(document);edit(bad);
+    await assert.rejects(validateProject(bad,{catalog}),/Vistas de código/);
   }
 });

@@ -150,8 +150,9 @@ const babelConfigs = ['babel.config.js', '.babelrc', '.browserslistrc', 'package
 for (const [name, inputs] of [
   ['webpack-vm', [...upstreamLocks, ...babelConfigs, resolve(xcratchRoot, 'packages/scratch-vm/src'), resolve(xcratchRoot, 'packages/scratch-vm/webpack.config.js'), resolve(xcratchRoot, 'packages/scratch-vm/package.json')]],
   ['webpack-audio', [...upstreamLocks, resolve(xcratchRoot, 'node_modules/scratch-audio/src'), resolve(xcratchRoot, 'node_modules/scratch-audio/package.json')]],
-  ['webpack-editor', [...productLocks, ...upstreamLocks, resolve(projectRoot, 'src/editor'), resolve(projectRoot, 'src/contracts/program-contract.mjs')]],
+  ['webpack-editor', [...productLocks, ...upstreamLocks, resolve(projectRoot, 'src/editor'), ...localModuleInputs([resolve(projectRoot, 'src/editor/editor-entry.mjs')])]],
   ['webpack-language', [...productLocks, ...upstreamLocks, ...localModuleInputs([resolve(projectRoot, 'src/targets/text/quickjs-engine.mjs')])]],
+  ['webpack-code-view-parser', [...productLocks, ...upstreamLocks, ...localModuleInputs([resolve(projectRoot, 'src/targets/text/code-view-parser.mjs')])]],
   ['webpack-babylon', [...productLocks, resolve(projectRoot,'src/adapters/babylon'), resolve(projectRoot,'node_modules/@babylonjs/core/package.json'), resolve(projectRoot,'node_modules/@babylonjs/loaders/package.json')]],
   ['webpack-assets', [...productLocks, resolve(projectRoot,'src/targets/assets/pako-entry.mjs'), resolve(projectRoot,'node_modules/pako/package.json')]],
   ['webpack-device-transfer', [...productLocks, ...upstreamLocks, resolve(projectRoot, 'node_modules/dapjs/package.json'), resolve(projectRoot, 'node_modules/dapjs/dist/dap.esm.js')]]

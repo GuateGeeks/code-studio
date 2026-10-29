@@ -177,7 +177,7 @@ Un botón Ejecutar por contexto, nombrado por su autoría (Ejecutar bloques, Eje
 
 ### Modo del programa
 
-Grupo de radios nativo presentado como segmentos: Bloques · JavaScript · Python (2D, 3D, web) o Bloques de firmware · TypeScript independiente (micro:bit). Elegir un lenguaje selecciona un documento independiente existente; si no hay, una nota ofrece crearlo o hacer una copia de los bloques. Nada se convierte ni se sincroniza.
+Grupo de radios nativo presentado como segmentos: Bloques · JavaScript · Python (2D, 3D, web) o Bloques de firmware · TypeScript independiente (micro:bit). En Escena 2D, elegir JavaScript o Python abre una vista editable del mismo programa; volver a Bloques valida el texto y conserva el resultado activo. El rechazo aparece junto al código con línea y tres salidas por teclado, y Deshacer recupera el programa previo. Texto 2D mantiene los documentos independientes; sus plantillas nuevas usan API3. Micro:bit y 3D/web conservan por ahora la selección de documentos independientes. La consulta de fuente derivada sigue siendo de lectura.
 
 ### Consulta
 
@@ -207,6 +207,6 @@ Las actividades E3 se presentan como tutorial por pasos: objetivo, requisitos, p
 ### Don't:
 
 - **Don't** ejecutar al navegar, consultar, cambiar de modo, importar o reabrir.
-- **Don't** presentar código derivado como editable ni prometer sincronización bloques↔texto.
+- **Don't** presentar la consulta de código derivado como editable ni prometer sincronización en un contexto aún no habilitado.
 - **Don't** usar glifos Unicode como iconos, bordes laterales gruesos ni tarjetas anidadas.
 - **Don't** presentar una comprobación automática como medición de aprendizaje ni esta dirección como marca oficial.

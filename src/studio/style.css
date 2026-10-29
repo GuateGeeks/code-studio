@@ -417,8 +417,8 @@ body:is([data-workspace-context="scene3d"], [data-workspace-context="webapp"]) .
   .keyboard-help[open] { max-height: 160px; overflow: auto; }
   body[data-workspace-context="2d"] #scene-blockly-surface { display: flex; flex: 1 1 auto; flex-direction: column; min-height: 0; }
   body[data-workspace-context="2d"] #blockly-editor { flex: 1 1 auto; height: auto; min-height: 300px; }
-  body[data-workspace-context="text"] .text-authoring, body:is([data-workspace-context="scene3d"], [data-workspace-context="webapp"]):not([data-workspace-mode="blocks"]) .text-authoring { display: flex; flex: 1 1 auto; flex-direction: column; min-height: 0; overflow: auto; }
-  body[data-workspace-context="text"] #text-source, body:is([data-workspace-context="scene3d"], [data-workspace-context="webapp"]):not([data-workspace-mode="blocks"]) #text-source { flex: 1 1 auto; height: auto; min-height: 240px; }
+  body[data-workspace-context="2d"]:not([data-workspace-mode="blocks"]) .text-authoring, body[data-workspace-context="text"] .text-authoring, body:is([data-workspace-context="scene3d"], [data-workspace-context="webapp"]):not([data-workspace-mode="blocks"]) .text-authoring { display: flex; flex: 1 1 auto; flex-direction: column; min-height: 0; overflow: auto; }
+  body[data-workspace-context="2d"]:not([data-workspace-mode="blocks"]) #text-source, body[data-workspace-context="text"] #text-source, body:is([data-workspace-context="scene3d"], [data-workspace-context="webapp"]):not([data-workspace-mode="blocks"]) #text-source { flex: 1 1 auto; height: auto; min-height: 240px; }
   body[data-workspace-context="microbit"] #device-authoring { display: flex; flex: 1 1 auto; flex-direction: column; min-height: 0; }
   body[data-workspace-context="microbit"] #device-configured { display: flex; flex: 1 1 auto; flex-direction: column; min-height: 0; }
   body[data-workspace-context="microbit"] #device-configured > * { flex-shrink: 0; }

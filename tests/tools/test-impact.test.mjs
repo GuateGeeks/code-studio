@@ -211,3 +211,13 @@ test('TEST-IMPACT: syntactically valid but unusable JSON baselines fall back to 
     }
   } finally { rmSync(root, {recursive: true, force: true}); }
 });
+
+test('TEST-IMPACT: code-view parsing and authenticated transport include the real conversion browser gate', () => {
+  for (const file of ['src/targets/text/code-view-parser.mjs','src/studio/code-view-service.mjs','src/contracts/code-view-conversion.mjs']) {
+    const plan=createPlan('affected',{files:[file]});
+    assert.equal(plan.selection,'affected');
+    assert.ok(plan.browser.includes('tests/browser/code-view-conversion.spec.mjs'),file);
+    assert.ok(plan.browser.includes('tests/browser/project-persistence.spec.mjs'),file);
+  }
+  assert.ok(createPlan('affected',{files:['src/code-view-identity.mjs']}).browser.includes('tests/browser/code-view-conversion.spec.mjs'));
+});

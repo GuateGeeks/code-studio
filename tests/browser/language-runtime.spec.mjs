@@ -17,25 +17,35 @@ async function create(page, language, source) {
   await selectContext(page,'text');
   await page.locator('#text-source').fill(source);
 }
+// Historical interpreter/bridge cases start with an API1 fixture. They do
+// not overwrite a newly created API3 template with the previous public API.
+// New-document UX is exercised by the API3 cases and CV-NEW-DOCUMENTS.
+async function legacyFixture(page,language,source){
+  await selectContext(page,'text');
+  const document=await page.evaluate(({language,source})=>studioProbe.textDocuments.add({
+    language,source,name:'Documento API1 anterior'}),{language,source});
+  await expect(page.locator('#text-source')).toHaveValue(source);
+  expect(document.runtime.api).toBeUndefined();
+}
 async function run(page) {
   await selectContext(page,'text');
   await clickVisible(page.getByRole('button', {name: 'Ejecutar documento 2D', exact: true}));
-  await expect(page.locator('#status')).toHaveText('Documento terminado', {timeout: 60000});
+  await expect(page.locator('#status')).toHaveText(/Documento (terminado|activo · eventos disponibles)/, {timeout: 60000});
 }
 for (const language of ['javascript', 'python']) {
-  test('GG-TEXT-001/002: real ' + language + ' owns only source; GG effects, console, portable reopen and recovery', async ({page, browser}) => {
+  test('GG-TEXT-001/002: real ' + language + ' API3 owns only source; contextual effects, console, portable reopen and recovery', async ({page, browser}) => {
     const errors = []; page.on('pageerror', error => errors.push(error.message));
     await open(page);
     const blocks = await page.evaluate(() => studioProbe.editor.save());
     const source = language === 'javascript'
-      ? "let n = 2;\nfor (let i = 0; i < 3; i++) { if (n > 1) await GG.sprite.move('hero', n); }\nawait GG.variables.set('gg-score', 9);\nawait GG.wait(0.01);\nconsole.log('resultado', (await GG.sprite.get('hero')).x);"
-      : "n = 2\nfor i in range(3):\n    if n > 1:\n        await GG.sprite.move('hero', n)\nawait GG.variables.set('gg-score', 9)\nawait GG.wait(0.01)\nprint('resultado', await GG.sprite.get('hero'))";
+      ? "let n = 2;\nlet score = 0;\nonStart(() => {\n  for (let i = 0; i < 3; i++) { if (n > 1) hero.move(n); }\n  score = 9;\n  wait(0.01);\n  console.log('resultado');\n});"
+      : "n = 2\nscore = 0\n@on_start\ndef al_iniciar():\n    global score\n    for i in range(3):\n        if n > 1:\n            hero.move(n)\n    score = 9\n    wait(0.01)\n    print('resultado')";
     await create(page, language, source);
     await selectContext(page,'text');
     await page.locator('#text-name').fill('Mi programa ' + language);
     await run(page);
-    expect((await snapshot(page)).x).toBe(6);
-    expect(await page.evaluate(() => GG.variables.get('gg-score'))).toEqual({id: 'gg-score', name: 'score', value: 9});
+    await expect.poll(async()=>(await settled(snapshot,page)).x).toBe(6);
+    expect(await page.evaluate(() => GG.variables.get('score'))).toEqual({id: 'score', name: 'score', value: 9});
     await expect(page.locator('#console-entries')).toContainText('resultado');
     expect(await page.evaluate(() => studioProbe.editor.save())).toEqual(blocks);
     await page.evaluate(() => studioProbe.project.flush());
@@ -47,7 +57,7 @@ for (const language of ['javascript', 'python']) {
     await download.saveAs(path);
     const zip = await JSZip.loadAsync(await readFile(path));
     const manifest = JSON.parse(await zip.file('manifest.json').async('string'));
-    expect(manifest.version).toBe(2);
+    expect(manifest.version).toBe(4);
     expect(manifest.authoring).toEqual(authoring);
     expect(manifest.scene.x).toBe(0);
     expect(JSON.stringify(manifest)).not.toContain('resultado 6');
@@ -63,7 +73,7 @@ for (const language of ['javascript', 'python']) {
     expect((await snapshot(reopened)).x).toBe(0);
     expect(JSON.parse(await reopened.evaluate(() => studioProbe.project.export())).authoring).toEqual(authoring);
     await run(reopened);
-    expect((await snapshot(reopened)).x).toBe(6);
+    await expect.poll(async()=>(await settled(snapshot,reopened)).x).toBe(6);
     await reopened.reload();
     await expect(reopened.locator('#run-editor')).toBeEnabled();
     await expect(reopened.locator('#text-source')).toHaveValue(source);
@@ -80,7 +90,7 @@ for (const mobile of [false, true]) {
     await clickVisible(page.getByRole('button', {name: 'Ejecutar bloques', exact: true}));
     await expect(page.locator('#status')).toHaveText('Bloques ejecutados');
     const scope = await page.evaluate(() => studioProbe.state());
-    await create(page, 'javascript', "const = ;");
+    await legacyFixture(page, 'javascript', "const = ;");
     await selectContext(page,'text');
     await clickVisible(page.getByRole('button', {name: 'Ejecutar documento 2D', exact: true}));
     await expect(page.locator('#text-error')).not.toBeEmpty({timeout: 60000});
@@ -108,7 +118,7 @@ for (const mobile of [false, true]) {
 for (const language of ['javascript', 'python']) {
   test('GG-TEXT-004: Stop terminates ' + language + ' infinite execution and delayed old RPC cannot affect new scene', async ({page}) => {
     await open(page);
-    await create(page, language, language === 'javascript' ? "await GG.sprite.move('hero', 7);\nwhile (true) {}" : "await GG.sprite.move('hero', 7)\nwhile True:\n    pass");
+    await legacyFixture(page, language, language === 'javascript' ? "await GG.sprite.move('hero', 7);\nwhile (true) {}" : "await GG.sprite.move('hero', 7)\nwhile True:\n    pass");
     await selectContext(page,'text');
     await clickVisible(page.getByRole('button', {name: 'Ejecutar documento 2D', exact: true}));
     // Scene replacement may reject a read while assets are loading. Poll only
@@ -143,7 +153,7 @@ test('GG-TEXT-005: unavailable runtime and cancelled preparation preserve curren
   await clickVisible(page.getByRole('button', {name: 'Ejecutar bloques', exact: true}));
   await expect(page.locator('#status')).toHaveText('Bloques ejecutados');
   const before = await page.evaluate(() => studioProbe.state());
-  await create(page, 'python', "print('hola')");
+  await legacyFixture(page, 'python', "print('hola')");
   await selectContext(page,'text');
   await clickVisible(page.getByRole('button', {name: 'Ejecutar documento 2D', exact: true}));
   await expect(page.locator('#text-error')).not.toBeEmpty({timeout: 60000});
@@ -169,7 +179,7 @@ test('GG-TEXT-006: Stop cancels a prepared-runtime candidate and invalid import 
     await route.continue().catch(() => {});
   });
   await open(page);
-  await create(page, 'javascript', "await GG.sprite.move('hero', 90);");
+  await legacyFixture(page, 'javascript', "await GG.sprite.move('hero', 90);");
   await selectContext(page,'text');
   await clickVisible(page.getByRole('button', {name: 'Ejecutar documento 2D', exact: true}));
   await held;
@@ -206,7 +216,7 @@ test('GG-TEXT-007: log quota retains terminal error and location; runtime has no
     external.push(request.url());
   });
   await open(page);
-  await create(page, 'javascript', "for (let i=0; i<150; i++) console.log('mensaje', i);\nthrow new Error('error después de logs');");
+  await legacyFixture(page, 'javascript', "for (let i=0; i<150; i++) console.log('mensaje', i);\nthrow new Error('error después de logs');");
   await selectContext(page,'text');
   await clickVisible(page.getByRole('button', {name: 'Ejecutar documento 2D', exact: true}));
   await expect(page.locator('#console-entries')).toContainText('error después de logs', {timeout:60000});
@@ -216,7 +226,7 @@ test('GG-TEXT-007: log quota retains terminal error and location; runtime has no
   await page.locator('#text-source').fill("console.log(typeof window, typeof document, typeof fetch);");
   await run(page);
   await expect(page.locator('#console-entries')).toContainText('undefined undefined undefined');
-  await create(page, 'python', "import js\nprint('shell disponible', hasattr(js, 'window'), hasattr(js, 'document'))");
+  await legacyFixture(page, 'python', "import js\nprint('shell disponible', hasattr(js, 'window'), hasattr(js, 'document'))");
   await run(page);
   await expect(page.locator('#console-entries')).toContainText('shell disponible False False');
   expect(external).toEqual([]);
@@ -228,7 +238,7 @@ test('GG-TEXT-008: Python syntax preserves active scene and runtime traceback li
   await clickVisible(page.getByRole('button', {name:'Ejecutar bloques', exact:true}));
   await expect(page.locator('#status')).toHaveText('Bloques ejecutados');
   const original = await page.evaluate(() => studioProbe.state());
-  await create(page, 'python', "if :\n    pass");
+  await legacyFixture(page, 'python', "if :\n    pass");
   await selectContext(page,'text');
   await clickVisible(page.getByRole('button', {name:'Ejecutar documento 2D', exact:true}));
   await expect(page.locator('#text-error')).not.toBeEmpty({timeout:60000});

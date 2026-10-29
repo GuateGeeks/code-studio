@@ -91,3 +91,10 @@ Contrato: una única detención `#stop-result`; consulta con pestañas reales y 
 
 FINISH: capturas válidas por contexto y viewport, detector una vez, revisión fresca y documentación; resultados en `docs/product/VISUAL-REWORK-RESULTS.md`. La aceptación docente, de estudiantes, lector humano y hardware físico sigue separada.
 
+
+
+## Extensión local: vistas sincronizadas 2D
+
+Se conserva Operate y el mundo verde/blanco con foco coral, tipografía del sistema y controles nativos. Extensión precisa code-led, sin comp ni nuevos tokens. Bloques, JavaScript y Python representan el mismo programa 2D mediante los radios existentes y el textarea compartido. Volver a Bloques comprueba el texto sin ejecutar; el rechazo identifica la línea y ofrece seguir editando, recuperar bloques o crear una copia independiente. Se mantienen aviso de formato y Deshacer. Copias API1/API2 conservadas; nuevos documentos API3. Micro:bit, 3D/web y la revisión 2 de actividad siguen pendientes.
+
+Capturas: .impeccable/review/synced2d/; detector: artifacts/synced-code-views/views-20261026/impeccable-detector.json. El reviewer fresco emitió ship para el corte visual 2D. La documentación compara implementación y sistema existente, preservando tokens y sidecar. Este dictamen no certifica conversión completa, offline ni comprensión humana. Se reporta sin reparar el drift observado del Don't de sincronización en el sidecar y su sección Motion histórica.

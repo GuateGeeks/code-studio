@@ -86,6 +86,26 @@ for(const size of [{name:'desktop',width:1280,height:960},{name:'mobile',width:3
     await clickVisible(page.locator('#run-editor'));await expect(page.locator('#status')).toHaveText('Bloques ejecutados');
     await selectContext(page,'2d');
     await clickVisible(page.locator('#stop-result'));await expect(page.locator('#run-editor')).toBeEnabled();expect(await page.evaluate(()=>studioProbe.editor.save())).toEqual(before);
+
+    // Synced views retain keyboard exits and the rejected draft at real zoom.
+    const jsView=page.locator('#program-mode input[value=javascript]');
+    await reachable(page,jsView);await jsView.focus();await jsView.press('Space');
+    const synchronizedSource=page.locator('#text-source');await expect(synchronizedSource).toBeEditable();
+    await synchronizedSource.fill('onStart(() => {\n  while(true) {}\n});');
+    await synchronizedSource.press('Home');await synchronizedSource.press('Shift+ArrowRight');
+    const synchronizedCaret=await synchronizedSource.evaluate(input=>({start:input.selectionStart,end:input.selectionEnd}));
+    await selectContext(page,'text');await selectContext(page,'2d');
+    expect(await synchronizedSource.evaluate(input=>({start:input.selectionStart,end:input.selectionEnd}))).toEqual(synchronizedCaret);
+    const blockView=page.locator('#program-mode input[value=blocks]');
+    await reachable(page,blockView);await blockView.focus();await blockView.press('Space');
+    await expect(page.locator('#text-error')).toContainText('Línea 2');
+    for(const id of ['code-view-edit','code-view-restore','code-view-copy','run-editor','stop-result'])await reachable(page,page.locator('#'+id));
+    await noPageOverflow(page);
+    await page.screenshot({path:testInfo.outputPath('synced-rejection-'+size.name+'-'+factor+'00.png')});
+    const keepEditing=page.locator('#code-view-edit');await keepEditing.focus();await keepEditing.press('Enter');await expect(synchronizedSource).toBeFocused();
+    page.once('dialog',dialog=>dialog.accept());
+    const restoreBlocks=page.locator('#code-view-restore');await restoreBlocks.focus();await restoreBlocks.press('Enter');
+    await expect(blockView).toBeChecked();expect(await page.evaluate(()=>studioProbe.editor.save())).toEqual(before);
     await selectContext(page,'microbit');
     if(await page.locator('#enable-device').isVisible())await clickVisible(page.locator('#enable-device'));
     await reachable(page,page.locator('#device-mode input:checked'));await page.locator('#device-mode input[value="typescript"]').check();

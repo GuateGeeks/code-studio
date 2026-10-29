@@ -142,8 +142,8 @@ test('GG-COMPAT-005: text documents declare an API only in GGPROJ v4, accept com
 
 test('GG-COMPAT-006: newer formats and missing packs explain what is needed and leave nothing mutated', async () => {
   const document = await scoreProject();
-  const newer = structuredClone(document); newer.version = 5;
-  await assert.rejects(parseProject(JSON.stringify(newer), {catalog}), /GGPROJ v5 es de una versión más reciente/);
+  const newer = structuredClone(document); newer.version = 6;
+  await assert.rejects(parseProject(JSON.stringify(newer), {catalog}), /GGPROJ v6 es de una versión más reciente/);
   const missing = structuredClone(document);
   missing.capabilities.locks.push({id: 'gg.microbit', version: '0.9.0', sha256: '0'.repeat(64)});
   missing.capabilities.config['gg.microbit'] = {};

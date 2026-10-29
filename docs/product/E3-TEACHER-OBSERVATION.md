@@ -32,3 +32,24 @@ Añadida el 23 de octubre de 2026 con `studio-visual-workspace-rework`. No se ha
 - Provoca un identificador duplicado en web y un error de escritura en texto; observa si la explicación en español basta para corregir sin abrir «Detalle técnico».
 - En Scratch, pide decir qué permite el original importado (ejecutar, convertir o nada) antes de abrir la cobertura.
 - Registra éxito técnico y explicación con sus palabras por separado, sin telemetría remota ni porcentajes de mejora.
+
+
+## Exp. 1: comparación de vistas sincronizadas 2D y copia independiente
+
+Propuesta del 26/10/2026, aún sin realizar. Comparar dos recorridos del mismo
+programa: abrir una vista sincronizada, cambiar hero.move y volver a Bloques;
+o crear una copia independiente y cambiarla conservando los bloques. Alternar
+el orden de presentación acordado con el docente. No mezclar este guion con
+resultados de software ni atribuirle mejoras educativas medidas.
+
+Observar si se identifica qué programa cambiará, qué ejecutará el botón y
+por qué el resultado anterior sigue visible antes de ejecutar. Pedir predecir
+un valor y explicar el bloque modificado al volver. Provocar un rechazo breve
+y observar las tres salidas; conservar el texto como copia, cancelar un descarte
+y usar Deshacer. Repetir con teclado y con la ampliación habitual de la persona.
+
+Registrar palabras de la persona, ayudas requeridas, tiempo de preparación de
+Python, comprensión del aviso de formato y recuperación del texto pendiente
+al abrir el archivo en otro perfil. Un check de programa no demuestra esa
+comprensión. La actividad automatizada revisión 2 todavía no está publicada;
+el guion no se presenta como evidencia de su implementación.

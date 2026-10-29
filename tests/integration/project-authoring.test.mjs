@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {createCodeViewsState,emptyCodeView} from '../../src/code-views-state.mjs';
 import {createProjectAuthoring} from '../../src/project-authoring.mjs';
 import {createCapabilities} from '../../src/contracts/packs.mjs';
 import {validateDeviceConfig,defaultDeviceGraph} from '../../src/contracts/device-program.mjs';
@@ -35,9 +36,10 @@ function environment() {
  };
  const source=new EventTarget();source.value='legacy\r\n';source.selectionStart=2;source.selectionEnd=4;source.selectionDirection='backward';source.scrollTop=5;source.scrollLeft=8;
  source.ownerDocument={activeElement:source};source.focus=()=>{source.ownerDocument.activeElement=source;};source.setSelectionRange=(start,end,direction)=>{source.selectionStart=start;source.selectionEnd=end;source.selectionDirection=direction;};
- const authoring=createProjectAuthoring({editor,textDocuments:texts,source,capabilityEditors:[participant],initialCapabilities:profile});
+ const views=createCodeViewsState();
+ const authoring=createProjectAuthoring({editor,textDocuments:texts,codeViews:views,source,capabilityEditors:[participant],initialCapabilities:profile});
  const model=(caps=profile)=>({capabilities:structuredClone(caps),authoring:{blockly:{draft:'new-2d'},deviceSource:'new legacy',textDocuments:[],selectedTextDocumentId:null}});
- return {authoring,source,profile,model,participant,get graph(){return graph;},set graph(value){graph=value;},get settings(){return settings;},get active(){return active;},get text(){return text;},set text(value){text=value;},get blockly(){return blockly;},get commits(){return commits;},get captureCalls(){return captureCalls;},fail(value){failCommit=value;},changed:()=>notify(2)};
+ return {authoring,views,source,profile,model,participant,get graph(){return graph;},set graph(value){graph=value;},get settings(){return settings;},get active(){return active;},get text(){return text;},set text(value){text=value;},get blockly(){return blockly;},get commits(){return commits;},get captureCalls(){return captureCalls;},fail(value){failCommit=value;},changed:()=>notify(2)};
 }
 test('GG-DEVICE-003: materialized capture uses the only live graph; device edits never reload 2D',()=>{
  const e=environment();let updates=0;e.authoring.subscribe(()=>updates++);
@@ -104,4 +106,15 @@ test('GG-DEVICE-003: source subscriptions dispose cleanly and failed captures do
  e.source.dispatchEvent(new Event('input'));assert.equal(count,1);
  const before=e.graph;e.graph.nodes[0].inputs.DO='missing';assert.throws(()=>e.authoring.capture());assert.equal(e.graph,before);
  e.authoring.dispose();e.source.dispatchEvent(new Event('input'));e.changed();assert.equal(count,1);
+});
+
+test('GG-VIEWS: a failed authoring transaction restores the exact pending view along with the prior program',()=>{
+ const e=environment();e.views.set({...emptyCodeView('2d'),language:'javascript',source:'pending original text'});
+ const before=e.authoring.capture(),model=e.model();
+ model.authoring.codeViews={version:1,activeContext:'2d',entries:[{...emptyCodeView('2d'),language:'javascript',source:'replacement'}]};
+ const token=e.authoring.prepare(model);e.fail('device');
+ assert.throws(()=>e.authoring.commit(token),/device commit failure/);
+ assert.deepEqual(e.authoring.capture(),before);
+ const accepted=e.authoring.prepare(model);e.authoring.commit(accepted);
+ assert.equal(e.views.get('2d').source,'replacement');
 });

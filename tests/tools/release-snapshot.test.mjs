@@ -63,3 +63,12 @@ test('GG-OFFLINE-002: pinned PXT vendor bytes including native virtual config fi
   assert.ok(original.includes('generatedFiles["/config.json"]'));
   assert.equal(rewriteJavaScript(original,'/releases/'+'a'.repeat(64)+'/'),original);
 });
+
+test('CV-OFFLINE: the shared conversion validator belongs to both language packs',async t=>{
+ const f=await offlineFixture();t.after(f.cleanup);
+ await writeFile(join(f.browserRoot,'language','vendor','code-view-parser.bundle.mjs'),'export const parser=true;');
+ const snapshot=await createReleaseSnapshot({browserRoot:f.browserRoot,releaseRoot:f.releaseRoot,origins:f.origins});
+ const local=JSON.parse(await readFile(snapshot.resolveRoute('language',snapshot.releaseBase+'manifest.json').filePath));
+ const entry=local.entries.find(entry=>entry.path==='vendor/code-view-parser.bundle.mjs');
+ assert.deepEqual(entry.packs,['javascript-quickjs','python-stdlib']);
+});

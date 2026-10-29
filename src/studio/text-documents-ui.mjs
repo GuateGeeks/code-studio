@@ -15,8 +15,8 @@ export function createTextDocumentsUI({onError = () => {},canRun = () => true,on
   // copies cannot use this path to skip normal authoring validation.
   const checkpoints = new WeakMap();
   const starters = {
-    javascript: "await GG.sprite.move('hero', 10);\nconsole.log(await GG.scene.get());\n",
-    python: "await GG.sprite.move('hero', 10)\nprint(await GG.scene.get())\n"
+    javascript: "onStart(() => {\n  hero.move(10);\n});\n",
+    python: "@on_start\ndef al_iniciar():\n    hero.move(10)\n"
   };
   let documents = null;
   let selectedId = null;
@@ -25,6 +25,11 @@ export function createTextDocumentsUI({onError = () => {},canRun = () => true,on
   let lastError = null;
   let languageFilter = null;
   let presentationId;
+  let codeView = null;
+  const api3Help = 'El programa usa eventos onStart, onKey y onMessage en JavaScript, o on_start, on_key y on_message en Python. Dentro de un evento puedes usar hero.move(10), wait(1), variables, repeticiones, mensajes, disfraces, clones y sonido. Las copias independientes conservan su propio texto.';
+  const legacyHelp = 'Este documento conserva la API anterior: GG.scene.get(), GG.sprite.get/move/setPosition(), GG.variables.get/set(), GG.events.emit() y GG.wait(segundos), con await. Las copias anteriores con eventos usan su contexto ctx.';
+  const helpText = () => codeView?.help ?? (current()?.runtime?.api === 'api3' || !current() ? api3Help : legacyHelp);
+
 
   name.maxLength = textDocumentLimits.name;
   const currentId = () => presentationId === undefined ? selectedId : presentationId;
@@ -46,7 +51,7 @@ export function createTextDocumentsUI({onError = () => {},canRun = () => true,on
   function checkpoint() {
     const token = Object.freeze(Object.create(null));
     checkpoints.set(token, {
-      authoring: structuredClone({documents, selectedId}), presentationId, languageFilter, error: errorOutput.textContent, lastError,
+      authoring: structuredClone({documents, selectedId}), presentationId, languageFilter, codeView, error: errorOutput.textContent, lastError,
       nameSelection: [name.selectionStart, name.selectionEnd, name.selectionDirection],
       sourceSelection: [source.selectionStart, source.selectionEnd, source.selectionDirection],
       sourceScroll: [source.scrollTop, source.scrollLeft],
@@ -60,7 +65,7 @@ export function createTextDocumentsUI({onError = () => {},canRun = () => true,on
     // A draft can have an empty name or oversized source while it is being
     // edited. Revalidating it as a portable project would lose that work.
     ({documents, selectedId} = structuredClone(saved.authoring));
-    presentationId = saved.presentationId; languageFilter = saved.languageFilter;
+    presentationId = saved.presentationId; languageFilter = saved.languageFilter; codeView = saved.codeView;
     render();
     errorOutput.textContent = saved.error; lastError = saved.lastError;
     if (saved.focused) (saved.focused === 'source' ? source : name).focus();
@@ -79,6 +84,22 @@ export function createTextDocumentsUI({onError = () => {},canRun = () => true,on
     return validateTextDocuments(authoring.textDocuments, authoring.selectedTextDocumentId);
   }
   function render() {
+    document.querySelector('.text-document-fields').hidden = Boolean(codeView);
+    document.querySelector('#text-heading').textContent = codeView ? 'Código del programa' : 'Documentos de texto';
+    source.labels[0].textContent = codeView ? 'Código ' + (codeView.language === 'javascript' ? 'JavaScript' : 'Python') : 'Código del documento seleccionado';
+    document.querySelector('#text-api-help').textContent = helpText();
+    const explanation = document.querySelector('.text-help > p:first-of-type');
+    explanation.textContent = codeView ? 'Estas vistas editan el mismo programa. Volver a Bloques comprueba el texto; cambiar de vista no ejecuta. La copia independiente conserva el código fuera del subconjunto.'
+      : 'JavaScript con QuickJS y Python con Pyodide. Los documentos se guardan con el proyecto y se ejecutan con los controles de su contexto.';
+    source.readOnly = Boolean(codeView?.readOnly);
+    if (codeView) {
+      const text = displaySource(codeView.source);
+      if (source.value !== text) source.value = text;
+      source.disabled = !ready; name.disabled = picker.disabled = true; run.disabled = true;
+      if (status.textContent !== codeView.status) status.textContent = codeView.status;
+      return;
+    }
+
     const entries = (documents ?? []).filter(document => !languageFilter || document.language === languageFilter);
     const selectedDocument = current();
     const nextKey = JSON.stringify(entries.map(({id, name, language}) => [id, name, language]));
@@ -132,7 +153,7 @@ export function createTextDocumentsUI({onError = () => {},canRun = () => true,on
   }
   function create(language) {
     if (!ready || (documents?.length ?? 0) >= textDocumentLimits.documents) return;
-    try { onReveal(); add({language, source: starters[language]}); }
+    try { onReveal(); add({language, source: starters[language], api: 'api3'}); }
     catch (error) { report(error); }
   }
   function edit(field, value) {
@@ -183,7 +204,7 @@ export function createTextDocumentsUI({onError = () => {},canRun = () => true,on
     notify();
   });
   name.addEventListener('input', () => edit('name', name.value));
-  source.addEventListener('input', () => edit('source', source.value));
+  source.addEventListener('input', () => { if (codeView) codeView.onInput(source.value); else edit('source', source.value); });
   render();
   return Object.freeze({
     capture, prepare, commit, add, checkpoint, restoreDraft,
@@ -192,7 +213,8 @@ export function createTextDocumentsUI({onError = () => {},canRun = () => true,on
       subscribers.add(callback);
       return () => subscribers.delete(callback);
     },
-    selected: () => structuredClone(current()),refresh:render,
+    selected: () => structuredClone(current()),refresh:render,helpText,
+    presentCodeView(value) { codeView = value; render(); },
     // Context navigation projects a selection without changing portable authoring.
     present({documentId,language=null}={}) { presentationId=documentId; languageFilter=language; render(); },
     selectSourceLocation,

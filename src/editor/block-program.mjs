@@ -21,7 +21,7 @@ function numericInput(block, name) {
   return number;
 }
 
-export function workspaceToIR(workspace, {capabilities = null, resourceView = getWorkspaceResourceView(workspace)} = {}) {
+export function workspaceToIR(workspace, {capabilities = null, resourceView = getWorkspaceResourceView(workspace), scriptOrder = null} = {}) {
   const contributions = registerContributions(Blockly, createContributions(capabilities));
   // Scope belongs to the GG program, identified by the stable Blockly variable
   // ID. A global assignment declares that ID for all scripts and clone reads.
@@ -102,9 +102,17 @@ export function workspaceToIR(workspace, {capabilities = null, resourceView = ge
     }
     return nodes;
   }
+  let roots = workspace.getTopBlocks(true);
+  if (scriptOrder !== null && scriptOrder !== undefined) {
+    const byID = new Map(roots.map(block => [block.id, block]));
+    if (!Array.isArray(scriptOrder) || scriptOrder.length !== roots.length || scriptOrder.length > 16 ||
+        new Set(scriptOrder).size !== scriptOrder.length || scriptOrder.some(id => !byID.has(id)))
+      throw new Error('El orden de eventos no coincide con los bloques del programa.');
+    roots = scriptOrder.map(id => byID.get(id));
+  }
   const ir = {
     version: 0,
-    scripts: workspace.getTopBlocks(true).map(block => {
+    scripts: roots.map(block => {
       const contribution = contributions.hats.get(block.type);
       if (!contribution) unsupported(block);
       const script = lower(block, {...contribution, rule: {kind: 'hat', fields: contribution.rule.fields}}, expression);

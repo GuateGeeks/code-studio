@@ -2,7 +2,7 @@ import {validateCapabilities,resolveResourcePolicy,selectCapabilityLocksForConte
 
 // Injected participants own live drafts. This coordinator owns profile metadata
 // and transaction capabilities, never a second mutable workspace.
-export function createProjectAuthoring({editor,textDocuments,source,capabilityEditors=[],initialCapabilities,resourceStore}={}) {
+export function createProjectAuthoring({editor,textDocuments,codeViews,source,capabilityEditors=[],initialCapabilities,resourceStore}={}) {
  if(!editor||!source)throw new TypeError('Authoring participants missing');
  const managed=new Map(),subscribers=new Set(),checkpoints=new WeakMap(),prepared=new WeakMap(),disposers=[];
  let muted=0,disposed=false;
@@ -54,8 +54,8 @@ export function createProjectAuthoring({editor,textDocuments,source,capabilityEd
   return next;
  }
  function capture() {
-  const capabilities=captureCapabilities();
-  return {blockly:editor.save(),deviceSource:source.value,...(textDocuments?.capture()??{}),...(capabilities?{capabilities}:{}),...(resourceStore?{resources:resourceStore.capture()}:{})};
+  const capabilities=captureCapabilities(),views=codeViews?.capture();
+  return {blockly:editor.save(),deviceSource:source.value,...(textDocuments?.capture()??{}),...(views?{codeViews:views}:{}),...(capabilities?{capabilities}:{}),...(resourceStore?{resources:resourceStore.capture()}:{})};
  }
  function prepare(model,options={}) {
   if(!model?.authoring||typeof model.authoring.deviceSource!=='string')throw new TypeError('Invalid project authoring');
@@ -65,11 +65,13 @@ export function createProjectAuthoring({editor,textDocuments,source,capabilityEd
   const resourceView=resourceStore?.candidateView(resourceCandidate);
   const resources=resourceStore?.candidateResources(resourceCandidate);
   const textCandidate=textDocuments?.prepare(model.authoring);
+  if(model.authoring.codeViews && !codeViews)throw new Error('Este lector no admite las vistas guardadas del proyecto.');
+  const viewsCandidate=codeViews?.prepare(model.authoring.codeViews??null);
   if(resources)validateCapabilityReferences(capabilities,{resources,textDocuments:model.authoring.textDocuments??[]});
   const plan={
    capabilities,resourceCandidate,
-   editor:editor.prepare(model.authoring.blockly,{capabilities:projectExecution(capabilities,'scratch-2d',{allowInactive:true}),...(resourceView?{resourceView}:{})}),
-   text:textCandidate,
+   editor:editor.prepare(model.authoring.blockly,{scriptOrder:viewsCandidate?.entries.find(entry=>entry.contextId==='2d')?.scriptOrder??null,capabilities:projectExecution(capabilities,'scratch-2d',{allowInactive:true}),...(resourceView?{resourceView}:{})}),
+   text:textCandidate,codeViews:viewsCandidate,
    source:model.authoring.deviceSource,
    managed:[...managed].map(([id,participant])=>{const config=capabilities?.config[id]??null;const contextId=(participant.contexts??[participant.context??participant.id])[0];const view=resourceStore?.candidateView(resourceCandidate,{contextId,documentId:config?.documentId});return {id,candidate:participant.prepareConfig(config,{resources,resourceView:view,textDocuments:model.authoring.textDocuments??[]})};})
   };
@@ -81,7 +83,7 @@ export function createProjectAuthoring({editor,textDocuments,source,capabilityEd
    template:structuredClone(template),source:source.value,resources:resourceStore?.checkpoint(),
    sourceView:{selection:[source.selectionStart,source.selectionEnd,source.selectionDirection],scroll:[source.scrollTop,source.scrollLeft],focused:source.ownerDocument?.activeElement===source},
    editor:editor.checkpoint?.(),blockly:editor.save(),editorCapabilities:projectExecution(template,'scratch-2d',{allowInactive:true}),
-   text:textDocuments?.checkpoint(),
+   text:textDocuments?.checkpoint(),codeViews:codeViews?.checkpoint(),
    managed:[...managed].map(([id,participant])=>({id,token:participant.checkpoint()}))
   });
   return token;
@@ -93,6 +95,7 @@ export function createProjectAuthoring({editor,textDocuments,source,capabilityEd
    template=structuredClone(saved.template);
    try {if(resourceStore)resourceStore.restoreDraft(saved.resources,{silent:true});}catch(error){failures.push(error);}
    try {if(saved.editor&&editor.restoreDraft)editor.restoreDraft(saved.editor);else editor.commit({state:structuredClone(saved.blockly),capabilities:structuredClone(saved.editorCapabilities)});}catch(error){failures.push(error);}
+   try {if(codeViews)codeViews.restoreDraft(saved.codeViews);}catch(error){failures.push(error);}
    try {if(textDocuments)textDocuments.restoreDraft(saved.text);}catch(error){failures.push(error);}
    for(const item of saved.managed)try{managed.get(item.id).restoreDraft(item.token);}catch(error){failures.push(error);}
    source.value=saved.source;
@@ -113,6 +116,7 @@ export function createProjectAuthoring({editor,textDocuments,source,capabilityEd
    if(textDocuments)textDocuments.commit(plan.text);
    for(const item of plan.managed)managed.get(item.id).commitConfig(item.candidate);
    source.value=plan.source;template=templateOf(plan.capabilities);
+   if(codeViews)codeViews.commit(plan.codeViews);
   }catch(error){failed=error;}
   finally{muted--;}
   if(!failed)try{emit();}catch(error){failed=error;}
@@ -123,7 +127,7 @@ export function createProjectAuthoring({editor,textDocuments,source,capabilityEd
   // No fallible recapture after the transaction has published.
   return undefined;
  }
- for(const participant of [resourceStore,editor,textDocuments,...managed.values()])if(participant?.subscribe) {
+ for(const participant of [resourceStore,editor,textDocuments,codeViews,...managed.values()])if(participant?.subscribe) {
   const unsubscribe=participant.subscribe(emit);if(typeof unsubscribe==='function')disposers.push(unsubscribe);
  }
  if(source.addEventListener){source.addEventListener('input',emit);disposers.push(()=>source.removeEventListener('input',emit));}

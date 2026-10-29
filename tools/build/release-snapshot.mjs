@@ -27,6 +27,7 @@ function packsFor(role, path) {
   if (role === 'scene3d') return ['scene3d-babylon'];
   if (role === 'webapp') return ['webapp-dom'];
   if (role === 'simulator') return ['microbit-simulator'];
+  if (role === 'language' && path === 'vendor/code-view-parser.bundle.mjs') return ['javascript-quickjs','python-stdlib'];
   if (role === 'language') return path.startsWith('vendor/pyodide/') ? ['python-stdlib'] : ['javascript-quickjs'];
   if (path === 'compiler-worker.js' || path === 'compiler-pack.json' || /vendor\/(?:typescript|pxtworker|microbit-compiler|lzma)\.js$/.test(path)) return ['microbit-compiler'];
   return ['scratch-2d'];

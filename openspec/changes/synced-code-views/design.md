@@ -20,7 +20,7 @@ Véanse `proposal.md`, ADR-011 y `block-language-contract`, que deja una tabla b
 
 1. **Fuente de verdad única por momento.** En vista de bloques, la verdad es el workspace. En vista de texto sincronizada, la verdad es el texto. Al salir del texto se convierte. Mientras se edita texto, «Ejecutar» convierte primero; si la conversión falla, se muestra el rechazo y no se ejecuta. Alternativa descartada: conversión continua en cada pulsación, cara y fuente de saltos de cursor.
 2. **Parser genérico dirigido por la tabla.**
-   - El núcleo reconoce las estructuras de control (eventos con callback, `if/else`, repeticiones, `forever`, `while`, funciones) y delega cada llamada, valor o enum a la tabla, por espacio de nombres y nombre.
+   - El núcleo reconoce las estructuras instaladas en cada contexto y delega cada llamada, valor o enum a la tabla, por espacio de nombres y nombre. En 2D se convierten eventos con callback, variables y asignaciones numéricas, comparaciones, repeticiones e `if/else`. `while`, `forever` y funciones propias se rechazan en 2D con causa y línea porque no tienen bloque instalado; no se amplían IR, bloques ni runtimes dentro de este cambio. `forever` de micro:bit se conserva para la etapa 4.2.
    - JavaScript se analiza con `acorn` y Python con `ast`, ambos en el worker del origen del lenguaje. El worker devuelve una IR candidata serializable; la shell la valida y la aplica.
    - Python carga Pyodide bajo demanda, con estado «Preparando Python…».
 3. **Identidad de bloques por correspondencia estructural.**
@@ -43,9 +43,52 @@ Véanse `proposal.md`, ADR-011 y `block-language-contract`, que deja una tabla b
 
 ## Migration Plan
 
-Sin migración de datos aparte de añadir la vista activa y el texto pendiente al estado de autoría (GGPROJ v4). Los proyectos con copias independientes las conservan. Se habilita contexto a contexto; cada habilitación tiene su `test:affected` y la última, una `test:full`. Reversión: deshabilitar el modo sincronizado por contexto deja la lectura y la copia independiente como hoy.
+Sin migración de datos aparte de añadir la vista activa y el texto pendiente al estado de autoría (GGPROJ v5). La versión 4 ya declara APIs textuales y se conserva: la versión 5 añade codeViews sin reinterpretar los archivos 1–4. Los proyectos con copias independientes las conservan. Se habilita contexto a contexto; cada habilitación tiene su `test:affected` y la última, una `test:full`. Reversión: deshabilitar el modo sincronizado por contexto deja la lectura y la copia independiente como hoy.
 
 ## Open Questions
 
 - ¿Bloques grises de código en 3D/web o rechazo como en 2D?
 - ¿El modo sincronizado es el predeterminado o una opción que activa el docente? Propuesta: predeterminado, con la copia independiente como acción visible; confirmar en el Exp. 1.
+
+
+## Resultado de viabilidad (25/10/2026)
+
+Histórico: la primera prueba canónica en un worker real del origen de lenguaje conserva programa e IR (9/9) y posiciones de eventos (9/9), pero no todos los IDs del workspace (0/9): se regeneran 38 IDs de `math_number`. Los números primitivos de la IR y el mapa actual no conservan la identidad de esos bloques. Ese intento detuvo la implementación según el criterio de 1.1; la repetición se registra abajo. [Acta, reproducción y evidencia](../../../docs/engineering/SYNCED-CODE-VIEWS-VIABILITY.md).
+
+Corrección aplicada en la repetición: ampliar el mapa lateral de correspondencia con IDs y conexiones de los bloques numéricos del workspace original, validarlo y conservar esos IDs al reconstruir, sin cambiar la IR0 ni insertar IDs en el texto. Repetir la puerta del 100 % antes de 1.2 o de habilitar vistas. No se considera suficiente comparar solamente los IDs que sobrevivieron en la IR.
+
+## Identidad numérica lateral (corrección de viabilidad)
+
+La IR0 conserva números primitivos. El editor captura aparte un mapa serializable
+`numericInputIdentity`: por bloque numérico conectado, `{parentId, inputName, id, shadow}`.
+No contiene valores anteriores: el valor reconstruido siempre procede de la IR
+candidata del worker. El controlador conserva el mapa junto al layout; el parser
+sigue recibiendo únicamente texto, sourceMap y variableIds.
+
+`workspaceFromIR` admite este mapa como opción. Valida forma, tamaño, padre,
+unicidad de IDs/entradas y ausencia de colisiones con IDs de la IR; reserva todos
+los IDs antes de asignar nuevos. Reutiliza ID y condición shadow/bloque por
+padre/entrada, incluso si cambia el número; rechaza entradas no consumidas en vez
+de aplicarlas a otro bloque. Sin mapa conserva la asignación histórica
+`gg-number-N`. No se cambia la IR0, el texto ni GGPROJ.
+
+Esto resuelve la ida y vuelta canónica sin cambios y cambios de valor en la misma
+entrada. No constituye el diff estructural de 1.2: inserciones, reordenamientos,
+cambios de tipo y mapas antiguos requieren alineación antes de reconstruir.
+
+La repetición de la puerta en el worker real aprobó: programa/IR, todos los IDs
+(incluidos shadows) y posiciones 9/9, cero IDs perdidos, rechazo sin ejecución.
+JSON: `artifacts/synced-code-views/numeric-identity-20261025/browser-attempt-2/results.json`.
+La tarea 1.1 está completa; 1.2 y la interfaz siguen pendientes.
+
+## Puerta del diff estructural (25/10/2026)
+
+1.2 acreditada en [acta](../../../docs/engineering/SYNCED-CODE-VIEWS-STRUCTURAL-DIFF.md): 491/491 propiedades, 489 reconstrucciones exactas, dos rechazos explícitos por declaración global sin bloque representable y 5.291 nodos con identidad verificada. Correspondencia propia en src/code-view-identity.mjs; valores nuevos nunca se toman del mapa anterior. No hay integración/UI. El alcance de while/forever/funciones propias de 2.1 queda pendiente de aclaración frente al núcleo 2D instalado.
+
+## Subconjunto confirmado por el usuario (25/10/2026)
+
+El usuario eligió mantener el subconjunto actual y ajustar el diseño. La tarea 2.1 convierte las estructuras efectivamente instaladas, con rechazo explicado de las demás y conservación del texto para copia independiente. Una futura ampliación del núcleo será un cambio separado. Se resuelve así la aclaración pendiente al cerrar 1.2.
+
+## Aplicación validada y orden lateral (26/10/2026)
+
+La shell no importa el parser. Un iframe del origen de lenguaje autentica el canal y crea un worker de análisis por solicitud. El editor valida la IR candidata y prepara un workspace separado; una generación de carga invalida resultados anteriores incluso al abrir otro proyecto con autoría idéntica. El mapa lateral scriptOrder conserva el orden de registro del texto y las posiciones originales de los eventos, sin cambiar IR0 ni las operaciones. Solo se admite la lista exacta, única y completa de raíces; un arrastre nativo de raíces restablece el orden visual. GGPROJ v5 conserva este mapa junto con las vistas y puntos de restauración; los archivos anteriores mantienen el orden visual histórico.

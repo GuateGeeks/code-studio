@@ -37,6 +37,11 @@ export async function compileStage(name, {projectRoot, xcratchRoot, shell, vendo
         resolve: {modules: [resolve(projectRoot, 'node_modules'), 'node_modules'], conditionNames: ['browser', 'import', 'default']},
         output: {path: resolve(language, 'vendor'), filename: 'quickjs-engine.bundle.mjs',
           chunkFilename: 'quickjs-[id].chunk.mjs', publicPath: '/vendor/', library: {type: 'module'}, chunkFormat: 'module'}};
+    } else if (name === 'webpack-code-view-parser') {
+      config = {mode: 'development', devtool: false, target: 'webworker', context: projectRoot,
+        entry: resolve(projectRoot, 'src/targets/text/code-view-parser.mjs'), experiments: {outputModule: true},
+        resolve: {modules: [resolve(projectRoot, 'node_modules'), 'node_modules']},
+        output: {path: resolve(language, 'vendor'), filename: 'code-view-parser.bundle.mjs', library: {type: 'module'}}};
     } else if (name === 'webpack-babylon') {
       config = {mode:'production', devtool:false, target:'web', context:projectRoot,
         entry:resolve(projectRoot,'src/adapters/babylon/browser-entry.mjs'), experiments:{outputModule:true},

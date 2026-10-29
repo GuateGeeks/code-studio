@@ -23,7 +23,7 @@ Cuando el texto de una vista sincronizada está dentro del subconjunto bloqueabl
 - **THEN** el bloque mover muestra 25, conserva su ID, el resto de bloques no cambia y ejecutar da el resultado de 25 pasos
 
 #### Scenario: Añadir una instrucción en Python
-- **WHEN** en la vista Python se añade `hero.say("Hola", 2)` dentro de un evento y se vuelve a Bloques
+- **WHEN** en la vista Python se añade `hero.move(10)` dentro de un evento y se vuelve a Bloques
 - **THEN** aparece el bloque correspondiente en ese evento, los bloques existentes conservan su ID y el programa se guarda
 
 ### Requirement: Rechazo explicado sin pérdida de trabajo
@@ -37,6 +37,12 @@ Si el texto tiene un error de sintaxis o usa una construcción fuera del subconj
 #### Scenario: Guardar como copia
 - **WHEN** ante el rechazo se elige guardar como copia independiente
 - **THEN** se crea un documento independiente con el texto exacto, el programa en bloques vuelve a su última versión válida y nada se ejecuta
+
+
+#### Scenario: Construcción sin bloque instalado en 2D
+- **WHEN** se intenta convertir una vista 2D que contiene while, forever o funciones propias sin bloque instalado
+- **THEN** se conserva el texto y se explica la línea y la construcción rechazada
+- **AND** no se amplían contratos, bloques o runtimes automáticamente; la copia independiente permite conservar el código libre
 
 ### Requirement: Conversión aislada y validada
 

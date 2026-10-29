@@ -1,3 +1,4 @@
+import {programLimits} from '../contracts/program-contract.mjs';
 import {authorizeProgram} from '../contracts/pack-broker.mjs';
 import {canonicalPackData} from '../contracts/packs.mjs';
 import {createContributions} from './contributions.mjs';
@@ -8,9 +9,20 @@ const fail = (message, node) => { throw Object.assign(new Error('IR → Blockly:
 const plain = value => value && typeof value === 'object' && !Array.isArray(value) &&
   [Object.prototype, null].includes(Object.getPrototypeOf(value));
 
+// Sidecar for numeric blocks erased by IR0's primitive numbers. Capture only
+// identity/connections, never old values or executable workspace state.
+export function captureNumericInputIdentity(workspace) {
+  return workspace.getAllBlocks(false).filter(block => block.type === 'math_number').map(block => {
+    const parent = block.getParent();
+    const input = parent?.inputList.find(input => input.connection?.targetBlock() === block);
+    if (!input) fail('bloque numérico sin entrada representable', {sourceBlockId: block.id});
+    return {parentId: parent.id, inputName: input.name, id: block.id, shadow: block.isShadow()};
+  }).sort((a, b) => a.id.localeCompare(b.id));
+}
+
 // Inverts only installed declarative rules. The real forward translator below
 // is the final check: no newly invented initialization, event or coercion.
-export function workspaceFromIR(input, {capabilities = null, resourceView = null, layout} = {}) {
+export function workspaceFromIR(input, {capabilities = null, resourceView = null, layout, numericInputIdentity, scriptOrder = null} = {}) {
   const ir = authorizeProgram(capabilities, input, {resourceView});
   const contributions = createContributions(capabilities);
   const declarations = new Map((ir.variables ?? []).map(variable => [variable.id, variable]));
@@ -21,11 +33,38 @@ export function workspaceFromIR(input, {capabilities = null, resourceView = null
     for (const child of Object.values(value)) if (child && typeof child === 'object') collect(child);
   }
   collect(ir);
+  const numericInputs = new Map();
+  const inputKey = (parentId, inputName) => JSON.stringify([parentId, inputName]);
+  const validID = id => typeof id === 'string' && id.length <= 128 && Boolean(id.trim());
+  if (numericInputIdentity !== undefined) {
+    if (!Array.isArray(numericInputIdentity) || numericInputIdentity.length > programLimits.nodes * 2)
+      fail('mapa de identidad numérica inválido');
+    for (const entry of numericInputIdentity) {
+      if (!plain(entry) || Object.keys(entry).length !== 4 ||
+          !['parentId', 'inputName', 'id', 'shadow'].every(key => Object.hasOwn(entry, key)) ||
+          !validID(entry.parentId) || !validID(entry.inputName) || !validID(entry.id) ||
+          typeof entry.shadow !== 'boolean' || !sourceNodes.has(entry.parentId) || usedIds.has(entry.id))
+        fail('mapa de identidad numérica inválido');
+      const key = inputKey(entry.parentId, entry.inputName);
+      if (numericInputs.has(key)) fail('entrada duplicada en mapa de identidad numérica');
+      numericInputs.set(key, entry);
+      usedIds.add(entry.id); // Reserve even IDs consumed later, before allocating any new ones.
+    }
+  }
+  const consumedNumericInputs = new Set();
   let numberId = 0;
-  const numberBlock = value => {
-    let id; do { id = 'gg-number-' + numberId++; } while (usedIds.has(id));
-    usedIds.add(id); return {type: 'math_number', id, fields: {NUM: value}};
-  };
+  function numberInput(value, parentId, inputName) {
+    const key = inputKey(parentId, inputName), entry = numericInputs.get(key);
+    let id = entry?.id;
+    if (entry) {
+      if (consumedNumericInputs.has(key)) fail('entrada numérica reutilizada');
+      consumedNumericInputs.add(key);
+    } else {
+      do { id = 'gg-number-' + numberId++; } while (usedIds.has(id));
+      usedIds.add(id);
+    }
+    return {[entry?.shadow === false ? 'block' : 'shadow']: {type: 'math_number', id, fields: {NUM: value}}};
+  }
   const attach = block => block ? {block} : undefined;
   const positions = new Map();
   if (layout !== undefined && layout !== null) {
@@ -71,7 +110,7 @@ export function workspaceFromIR(input, {capabilities = null, resourceView = null
     if (rule.variableField) fields[rule.variableField] = variableField(node.variableId);
     for (const [key, source] of Object.entries(values)) if (source.input) {
       if (source.type === 'number' && typeof node[key] !== 'number') fail('entrada numérica no representable', node);
-      inputs[source.input] = source.type === 'number' ? {shadow: numberBlock(node[key])} : expression(node[key]);
+      inputs[source.input] = source.type === 'number' ? numberInput(node[key], node.sourceBlockId, source.input) : expression(node[key], node.sourceBlockId, source.input);
     }
     const result = {type, id: node.sourceBlockId};
     if (Object.keys(fields).length) result.fields = fields;
@@ -90,23 +129,23 @@ export function workspaceFromIR(input, {capabilities = null, resourceView = null
     }
     return null;
   }
-  function expression(value) {
-    if (typeof value === 'number') return {shadow: numberBlock(value)};
+  function expression(value, parentId, inputName) {
+    if (typeof value === 'number') return numberInput(value, parentId, inputName);
     const local = contributed(value, 'expressions');
     if (local) return {block: local.block};
     if (value.kind === 'variable') return {block: {type: 'variables_get', id: value.sourceBlockId, fields: {VAR: variableField(value.variableId)}}};
     if (value.kind === 'compare') return {block: {type: 'logic_compare', id: value.sourceBlockId, fields: {OP: value.operator},
-      inputs: {A: expression(value.left), B: expression(value.right)}}};
+      inputs: {A: expression(value.left, value.sourceBlockId, 'A'), B: expression(value.right, value.sourceBlockId, 'B')}}};
     fail('expresión no representable', value);
   }
   function statement(node) {
     if (node.kind === 'repeat') {
-      const inputs = {TIMES: {shadow: numberBlock(node.count)}}, body = stack(node.body);
+      const inputs = {TIMES: numberInput(node.count, node.sourceBlockId, 'TIMES')}, body = stack(node.body);
       if (body) inputs.DO = attach(body);
       return {type: 'controls_repeat_ext', id: node.sourceBlockId, inputs};
     }
     if (node.kind === 'if') {
-      const inputs = {IF0: expression(node.condition)}, yes = stack(node.body), no = stack(node.elseBody);
+      const inputs = {IF0: expression(node.condition, node.sourceBlockId, 'IF0')}, yes = stack(node.body), no = stack(node.elseBody);
       if (yes) inputs.DO0 = attach(yes);
       if (no) inputs.ELSE = attach(no);
       return {type: 'controls_if', id: node.sourceBlockId, extraState: {hasElse: true}, inputs};
@@ -116,7 +155,7 @@ export function workspaceFromIR(input, {capabilities = null, resourceView = null
     if (['setVariable', 'changeVariable'].includes(node.kind)) {
       const change = node.kind === 'changeVariable';
       return {type: change ? 'math_change' : 'variables_set', id: node.sourceBlockId,
-        fields: {VAR: variableField(node.variableId)}, inputs: {[change ? 'DELTA' : 'VALUE']: expression(node.value)}};
+        fields: {VAR: variableField(node.variableId)}, inputs: {[change ? 'DELTA' : 'VALUE']: expression(node.value, node.sourceBlockId, change ? 'DELTA' : 'VALUE')}};
     }
     fail('operación no representable mediante contribuciones instaladas', node);
   }
@@ -137,6 +176,8 @@ export function workspaceFromIR(input, {capabilities = null, resourceView = null
     Object.assign(block, positions.get(script.sourceBlockId) ?? {x: 20, y: 20 + index * 220});
     return block;
   });
+  if (consumedNumericInputs.size !== numericInputs.size)
+    fail('entrada inexistente o no numérica en mapa de identidad numérica');
   const variables = (ir.variables ?? []).filter(variable => {
     const supplied = contributions.plan.variables.find(item => item.id === variable.id);
     return fieldsUsed.has(variable.id) || !supplied || canonicalPackData(supplied) !== canonicalPackData(variable);
@@ -144,7 +185,7 @@ export function workspaceFromIR(input, {capabilities = null, resourceView = null
   const state = {blocks: {languageVersion: 0, blocks}, ...(variables.length ? {variables} : {})};
   const workspace = loadWorkspace(state, {capabilities, resourceView});
   try {
-    const restored = workspaceToIR(workspace, {capabilities, resourceView});
+    const restored = workspaceToIR(workspace, {capabilities, resourceView, scriptOrder});
     const normalize = value => {
       const result = structuredClone(value);
       if (result.variables?.length) result.variables = result.variables.map(variable => ({...variable, scope: variable.scope ?? 'local'})).sort((a, b) => a.id.localeCompare(b.id));

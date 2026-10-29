@@ -1,3 +1,5 @@
+import {createCodeViewsState} from '../code-views-state.mjs';
+import {createCodeViewsUI} from './code-views-ui.mjs';
 import {createContextualWorkspace} from './contextual-workspace.mjs';
 import {exportStandaloneContext} from '../export/export-context.mjs';
 import {createCapabilityContextsUI} from './capability-contexts-ui.mjs';
@@ -49,10 +51,11 @@ void offline.init().catch(error => { document.querySelector('#offline-status').t
 const editor = GGEditor.createEditor(document.querySelector('#blockly-editor'), await fetch('/editable.blocks.json').then(response => response.json()));
 const copyFacts = new Map();
 let lessons = null;
-let workspace = null;
+let workspace = null, syncedViews = null, projectForCodeViews = null;
+const codeViewsState=createCodeViewsState();
 let executionLessonIdentity = null;
 const textDocuments = createTextDocumentsUI({onReveal:id=>workspace?.revealText(id),canRun:()=>scene2DEnabled,onError: record => consoleUI.local(record)});
-const consoleUI = createCodeConsoleUI(editor, {selectSourceBlock:(id,record)=>['scene3d','webapp'].includes(record.origin)?capabilityUI.selectSource(id,record.origin):record.origin==='device'?(device.setContext('microbit'),deviceEditor.selectSource(id)):(device.setContext('2d'),editor.selectSource(id)),selectSourceLocation: location => textDocuments.selectSourceLocation(location), createTextCopy: document => {
+const consoleUI = createCodeConsoleUI(editor, {selectSourceBlock:(id,record)=>['scene3d','webapp'].includes(record.origin)?capabilityUI.selectSource(id,record.origin):record.origin==='device'?(device.setContext('microbit'),deviceEditor.selectSource(id)):(device.setContext('2d'),syncedViews?syncedViews.revealBlock(id):editor.selectSource(id)),selectSourceLocation: location => textDocuments.selectSourceLocation(location), createTextCopy: document => {
   const blocklyHashAtCopy = JSON.stringify(editor.save());
   contexts.select('text');
   const created = textDocuments.add(document);
@@ -88,10 +91,15 @@ const resourcesUI=createResourcesUI({store:resourceStore,contexts,getAuthoring:(
 const capabilityUI=createCapabilityContextsUI({contexts,getCapabilities:()=>authoring.captureCapabilities(),activate:capabilities=>project.useCapabilities(capabilities),textDocuments,
   onRun:async id=>{const result=await capabilityExecution.run(id);const mode=capabilityUI.capture(id)?.mode;workspace.result((id==='scene3d'?'escena 3D':'aplicación web')+(mode&&mode!=='blocks'?' · documento '+(mode==='javascript'?'JavaScript':'Python'):' · bloques')+' · activo',{context:id,running:true});return result;},onStop:reset,onExport:id=>exportContext(id),onImportModel:importModel,
   onDiagnostic:record=>consoleUI.local(record)});
-const authoring = createProjectAuthoring({editor,textDocuments,source,resourceStore,capabilityEditors:[device.participant,resourcesUI.participant,...capabilityUI.participants]});
+const authoring = createProjectAuthoring({editor,textDocuments,codeViews:codeViewsState,source,resourceStore,capabilityEditors:[device.participant,resourcesUI.participant,...capabilityUI.participants]});
 const capabilityExecution=createCapabilityExecution({config,getAuthoring:contextId=>({contextConfig:capabilityUI.capture(contextId),resources:resourceStore.capture(),capabilities:authoring.captureExecutionCapabilities(contextId),textDocuments:textDocuments.capture()?.textDocuments??[]}),slot,beforeCommit:()=>reset({preserveContext:true}),requirePack:requirePreparedPack,
   onDiagnostic:record=>consoleUI.local(record),onStatus:message=>{status.textContent=message;document.querySelector('.gg-controls').disabled=Boolean(capabilityExecution.state().contextId);const id=capabilityExecution.state().contextId??contexts.current();const entry=capabilityUI.get(id);if(entry)entry.status.textContent=message;}});
-workspace=createContextualWorkspace({contexts,textDocuments,capabilityUI,device,stopResult:()=>reset().then(()=>{document.querySelector('#position').textContent='x = 0';}),getAuthoringKey:contextAuthoringKey,getTextContext:id=>{const state=capabilityExecution.state();return state.sourceDocument===id?state.contextId:null;},onError:showError});
+syncedViews=createCodeViewsUI({state:codeViewsState,editor,textDocuments,contexts,config,getProject:()=>projectForCodeViews,
+  onRender:()=>workspace?.render(),onDiagnostic:record=>consoleUI.local(record),onSourceChanged:()=>{consoleUI.invalidateSources();lessons?.invalidate();workspace?.authoringChanged();},
+  requirePack:requirePreparedPack,
+  onCopy:(document,blocklyHashAtCopy)=>copyFacts.set(document.id,{documentId:document.id,language:document.language,blocklyHashAtCopy,projectId:projectForCodeViews.state().id}),
+  canRun:()=>scene2DEnabled&&Boolean(sessionId)&&activeRevision!==null});
+workspace=createContextualWorkspace({contexts,textDocuments,capabilityUI,device,codeViews:syncedViews,is2DEnabled:()=>scene2DEnabled,stopResult:()=>reset().then(()=>{document.querySelector('#position').textContent='x = 0';}),getAuthoringKey:contextAuthoringKey,getTextContext:id=>{const state=capabilityExecution.state();return state.sourceDocument===id?state.contextId:null;},onError:showError});
 for(const entry of ['scene3d','webapp'].map(id=>capabilityUI.get(id)))entry.participant.subscribe(()=>consoleUI.invalidateSources(entry.contextId));
 authoring.subscribe(()=>{resourcesUI.authoringChanged();workspace?.authoringChanged();});
 deviceEditor.subscribe(()=>{lessons?.invalidate();workspace?.authoringChanged();});
@@ -164,6 +172,7 @@ function closeRunner(oldPort, oldSession, requestId) {
 }
 
 async function reset({preserveLanguage,preserveDevice=false,preserveContext=false} = {}) {
+  syncedViews?.cancelAnalysis();
   capabilityExecution.stop({preserveCandidate:preserveContext});
   capabilityUI.markStopped();
   resourceAttempt++;modelProcessor.cancel();
@@ -366,6 +375,7 @@ async function runCompatibility() {
   }catch(error){request('discard-compatibility',{id:prepared.id}).catch(()=>{});throw error;}
 }
 async function runEditable() {
+  if(syncedViews&&!await syncedViews.applyForRun())return null;
   requirePreparedPack('scratch-2d');
   language.cancelPreparation();
   const ir = editor.program();
@@ -515,13 +525,14 @@ const project = createProjectUI({editor, source, stop: reset, textDocuments, aut
   prepareResources:resources=>[1,2].includes(resources.version)?resourceValidator.process('validate-resources',{resources}):Promise.resolve(),onDiagnostic: record => consoleUI.local(record),
   onApplied: () => { copyFacts.clear(); executionLessonIdentity = null; previousCapabilities = null; previousProjectSnapshot = null; lessons?.invalidate(); renderPacks();resourcesUI.render();capabilityUI.refreshProfiles(authoring);void resourcesUI.refreshReport(); }
 });
+projectForCodeViews=project;
 createEntryJourneyUI({project,
   startCreation: () => project.loadStarter({...getLesson('story').starter, name:'Mi primera creación'}),
   select2D: () => contexts.select('2d')
 });
 // Presentation key per result context: detects edits made after a run.
 function contextAuthoringKey(id) {
-  if(id==='2d')return JSON.stringify({blockly:editor.save(),resources:resourceStore.capture()});
+  if(id==='2d')return JSON.stringify({blockly:editor.save(),scriptOrder:editor.codeViewOrder(),resources:resourceStore.capture(),pending:syncedViews?.pendingSource('2d')??null});
   if(id==='text')return JSON.stringify({document:textDocuments.selected(),resources:resourceStore.capture()});
   if(id==='microbit')return JSON.stringify({blockly:editor.save(),device:device.config(),deviceSource:source.value});
   if(id==='sb3')return JSON.stringify({scratchSource:resourcesUI.reference()});
@@ -529,7 +540,7 @@ function contextAuthoringKey(id) {
   return null;
 }
 function authoringKey() {
-  return JSON.stringify({resources:resourceStore.capture(),blockly:editor.save(),documents:textDocuments.capture(),deviceSource:source.value,device:device.config(),scene3d:capabilityUI.capture('scene3d'),webapp:capabilityUI.capture('webapp'),scratchSource:resourcesUI.reference()});
+  return JSON.stringify({resources:resourceStore.capture(),blockly:editor.save(),scriptOrder:editor.codeViewOrder(),pendingCode:syncedViews?.pendingSource('2d')??null,documents:textDocuments.capture(),deviceSource:source.value,device:device.config(),scene3d:capabilityUI.capture('scene3d'),webapp:capabilityUI.capture('webapp'),scratchSource:resourcesUI.reference()});
 }
 function lessonIdentity() {
   const selected = textDocuments.selected();
@@ -622,13 +633,14 @@ document.querySelector('#rollback-packs').addEventListener('click', async () => 
 // Explicit diagnostic surface; public language bindings remain experimental.
 window.studioProbe = Object.freeze({
   ready: () => ready, request, run, compile, stop: reset, editor, runEditable, runTextDocument, project, textDocuments, language, device, deviceEditor, authoring,
-  console: consoleUI, inspector, lessons, offline,resourcesUI,resourceStore,contexts,runCompatibility,capabilityUI,capabilityExecution, // read/accept helpers are diagnostic fixtures, not authoring APIs
+  codeViews:codeViewsState,syncedViews,console: consoleUI, inspector, lessons, offline,resourcesUI,resourceStore,contexts,runCompatibility,capabilityUI,capabilityExecution, // read/accept helpers are diagnostic fixtures, not authoring APIs
   state: () => ({sessionId, revision: activeRevision, generation, rejectedMessages, snapshot: structuredClone(lastSnapshot), source: source.value, status: status.textContent})
 });
 reset().catch(showError);
 project.ready().then(() => {
   if (!['recovered','restored','opened'].includes(project.state().recoveryStatus)) document.querySelector('#editor-status').textContent = 'Listo para editar';
   textDocuments.setReady(project.state().ready);
+  syncedViews.setReady(project.state().ready);
   device.setReady(project.state().ready);
   resourcesUI.setReady(project.state().ready);
   capabilityUI.setReady(project.state().ready);

@@ -1,0 +1,278 @@
+import {createCodeViewService} from './code-view-service.mjs';
+import {canonicalPackData,resolveCapabilities} from '../contracts/packs.mjs';
+import {languageAvailability,tablesForLocks} from '../contracts/language-table.mjs';
+import {languageTables} from '../packs/language-tables.mjs';
+
+const name=language=>language==='javascript'?'JavaScript':language==='python'?'Python':'Bloques';
+const digest=async(state,order)=>{
+  const data=new TextEncoder().encode(canonicalPackData([state,order??null]));
+  return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',data)),byte=>byte.toString(16).padStart(2,'0')).join('');
+};
+export function createCodeViewsUI({state,editor,textDocuments,contexts,config,getProject,
+  onRender=()=>{},onDiagnostic=()=>{},onCopy=()=>{},onSourceChanged=()=>{},canRun=()=>true,requirePack=()=>{}}) {
+  const source=document.querySelector('#text-source'),errorOutput=document.querySelector('#text-error');
+  const service=createCodeViewService({origin:config.languageOrigin,releaseBase:config.releaseBase??'/'});
+  const known=new Map(),pointSnapshots=new Map(),notice=new Set(),carets=new Map();
+  let ready=false,busy=false,error=null,warning='',attempt=0,epoch=0,staging=null,selfCommit=false,lastContext=contexts.current();
+  const supports=context=>context==='2d';
+  const current=()=>state.get(contexts.current());
+  const same=(a,b)=>canonicalPackData(a)===canonicalPackData(b);
+  const setText=(node,text)=>{if(node.textContent!==text)node.textContent=text;};
+  function availability(context,language){
+    if(!supports(context))return {editable:false,reason:'Este contexto todavía no tiene vistas sincronizadas.'};
+    try{
+      const plan=resolveCapabilities(editor.captureCapabilities());
+      const packs=plan.packs.filter(pack=>!pack.manifest.context||pack.manifest.context==='scratch-2d');
+      const tables=tablesForLocks(packs.map(pack=>({id:pack.id,version:pack.version})),languageTables,
+        Object.fromEntries(packs.map(pack=>[pack.id+'@'+pack.version,pack.manifest])));
+      const result=languageAvailability(tables,{lowering:'ir'})[language];
+      return {editable:result.available,reason:result.reason};
+    }catch(failure){return {editable:false,reason:failure.message};}
+  }
+  function render(){
+    const context=contexts.current(),entry=current(),active=supports(context)&&entry.language!=='blocks';
+    const actions=document.querySelector('#code-view-actions');
+    actions.hidden=!active;
+    document.querySelector('#code-view-edit').hidden=!active||!error;
+    document.querySelector('#code-view-restore').hidden=!active||!error;
+    document.querySelector('#code-view-copy').disabled=!ready||busy;
+    const undoButton=document.querySelector('#code-view-undo'),undoHome=document.querySelector('#code-view-undo-home');
+    const hasPoint=supports(context)&&Boolean(entry.restorePoint);
+    undoButton.disabled=!ready||busy||!hasPoint;undoButton.hidden=!hasPoint;
+    undoHome.hidden=active||!hasPoint;
+    const undoSlot=active?actions:undoHome;if(undoButton.parentElement!==undoSlot)undoSlot.append(undoButton);
+    document.querySelector('#code-view-format').hidden=!active||!notice.has(context);
+    for(const input of document.querySelectorAll('#program-mode input'))if(context==='2d')input.disabled=!ready||busy;
+    if(context==='2d')document.querySelector('#run-editor').disabled=!ready||busy||!canRun();
+    onRender();
+  }
+  function clearPending(point){
+    if(!point)return;
+    if(point.epoch===epoch){
+      const entry=state.get(point.context);
+      if(entry.pendingRestorePoint?.id===point.id)state.set({...entry,pendingRestorePoint:null});
+    }
+    if(staging===point)staging=null;
+  }
+  function cancelAnalysis({discardStage=false}={}){
+    attempt++;service.dispose();
+    if(!discardStage)clearPending(staging);
+    staging=null;busy=false;
+  }
+  function report(failure){
+    error=failure;
+    const line=Number.isInteger(failure.lineNumber)&&failure.lineNumber>0?failure.lineNumber:1;
+    const message=failure.code==='CV_SYNTAX'?'Revisa los paréntesis, las comillas y las llaves de esta línea.':failure.message;
+    setText(errorOutput,'Línea '+line+': '+message);
+    if(current().language==='blocks')setText(document.querySelector('#editor-error'),message);
+    source.setAttribute('aria-invalid','true');
+    onDiagnostic({level:'error',code:failure.code??'CODE_VIEW_CONVERSION',origin:'shell',message:'Línea '+line+': '+failure.message});
+    render();
+  }
+  function focusSource(line=1,column=1){
+    const lines=source.value.split('\n'),index=Math.max(0,Math.min(lines.length-1,line-1));
+    const start=lines.slice(0,index).reduce((sum,text)=>sum+text.length+1,0);
+    source.focus({preventScroll:true});
+    source.setSelectionRange(start+Math.min(lines[index].length,Math.max(0,column-1)),start+lines[index].length);
+    source.scrollTop=index*parseFloat(getComputedStyle(source).lineHeight);
+    source.scrollIntoView({block:'nearest'});
+  }
+  function trusted(context,entry){
+    const baseline=known.get(context);
+    return baseline&&baseline.language===entry.language&&baseline.source===entry.source&&editor.isCodeViewCurrent(baseline.snapshot);
+  }
+  function hasPendingText(context,entry){
+    if(entry.language==='blocks'||trusted(context,entry))return false;
+    // Imported baseline metadata grants no trust. A fresh generation is safe
+    // to compare because it comes from the currently validated workspace.
+    try{return entry.source!==GGEditor.generateCodeViewSource(editor.codeViewSnapshot(),entry.language).text;}
+    catch{return true;}
+  }
+  function remember(context,entry){
+    known.set(context,{language:entry.language,source:entry.source,snapshot:editor.codeViewSnapshot()});
+  }
+  async function apply(context){
+    const entry=state.get(context);
+    if(entry.language==='blocks')return true;
+    if(trusted(context,entry))return true;
+    const available=availability(context,entry.language);
+    if(!available.editable){report(new Error(available.reason));focusSource();return false;}
+    cancelAnalysis();const id=attempt,projectEpoch=epoch;
+    busy=true;error=null;warning='';source.removeAttribute('aria-invalid');setText(errorOutput,'');render();
+    let point=null;
+    try{
+      requirePack(entry.language==='python'?'python-stdlib':'javascript-quickjs');
+      const snapshot=editor.codeViewSnapshot(),generated=GGEditor.generateCodeViewSource(snapshot,entry.language);
+      const parsed=await service.convert({language:entry.language,source:entry.source,
+        variableIds:generated.variableIds,variableNames:generated.variableNames,
+        capabilities:snapshot.capabilities,resourceView:snapshot.resourceView});
+      if(id!==attempt||projectEpoch!==epoch)return false;
+      const prepared=editor.prepareCodeView(parsed,snapshot);
+      const changed=!same(prepared.ir,snapshot.ir)||!same(prepared.state,snapshot.state);
+      if(changed){
+        const hash=await digest(prepared.state,prepared.scriptOrder);
+        if(id!==attempt||!editor.isCodeViewCurrent(snapshot))return false;
+        point={context,id:crypto.randomUUID(),epoch:projectEpoch};
+        const restorePoint={id:point.id,workspace:snapshot.state,scriptOrder:snapshot.scriptOrder,appliedHash:hash};
+        staging=point;
+        state.set({...state.get(context),pendingRestorePoint:restorePoint});
+        try{await getProject().flush();}
+        catch{warning='No se confirmó el punto antes del cambio. Comprueba el guardado y lleva una copia.';}
+        if(id!==attempt||projectEpoch!==epoch||!editor.isCodeViewCurrent(snapshot)){clearPending(point);return false;}
+        const checkpoint=editor.checkpoint(),before=state.get(context);
+        selfCommit=true;
+        try{
+          editor.commit(prepared);
+          state.set({...before,scriptOrder:prepared.scriptOrder,baselineSource:entry.source,
+            restorePoint,pendingRestorePoint:null,editedInText:true});
+        }catch(failure){
+          editor.restoreDraft(checkpoint);state.set({...before,pendingRestorePoint:null});throw failure;
+        }finally{selfCommit=false;}
+        staging=null;notice.delete(context);
+        const applied=editor.codeViewSnapshot();
+        pointSnapshots.set(context,{id:point.id,snapshot:applied});
+        void digest(applied.state,applied.scriptOrder).then(actual=>{
+          if(projectEpoch!==epoch)return;
+          const latest=state.get(context);
+          if(latest.restorePoint?.id===point.id&&latest.restorePoint.appliedHash!==actual)
+            state.set({...latest,restorePoint:{...latest.restorePoint,appliedHash:actual}});
+        }).catch(()=>{});
+      }else state.set({...state.get(context),baselineSource:entry.source});
+      remember(context,{...state.get(context),source:entry.source});
+      return true;
+    }catch(failure){
+      clearPending(point);
+      if(id===attempt&&projectEpoch===epoch){report(failure);focusSource(failure.lineNumber,failure.columnNumber);}
+      return false;
+    }finally{if(id===attempt){busy=false;render();}}
+  }
+  async function select(language){
+    if(!ready){render();return false;}
+    if(!['blocks','javascript','python'].includes(language))return false;
+    const context='2d',entry=state.get(context);
+    if(entry.language===language){render();return true;}
+    if(!await apply(context))return false;
+    error=null;warning='';setText(errorOutput,'');source.removeAttribute('aria-invalid');
+    if(language==='blocks'){
+      state.set({...state.get(context),language:'blocks',source:'',baselineSource:'',scriptOrder:editor.codeViewOrder()});
+      notice.delete(context);contexts.select(context);render();
+      document.querySelector('#program-mode input[value=blocks]').focus();
+      return true;
+    }
+    try{
+      const snapshot=editor.codeViewSnapshot(),generated=GGEditor.generateCodeViewSource(snapshot,language);
+      const next={...state.get(context),language,source:generated.text,baselineSource:generated.text,scriptOrder:snapshot.scriptOrder,formatNoticeShown:true};
+      if(!entry.formatNoticeShown)notice.add(context);
+      state.set(next);known.set(context,{language,source:generated.text,snapshot});
+      state.activate(context);contexts.select(context);render();
+      const caret=carets.get(context+':'+language);source.focus({preventScroll:true});
+      if(caret){source.setSelectionRange(caret.start,caret.end,caret.direction);source.scrollTop=caret.scrollTop;source.scrollLeft=caret.scrollLeft;}
+      else{source.setSelectionRange(0,0);source.scrollTop=0;}
+      return true;
+    }catch(failure){
+      document.querySelector('#editor-error').textContent=failure.message;
+      onDiagnostic({level:'error',code:'CODE_VIEW_GENERATION',origin:'shell',message:failure.message});render();return false;
+    }
+  }
+  async function copy(){
+    const context=contexts.current(),entry=state.get(context);
+    cancelAnalysis();
+    try{
+      const snapshot=editor.codeViewSnapshot(),generated=GGEditor.generateCodeViewSource(snapshot,entry.language);
+      const created=textDocuments.add({language:entry.language,name:'Copia '+name(entry.language)+' del programa 2D',
+        source:entry.source,api:'api3',variableIds:generated.variableIds});
+      onCopy(created,JSON.stringify(editor.save()));
+      state.set({...state.get(context),language:'blocks',source:'',baselineSource:'',pendingRestorePoint:null});
+      error=null;warning='';setText(errorOutput,'');source.removeAttribute('aria-invalid');
+      contexts.select('text');render();source.focus();
+    }catch(failure){report(failure);}
+  }
+  function restore(){
+    const context=contexts.current(),entry=state.get(context);
+    if(entry.source&&(!trusted(context,entry)||entry.source!==entry.baselineSource)&&
+      !confirm('¿Volver a la última versión en bloques y descartar este texto? Puedes conservarlo primero como copia independiente.'))return;
+    cancelAnalysis();error=null;warning='';source.removeAttribute('aria-invalid');setText(errorOutput,'');
+    state.set({...state.get(context),language:'blocks',source:'',baselineSource:'',pendingRestorePoint:null,scriptOrder:editor.codeViewOrder()});
+    render();document.querySelector('#program-mode input[value=blocks]').focus();
+  }
+  async function undo(){
+    const context='2d',entry=state.get(context),point=entry.restorePoint;
+    if(!point)return;
+    if(hasPendingText(context,entry)&&!confirm('¿Descartar el texto pendiente y deshacer la última conversión? Puedes conservarlo primero como copia independiente.'))return;
+    cancelAnalysis();error=null;
+    try{
+      const snapshot=editor.codeViewSnapshot(),local=pointSnapshots.get(context);
+      if(!(local?.id===point.id&&editor.isCodeViewCurrent(local.snapshot))){
+        const hash=await digest(snapshot.state,snapshot.scriptOrder);
+        if(!editor.isCodeViewCurrent(snapshot))throw new Error('La autoría cambió; vuelve a intentar Deshacer.');
+        if(hash!==point.appliedHash&&!confirm('Hay cambios posteriores. ¿Descartarlos y recuperar el programa anterior a la conversión?'))return;
+      }
+      const prepared=editor.prepareCodeViewRestore(point,snapshot),checkpoint=editor.checkpoint();
+      selfCommit=true;
+      try{
+        editor.commit(prepared);
+        state.set({...state.get(context),language:'blocks',source:'',baselineSource:'',scriptOrder:point.scriptOrder,
+          restorePoint:null,pendingRestorePoint:null});
+      }catch(failure){editor.restoreDraft(checkpoint);throw failure;}finally{selfCommit=false;}
+      known.delete(context);pointSnapshots.delete(context);render();
+      document.querySelector('#program-mode input[value=blocks]').focus();
+    }catch(failure){report(failure);}
+  }
+  function presentation(context){
+    const entry=state.get(context);
+    if(!supports(context)||entry.language==='blocks')return null;
+    const available=availability(context,entry.language);
+    const baseStatus=busy?(entry.language==='python'?'Preparando Python y comprobando el programa…':'Comprobando JavaScript…'):error?'Revisa el texto para volver a Bloques.':
+      available.editable?(trusted(context,entry)?'Es el mismo programa.':'Texto pendiente de comprobar; se conserva con tu proyecto.'):available.reason;
+    return {source:entry.source,language:entry.language,readOnly:!available.editable,
+      status:baseStatus+(warning?' '+warning:''),
+      destination:'Editas el mismo programa 2D. Cambiar de vista no ejecuta.',
+      help:'Usa onStart, onKey y onMessage en JavaScript; on_start, on_key y on_message en Python. Dentro de un evento: hero.move(10), wait(1), variables, repetición y comparaciones. El texto fuera del subconjunto se puede conservar como copia independiente.',
+      onInput:value=>{error=null;warning='';setText(errorOutput,'');source.removeAttribute('aria-invalid');
+        state.editSource(context,value);cancelAnalysis();onSourceChanged();render();}};
+  }
+  document.querySelector('#code-view-edit').addEventListener('click',()=>focusSource(error?.lineNumber,error?.columnNumber));
+  document.querySelector('#code-view-restore').addEventListener('click',restore);
+  document.querySelector('#code-view-copy').addEventListener('click',()=>void copy());
+  document.querySelector('#code-view-undo').addEventListener('click',()=>void undo());
+  state.subscribe(reason=>{
+    if(reason.type==='load'){
+      epoch++;cancelAnalysis({discardStage:true});known.clear();pointSnapshots.clear();notice.clear();carets.clear();error=null;warning='';
+      setText(errorOutput,'');source.removeAttribute('aria-invalid');
+      const active=state.capture()?.activeContext;if(active)contexts.select(active);
+    }
+    render();
+  });
+  contexts.subscribe(()=>{
+    if(lastContext!==contexts.current()){
+      const previous=state.get(lastContext);
+      if(supports(lastContext)&&previous.language!=='blocks')carets.set(lastContext+':'+previous.language,
+        {start:source.selectionStart,end:source.selectionEnd,direction:source.selectionDirection,scrollTop:source.scrollTop,scrollLeft:source.scrollLeft});
+      cancelAnalysis();error=null;warning='';lastContext=contexts.current();state.activate(lastContext);
+      render();
+      const entry=state.get(lastContext),caret=carets.get(lastContext+':'+entry.language);
+      if(supports(lastContext)&&entry.language!=='blocks'&&caret){
+        source.setSelectionRange(caret.start,caret.end,caret.direction);
+        source.scrollTop=caret.scrollTop;source.scrollLeft=caret.scrollLeft;
+      }
+    }
+  });
+  editor.subscribe(()=>{
+    if(selfCommit)return;
+    known.delete('2d');
+    const order=editor.codeViewOrder(),entry=state.get('2d');
+    if((order!==null||state.capture()?.entries.some(item=>item.contextId==='2d'))&&!same(entry.scriptOrder,order))
+      state.set({...entry,scriptOrder:order});
+    render();
+  });
+  return Object.freeze({select,applyForRun:()=>apply('2d'),presentation,
+    mode:context=>supports(context)?state.get(context).language:null,
+    setReady(value){ready=!!value;render();},cancelAnalysis,
+    revealBlock(id){
+      const entry=state.get('2d');if(entry.language!=='blocks'&&!trusted('2d',entry))return false;
+      if(entry.language!=='blocks')state.set({...entry,language:'blocks',source:'',baselineSource:''});contexts.select('2d');render();return editor.selectSource(id);
+    },
+    pendingSource(context){const entry=state.get(context);return supports(context)&&entry.language!=='blocks'&&entry.source!==entry.baselineSource?{language:entry.language,source:entry.source}:null;},
+    status:()=>({busy,error:error?.message??null,warning,service:service.stats()})
+  });
+}

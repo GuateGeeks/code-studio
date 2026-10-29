@@ -20,7 +20,7 @@ const toolAvailability = {
   activity:()=>true,console:()=>true,resources:id=>['2d','text','sb3'].includes(id),help:()=>true
 };
 const languageName=language=>language==='javascript'?'JavaScript':language==='python'?'Python':'bloques';
-export function createContextualWorkspace({contexts,textDocuments,capabilityUI,device,stopResult,getTextContext=()=>null,getAuthoringKey=()=>null,onError=()=>{}}) {
+export function createContextualWorkspace({contexts,textDocuments,capabilityUI,device,stopResult,getTextContext=()=>null,getAuthoringKey=()=>null,codeViews=null,is2DEnabled=()=>true,onError=()=>{}}) {
   const pick=selector=>document.querySelector(selector);
   const text=pick('.text-authoring'),inspector=pick('.scene-inspector'),generated=pick('.generated-panel');
   const tools=pick('#context-tools'),tabList=pick('#dock-tabs'),dock=pick('#dock-content');
@@ -108,7 +108,7 @@ export function createContextualWorkspace({contexts,textDocuments,capabilityUI,d
   function renderModeSwitch(id) {
     const fieldset=pick('#program-mode');fieldset.hidden=!['2d','text'].includes(id);if(fieldset.hidden)return;
     const selected=textDocuments.selected();
-    const value=id==='2d'?'blocks':selected?.language??pendingLanguage;
+    const value=id==='2d'?(codeViews?.mode(id)??'blocks'):selected?.language??pendingLanguage;
     for(const input of fieldset.querySelectorAll('input'))input.checked=input.value===value;
     const empty=pick('#text-empty');
     empty.hidden=!(id==='text'&&!selected);
@@ -121,6 +121,9 @@ export function createContextualWorkspace({contexts,textDocuments,capabilityUI,d
     if(rendering)return;rendering=true;
     try {
       const id=contexts.current(),def=definitions[id];if(!def)return;
+      const synchronized=codeViews?.presentation(id)??null;
+      textDocuments.presentCodeView?.(synchronized);
+      pick('#scene-blockly-surface').hidden=id!=='2d'||!is2DEnabled()||Boolean(synchronized);
       document.body.dataset.workspaceContext=id;
       pick('#blocks-transport').hidden=id!=='2d';
       pick('#text-transport').hidden=id!=='text';
@@ -129,7 +132,7 @@ export function createContextualWorkspace({contexts,textDocuments,capabilityUI,d
       pick('#sb3-transport').hidden=pick('#sb3-tools-panel').hidden=id!=='sb3';
       pick('#scene3d-transport').hidden=id!=='scene3d';
       pick('#webapp-transport').hidden=id!=='webapp';
-      pick('#restore-editor').hidden=id!=='2d';
+      pick('#restore-editor').hidden=id!=='2d'||Boolean(synchronized);
       const active=document.activeElement;
       const feedback=pick('#resource-feedback'),feedbackSlot=pick(id==='sb3'?'#sb3-feedback-slot':'#resource-feedback-home');
       if(feedback.parentElement!==feedbackSlot){
@@ -137,8 +140,8 @@ export function createContextualWorkspace({contexts,textDocuments,capabilityUI,d
         if(preserveFocus)active.focus({preventScroll:true});
       }
       const config=capabilityUI.capture(id),capabilityText=Boolean(config&&config.mode!=='blocks');
-      document.body.dataset.workspaceMode=config?.mode??(id==='text'?'text':'blocks');
-      text.hidden=id!=='text'&&!capabilityText;
+      document.body.dataset.workspaceMode=synchronized?.language??config?.mode??(id==='text'?'text':'blocks');
+      text.hidden=id!=='text'&&!capabilityText&&!synchronized;
       textDocuments.present(capabilityText?{documentId:config.selectedTextDocumentId,language:config.mode}:{});
       pick('#new-javascript').hidden=pick('#new-python').hidden=capabilityText;
       // Selecting an existing document preserves incomplete drafts in the model.
@@ -154,24 +157,25 @@ export function createContextualWorkspace({contexts,textDocuments,capabilityUI,d
         deviceSlot.append(devicePanel);
         if(preserveFocus)active.focus({preventScroll:true});
       }
-      pick('.keyboard-help').hidden=id==='text'||id==='sb3'||capabilityText||deviceText;
+      pick('.keyboard-help').hidden=id==='text'||id==='sb3'||capabilityText||deviceText||Boolean(synchronized);
       pick('#advanced-tools').hidden=!['2d','text'].includes(id);
       pick('#position').hidden=!is2D;
-      pick('#text-run-status').hidden=pick('#text-run-document').hidden=capabilityText;
+      pick('#text-run-status').hidden=pick('#text-run-document').hidden=capabilityText||Boolean(synchronized);
       pick('#text-api-help').textContent=capabilityText
         ? `Esta copia conserva los eventos y las operaciones de ${def.name}. Cambia sus valores y ejecútala con los controles de este contexto. Los errores se muestran en Diagnósticos.`
-        : textHelp;
+        : textDocuments.helpText?.()??textHelp;
       pick('#text-context-actions').hidden=!capabilityText;
       if(capabilityText){
         pick('#text-context-run').href='#'+id+'-run';
         pick('#text-context-run').textContent='Ir a Ejecutar '+def.name;
       }
-      pick('#text-destination').textContent=capabilityText
+      pick('#text-destination').textContent=synchronized?synchronized.destination:capabilityText
         ? `Destino: ${def.name}. Documento independiente; ejecuta con el botón de este contexto. Editarlo no cambia los bloques.`
         : 'Destino: escena 2D. Documento independiente; editarlo no modifica los bloques.';
-      pick('#editing-context').textContent=id==='sb3'?'Revisando el original · solo lectura':'Editando '+editingLabel(id,def,config);
+      pick('#editing-context').textContent=id==='sb3'?'Revisando el original · solo lectura':synchronized?'Editando '+languageName(synchronized.language)+' del programa':'Editando '+editingLabel(id,def,config);
+      pick('#run-editor-label').textContent=synchronized?'Ejecutar programa':'Ejecutar bloques';
       pick('#workspace-help-heading').textContent='Ayuda y herramientas · '+def.name;
-      pick('#workspace-guidance').textContent=def.help;
+      pick('#workspace-guidance').textContent=synchronized?'Editas el mismo programa en texto. Predice el cambio con tu docente y vuelve a Bloques para comprobarlo. Ejecutar usa el texto validado; cambiar de vista conserva el resultado activo.':def.help;
       const activityElsewhere=!['2d','text'].includes(id);
       pick('#activity-pointer').textContent=activityElsewhere
         ? 'Las actividades guiadas disponibles son recorridos de Escena 2D. Consultarlas no cambia este programa; cargar una protege tu proyecto, lo reemplaza y abre Escena 2D sin ejecutar.'
@@ -233,11 +237,12 @@ export function createContextualWorkspace({contexts,textDocuments,capabilityUI,d
   expand.addEventListener('click',()=>setExpanded(!document.body.classList.contains('result-expanded')));
   document.addEventListener('keydown',event=>{if(event.key==='Escape'&&document.body.classList.contains('result-expanded')){event.preventDefault();setExpanded(false);}});
   pick('#run-pending').addEventListener('click',()=>{const def=definitions[result?.context];if(def)pick('#'+def.run)?.click();});
-  // 2D program mode: Bloques, JavaScript or Python documents. Choosing a
-  // language selects an existing independent document; nothing is converted.
+  // The 2D selector presents synchronized views. The independent Text
+  // context keeps its document picker and its existing copies.
   pick('#program-mode').addEventListener('change',event=>{
     const value=event.target.value;
-    if(value==='blocks'){contexts.select('2d');return;}
+    if(codeViews&&contexts.current()==='2d'){void codeViews.select(value).catch(onError);return;}
+    if(value==='blocks'){if(codeViews)void codeViews.select('blocks').then(ok=>{if(ok)contexts.select('2d');}).catch(onError);else contexts.select('2d');return;}
     pendingLanguage=value;
     const picker=pick('#text-document'),selected=textDocuments.selected();
     contexts.select('text');

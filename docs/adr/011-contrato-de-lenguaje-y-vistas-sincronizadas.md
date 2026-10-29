@@ -1,6 +1,6 @@
 # ADR-011: Contrato de lenguaje de bloques y vistas sincronizadas
 
-**Fecha:** 24 de octubre de 2026. **Estado:** aceptada por el usuario como dirección de producto; implementación pendiente en los cambios `pack-versioning-and-migrations`, `block-language-contract` y `synced-code-views`.
+**Fecha:** 24 de octubre de 2026. **Estado:** aceptada por el usuario como dirección de producto; packs/versiones y contrato de lenguaje implementados; vistas sincronizadas 2D implementadas y verificadas técnicamente en el working tree, con extensiones por contexto pendientes en `synced-code-views`.
 
 ## Contexto
 
@@ -40,3 +40,14 @@ Sin ejecución automática al abrir, editar o cambiar de vista; un único Detene
 ## Evidencia y seguimiento
 
 [Plan de maduración](../product/FEATURE-MATURATION-PLAN.md), [evaluación Code.org](../../../docs/architecture/EVALUACION-CODEORG-VS-GUATEGEEKS-2026-10-23.md) y los cambios OpenSpec citados. Este ADR pasa a «implementada» cuando `synced-code-views` apruebe su puerta completa.
+
+
+### Seguimiento del 26/10/2026
+
+El usuario confirmó conservar el subconjunto 2D instalado: while, forever y
+funciones propias sin bloque se rechazan con causa y línea, sin ampliar IR0
+ni runtimes. JavaScript/Acorn y Python/ast trabajan en el origen del lenguaje.
+GGPROJ v5 conserva vista, borrador y restauración, sin reinterpretar v1–v4.
+El [acta 2D](../engineering/SYNCED-CODE-VIEWS-2D-RESULTS.md) distingue evidencia
+aprobada y controles pendientes. Este ADR no pasa todavía a implementación
+completa: micro:bit, 3D/web y la nueva revisión de actividad siguen abiertos.
