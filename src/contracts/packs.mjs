@@ -25,6 +25,12 @@ function fields(value, required, label) {
 export function satisfiesPackVersion(id, installed, required, {compatibility = localPackCompatibility} = {}) {
   return installed === required || compatibility.some(item => item.id === id && item.version === installed && item.satisfies.includes(required));
 }
+// Versions to keep when a project's capabilities are rebuilt (adding a
+// context, resources…): its locks, or the legacy versions when it has none.
+// Promoting a legacy project never upgrades a pack implicitly (E1).
+export function lockedPackVersions(capabilities) {
+  return capabilities == null ? {...legacyPackVersions} : Object.fromEntries(capabilities.locks.map(lock => [lock.id, lock.version]));
+}
 function entry(id, version, catalog = localPackCatalog) {
   const found = catalog.find(item => item.manifest.id === id && item.manifest.version === version);
   if (!found) fail('pack/versión no instalado: ' + id + '@' + version + '. Este proyecto necesita ' + id + ' ' + version + '; ábrelo con una versión más reciente de Code Studio');

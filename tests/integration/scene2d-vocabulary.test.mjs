@@ -5,7 +5,7 @@ import {createHash} from 'node:crypto';
 import {localPackCatalog, latestPackVersions, localPackMigrations, localPackCompatibility} from '../../src/packs/catalog.mjs';
 import {languageTables, coreLanguageEntries, spriteLanguage02} from '../../src/packs/language-tables.mjs';
 import {validateLanguageTables, languageCoverage, offeredCoreStructures} from '../../src/contracts/language-table.mjs';
-import {createCapabilities, resolveCapabilities, validateCapabilities, canonicalPackData, migrateCapabilities} from '../../src/contracts/packs.mjs';
+import {createCapabilities, resolveCapabilities, validateCapabilities, canonicalPackData, migrateCapabilities, lockedPackVersions} from '../../src/contracts/packs.mjs';
 import {validateProgram} from '../../src/contracts/program-contract.mjs';
 import {authorizeProgram} from '../../src/contracts/pack-broker.mjs';
 import {isScene2DLoweringOpcode, e1ReviewedOpcodes} from '../../src/contracts/scene2d-opcodes.mjs';
@@ -70,6 +70,10 @@ test('VOC-002: new and activity projects lock 0.2.0, legacy projects keep 0.1.0 
   assert.throws(() => createCapabilities(['gg.sprites', 'gg.score'], {versions: {'gg.sprites': '0.1.0'}, catalog}), /dependencias en conflicto/);
   assert.equal(createCapabilities(['gg.sprites', 'gg.score'], {catalog}).locks.length, 2);
   void sprites02;
+  // Adding a context or resources to a legacy project keeps gg.sprites@0.1.0 (no implicit upgrade).
+  assert.deepEqual(lockedPackVersions(null), {'gg.sprites': '0.1.0'});
+  assert.equal(createCapabilities(['gg.sprites', 'gg.microbit'], {versions: lockedPackVersions(null)}).locks.find(lock => lock.id === 'gg.sprites').version, '0.1.0');
+  assert.equal(createCapabilities(['gg.sprites', 'gg.assets'], {versions: lockedPackVersions(v2())}).locks.find(lock => lock.id === 'gg.sprites').version, '0.2.0');
 });
 
 test('VOC-003: the declared migration takes 0.1.0 to 0.2.0 without block transforms and is offered by «Actualizar packs»', () => {
