@@ -164,7 +164,7 @@ Dentro de `expect.poll`, las lecturas de la escena usan `settled(snapshot, page)
 
 Registro iniciado el 29/10/2026 para no perder lo aprendido entre sesiones. Una entrada aquí **no** autoriza a ignorar un fallo: la puerta sigue fallida hasta que una full apruebe con fuentes estables.
 
-### Arranque bloqueado: `#run-editor` no se habilita (abierto, causa sin determinar)
+### Arranque bloqueado: `#run-editor` no se habilita (mecanismo demostrado y corregido el 29/10/2026)
 
 | Fecha | Corrida | Caso | Duración del caso | Resolución |
 |---|---|---|---|---|
@@ -175,6 +175,8 @@ Registro iniciado el 29/10/2026 para no perder lo aprendido entre sesiones. Una 
 - **Lo que no se sabe:** ninguna sesión ha determinado la causa. Las actas lo atribuyen a «carga compartida»; es una hipótesis. La carga en el momento exacto del fallo no se registró (≈4–5 al comprobar después). Que las dos ocurrencias duren ~2,1 min sugiere un bloqueo con duración propia más que lentitud. Si el estudio puede quedar bloqueado al arrancar en un portátil escolar, es un riesgo del piloto, no solo ruido de pruebas; véase la lista de defectos del [plan de estabilización 2D](../product/STABILIZATION-PLAN-2D.md).
 - **Manejo vigente:** conservar el reporte del intento; reproducir el caso y su spec aislados; no cambiar timeouts, reintentos ni expectativas; repetir la full con las fuentes congeladas.
 - **Evidencia:** `artifacts/block-language-contract/verification-20261025/full-attempt-1/` y `artifacts/stabilization-2d/e0-20261029/full-attempt-1/` (traza incluida).
+- **Causa (29/10/2026, [STARTUP-HANG-INVESTIGATION](STARTUP-HANG-INVESTIGATION.md)):** Blockly 13 crea un `AudioContext` por espacio de trabajo aunque el editor use `sounds: false`, así que el estudio construía 12 al arrancar. En Chromium cada `new AudioContext()` es síncrono contra el servicio de audio. Si el servidor de audio (en WSL, el PulseAudio de WSLg) está conectado pero no responde, cada constructor bloquea el hilo principal 20 s. Con un proxy que congela PulseAudio a mitad de la corrida, `accessibility-shell.spec.mjs:93 (mobile)` falla con la misma firma: espera de 120,2 s, caso de 2,1 min y cinco errores de `AudioContext`. Los editores ahora difieren el contexto real hasta el primer sonido, tras un gesto. Con el mismo bloqueo, el caso aprueba y Ejecutar se habilita en 256 ms. La carga de CPU sola no lo reproduce: 36/36 con dos núcleos ocupados. Un monitor del audio real registró un bloqueo espontáneo de WSLg de ~2,4 min con los mismos 20 s por constructor, 13 s después de un cambio de pantallas de Windows en Weston. Dentro de una full no se ha observado: se infiere de la firma.
+- **Manejo desde la corrección:** si reaparece un caso de 2 min, buscar errores de `AudioContext` en la traza y anotar la latencia de audio (`artifacts/stabilization-2d/startup-hang/experiments/audio-probe.mjs`). Un pitido de teclado o un sonido Scratch con el audio colgado todavía puede bloquear unos 20 s.
 
 ### Familia relacionada: un caso ajeno falla por corrida bajo carga
 
