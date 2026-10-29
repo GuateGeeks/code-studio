@@ -50,7 +50,11 @@ function snapshot(){
   const targets=vm.runtime.targets.filter(target=>!target.isStage).map(target=>({
     id:target.id,name:target.getName(),x:target.x,y:target.y,isOriginal:target.isOriginal,visible:target.visible,size:target.size,direction:target.direction,
     costume:{index:target.currentCostume,name:target.getCostumes()[target.currentCostume]?.name??null},effects:{...target.effects},variables:variablesOf(target)}));
-  return {x:hero?.x??null,pixels:{count,centerX:count?sumX/count:null,minX,maxX},origin:location.origin,bluePixels:blueCount,
+  // E1: the one-sprite state the 2D vocabulary changes (position, direction, size, visibility, costume and speech bubble).
+  const bubble=hero?.getCustomState('Scratch.looks');
+  const sprite=hero?{x:hero.x,y:hero.y,direction:hero.direction,size:Math.round(hero.size*1000)/1000,visible:hero.visible,costume:hero.getCostumes()[hero.currentCostume]?.name??null,
+    bubble:bubble?.text?{type:bubble.type,text:bubble.text}:null}:null;
+  return {x:hero?.x??null,hero:sprite,pixels:{count,centerX:count?sumX/count:null,minX,maxX},origin:location.origin,bluePixels:blueCount,
     costume:hero?{index:hero.currentCostume,name:hero.getCostumes()[hero.currentCostume]?.name??null}:null,
     globalVariables:variablesOf(vm.runtime.getTargetForStage()),targets,revision:getRevision(),threads:vm.runtime.threads.length,moves:[...moves],sourceMap:currentFixture?.sourceMap,
     variables:variablesOf(hero),authoringVariables:structuredClone(currentFixture?.project.targets.find(target=>!target.isStage)?.variables??{}),

@@ -357,3 +357,19 @@ test('VOC-014: the educational IR notation names every E1 block in Spanish with 
     'pensar "Mmm"', 'siguiente disfraz', 'cambiar tamaño por 20', 'fijar tamaño a 50 %', 'mostrar', 'esconder', 'detener todo', 'por siempre', 'repetir hasta que', 'esperar hasta que', 'detener este programa'])
     assert.ok(lines.some(line => line.text.trim().startsWith(phrase) && line.ids.length), phrase);
 });
+
+test('VOC-015 (corpus de Stop): a «por siempre» lowered from blocks stops for good with the VM Stop, like GG-SCRATCH-002', async () => {
+  const ir = irOf(structureCases.find(item => item.kind === 'forever').workspace);
+  const vm = await createScratchSession(toScratchProject(ir).project);
+  try {
+    vm.greenFlag();
+    for (let i = 0; i < 3; i++) vm.runtime._step();
+    const hero = vm.runtime.getSpriteTargetByName('hero');
+    assert.ok(hero.x > 0);
+    vm.stopAll();
+    const stopped = hero.x;
+    for (let i = 0; i < 8; i++) vm.runtime._step();
+    assert.equal(hero.x, stopped);
+    assert.equal(vm.runtime.threads.length, 0);
+  } finally { vm.quit(); }
+});

@@ -3,7 +3,7 @@
 ## 1. Contratos
 
 - [ ] 1.1 CodeGraph e inventario de supuestos de sprite único; registrar consumidores.
-- [ ] 1.2 `gg.sprites@0.2.0` (escenario + lista de sprites) con migración desde 0.1.0 y pruebas de migración y ejecución equivalente.
+- [ ] 1.2 `gg.sprites@0.3.0` (escenario + lista de sprites) con migración desde 0.2.0 (y cadena desde 0.1.0) y pruebas de migración y ejecución equivalente. Versión ajustada el 29/10/2026: 0.2.0 es el vocabulario E1.
 - [ ] 1.3 GGPROJ v4 `authoring.scene2d` (workspace por objeto) con lectura de v1–v4 y migración de `authoring.blockly`.
 - [ ] 1.4 IR 2D v1 con `targetId` por script; validación y límites (8 sprites).
 

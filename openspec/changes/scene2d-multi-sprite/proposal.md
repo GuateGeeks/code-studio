@@ -8,7 +8,7 @@ El usuario aprobó el 24/10/2026 incluirlo en la Ola 1 (decisión D5). El públi
 
 ## What Changes
 
-- **`gg.sprites@0.2.0`**: escenario con fondos y una lista de hasta 8 sprites `{id, name, x, y, direction, size, visible, costume}`. Migración registrada desde 0.1.0 que convierte `initialScene` en el primer sprite `hero`, sin cambiar IDs ni comportamiento (usa `pack-versioning-and-migrations`).
+- **`gg.sprites@0.3.0`**: escenario con fondos y una lista de hasta 8 sprites `{id, name, x, y, direction, size, visible, costume}`. Migración registrada desde 0.2.0 (y, por cadena, desde 0.1.0) que convierte `initialScene` en el primer sprite `hero`, sin cambiar IDs ni comportamiento (usa `pack-versioning-and-migrations`). Versión ajustada el 29/10/2026: `gg.sprites@0.2.0` la publicó antes el vocabulario E1 (`scene2d-vocabulary-v2`), que se entrega primero. Incluye también «ir a objeto/aleatorio», «fondo» y el canónico «Diálogo» trasladados de esa tanda (su tarea 1.4).
 - **Scripts por objeto**: cada sprite y el escenario tienen su workspace Blockly. La IR 2D lleva `targetId` por script y el adaptador crea un target VM por sprite.
 - **Panel de objetos** bajo el resultado, al estilo Scratch: añadir, renombrar, duplicar y borrar sprites; seleccionar el objeto cuyos scripts se editan («Editando: Cesta»). Seleccionar no ejecuta.
 - **Recursos por propietario**: los disfraces y sonidos ya llevan `ownerId`; la interfaz y los menús de bloques filtran por el objeto seleccionado.
@@ -31,4 +31,4 @@ Ninguna en este borrador. Al implementarse, la IR y el adaptador pasan de un tar
 
 **Depende de:** `pack-versioning-and-migrations` (aplicado) y `block-language-contract` (API v3).
 
-Fuera de alcance: vocabulario nuevo (`scene2d-vocabulary-*`), editor de pintura y biblioteca de recursos (cambios propios), más de 8 sprites, capas avanzadas y cámara.
+Fuera de alcance: vocabulario nuevo (`scene2d-vocabulary-*`) salvo «ir a objeto», «fondo» y «Diálogo», que se entregan junto a varios sprites, editor de pintura y biblioteca de recursos (cambios propios), más de 8 sprites, capas avanzadas y cámara.

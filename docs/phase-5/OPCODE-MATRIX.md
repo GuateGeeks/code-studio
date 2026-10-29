@@ -119,3 +119,17 @@ Los hashes y la procedencia están en tests/fixtures/sb3/manifest.json. Las fila
 | 20-unknown.sb3 | unsupported | {"status":"unsupported"} |
 
 La lectura headless de VM comprueba scheduler/datos. Las pruebas Chromium añaden render, gestos de audio, copia de los diez editables, Stop y portabilidad. Véase [RESULTS](RESULTS.md) para la evidencia realmente consolidada.
+
+## Revisión E1 (29/10/2026): opcodes de la bajada 2D
+
+El vocabulario esencial (`scene2d-vocabulary-v2`, tanda E1) baja la IR 2D a opcodes de esta matriz y a siete opcodes del núcleo de Scratch revisados para esa bajada. Esos siete **no** se añaden a la lista de importación SB3 (`sb3OpcodeDefinitions`): la importación Scratch es un contexto congelado (E-1 del [plan de estabilización 2D](../product/STABILIZATION-PLAN-2D.md)). `src/contracts/scene2d-opcodes.mjs` los declara y `toScratchProject` rechaza cualquier opcode fuera de la unión.
+
+| Opcode | Entradas / campos | Primitiva de la VM local (`packages/scratch-vm`) | Comprobación |
+|---|---|---|---|
+| motion_glidesecstoxy | SECS, X, Y | `glide`: temporizador en el marco de pila; interpola y cede cada fotograma; con SECS ≤ 0 salta al destino | VOC-010 (Node) y E1-02 (Chromium). El adaptador textual ejecuta la misma primitiva una vez por paso de la VM |
+| motion_ifonedgebounce | — | `ifOnEdgeBounce`: necesita los límites del renderer; sin renderer no hace nada | Solo Chromium: E1-03 compara la traza bloques/JS/Python |
+| looks_say / looks_think | MESSAGE | Emite `SAY`; el estado `Scratch.looks` guarda tipo y texto; texto vacío borra el globo | VOC-010, E1-02 |
+| looks_sayforsecs / looks_thinkforsecs | MESSAGE, SECS | Igual que decir/pensar y devuelve una promesa que borra el globo al terminar si no cambió; `PROJECT_STOP_ALL` borra globos | VOC-010, VOC-013 |
+| control_stop | STOP_OPTION `all` / `this script` (mutación `hasnext: false`) | `all` → `runtime.stopAll()` (hilos y clones); `this script` → `stopThisScript()`. «otros programas del objeto» no se usa | VOC-010, VOC-013 |
+
+Límites: el renderer recorta tamaño y posición («fence»); por eso tamaño y rebote se verifican en Chromium. Los literales de la IR quedan acotados (posición ±240/±180, giros ±3600, tamaño 0–1000, cambios ±480/±1000, segundos 0–60, texto ≤ 330 caracteres sin saltos de línea).

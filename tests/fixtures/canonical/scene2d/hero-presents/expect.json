@@ -1,0 +1,20 @@
+{
+  "initial": {
+    "x": 0,
+    "hero.y": 0,
+    "hero.direction": 90,
+    "hero.size": 100,
+    "hero.visible": true,
+    "hero.costume": "hero",
+    "hero.bubble": null
+  },
+  "final": {
+    "hero.size": 120,
+    "hero.costume": "hero-alt",
+    "hero.visible": true,
+    "hero.bubble": {
+      "type": "say",
+      "text": "¡Mira cómo reboto!"
+    }
+  }
+}
