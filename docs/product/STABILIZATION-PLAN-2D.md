@@ -56,5 +56,5 @@ Incluye defectos de 2D y de los contextos congelados. En los congelados solo se 
 
 | Hallazgo | Estado |
 |---|---|
-| Arranque bloqueado: `#run-editor` no se habilita y la página deja de responder ~2 min; dos fulls (25/10 y 29/10) | Abierto, causa sin determinar. Afecta a 2D: se investiga en E0/E1. Registro en [TESTING](../engineering/TESTING.md#fallos-intermitentes-conocidos) |
+| Arranque bloqueado: `#run-editor` no se habilita y la página deja de responder ~2 min; dos fulls (25/10 y 29/10) | **Causa demostrada y corregida** el 29/10/2026: Blockly creaba 12 `AudioContext` al arrancar y cada uno bloquea 20 s si el servicio de audio no responde. El contexto diferido arranca en 0,26 s con el audio bloqueado ([investigación](../engineering/STARTUP-HANG-INVESTIGATION.md)). Pendiente: la puerta full conjunta y la prueba en Windows con Chrome. Riesgo residual: el primer pitido de teclado con el audio colgado |
 | Los comentarios en bloques micro:bit parecen perderse al guardar: `captureDeviceGraph` no los captura y el grafo no los admite | Sin verificar con una reproducción; anotado el 29/10/2026 |
