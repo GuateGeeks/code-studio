@@ -183,7 +183,14 @@
 <div role="tabpanel" id="dock-resources" aria-labelledby="tab-resources" hidden>
 <section class="resource-tools"><details id="resources-panel" open><summary>Biblioteca de recursos</summary><h2>Disfraces y sonidos</h2>
 <p>Los recursos viajan con tu proyecto. Imágenes SVG/PNG y sonido WAV PCM16 de hasta 2 segundos, sujetos al límite de bytes.</p>
-<div class="resource-grid"><div><label for="import-media">Añadir imagen o sonido</label><input id="import-media" type="file" accept=".svg,.png,.wav" disabled>
+<details id="starter-library"><summary>Biblioteca: disfraces, fondos y sonidos listos para usar</summary>
+<p id="starter-library-note">Dibujos y sonidos creados para GuateGeeks, libres de usar (CC0). Se copian a tu proyecto y funcionan sin conexión. Añadir no ejecuta tu programa.</p>
+<fieldset id="starter-library-filter" class="mode-switch" disabled><legend>Mostrar</legend><label><input type="radio" name="starter-library-kind" value="costume" checked>Disfraces</label><label><input type="radio" name="starter-library-kind" value="backdrop">Fondos</label><label><input type="radio" name="starter-library-kind" value="sound">Sonidos</label></fieldset>
+<p id="starter-library-scope"></p>
+<output id="starter-library-status" aria-live="polite"></output>
+<div class="controls"><button type="button" id="restore-backdrop" hidden>Volver al fondo inicial</button><button type="button" id="retry-starter-library" hidden>Reintentar</button></div>
+<ul id="starter-library-items" class="library-grid" aria-label="Disfraces de la biblioteca" aria-busy="false"></ul></details>
+<div class="resource-grid"><div><label for="import-media">Subir tu propia imagen o sonido</label><input id="import-media" type="file" accept=".svg,.png,.wav" disabled>
 <label for="resource-list">Recurso y propietario</label><select id="resource-list" disabled></select>
 <label for="resource-name">Nombre</label><input id="resource-name" maxlength="80"><button id="rename-resource">Guardar nombre</button>
 <label for="replace-resource">Reemplazar el medio seleccionado</label><input id="replace-resource" type="file" accept=".svg,.png,.wav"></div>

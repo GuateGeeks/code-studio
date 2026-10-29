@@ -45,6 +45,7 @@ test('GG-RELEASE real workspace produces six bounded materials and an independen
  assert.ok([...verified.files.keys()].some(path=>path.includes('/mapped-source/')&&path.endsWith('.ts')));
  for(const path of verified.files.keys())assert.ok(!/(?:^|\/)(?:node_modules|\.git|\.codegraph|artifacts)(?:\/|$)/.test(path),path);
  assert.equal(manifest.provenance.prebuilts.length,12);assert.match(files.get('THIRD_PARTY_NOTICES.txt').toString(),/zlib license|zlib|ZLIB/);assert.match(JSON.parse(files.get('SBOM.json')).scope,/Conservative.*development/);
+ const owned=JSON.parse(files.get('SBOM.json')).ownedContent;assert.equal(owned.length,1);assert.deepEqual([owned[0].name,owned[0].license,owned[0].counts],['gg-starter-library','CC0-1.0',{costume:20,backdrop:8,sound:10}]);assert.match(files.get('THIRD_PARTY_NOTICES.txt').toString(),/biblioteca inicial[\s\S]*CC0-1\.0/i);
  const inputs=await releaseMaterialInputs({projectRoot,workspaceRoot});assert.deepEqual(inputs,[...new Set(inputs)].sort());assert.ok(inputs.some(path=>path.endsWith('/pako/lib/zlib/README')));assert.ok(inputs.some(path=>path.endsWith('/scratch-render-fonts/OFL.txt')));assert.ok(!inputs.includes(resolve(projectRoot,'node_modules')));assert.ok(!inputs.includes(resolve(workspaceRoot,'.tools')));
 });
 test('GG-RELEASE fixture generation is byte deterministic and tracks every Playwright config',async t=>{

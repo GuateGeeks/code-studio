@@ -13,7 +13,7 @@ export const normalBrowserFiles = Object.freeze([
   'audio-variables.spec.mjs', 'bindings-editor.spec.mjs', 'code-console.spec.mjs', 'code-view-conversion.spec.mjs', 'code-views.spec.mjs', 'corpus.spec.mjs',
   'isolation.spec.mjs', 'sb3-resources.spec.mjs', 'resource-safety.spec.mjs', 'capability-contexts.spec.mjs', 'scene3d-advanced.spec.mjs', 'standalone-contexts.spec.mjs', 'minimum-corpus.spec.mjs', 'project-persistence.spec.mjs', 'packs-lessons.spec.mjs', 'offline-recovery.spec.mjs',
   'pxt-worker.spec.mjs', 'device-integration.spec.mjs', 'device-transfer.spec.mjs', 'language-runtime.spec.mjs', 'textual-equivalence.spec.mjs', 'textual-corpus.spec.mjs', 'runner.spec.mjs', 'scene-inspector.spec.mjs', 'simulator.spec.mjs',
-  'synced-transition-activity.spec.mjs', 'pilot-2d-mode.spec.mjs'
+  'synced-transition-activity.spec.mjs', 'pilot-2d-mode.spec.mjs', 'starter-library.spec.mjs'
 ].map(file => `tests/browser/${file}`));
 const twoD = normalBrowserFiles.filter(file => !/pxt-worker|simulator/.test(file));
 const persistence = ['tests/browser/device-integration.spec.mjs', 'tests/browser/packs-lessons.spec.mjs', 'tests/browser/offline-recovery.spec.mjs', 'tests/browser/project-persistence.spec.mjs', 'tests/browser/language-runtime.spec.mjs', 'tests/browser/textual-equivalence.spec.mjs', 'tests/browser/textual-corpus.spec.mjs'];
@@ -26,7 +26,7 @@ const browserFiles = (...names) => names.map(name => `tests/browser/${name}.spec
 const scene3d = browserFiles('integrated-3d-workspace', 'scene3d-advanced', 'capability-contexts', 'standalone-contexts', 'studio-contextual-workspace', 'language-copies');
 const webapp = browserFiles('integrated-web-workspace', 'capability-contexts', 'standalone-contexts', 'studio-contextual-workspace');
 const microbit = [...new Set([...pxt, ...browserFiles('integrated-microbit-workspace')])];
-const scratchImport = browserFiles('sb3-resources', 'integrated-scratch-workspace', 'resource-safety');
+const scratchImport = browserFiles('sb3-resources', 'integrated-scratch-workspace', 'resource-safety', 'starter-library');
 const compatibility = [...new Set([...persistence, ...browserFiles('packs-lessons', 'educational-activities')])];
 export const contextGroups = Object.freeze([
   {group: 'project-compatibility', reason: 'Compatibilidad de proyectos y migraciones de packs', browser: compatibility,
@@ -40,7 +40,7 @@ export const contextGroups = Object.freeze([
   {group: 'microbit', reason: 'Contexto micro:bit propio', browser: microbit,
     match: path => /^src\/(?:contracts\/device-[^/]+\.mjs|editor\/device-editor\.mjs|studio\/device-ui\.mjs|packs\/gg\.microbit\/|device-transfer\/)/.test(path)},
   {group: 'scratch-import', reason: 'Importación Scratch y recursos', browser: scratchImport,
-    match: path => /^src\/(?:contracts\/sb3-[^/]+\.mjs|adapters\/scratch\/sb3\/|import\/|studio\/resources-ui\.mjs|packs\/gg\.sb3\/)/.test(path)}
+    match: path => /^src\/(?:contracts\/(?:sb3-[^/]+|starter-library)\.mjs|adapters\/scratch\/sb3\/|import\/|studio\/(?:resources-ui|starter-library-ui)\.mjs|packs\/gg\.sb3\/)/.test(path)}
 ]);
 export function normalizeChangedPath(input, {root, workspace = resolve(root, '..')} = {}) {
   if (typeof input !== 'string' || !input || /[\0\r\n]/.test(input)) throw new Error('Ruta de impacto vacía o inválida');
@@ -62,7 +62,7 @@ export function classifyFile(path) {
   // Owned sources mirror legacy areas; unknown/new shared code still expands to full.
   if (/^src\/(?:offline\/|contracts\/pack|packs\/|lessons\.mjs|lesson-|studio\/lesson)/.test(path)) return {group: 'packs-lessons-offline', reason: 'Capacidades, actividades y preparación offline', browser: ['tests/browser/educational-activities.spec.mjs', 'tests/browser/packs-lessons.spec.mjs', 'tests/browser/synced-transition-activity.spec.mjs', 'tests/browser/offline-recovery.spec.mjs', ...persistence]};
   if (path === 'src/studio/project-ui.mjs') return {group: 'persistence', reason: 'Controlador propio de proyecto', browser: persistence};
-  if (/^src\/studio\/.*\.(?:html|css)$/.test(path)) return {group: 'controls', reason: 'UI propia con controles reales, recorrido, accesibilidad y móvil', browser: [...controls, 'tests/browser/workspace-presentation.spec.mjs', 'tests/browser/integrated-2d-workspace.spec.mjs', 'tests/browser/integrated-microbit-workspace.spec.mjs', 'tests/browser/integrated-scratch-workspace.spec.mjs', 'tests/browser/integrated-3d-workspace.spec.mjs','tests/browser/integrated-web-workspace.spec.mjs', 'tests/browser/educational-activities.spec.mjs', 'tests/browser/studio-contextual-workspace.spec.mjs', 'tests/browser/studio-entry-journey.spec.mjs', 'tests/browser/accessibility-shell.spec.mjs', 'tests/browser/accessibility-runner.spec.mjs', 'tests/browser/accessibility-zoom.spec.mjs', 'tests/browser/scene-inspector.spec.mjs', 'tests/browser/language-runtime.spec.mjs']};
+  if (/^src\/studio\/.*\.(?:html|css)$/.test(path)) return {group: 'controls', reason: 'UI propia con controles reales, recorrido, accesibilidad y móvil', browser: [...controls, 'tests/browser/workspace-presentation.spec.mjs', 'tests/browser/integrated-2d-workspace.spec.mjs', 'tests/browser/integrated-microbit-workspace.spec.mjs', 'tests/browser/integrated-scratch-workspace.spec.mjs', 'tests/browser/integrated-3d-workspace.spec.mjs','tests/browser/integrated-web-workspace.spec.mjs', 'tests/browser/educational-activities.spec.mjs', 'tests/browser/studio-contextual-workspace.spec.mjs', 'tests/browser/studio-entry-journey.spec.mjs', 'tests/browser/accessibility-shell.spec.mjs', 'tests/browser/accessibility-runner.spec.mjs', 'tests/browser/accessibility-zoom.spec.mjs', 'tests/browser/scene-inspector.spec.mjs', 'tests/browser/language-runtime.spec.mjs', 'tests/browser/starter-library.spec.mjs']};
   if (['src/generated-code.mjs', 'src/diagnostic-console.mjs', 'src/studio/code-console-ui.mjs'].includes(path)) return {group: 'code-console', reason: 'Generación y diagnóstico derivados', browser: ['tests/browser/code-console.spec.mjs', 'tests/browser/language-runtime.spec.mjs', 'tests/browser/language-copies.spec.mjs']};
   if (['src/scene-inspection.mjs', 'src/studio/scene-inspector-ui.mjs'].includes(path)) return {group: 'scene-inspector', reason: 'Lectura de escena y selección accesible', browser: ['tests/browser/scene-inspector.spec.mjs', ...bindings]};
   if (path.startsWith('src/editor/') || ['src/contracts/program-contract.mjs', 'src/code-view-identity.mjs'].includes(path) || path.startsWith('src/adapters/scratch/') || path.startsWith('src/assets/')) return {group: 'two-dimensional', reason: 'Editor, IR o adaptación 2D propia', browser: twoD};
