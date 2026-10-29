@@ -42,7 +42,9 @@
 
 ## 5. Actividades, documentación y verificación
 
-- [ ] 5.1 Publicar la revisión 2 de «De bloques a tu propio código» con checks de programa; conservar la revisión 1 y su progreso.
+- [x] 5.1 Publicar la revisión 2 de «De bloques a tu propio código» con checks de programa; conservar la revisión 1 y su progreso.
+
+  Verificada el 29/10/2026: revisión 2 (`edited-in-text`, posición y movimiento en bloques) y revisión 1 seleccionable como `text-transition@1` con su progreso por revisión. Node 5/5 nuevas, suites existentes migradas a `@1`; navegador 3/3 focal y 3/3 dentro de la full intento 1 (fallida solo por un caso ajeno intermitente). [Acta E0](../../../docs/engineering/STABILIZATION-E0-RESULTS.md).
 - [ ] 5.2 E2E por contexto habilitado (2D tras el re-alcance del 29/10/2026): mirar y volver sin cambios, editar y volver, rechazo y copia, Deshacer, reapertura, teclado y zoom; `test:affected` y una `test:full`.
 - [ ] 5.3 Actualizar `PRODUCT.md`, ADR-011 (estado: implementada para 2D; micro:bit y 3D/web trasladados), guía docente, guion de observación del Exp. 1 y acta de resultados con límites.
 

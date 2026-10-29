@@ -1,6 +1,6 @@
 # Estabilización 2D · E0: cierre de lo abierto
 
-29 de octubre de 2026, Guatemala. Etapa E0 del [plan de estabilización 2D](../product/STABILIZATION-PLAN-2D.md). Commits locales autorizados, sin push. **Estado: implementación y focales aprobados; smoke, affected y full pendientes por puertos ocupados.**
+29 de octubre de 2026, Guatemala. Etapa E0 del [plan de estabilización 2D](../product/STABILIZATION-PLAN-2D.md). Commits locales autorizados, sin push. **Estado: implementación y focales aprobados; puerta full pendiente** (intento 1 fallido por un caso intermitente conocido; intento 2 interrumpido a petición del usuario).
 
 ## Decisiones aplicadas
 
@@ -42,19 +42,26 @@ WSL, Node v22.23.4, `source ../scripts/env.sh`. Evidencia en `artifacts/stabiliz
 | Focal piloto, `pilot-2d-mode` | 1/1 en `pilot-focal-3.json` |
 | OpenSpec | Válido en cada commit |
 | Smoke quick | 1/3: los dos fallos son de entorno. `tests/quick/studio.spec.mjs` busca el runner en `127.0.0.1:4174` y la corrida usó puertos alternativos |
-| Affected y full | **Pendientes** |
+| Affected | Su plan seleccionó la cobertura completa (`selection: full`); se pasó directamente a la full |
+| Full intento 1 | 474 Node, 79 herramientas, 3/3 smoke y **238/239** regresiones; exitCode 1. Único fallo: `GG-F7-SHELL … (mobile)` de `accessibility-shell` (véase abajo). Incluye las suites nuevas: piloto 1/1 y actividad 3/3 |
+| Reproducción aislada | `accessibility-shell` 6/6 en dos corridas (12/12); el caso móvil tardó ~9 s |
+| Full intento 2 | **Interrumpido** a petición del usuario a los 45 casos aprobados, sin fallos. No cuenta como puerta |
 
 ### Intentos conservados
 
 1. `activity-focal-1`: el servidor no arrancó porque 4173 estaba ocupado.
 2. `pilot-focal-1` y `pilot-focal-2`: el fixture añadía capacidades editando el JSON y dejaba el campo `scene` de la forma sin perfil, así que GGPROJ lo rechazó. Se cambió por `project.useCapabilities`, la misma ruta que usa la interfaz.
 
+### Fallo del intento 1
+
+`#run-editor` no se habilitó en la espera inicial de 15 s y la espera tardó 123 s en devolver el error: la página dejó de responder. La traza muestra errores del dispositivo de audio de Chromium. Es el mismo síntoma que `E4-02` en la verificación de `block-language-contract` del 25/10. Causa sin determinar; se registró como fallo intermitente conocido en [TESTING](TESTING.md#fallos-intermitentes-conocidos) y como defecto abierto del plan. Reporte, JSON y traza en `artifacts/stabilization-2d/e0-20261029/full-attempt-1/`. No se cambiaron timeouts ni expectativas.
+
 ### Bloqueo de puertos
 
-4173, 4174 y 4175 los ocupan tres procesos `node` de Windows del proyecto `arduino-3d` (servidores de referencia lanzados desde Codex), identificados con `Get-NetTCPConnection` y su línea de comandos. No se detuvieron porque son ajenos. Las suites de la partición 0 y el smoke asumen esos orígenes, así que affected y full necesitan esos puertos libres.
+4173, 4174 y 4175 los ocupan tres procesos `node` de Windows del proyecto `arduino-3d` (servidores de referencia lanzados desde Codex), identificados con `Get-NetTCPConnection` y su línea de comandos. No se detuvieron porque son ajenos. Las suites de la partición 0 y el smoke asumen esos orígenes. Con autorización del usuario se detuvieron solo esos tres procesos, por PID y línea de comandos; quedan detenidos.
 
 ## Pendiente para cerrar E0
 
-- Liberar 4173–4182 y ejecutar affected de los archivos cambiados y una full.
-- Marcar 5.1, 5.2 y 5.3 de `synced-code-views` y 1.1–1.3 de `pilot-2d-mode` con esa evidencia; archivar ambos cambios.
+- Una full aprobada con fuentes congeladas, cuando no haya otras suites en ejecución. Se ejecutará como puerta conjunta tras integrar las pistas paralelas, sin sustituirla por focales.
+- Marcar 5.2 y 5.3 de `synced-code-views` y 1.3 de `pilot-2d-mode` con esa evidencia; archivar ambos cambios. (5.1 y 1.1–1.2 ya tienen evidencia completa: focales y su paso en la full intento 1.)
 - ADR-011 a «implementada para 2D», PRODUCT y CURRENT-STATUS con los conteos de la full.

@@ -50,8 +50,11 @@ El primer valor entregable es **un piloto 2D en aula, con docente y estudiantes 
 - CodeMirror, hasta después de la primera observación salvo que el piloto apunte a texto.
 - Sócrates.
 
-## Lista de defectos de contextos congelados
+## Lista de defectos
+
+Incluye defectos de 2D y de los contextos congelados. En los congelados solo se corrigen defectos demostrados.
 
 | Hallazgo | Estado |
 |---|---|
+| Arranque bloqueado: `#run-editor` no se habilita y la página deja de responder ~2 min; dos fulls (25/10 y 29/10) | Abierto, causa sin determinar. Afecta a 2D: se investiga en E0/E1. Registro en [TESTING](../engineering/TESTING.md#fallos-intermitentes-conocidos) |
 | Los comentarios en bloques micro:bit parecen perderse al guardar: `captureDeviceGraph` no los captura y el grafo no los admite | Sin verificar con una reproducción; anotado el 29/10/2026 |

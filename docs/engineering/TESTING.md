@@ -159,3 +159,27 @@ Dentro de `expect.poll`, las lecturas de la escena usan `settled(snapshot, page)
 ### Proyectos canónicos
 
 `tests/fixtures/canonical/<contexto>/<proyecto>/{project.json, expect.json}` y `tests/browser/canonical-projects.spec.mjs`. El ejecutor comprueba tres cosas: que abrir no ejecuta, que «Ejecutar» alcanza el estado final declarado y que «Detener» devuelve el estado inicial. Formato en `tests/fixtures/canonical/README.md`.
+
+## Fallos intermitentes conocidos
+
+Registro iniciado el 29/10/2026 para no perder lo aprendido entre sesiones. Una entrada aquí **no** autoriza a ignorar un fallo: la puerta sigue fallida hasta que una full apruebe con fuentes estables.
+
+### Arranque bloqueado: `#run-editor` no se habilita (abierto, causa sin determinar)
+
+| Fecha | Corrida | Caso | Duración del caso | Resolución |
+|---|---|---|---|---|
+| 25/10/2026 | `block-language-contract`, full intento 1 | `E4-02` (`workspace-presentation`) | 2,1 min | Spec aislada 14/14; la full siguiente aprobó |
+| 29/10/2026 | Estabilización 2D E0, full intento 1 | `GG-F7-SHELL … (mobile)` (`accessibility-shell`) | 2,1 min | Spec aislada 12/12 en dos corridas; repetición de la full interrumpida a petición del usuario |
+
+- **Síntoma:** la espera inicial `expect('#run-editor').toBeEnabled()` (15 s) falla con el botón deshabilitado. En la traza del 29/10 esa espera de 15 s tardó **123 s** en devolver el error: la página dejó de responder a Playwright, no solo tardó. La traza muestra además `The AudioContext encountered an error from the audio device or the WebAudio renderer`. Las otras 238 regresiones aprobaron.
+- **Lo que no se sabe:** ninguna sesión ha determinado la causa. Las actas lo atribuyen a «carga compartida»; es una hipótesis. La carga en el momento exacto del fallo no se registró (≈4–5 al comprobar después). Que las dos ocurrencias duren ~2,1 min sugiere un bloqueo con duración propia más que lentitud. Si el estudio puede quedar bloqueado al arrancar en un portátil escolar, es un riesgo del piloto, no solo ruido de pruebas; véase la lista de defectos del [plan de estabilización 2D](../product/STABILIZATION-PLAN-2D.md).
+- **Manejo vigente:** conservar el reporte del intento; reproducir el caso y su spec aislados; no cambiar timeouts, reintentos ni expectativas; repetir la full con las fuentes congeladas.
+- **Evidencia:** `artifacts/block-language-contract/verification-20261025/full-attempt-1/` y `artifacts/stabilization-2d/e0-20261029/full-attempt-1/` (traza incluida).
+
+### Familia relacionada: un caso ajeno falla por corrida bajo carga
+
+[TEST-GATE-SCALING-RESULTS](TEST-GATE-SCALING-RESULTS.md) (24/10) registró 4 de 6 fulls fallidas por un solo caso (`GG-OFFLINE`, `GG-SB3-005`, `GG-ASSET-003` con otra sesión al 480 % de CPU) y la aprobación solo con las demás sesiones en pausa. La fase API3 terminó 199/200 por `GG-COPY-002 audioStop` (6/6 al repetir). De ahí la regla de iniciar la full con carga media de cinco minutos menor de 6 y no ejecutar suites simultáneas.
+
+### Puertos ocupados por otros proyectos
+
+El 29/10/2026, 4173–4175 los ocupaban servidores `node` de Windows del proyecto `arduino-3d` lanzados desde Codex. Con red WSL en espejo, `ss` dentro de WSL no los muestra: `curl` responde y `Get-NetTCPConnection` desde `powershell.exe` identifica el PID y su línea de comandos. El smoke (`tests/quick/studio.spec.mjs`) y las suites de la partición 0 asumen esos orígenes, así que no pueden correr en puertos alternativos. Se detuvieron solo con autorización del usuario.
