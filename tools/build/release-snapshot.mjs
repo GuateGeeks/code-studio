@@ -3,6 +3,7 @@ import {resolve, relative, dirname, extname, sep} from 'node:path';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {rewriteAsset} from './rewrite-release-paths.mjs';
+import {validateDeploymentContexts} from '../../src/contracts/deployment-profile.mjs';
 import {rolesForOrigins, offlinePackIds as legacyPackIds, installedOfflinePackIds, offlineRootPaths, validateOrigins, releaseBase, validateRoleManifest, validateReleaseManifest} from '../../src/offline/contracts.mjs';
 const owned = resolve(dirname(fileURLToPath(import.meta.url)), '../../src/offline');
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
@@ -41,8 +42,8 @@ async function immutable(file, bytes) {
   try { await writeFile(file, bytes, {flag:'wx'}); }
   catch(error) { if(error.code!=='EEXIST' || !(await readFile(file)).equals(bytes)) throw error; }
 }
-export async function createReleaseSnapshot({browserRoot, releaseRoot, origins}) {
-  const deployment = validateOrigins(origins);
+export async function createReleaseSnapshot({browserRoot, releaseRoot, origins, contexts = null}) {
+  const deployment = validateOrigins(origins), profile = validateDeploymentContexts(contexts);
   const offlineRoles = rolesForOrigins(deployment), schemaVersion = offlineRoles.length === 6 ? 2 : 1;
   const offlinePackIds = schemaVersion === 2 ? installedOfflinePackIds : legacyPackIds;
   browserRoot = resolve(browserRoot); releaseRoot = resolve(releaseRoot);
@@ -52,9 +53,11 @@ export async function createReleaseSnapshot({browserRoot, releaseRoot, origins})
   const bootstrapTemplate = await readFile(resolve(owned,'bootstrap.html'),'utf8');
   const offlineTree = await walk(owned);
   const before = {tools:await Promise.all([new URL('./release-snapshot.mjs',import.meta.url),new URL('./rewrite-release-paths.mjs',import.meta.url)].map(async file=>hash(await readFile(file)))), offline:offlineTree.map(([path,bytes])=>({path,sha256:hash(bytes)})), rewriteVersion:1, origins:deployment, roles:Object.fromEntries(offlineRoles.map(role=>[role,trees[role].map(([path,bytes])=>({path,sha256:hash(bytes)}))])),
-    controls:Object.entries(controls).map(([path,bytes])=>({path,sha256:hash(bytes)})), preparer:hash(preparerHTML), bootstrap:hash(bootstrapTemplate)};
+    controls:Object.entries(controls).map(([path,bytes])=>({path,sha256:hash(bytes)})), preparer:hash(preparerHTML), bootstrap:hash(bootstrapTemplate),
+    // A declared profile is part of the release; without one the inputs keep their shape.
+    ...(profile ? {contexts:profile} : {})};
   const cohort = hash(json(before)), base = releaseBase(cohort), roleRoots = {}, localManifests = {};
-  const config = json({...deployment, offlineProtocolVersion:schemaVersion, cohort, releaseBase:base});
+  const config = json({...deployment, offlineProtocolVersion:schemaVersion, cohort, releaseBase:base, ...(profile ? {contexts:profile} : {})});
   for (const role of offlineRoles) {
     const root = resolve(releaseRoot,cohort,role); roleRoots[role] = root;
     const output = new Map();
@@ -105,5 +108,5 @@ export async function createReleaseSnapshot({browserRoot, releaseRoot, origins})
     if(/[\\%?#\u0000-\u0020]/.test(path) || path.split('/').some(part=>!part||part==='.'||part==='..') || (path.startsWith('__control/') && !offlineRootPaths.includes(path.slice(9)))) return null;
     return {filePath:resolve(releaseRoot,match[1],role,path),contentType:type(path),immutable:true};
   }
-  return {cohort,releaseBase:base,manifestHash,manifest,descriptor,roleRoots,releaseRoot,resolveRoute};
+  return {cohort,releaseBase:base,contexts:profile,manifestHash,manifest,descriptor,roleRoots,releaseRoot,resolveRoute};
 }

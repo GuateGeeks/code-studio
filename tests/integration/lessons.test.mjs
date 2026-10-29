@@ -12,10 +12,10 @@ function starterIR(id) {
   try { return workspaceToIR(workspace, {capabilities}); } finally { workspace.dispose(); }
 }
 test('GG-LESSON-001: three detached Spanish activities contain real editable starter workspaces and declared pack IDs', () => {
-  assert.deepEqual(lessonCatalog.map(lesson => lesson.id), ['story', 'score', 'text-transition']);
+  assert.deepEqual(lessonCatalog.map(lesson => lesson.id + '@' + lesson.revision), ['story@1', 'score@1', 'text-transition@2', 'text-transition@1']);
   for (const lesson of lessonCatalog) {
     assert.deepEqual(validateLesson(lesson), lesson);
-    assert.ok(starterIR(lesson.id).scripts.length > 0);
+    assert.ok(starterIR(lesson.id + '@' + lesson.revision).scripts.length > 0);
     assert.ok(lesson.steps.every(step => step.instructions && step.hints.length));
   }
   const score = starterIR('score');
@@ -63,10 +63,10 @@ test('GG-LESSON-001: text completion needs explicit copy provenance, actual text
     const identity = {projectId: 'project-1', documentId: 'text-doc', backend: language};
     const copyFacts = [{projectId: 'project-1', documentId: 'text-doc', language, blocklyHashAtCopy: 'original-blocks'}];
     const input = {scene: scene(18), identity, copyFacts, authoring: {blocklyHash: 'original-blocks'}};
-    assert.equal(evaluateLesson(getLesson('text-transition'), input).passed, true);
-    assert.equal(evaluateLesson(getLesson('text-transition'), {...input, copyFacts: []}).passed, false);
-    assert.equal(evaluateLesson(getLesson('text-transition'), {...input, authoring: {blocklyHash: 'edited-blocks'}}).passed, false);
-    assert.equal(evaluateLesson(getLesson('text-transition'), {...input, identity: {...identity, documentId: 'other'}}).passed, false);
-    assert.equal(evaluateLesson(getLesson('text-transition'), {...input, identity: {...identity, projectId: 'another-project'}}).passed, false);
+    assert.equal(evaluateLesson(getLesson('text-transition@1'), input).passed, true);
+    assert.equal(evaluateLesson(getLesson('text-transition@1'), {...input, copyFacts: []}).passed, false);
+    assert.equal(evaluateLesson(getLesson('text-transition@1'), {...input, authoring: {blocklyHash: 'edited-blocks'}}).passed, false);
+    assert.equal(evaluateLesson(getLesson('text-transition@1'), {...input, identity: {...identity, documentId: 'other'}}).passed, false);
+    assert.equal(evaluateLesson(getLesson('text-transition@1'), {...input, identity: {...identity, projectId: 'another-project'}}).passed, false);
   }
 });

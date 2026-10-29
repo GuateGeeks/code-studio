@@ -23,6 +23,7 @@ import {availablePackUpdates, migrateProject, describeMigrationSummary} from '..
 import {createLessonsUI} from './lessons-ui.mjs';
 import {createOfflineController} from '../offline/controller.mjs';
 import {createAuthoringContexts} from './authoring-contexts.mjs';
+import {validateDeploymentContexts} from '../contracts/deployment-profile.mjs';
 import {createResourcesUI} from './resources-ui.mjs';
 import {createResourceStore} from '../resource-store.mjs';
 import {createAssetProcessor} from '../import/asset-processor.mjs';
@@ -74,7 +75,7 @@ const deviceEditor = GGEditor.createDeviceEditor(document.querySelector('#device
 const resourceStore=createResourceStore({catalog:await fetch('/project-catalog.json').then(response=>response.json())});
 const resourceValidator=createAssetProcessor(),modelProcessor=createAssetProcessor();
 let resourceAttempt=0;
-const contexts=createAuthoringContexts({selector:document.querySelector('#authoring-context'),heading:document.querySelector('#editor-heading'),status:document.querySelector('#editor-status')});
+const contexts=createAuthoringContexts({selector:document.querySelector('#authoring-context'),heading:document.querySelector('#editor-heading'),status:document.querySelector('#editor-status'),available:validateDeploymentContexts(config.contexts)});
 let scene2DEnabled=true;
 contexts.register({id:'2d',label:'Escena 2D',title:'Programa 2D',setVisible:value=>{document.querySelector('#scene-blockly-surface').hidden=!value||!scene2DEnabled;document.querySelector('#inactive-2d').hidden=!value||scene2DEnabled;document.querySelector('#scene-stop-link').hidden=!value||!scene2DEnabled;}});
 const device = createDeviceUI({contexts,
@@ -101,7 +102,17 @@ syncedViews=createCodeViewsUI({state:codeViewsState,editor,textDocuments,context
   canRun:()=>scene2DEnabled&&Boolean(sessionId)&&activeRevision!==null});
 workspace=createContextualWorkspace({contexts,textDocuments,capabilityUI,device,codeViews:syncedViews,is2DEnabled:()=>scene2DEnabled,stopResult:()=>reset().then(()=>{document.querySelector('#position').textContent='x = 0';}),getAuthoringKey:contextAuthoringKey,getTextContext:id=>{const state=capabilityExecution.state();return state.sourceDocument===id?state.contextId:null;},onError:showError});
 for(const entry of ['scene3d','webapp'].map(id=>capabilityUI.get(id)))entry.participant.subscribe(()=>consoleUI.invalidateSources(entry.contextId));
-authoring.subscribe(()=>{resourcesUI.authoringChanged();workspace?.authoringChanged();});
+authoring.subscribe(()=>{resourcesUI.authoringChanged();workspace?.authoringChanged();renderHiddenAuthoring();});
+// Pilot profile (pilot-2d-mode): name what the project keeps outside the shown contexts.
+function renderHiddenAuthoring(){
+  const notice=document.querySelector('#hidden-authoring-notice');
+  const kept=[['microbit','micro:bit',()=>device.config()],['sb3','Scratch importado',()=>resourcesUI.reference()],
+    ['scene3d','Escena 3D',()=>capabilityUI.capture('scene3d')],['webapp','Aplicación web',()=>capabilityUI.capture('webapp')]]
+    .filter(([id,,present])=>!contexts.available(id)&&present()).map(([,name])=>name);
+  const names=kept.length>1?kept.slice(0,-1).join(', ')+' y '+kept.at(-1):kept[0];
+  const text=kept.length?'Este proyecto también incluye '+names+'. Esta instalación del piloto no '+(kept.length>1?'los muestra, pero se conservan':'lo muestra, pero se conserva')+' al guardar y descargar.':'';
+  if(notice.textContent!==text)notice.textContent=text;
+}
 deviceEditor.subscribe(()=>{lessons?.invalidate();workspace?.authoringChanged();});
 
 const pending = new Map();
@@ -555,7 +566,7 @@ lessons = createLessonsUI({
   loadStarter: (starter, options) => project.loadStarter(starter, options),
   readScene: identity => request('gg-call', {method: 'scene.get', args: [], revision: identity.revision}, identity),
   readVariable: (id, identity) => request('gg-call', {method: 'variables.get', args: [id], revision: identity.revision}, identity),
-  getIdentity: lessonIdentity, getAuthoring: () => ({ir: editor.program(), blocklyHash: JSON.stringify(editor.save())}),
+  getIdentity: lessonIdentity, getAuthoring: () => ({ir: editor.program(), blocklyHash: JSON.stringify(editor.save()), editedInText: codeViewsState.get('2d').editedInText}),
   getCopyFacts: () => [...copyFacts.values()], onError: record => consoleUI.local(record)
 });
 source.addEventListener('input', () => { lessons?.invalidate();workspace?.authoringChanged();compileAttempt++;if(document.querySelector('#compile-result').textContent==='Compilando…')document.querySelector('#compile-result').textContent='Fuente modificada · compilación anterior descartada'; });

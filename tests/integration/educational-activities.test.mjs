@@ -10,7 +10,7 @@ const scene = x => ({sprites:[{id:'hero',name:'hero',x,y:0}],variables:[]});
 test('E3: actual v1 definitions remain readable; primary starters, IDs, revision and checks are preserved',()=>{
   for(const before of legacy){
     assert.deepEqual(validateLesson(before),before);
-    const after=getLesson(before.id);
+    const after=getLesson(before.id+'@'+before.revision);
     assert.equal(after.version,2);assert.equal(after.revision,before.revision);
     assert.deepEqual(after.starter,before.starter);
     assert.deepEqual(after.steps.map(({id,checks})=>({id,checks})),before.steps.map(({id,checks})=>({id,checks})));
@@ -39,9 +39,9 @@ test('E3: variants evaluate only their own real position, score and copy provena
   assert.equal(evaluateLesson(getLesson('score'),score).passed,true);
   assert.equal(evaluateLesson(getLesson('score'),{...score,variables:[{id:'gg-pack-score',name:'Puntos',value:3}]}).passed,false);
   const text={scene:scene(24),mode:'variant',identity:{projectId:'p',documentId:'d',backend:'javascript'},authoring:{blocklyHash:'same'},copyFacts:[{projectId:'p',documentId:'d',language:'javascript',blocklyHashAtCopy:'same'}]};
-  assert.equal(evaluateLesson(getLesson('text-transition'),text).passed,true);
-  assert.equal(evaluateLesson(getLesson('text-transition'),{...text,copyFacts:[]}).passed,false);
-  assert.equal(evaluateLesson(getLesson('text-transition'),{...text,authoring:{blocklyHash:'edited'}}).passed,false);
+  assert.equal(evaluateLesson(getLesson('text-transition@1'),text).passed,true);
+  assert.equal(evaluateLesson(getLesson('text-transition@1'),{...text,copyFacts:[]}).passed,false);
+  assert.equal(evaluateLesson(getLesson('text-transition@1'),{...text,authoring:{blocklyHash:'edited'}}).passed,false);
 });
 test('E3: legacy progress is unchanged and a variant ID never implies principal completion',()=>{
   const base={version:1,projectId:'old-project',lessonId:'story',lessonRevision:1,completedStepIds:['story-position']};

@@ -1,4 +1,4 @@
-import {getLesson, lessonCatalog, lessonSteps} from '../lessons.mjs';
+import {getLesson, lessonCatalog, lessonSteps, lessonKey} from '../lessons.mjs';
 import {createLessonController} from './lesson-controller.mjs';
 
 // Native controls and plain text only. Loading, reading and project identity
@@ -16,8 +16,8 @@ export function createLessonsUI(options) {
     const lesson = getLesson(state.selectedLessonId);
     const steps = lessonSteps(lesson, state.mode);
     const route = state.mode === 'variant' ? lesson.learning.variant : lesson.learning;
-    controls.select.value = lesson.id;
-    const renderKey = `${lesson.id}:${state.mode}`;
+    controls.select.value = state.selectedLessonId;
+    const renderKey = `${state.selectedLessonId}:${state.mode}`;
     if (renderedLesson !== renderKey) {
       renderedLesson = renderKey; results.clear();
       controls.title.textContent = lesson.title;
@@ -83,11 +83,17 @@ export function createLessonsUI(options) {
     controls.progress.textContent = historical
       ? `Historial: ${historical} de ${steps.length} pasos completados${state.mode === 'variant' ? ' del reto variante' : ''}. Este historial no verifica los cambios actuales.`
       : 'El progreso de las actividades se guarda aparte del proyecto.';
+    for (const earlier of state.earlierProgress ?? [])
+      controls.progress.textContent += ` Revisión anterior ${earlier.revision}: ${earlier.completed} de ${earlier.total} pasos completados; se conserva.`;
     if (state.progressWarning) controls.progress.textContent += ` ${state.progressWarning}`;
     externalChange(state);
   }
   const controller = createLessonController({...options, onChange: render});
-  const choices = lessonCatalog.map(lesson => { const option = document.createElement('option'); option.value = lesson.id; option.textContent = lesson.title; return option; });
+  const choices = lessonCatalog.map(lesson => {
+    const option = document.createElement('option'); option.value = lessonKey(lesson);
+    option.textContent = option.value === lesson.id ? lesson.title : `${lesson.title} · revisión anterior ${lesson.revision}`;
+    return option;
+  });
   controls.select.replaceChildren(...choices);
   function failed(error) {
     controls.error.textContent = String(error?.message ?? error);

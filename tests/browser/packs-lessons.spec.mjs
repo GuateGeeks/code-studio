@@ -136,7 +136,7 @@ for (const mobile of [false, true]) {
 
   test('GG-LESSON: independent text transition uses selected execution and original blocks ('+layout+')',async({page})=>{
     if(mobile) await page.setViewportSize({width:390,height:844});
-    await open(page);await load(page,'text-transition');
+    await open(page);await load(page,'text-transition@1');
     await run(page,12);
     const blocks=await page.evaluate(()=>studioProbe.editor.save());
     await selectContext(page,'2d');

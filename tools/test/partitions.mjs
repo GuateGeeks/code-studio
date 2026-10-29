@@ -8,7 +8,7 @@ import {resolve} from 'node:path';
 // starts naming default origins, so the list cannot silently go stale.
 export const defaultPortSuites = Object.freeze([
   'accessibility-zoom', 'audio-variables', 'code-console', 'device-integration', 'isolation', 'language-runtime',
-  'offline-recovery', 'project-persistence', 'pxt-worker', 'runner', 'scene-inspector', 'simulator',
+  'offline-recovery', 'pilot-2d-mode', 'project-persistence', 'pxt-worker', 'runner', 'scene-inspector', 'simulator',
   'standalone-contexts', 'textual-corpus'
 ].map(name => `tests/browser/${name}.spec.mjs`));
 

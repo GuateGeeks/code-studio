@@ -27,10 +27,15 @@ export function validateLessonCheck(check) {
       if (['__proto__', 'constructor', 'prototype'].includes(check.variableId) || !Number.isFinite(check.equals) || Math.abs(check.equals) > 1e6) fail('variable inválida');
       break;
     case 'authored-operation':
+      if (check.operation === 'move') {
+        object(check, ['kind', 'operation', 'steps']);
+        if (!Number.isFinite(check.steps) || Math.abs(check.steps) > 1e6) fail('operación de autoría no admitida');
+        break;
+      }
       object(check, ['kind', 'operation', 'costume']);
       if (check.operation !== 'setCostume' || !['hero', 'hero-alt'].includes(check.costume)) fail('operación de autoría no admitida');
       break;
-    case 'text-copy': case 'blocks-unchanged': object(check, ['kind']); break;
+    case 'text-copy': case 'blocks-unchanged': case 'edited-in-text': object(check, ['kind']); break;
     default: fail('predicado no admitido');
   }
   return structuredClone(check);
@@ -80,11 +85,21 @@ export function lessonSteps(lesson, mode = 'main') {
 }
 function freeze(value) { if (value && typeof value === 'object') { for (const child of Object.values(value)) freeze(child); Object.freeze(value); } return value; }
 export const lessonCatalog = freeze(lessonDefinitions.map(validateLesson));
-export function getLesson(lessonId) {
-  const lesson = lessonCatalog.find(item => item.id === lessonId);
+if (new Set(lessonCatalog.map(lesson => lesson.id + '@' + lesson.revision)).size !== lessonCatalog.length || lessonCatalog.length > lessonLimits.lessons) fail('revisiones duplicadas');
+const latest = id => lessonCatalog.filter(item => item.id === id).sort((a, b) => b.revision - a.revision)[0];
+// A key names an activity: `id` is its latest revision and `id@N` an earlier
+// one that remains readable with its own progress (e.g. text-transition@1).
+export function lessonKey(lesson) { return latest(lesson.id).revision === lesson.revision ? lesson.id : lesson.id + '@' + lesson.revision; }
+export function getLesson(key) {
+  const [lessonId, revision] = typeof key === 'string' ? key.split('@') : [];
+  const lesson = revision === undefined ? latest(lessonId) : lessonCatalog.find(item => item.id === lessonId && String(item.revision) === revision);
   if (!lesson) fail('actividad desconocida');
   return structuredClone(lesson);
 }
-export function getLessonStarter(lessonId) {
-  return {lessonId, ...getLesson(lessonId).starter};
+export function earlierRevisions(key) {
+  const lesson = getLesson(key);
+  return lessonCatalog.filter(item => item.id === lesson.id && item.revision < lesson.revision).map(item => structuredClone(item));
+}
+export function getLessonStarter(key) {
+  return {lessonId: getLesson(key).id, ...getLesson(key).starter};
 }

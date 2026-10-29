@@ -159,7 +159,7 @@ legend { padding: 0; font-size: var(--gg-text-label); font-weight: 600; }
 main { padding: var(--gg-space-2) 16px; }
 .project-notices:not(:has(output:not(:empty), #save-new-copy:not([hidden]))) { display: none; }
 .project-notices { display: flex; flex-wrap: wrap; align-items: center; gap: var(--gg-space-2) var(--gg-space-3); margin-bottom: var(--gg-space-2); padding: var(--gg-space-2) var(--gg-space-3); border: 1px solid var(--gg-border); background: var(--gg-surface); }
-#recovery-notice { flex: 1 1 300px; color: var(--gg-ink); }
+#recovery-notice, #hidden-authoring-notice { flex: 1 1 300px; color: var(--gg-ink); }
 #project-error { flex: 1 1 300px; }
 #dismiss-notices { min-height: 32px; padding: 2px 10px; margin-inline-start: auto; }
 .project-notices { padding-block: 2px; }

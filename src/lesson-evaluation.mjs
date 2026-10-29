@@ -10,7 +10,7 @@ export function validateLessonVariable(value, expectedId) {
   return {id: value.id, name: value.name, value: value.value};
 }
 function operationPresent(body, check) {
-  return body.some(node => (node.kind === check.operation && node.costume === check.costume) ||
+  return body.some(node => (node.kind === check.operation && (check.operation === 'move' ? node.steps === check.steps : node.costume === check.costume)) ||
     operationPresent(node.body ?? [], check) || operationPresent(node.elseBody ?? [], check));
 }
 export function evaluateLesson(lesson, {scene, variables = [], authoring = {}, identity, copyFacts = [], mode = 'main'}) {
@@ -43,8 +43,16 @@ export function evaluateLesson(lesson, {scene, variables = [], authoring = {}, i
         }
         case 'authored-operation':
           passed = Boolean(ir?.scripts.some(script => operationPresent(script.body, check)));
-          message = passed ? `Autoría: tu programa incluye el cambio al disfraz ${check.costume}. No se comprobaron píxeles.`
-            : `Autoría: añade un cambio al disfraz ${check.costume}.`; basis = 'authoring'; break;
+          if (check.operation === 'move') message = passed ? `Autoría: tus bloques incluyen un movimiento de ${check.steps} pasos.`
+            : `Autoría: tus bloques aún no tienen un movimiento de ${check.steps} pasos.`;
+          else message = passed ? `Autoría: tu programa incluye el cambio al disfraz ${check.costume}. No se comprobaron píxeles.`
+            : `Autoría: añade un cambio al disfraz ${check.costume}.`;
+          basis = 'authoring'; break;
+        case 'edited-in-text':
+          passed = authoring.editedInText === true;
+          message = passed ? 'Autoría: este programa recibió un cambio desde JavaScript o Python. No comprueba qué explicas sobre él.'
+            : 'Cambia el programa en la vista JavaScript o Python y aplícalo al ejecutar o al volver a Bloques.';
+          basis = 'authoring'; break;
         case 'text-copy':
           passed = Boolean(matchingCopy);
           message = passed ? 'Copia: se ejecutó el documento creado explícitamente desde tus bloques.' : 'Crea una copia JavaScript o Python y ejecuta ese documento.';

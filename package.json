@@ -24,7 +24,8 @@
     "check:mcp": "node tools/f0/mcp-smoke.mjs",
     "browser:build": "node tools/f0/build-browser.mjs",
     "browser:serve": "node tools/f0/serve-browser.mjs",
-    "test:browser": "playwright test"
+    "test:browser": "playwright test",
+    "serve:pilot": "GG_CONTEXTS=2d,text node tools/f0/serve-browser.mjs"
   },
   "devDependencies": {
     "@babylonjs/core": "9.32.0",

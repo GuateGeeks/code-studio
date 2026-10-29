@@ -74,7 +74,7 @@ test('E3: cuatro pulsaciones completan solo la variante de puntos',async({page})
   expect(result.results[0].checks.every(check=>check.passed&&check.basis==='execution')).toBe(true);
 });
 for(const language of ['javascript','python'])test(`E3: variante textual independiente ${language}`,async({page})=>{
-  await open(page,'text-transition');const blocks=await page.evaluate(()=>studioProbe.editor.save());
+  await open(page,'text-transition@1');const blocks=await page.evaluate(()=>studioProbe.editor.save());
   await clickVisible(page.locator('#copy-'+language));
   const source=await page.locator('#text-source').inputValue();expect(source).toContain('hero.move(4)');
   await page.locator('#text-source').fill(source.replace('hero.move(4)','hero.move(8)'));

@@ -11,7 +11,8 @@ export function validateLessonProgress(record) {
   if (!record || typeof record !== 'object' || Array.isArray(record) || ![Object.prototype, null].includes(Object.getPrototypeOf(record)) ||
       Object.keys(record).length !== fields.length || fields.some(field => !Object.hasOwn(record, field)) || record.version !== 1) throw new Error('Progreso de actividad inválido.');
   projectId(record.projectId);
-  const lesson = getLesson(record.lessonId);
+  if (typeof record.lessonId !== 'string' || record.lessonId.includes('@') || !Number.isSafeInteger(record.lessonRevision)) throw new Error('Progreso de actividad inválido.');
+  const lesson = getLesson(record.lessonId + '@' + record.lessonRevision);
   const steps = [...lesson.steps, ...(lesson.learning ? [lesson.learning.variant] : [])];
   if (record.lessonRevision !== lesson.revision || !Array.isArray(record.completedStepIds) ||
       Object.keys(record.completedStepIds).length !== record.completedStepIds.length ||
@@ -70,18 +71,18 @@ export function createLessonProgressStore({indexedDB = globalThis.indexedDB, dbN
   }
   function keyFor(id, lesson) { return JSON.stringify([projectId(id), lesson.id, lesson.revision]); }
   return Object.freeze({
-    async load(id, lessonId) {
-      const lesson = getLesson(lessonId);
+    async load(id, key) {
+      const lesson = getLesson(key);
       const record = await transaction('readonly', keyFor(id, lesson));
       if (record === undefined) return null;
       const validated = validateLessonProgress(record);
-      if (validated.projectId !== id || validated.lessonId !== lessonId) throw new Error('El progreso no corresponde a este proyecto.');
+      if (validated.projectId !== id || validated.lessonId !== lesson.id || validated.lessonRevision !== lesson.revision) throw new Error('El progreso no corresponde a este proyecto.');
       return validated;
     },
     save(record, options = {}) {
       let validated;
       try { validated = validateLessonProgress(record); } catch (error) { return Promise.reject(error); }
-      const operation = () => transaction('readwrite', keyFor(validated.projectId, getLesson(validated.lessonId)), validated, options);
+      const operation = () => transaction('readwrite', keyFor(validated.projectId, getLesson(validated.lessonId + '@' + validated.lessonRevision)), validated, options);
       const result = queue.then(operation); queue = result.catch(() => {}); return result;
     },
     close() { closed = true; connection?.close(); connection = null; }

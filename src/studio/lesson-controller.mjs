@@ -1,4 +1,4 @@
-import {getLesson, getLessonStarter, lessonCatalog, lessonSteps} from '../lessons.mjs';
+import {getLesson, getLessonStarter, lessonCatalog, lessonSteps, lessonKey, earlierRevisions} from '../lessons.mjs';
 import {evaluateLesson, validateLessonVariable} from '../lesson-evaluation.mjs';
 import {createLessonProgressStore} from '../lesson-progress-store.mjs';
 
@@ -15,8 +15,8 @@ export function createLessonController({loadStarter, readScene, readVariable, ge
   for (const callback of [loadStarter, readScene, getIdentity, getAuthoring]) if (typeof callback !== 'function') throw new TypeError('La actividad necesita sus conexiones de proyecto y lectura.');
   if (!Number.isInteger(maxReads) || maxReads < 1 || maxReads > 10 || !Number.isFinite(intervalMs) || intervalMs < 0 || intervalMs > 500 ||
       !Number.isFinite(timeoutMs) || timeoutMs < 1 || timeoutMs > 5000) throw new Error('Límites de comprobación inválidos.');
-  let value = {selectedLessonId: lessonCatalog[0].id, mode: 'main', phase: 'idle', message: 'Selecciona una actividad. Sus instrucciones no cambian tu proyecto.',
-    results: [], historicalStepIds: [], progressWarning: ''};
+  let value = {selectedLessonId: lessonKey(lessonCatalog[0]), mode: 'main', phase: 'idle', message: 'Selecciona una actividad. Sus instrucciones no cambian tu proyecto.',
+    results: [], historicalStepIds: [], earlierProgress: [], progressWarning: ''};
   let attempt = null; let pendingCheck = null; let loading = false; let closed = false; let generation = 0; let historyKey = null; let historyGeneration = 0;
   const state = () => structuredClone(value);
   const notify = () => { if (!closed) onChange(state()); return state(); };
@@ -41,11 +41,17 @@ export function createLessonController({loadStarter, readScene, readVariable, ge
     const key = JSON.stringify([identity.projectId, lesson.id, lesson.revision]);
     if (key === historyKey || !identity.projectId || closed) return;
     const historyToken = ++historyGeneration;
-    historyKey = key; value.historicalStepIds = []; value.progressWarning = '';
+    historyKey = key; value.historicalStepIds = []; value.earlierProgress = []; value.progressWarning = '';
     try {
-      const record = await progressStore.load(identity.projectId, lesson.id);
+      const record = await progressStore.load(identity.projectId, value.selectedLessonId);
+      // Earlier revisions keep their own progress; show it without merging.
+      const earlier = [];
+      for (const revision of earlierRevisions(value.selectedLessonId)) {
+        const old = await progressStore.load(identity.projectId, revision.id + '@' + revision.revision);
+        if (old?.completedStepIds.length) earlier.push({revision: revision.revision, completed: old.completedStepIds.filter(id => revision.steps.some(step => step.id === id)).length, total: revision.steps.length});
+      }
       if (closed || historyKey !== key || historyToken !== historyGeneration) return;
-      value.historicalStepIds = record?.completedStepIds ?? []; notify();
+      value.historicalStepIds = record?.completedStepIds ?? []; value.earlierProgress = earlier; notify();
     } catch (error) {
       if (closed || historyKey !== key || historyToken !== historyGeneration) return;
       value.progressWarning = String(error.message); notify();
@@ -59,7 +65,7 @@ export function createLessonController({loadStarter, readScene, readVariable, ge
   function select(id) {
     getLesson(id);
     if (closed || loading || id === value.selectedLessonId) return state();
-    cancelCheck(); value = {...value, selectedLessonId: id, mode: 'main', phase: 'idle', results: [], historicalStepIds: [], progressWarning: '',
+    cancelCheck(); value = {...value, selectedLessonId: id, mode: 'main', phase: 'idle', results: [], historicalStepIds: [], earlierProgress: [], progressWarning: '',
       message: 'Instrucciones seleccionadas. Tu proyecto no cambió.'};
     historyKey = null; notify(); void history(); return state();
   }
@@ -86,19 +92,19 @@ export function createLessonController({loadStarter, readScene, readVariable, ge
     return state();
   }
   async function performCheck() {
-    const lesson = getLesson(value.selectedLessonId); const mode = value.mode;
+    const key = value.selectedLessonId; const lesson = getLesson(key); const mode = value.mode;
     const selectedSteps = lessonSteps(lesson, mode); const captured = identityOf(getIdentity);
     if (!captured.projectId || !captured.sessionId || !Number.isSafeInteger(captured.revision) || captured.revision < 0 ||
         !captured.authoringKey || captured.authoringKey !== captured.executedAuthoringKey) {
       value.phase = 'not-yet'; value.results = []; value.message = 'Ejecuta tus cambios antes de comprobar.'; return notify();
     }
-    if (lesson.id === 'text-transition' && !['javascript', 'python'].includes(captured.backend)) {
+    if (selectedSteps.some(step => step.checks.some(check => check.kind === 'text-copy')) && !['javascript', 'python'].includes(captured.backend)) {
       value.phase = 'not-yet'; value.results = []; value.message = 'Crea una copia JavaScript o Python y ejecuta el documento seleccionado.'; return notify();
     }
     let cancel;
     const abort = new AbortController();
     const cancelled = new Promise((_, reject) => { cancel = error => { abort.abort(); reject(error); }; }); cancelled.catch(() => {});
-    const token = {generation: ++generation, lessonId: lesson.id, mode, identityKey: JSON.stringify(captured), cancelled, cancel, abort};
+    const token = {generation: ++generation, lessonId: key, mode, identityKey: JSON.stringify(captured), cancelled, cancel, abort};
     attempt = token; value.phase = 'checking'; value.message = 'Comprobando lecturas de esta ejecución…'; value.results = []; notify();
     const deadline = Date.now() + timeoutMs;
     try {
@@ -130,7 +136,7 @@ export function createLessonController({loadStarter, readScene, readVariable, ge
         try {
           // The history view may still be loading. Preserve durable principal
           // IDs before saving a first successful variant (and vice versa).
-          const previous = await bounded(() => progressStore.load(captured.projectId, lesson.id), token, deadline);
+          const previous = await bounded(() => progressStore.load(captured.projectId, key), token, deadline);
           const mergedIds = [...new Set([...(previous?.completedStepIds ?? []), ...completedStepIds])];
           await progressStore.save({version: 1, projectId: captured.projectId, lessonId: lesson.id, lessonRevision: lesson.revision, completedStepIds: mergedIds},
             {isCurrent: () => stillCurrent(token), signal: token.abort.signal});

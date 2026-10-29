@@ -99,5 +99,36 @@ const hints = {
   'text-position': ['Busca el movimiento y cuántas veces se repite en el documento.', 'Tres repeticiones multiplican el avance de cada movimiento.', 'Cambia el movimiento de 4 a 6 en la copia y ejecuta el documento.']
 };
 // Presentation v2 keeps the original starter/check revision and stable IDs.
-export const lessonDefinitions = originalLessons.map(lesson => ({...lesson, version: 2, learning: learning[lesson.id],
+const presentedLessons = originalLessons.map(lesson => ({...lesson, version: 2, learning: learning[lesson.id],
   steps: lesson.steps.map(step => ({...step, hints: hints[step.id]}))}));
+// Revision 2 of the text transition (synced-code-views 5.1): the same program
+// is edited in JavaScript or Python and returns to blocks. Revision 1 (an
+// independent copy) stays readable as `text-transition@1` with its progress.
+const syncedTransition = {
+  version: 2, id: 'text-transition', revision: 2, title: 'De bloques a tu propio código',
+  introduction: 'Abre el mismo programa en JavaScript o Python, cambia su movimiento en el texto y vuelve a Bloques para encontrar tu cambio.',
+  starter: originalLessons[2].starter,
+  steps: [
+    {id: 'synced-edit', title: 'Cambia el movimiento en el texto',
+      instructions: 'El ejemplo llega a x=12. En Programa, elige JavaScript o Python: es el mismo programa. Cambia solo el número del movimiento para llegar a x=18 y pulsa Ejecutar programa.',
+      hints: ['Busca en el texto la repetición y el movimiento que contiene.', 'La repetición se hace tres veces: el movimiento se suma tres veces.', 'Cambia hero.move(4) por hero.move(6) y pulsa Ejecutar programa.'],
+      checks: [{kind: 'edited-in-text'}, {kind: 'position', axis: 'x', equals: 18, tolerance: 0.01}]},
+    {id: 'synced-blocks', title: 'Encuentra tu cambio en los bloques',
+      instructions: 'Vuelve a Bloques. Busca dentro de la repetición el número que escribiste en el texto y explica a tu docente qué cambió y qué se conservó.',
+      hints: ['Elige Bloques en Programa y observa la repetición.', 'Tu cambio en el texto cambió el mismo programa, así que el bloque Mover también cambió.', 'El bloque Mover dentro de la repetición debe mostrar 6.'],
+      checks: [{kind: 'authored-operation', operation: 'move', steps: 6}]}
+  ],
+  learning: {
+    objective: 'Editar el mismo programa en texto y en bloques, y explicar cómo un cambio en el código aparece en los bloques.',
+    prerequisites: ['Reconocer una repetición y el movimiento que contiene.', 'Cambiar entre Bloques, JavaScript y Python en Programa; pedir una demostración si hace falta.'],
+    prediction: 'Los bloques repiten tres movimientos de 4. Si cambias el 4 en el texto, ¿qué número verás después en el bloque Mover? ¿Dónde terminará hero?',
+    reflection: 'Compara tu predicción con los bloques y con la posición. Explica por qué esta vez los bloques sí cambiaron y qué ocurre si escribes algo que no tiene bloque. Comprobar verifica el programa, no tu explicación.',
+    variant: {id: 'synced-variant', title: 'Llega a x=24 desde el texto',
+      instructions: 'Desde JavaScript o Python, cambia la repetición o el movimiento para llegar a x=24. Vuelve a Bloques, ejecuta y busca qué bloque cambió.',
+      prediction: '¿Cambiarás cuántas veces se repite o cuántos pasos avanza? Predice qué bloque mostrará tu cambio.',
+      reflection: 'Explica dos formas de llegar a x=24 y en qué bloque aparece cada una. ¿Qué pasa si el texto tiene un error al volver a Bloques?',
+      hints: ['Observa en el texto el número de repeticiones y los pasos del movimiento.', 'La posición final es repeticiones × pasos.', 'Prueba 4 repeticiones de 6 pasos, o 3 repeticiones de 8.'],
+      checks: [{kind: 'edited-in-text'}, {kind: 'position', axis: 'x', equals: 24, tolerance: 0.01}]}
+  }
+};
+export const lessonDefinitions = [...presentedLessons.slice(0, 2), syncedTransition, presentedLessons[2]];

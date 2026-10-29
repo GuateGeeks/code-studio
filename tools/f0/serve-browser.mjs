@@ -5,13 +5,16 @@ import {projectRoot} from '../paths.mjs';
 import {browserConfiguration, browserPolicy, browserContentType} from '../build/browser-policy.mjs';
 import {createStandaloneRuntime} from '../build/standalone-package.mjs';
 import {createReleaseSnapshot} from '../build/release-snapshot.mjs';
+import {parseDeploymentContexts} from '../../src/contracts/deployment-profile.mjs';
 
 const {ports, origins} = browserConfiguration();
 // Alternate output roots let isolated release/offline tests use copies of the
 // build without editing product sources or disturbing a running Studio.
 const browserRoot = resolve(process.env.GG_BROWSER_ROOT ?? resolve(projectRoot, 'artifacts/browser'));
 const releaseRoot = resolve(process.env.GG_RELEASE_ROOT ?? resolve(projectRoot, 'artifacts/releases'));
-const release = await createReleaseSnapshot({browserRoot, releaseRoot, origins});
+// GG_CONTEXTS=2d,text serves the pilot profile (pilot-2d-mode); unset keeps every context.
+const contexts = parseDeploymentContexts(process.env.GG_CONTEXTS);
+const release = await createReleaseSnapshot({browserRoot, releaseRoot, origins, contexts});
 const servers = [];
 for (const [role, port] of Object.entries(ports)) {
   const root = resolve(browserRoot, role);
@@ -49,7 +52,7 @@ for (const [role, port] of Object.entries(ports)) {
         return;
       }
       if (pathname.startsWith('/releases/')) { response.writeHead(404).end(); return; }
-      if (pathname === '/config.json') { response.setHeader('Content-Type', 'application/json'); response.end(JSON.stringify({...origins,cohort:release.cohort,releaseBase:release.releaseBase,offlineProtocolVersion:2})); return; }
+      if (pathname === '/config.json') { response.setHeader('Content-Type', 'application/json'); response.end(JSON.stringify({...origins,cohort:release.cohort,releaseBase:release.releaseBase,offlineProtocolVersion:2,...(contexts?{contexts}:{})})); return; }
       const file = resolve(root, `.${pathname === '/' ? '/index.html' : pathname}`);
       const pathFromRoot = relative(root, file);
       if (pathFromRoot.startsWith(`..${sep}`) || pathFromRoot === '..' || pathFromRoot.startsWith(sep)) { response.writeHead(403).end(); return; }
