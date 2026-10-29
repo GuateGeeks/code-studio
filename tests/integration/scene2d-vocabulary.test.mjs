@@ -252,3 +252,108 @@ test('VOC-011: editing one E1 value in the JavaScript view keeps every other blo
     assert.deepEqual({...workspace.getBlockById('hero-start').getRelativeToSurfaceXY()}, {x: 40, y: 60});
   } finally { workspace.dispose(); }
 });
+
+// Runs a document in the real interpreter with a scripted host: compare is
+// false twice then true, frames resolve three times and then stay pending.
+async function textTrace(language, source, runtime = {}) {
+  const {createRequire} = await import('node:module');
+  const {resolve} = await import('node:path');
+  const {createQuickJSEngine} = await import('../../src/targets/text/quickjs-engine.mjs');
+  const {createPythonEngine} = await import('../../src/targets/text/python-engine.mjs');
+  const {validateTextProgramRPC, validateTextInvocation} = await import('../../src/contracts/text-program.mjs');
+  const calls = [];
+  let program = null, ready, frames = 0, compares = 0, saturated;
+  const started = new Promise(done => { ready = done; }), limit = new Promise(done => { saturated = done; });
+  const rpc = async (method, args) => {
+    const call = validateTextProgramRPC(method, args);
+    calls.push({method: call.method, args: call.args.slice(method === 'program.start' ? 0 : 1)});
+    if (method === 'program.start') { program = call.args[0]; return {started: true}; }
+    if (method === 'program.compare') return ++compares > 2;
+    if (method === 'program.frame') { if (++frames > 3) { saturated(); return new Promise(() => {}); } return null; }
+    if (method === 'program.stopAll') return true;
+    return {accepted: true};
+  };
+  const options = {onDiagnostic: () => {}, onProgramReady: () => ready(), rpc};
+  const engine = language === 'javascript'
+    ? await createQuickJSEngine({...options, wasmLocation: createRequire(import.meta.url).resolve('@jitl/quickjs-wasmfile-release-sync/wasm')})
+    : await createPythonEngine({...options, indexURL: resolve('node_modules/pyodide') + '/'});
+  try {
+    await engine.prepare({id: 'text-12345678-1234-4234-8234-123456789abc', name: 'E1', language, source,
+      runtime: {...(language === 'javascript' ? {engine: 'quickjs', version: '0.32.0'} : {engine: 'pyodide', version: '314.0.7'}), ...runtime}});
+    engine.execute().catch(() => {});
+    await started;
+    for (const handler of program.handlers) {
+      const done = engine.invoke(validateTextInvocation({invocationId: 'invoke-' + handler.id, handlerId: handler.id, targetId: 'hero', revision: 1}));
+      if (await Promise.race([done.then(() => 'done'), limit.then(() => 'limit')]) === 'limit') break;
+    }
+    return {program, calls};
+  } finally { engine.dispose(); }
+}
+const { generateProgramSource } = await import('../../src/generated-program-source.mjs');
+test('VOC-012: API v3 JavaScript and Python copies of every E1 program make exactly the API1 call sequence (frames included)', {timeout: 600000}, async () => {
+  const programs = [
+    ...vocabularyCases.map(item => [item.name, irOf(singleBlockWorkspace(item))]),
+    ...structureCases.map(item => [item.name, irOf(item.workspace)])
+  ];
+  for (const language of ['javascript', 'python']) for (const [name, ir] of programs) {
+    const generated = generateApi3ProgramSource(ir, language);
+    const api1 = await textTrace(language, generateProgramSource(ir, language).text);
+    const api3 = await textTrace(language, generated.text, {api: 'api3', variableIds: generated.variableIds});
+    assert.deepEqual(api3.program, api1.program, `${language} ${name} program`);
+    assert.deepEqual(api3.calls, api1.calls, `${language} ${name} calls`);
+    const kinds = JSON.stringify(ir);
+    if (/"forever"|"repeatUntil"|"waitUntil"/.test(kinds)) assert.ok(api3.calls.some(call => call.method === 'program.frame'), `${language} ${name} yields`);
+  }
+});
+
+test('VOC-013: the text adapter runs E1 operations with the same VM primitives, frame by frame, and «detener todo» cancels', async t => {
+  const {createTextProgram} = await import('../../src/adapters/scratch/text-program.mjs');
+  const {authorizeProjectOperation} = await import('../../src/contracts/pack-broker.mjs');
+  const {project} = toScratchProject({version: 0, scripts: []});
+  const blank = project.targets[1].costumes[0]; project.targets[1].costumes = [blank, {...blank, name: 'alt'}];
+  const vm = await createScratchSession(project);
+  const invocations = [], cancellations = [];
+  const adapter = createTextProgram({getVM: () => vm, getRevision: () => 7, onInvocation: event => invocations.push(event), onCancel: event => cancellations.push(event)});
+  t.after(() => { adapter.dispose(); vm.quit(); });
+  const call = (method, args) => adapter.call('program.' + method, args, 7);
+  call('start', [{variables: [{id: 'n', name: 'n', initialValue: 4}], handlers: [{id: 'start', event: 'start'}]}]);
+  for (let i = 0; i < 100 && !invocations.length; i++) await delay(5);
+  const id = invocations[0].invocationId, hero = vm.runtime.getSpriteTargetByName('hero');
+  assert.equal(call('turnRight', [id, 15]).direction, 105);
+  assert.equal(call('turnLeft', [id, {variableId: 'n'}]).direction, 101);
+  assert.equal(call('pointInDirection', [id, -90]).direction, -90);
+  assert.deepEqual([call('goTo', [id, 30, {variableId: 'n'}]).x, hero.y], [30, 4]);
+  call('changeX', [id, 5]); call('changeY', [id, -4]); assert.deepEqual([hero.x, hero.y], [35, 0]);
+  call('setX', [id, -10]); call('setY', [id, 12]); assert.deepEqual([hero.x, hero.y], [-10, 12]);
+  call('hide', [id]); assert.equal(hero.visible, false); call('show', [id]); assert.equal(hero.visible, true);
+  call('nextCostume', [id]); assert.equal(hero.currentCostume, 1);
+  call('say', [id, {variableId: 'n'}]); assert.deepEqual([hero.getCustomState('Scratch.looks').type, hero.getCustomState('Scratch.looks').text], ['say', '4']);
+  call('think', [id, 'Mmm']); assert.equal(hero.getCustomState('Scratch.looks').type, 'think');
+  await call('thinkFor', [id, 'Ya', 0.05]); assert.equal(hero.getCustomState('Scratch.looks').text, '');
+  const marker = vm.runtime._lastStepDoneThreads;
+  await call('frame', [id]); assert.notEqual(vm.runtime._lastStepDoneThreads, marker, 'a frame resolves only after a VM step');
+  const begun = Date.now();
+  const glided = await call('glide', [id, 0.15, 60, -30]);
+  assert.deepEqual([glided.x, glided.y], [60, -30]); assert.ok(Date.now() - begun >= 140, 'glide takes its seconds');
+  assert.throws(() => call('say', [id, 'a\nb']), /invalid message/);
+  // Pack permissions: 0.1.0 projects cannot call the new operations; frame is core.
+  const old = createCapabilities(['gg.sprites'], {versions: {'gg.sprites': '0.1.0'}});
+  assert.throws(() => authorizeProjectOperation(old, 'program.turnRight', ['ctx', 15], {variables: []}), /no declarado/);
+  authorizeProjectOperation(old, 'program.frame', ['ctx'], {variables: []});
+  authorizeProjectOperation(v2(), 'program.goTo', ['ctx', {variableId: 'n'}, 0], {variables: [{id: 'n', name: 'n', initialValue: 0}]});
+  const pending = call('sayFor', [id, 'Hola', 30]);
+  assert.equal(call('stopAll', [id]), true);
+  await assert.rejects(pending, /cancelled/);
+  assert.ok(cancellations.some(item => item.invocationId === id && item.reason === 'stopped'));
+  assert.throws(() => call('show', [id]), /stale invocation/);
+});
+
+test('VOC-014: the educational IR notation names every E1 block in Spanish with its source block', async () => {
+  const {generateCode} = await import('../../src/generated-code.mjs');
+  const programs = [...vocabularyCases.map(item => irOf(singleBlockWorkspace(item))), ...structureCases.map(item => irOf(item.workspace))];
+  const lines = programs.flatMap(ir => { const generated = generateCode(ir); return generated.text.split('\n').map((text, index) => ({text, ids: generated.sourceMap[index]})); });
+  for (const phrase of ['girar a la derecha 15 grados', 'girar a la izquierda 30 grados', 'apuntar en dirección -90', 'ir a x: 30 y: -20', 'deslizar en 0.2 segundos a x: 50 y: 10',
+    'cambiar x por 10', 'fijar x a -30', 'cambiar y por 12', 'fijar y a 20', 'rebotar si toca un borde', 'decir "¡Hola!"', 'decir "Hola" durante 0.1 segundos',
+    'pensar "Mmm"', 'siguiente disfraz', 'cambiar tamaño por 20', 'fijar tamaño a 50 %', 'mostrar', 'esconder', 'detener todo', 'por siempre', 'repetir hasta que', 'esperar hasta que', 'detener este programa'])
+    assert.ok(lines.some(line => line.text.trim().startsWith(phrase) && line.ids.length), phrase);
+});

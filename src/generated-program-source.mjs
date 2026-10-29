@@ -91,7 +91,30 @@ export function generateProgramSource(ir, language,options={}) {
           costumes.add(node.costume);
           call('setCostume', [quote(node.costume)], ids, depth);
           break;
-        default: throw Object.assign(new Error(`Unsupported generated operation: ${node.kind}`), {sourceBlockId: node.sourceBlockId});
+        // E1 (gg.sprites@0.2.0): while loops yield one frame per turn, like the API v3 translators.
+        case 'forever': case 'repeatUntil':
+          line(python ? `while ${node.kind === 'forever' ? 'True' : `not (${condition(node.condition, ids)})`}:`
+            : `while (${node.kind === 'forever' ? 'true' : `!(${condition(node.condition, ids)})`}) {`, ids, depth);
+          statements(node.body, depth + 1, node.sourceBlockId);
+          call('frame', [], [node.sourceBlockId], depth + 1);
+          if (!python) line('}', ids, depth);
+          break;
+        case 'waitUntil':
+          line(python ? `while not (${condition(node.condition, ids)}):` : `while (!(${condition(node.condition, ids)})) {`, ids, depth);
+          call('frame', [], ids, depth + 1);
+          if (!python) line('}', ids, depth);
+          break;
+        case 'stopScript': line(python ? 'return' : 'return;', ids, depth); break;
+        default: {
+          const form = scene2DCallForms.find(item => item.kind === node.kind && item.append === undefined);
+          if (!form) throw Object.assign(new Error(`Unsupported generated operation: ${node.kind}`), {sourceBlockId: node.sourceBlockId});
+          if (form.stops) {
+            line(python ? `if await ctx.${form.js}():` : `if (await ctx.${form.js}()) return;`, ids, depth);
+            if (python) line('return', ids, depth + 1);
+            break;
+          }
+          call(form.js, form.args.map(arg => arg.type === 'expression' ? expression(node[arg.field], ids) : typeof node[arg.field] === 'number' ? String(node[arg.field]) : quote(node[arg.field])), ids, depth);
+        }
       }
     }
   }

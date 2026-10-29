@@ -9,7 +9,7 @@ import {scene2DApi3} from './api-v3-vocabulary.mjs';
 
 export {scene2DApi3};
 
-const reserved = new Set(['GG', 'ctx', 'hero', 'shared', 'wait', 'broadcastAndWait', 'createClone', 'deleteClone', 'playSound', 'playSoundUntilDone', 'stopSounds', 'onStart', 'onKey', 'onMessage']);
+const reserved = new Set(['GG', 'ctx', 'hero', 'shared', 'wait', 'broadcastAndWait', 'createClone', 'deleteClone', 'playSound', 'playSoundUntilDone', 'stopSounds', 'onStart', 'onKey', 'onMessage', 'stopAll', 'waitUntil']);
 function located(message, node) {
   return Object.assign(new Error(message), node?.loc ? {lineNumber: node.loc.start.line, columnNumber: node.loc.start.column + 1} : {});
 }
@@ -91,7 +91,7 @@ export function compileApi3JavaScript(source, {variableIds = {}, vocabulary = sc
         const action = Object.hasOwn(vocabulary.statements, name) ? vocabulary.statements[name] : null;
         if (action) {
           if (expression.arguments.length !== action.arity) throw located(`${name} recibe ${action.arity} ${action.arity === 1 ? 'valor' : 'valores'}.`, expression);
-          if (action.stops) { edit(node.start, node.end, 'if (await ctx.deleteClone()) return;'); return; }
+          if (action.stops) { edit(node.start, node.end, `if (await ctx.${action.ctx}()) return;`); return; }
           allowed.add(expression);
           edit(expression.callee.start, expression.callee.end, `await ctx.${action.ctx}`);
           expression.arguments.forEach(argument);
@@ -100,6 +100,16 @@ export function compileApi3JavaScript(source, {variableIds = {}, vocabulary = sc
           return;
         }
         if (expression.callee.type === 'MemberExpression' && expression.callee.object.type === 'Identifier' && expression.callee.object.name === 'hero') throw located(`hero no tiene la acción ${expression.callee.property.name ?? ''}.`, expression);
+        // waitUntil(() => condición): check, and yield one frame while it is false (Scratch «esperar hasta»).
+        if (name === vocabulary.waitUntil) {
+          const predicate = expression.arguments[0];
+          if (expression.arguments.length !== 1 || predicate.type !== 'ArrowFunctionExpression' || predicate.params.length || predicate.async || predicate.body.type === 'BlockStatement')
+            throw located('waitUntil recibe una condición: waitUntil(() => a > b).', expression);
+          edit(expression.start, predicate.body.start, 'while (!(');
+          condition(predicate.body);
+          edit(predicate.body.end, node.end, ')) await ctx.frame();');
+          return;
+        }
       }
       if (expression.type === 'AssignmentExpression' && isVariable(expression.left)) {
         const id = JSON.stringify(variables.get(expression.left.name).id);
@@ -119,20 +129,21 @@ export function compileApi3JavaScript(source, {variableIds = {}, vocabulary = sc
       }
     }
     if (node.type === 'IfStatement') {
-      const test = node.test;
-      if (test.type === 'BinaryExpression' && Object.hasOwn(vocabulary.compare, test.operator) && (isVariable(test.left) || isVariable(test.right))) {
-        edit(test.start, test.left.start, `await ctx.compare(${JSON.stringify(vocabulary.compare[test.operator])}, `);
-        argument(test.left);
-        edit(test.left.end, test.right.start, ', ');
-        argument(test.right);
-        edit(test.right.end, test.right.end, ')');
-        for (const branch of [test.left, test.right]) visit(branch, true);
-      } else visit(test, true);
+      condition(node.test);
       block(node.consequent);
       if (node.alternate) block(node.alternate);
       return;
     }
-    if (['ForStatement', 'WhileStatement', 'DoWhileStatement', 'ForOfStatement', 'ForInStatement'].includes(node.type)) {
+    // Every while loop yields one frame per turn, like Scratch «por siempre»
+    // and «repetir hasta» (E1). for loops keep their API v3 behavior.
+    if (['WhileStatement', 'DoWhileStatement'].includes(node.type)) {
+      condition(node.test);
+      block(node.body);
+      if (node.body.type === 'BlockStatement') edit(node.body.end - 1, node.body.end - 1, ' await ctx.frame(); ');
+      else { edit(node.body.start, node.body.start, '{ '); edit(node.body.end, node.body.end, ' await ctx.frame(); }'); }
+      return;
+    }
+    if (['ForStatement', 'ForOfStatement', 'ForInStatement'].includes(node.type)) {
       for (const part of [node.init, node.test, node.update, node.left, node.right]) if (part) visit(part, true);
       block(node.body);
       return;
@@ -142,6 +153,18 @@ export function compileApi3JavaScript(source, {variableIds = {}, vocabulary = sc
     visit(node, true);
   }
   function block(node) { if (node.type === 'BlockStatement') node.body.forEach(statementInHandler); else statementInHandler(node); }
+  // A comparison ==, < or > that reads a program variable becomes one atomic ctx.compare; ! may wrap it.
+  function condition(test) {
+    if (test.type === 'UnaryExpression' && test.operator === '!') { condition(test.argument); return; }
+    if (test.type === 'BinaryExpression' && Object.hasOwn(vocabulary.compare, test.operator) && (isVariable(test.left) || isVariable(test.right))) {
+      edit(test.start, test.left.start, `await ctx.compare(${JSON.stringify(vocabulary.compare[test.operator])}, `);
+      argument(test.left);
+      edit(test.left.end, test.right.start, ', ');
+      argument(test.right);
+      edit(test.right.end, test.right.end, ')');
+      for (const branch of [test.left, test.right]) visit(branch, true);
+    } else visit(test, true);
+  }
   // Generic walk: nested functions may not use actions; program variables only in supported positions.
   function visit(node, inHandler) {
     if (isFunction(node)) { const action = containsAction(node.body, vocabulary); if (action) throw located('Las acciones del programa van directamente dentro de un evento, no dentro de funciones propias.', action); return; }

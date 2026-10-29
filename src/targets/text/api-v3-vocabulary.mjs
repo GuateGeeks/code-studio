@@ -8,5 +8,6 @@ export const scene2DApi3 = Object.freeze({
   statements: Object.freeze(derived.statements),
   events: Object.freeze(derived.events),
   shared: 'shared',
+  waitUntil: 'waitUntil',
   compare: Object.freeze({'==': 'EQ', '===': 'EQ', '<': 'LT', '>': 'GT'})
 });

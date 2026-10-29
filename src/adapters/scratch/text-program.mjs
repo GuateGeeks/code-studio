@@ -3,6 +3,12 @@ import {
   validateTextProgramNumber, validateTextInvocationResult
 } from '../../contracts/text-program.mjs';
 
+const singleInput = Object.freeze({
+  'program.turnRight': ['motion_turnright', 'DEGREES'], 'program.turnLeft': ['motion_turnleft', 'DEGREES'],
+  'program.pointInDirection': ['motion_pointindirection', 'DIRECTION'], 'program.changeX': ['motion_changexby', 'DX'],
+  'program.setX': ['motion_setx', 'X'], 'program.changeY': ['motion_changeyby', 'DY'], 'program.setY': ['motion_sety', 'Y'],
+  'program.changeSize': ['looks_changesizeby', 'CHANGE'], 'program.setSize': ['looks_setsizeto', 'SIZE']
+});
 // A native hat suspends on one private Promise primitive. The interpreter owns
 // its callback/control flow; Scratch retains targets, variables and scheduling.
 export function createTextProgram({getVM, getRevision, onInvocation = () => {}, onCancel = () => {}, onError = () => {}}) {
@@ -251,8 +257,59 @@ export function createTextProgram({getVM, getRevision, onInvocation = () => {}, 
         });
       }
       case 'program.stopSounds': runtime._primitives.sound_stopallsounds({}, util); return {stopped: true};
+      // gg.sprites@0.2.0 (E1): the same VM primitives the blocks lower to.
+      case 'program.turnRight': case 'program.turnLeft': case 'program.pointInDirection':
+      case 'program.changeX': case 'program.setX': case 'program.changeY': case 'program.setY':
+      case 'program.changeSize': case 'program.setSize': {
+        const [opcode, input] = singleInput[method];
+        runtime._primitives[opcode]({[input]: expression(record, args[1])}, util);
+        return state(record.target);
+      }
+      case 'program.goTo':
+        runtime._primitives.motion_gotoxy({X: expression(record, args[1]), Y: expression(record, args[2])}, util);
+        return state(record.target);
+      case 'program.bounceOnEdge': runtime._primitives.motion_ifonedgebounce({}, util); return state(record.target);
+      case 'program.show': case 'program.hide': case 'program.nextCostume':
+        runtime._primitives[{'program.show': 'looks_show', 'program.hide': 'looks_hide', 'program.nextCostume': 'looks_nextcostume'}[method]]({}, util);
+        return state(record.target);
+      case 'program.say': case 'program.think':
+        runtime._primitives[method === 'program.say' ? 'looks_say' : 'looks_think']({MESSAGE: message(record, args[1])}, util);
+        return {said: true};
+      case 'program.sayFor': case 'program.thinkFor': {
+        const text = message(record, args[1]);
+        return deferred(record, (resolve, reject) => {
+          Promise.resolve(runtime._primitives[method === 'program.sayFor' ? 'looks_sayforsecs' : 'looks_thinkforsecs']({MESSAGE: text, SECS: args[2]}, util)).then(() => resolve(null), reject);
+        });
+      }
+      // The VM glide keeps its timer in the stack frame and yields each frame:
+      // drive the same primitive once per VM step until it stops yielding.
+      case 'program.glide': return deferred(record, resolve => {
+        const frame = {target: record.target, stackFrame: {}, yielded: false, yield() { this.yielded = true; }};
+        const step = () => { frame.yielded = false; runtime._primitives.motion_glidesecstoxy({SECS: args[1], X: expression(record, args[2]), Y: expression(record, args[3])}, frame); return !frame.yielded; };
+        if (step()) { resolve(state(record.target)); return; }
+        let seen = runtime._lastStepDoneThreads;
+        const check = () => {
+          if (runtime._lastStepDoneThreads === seen) return;
+          seen = runtime._lastStepDoneThreads;
+          if (step()) resolve(state(record.target));
+        };
+        checks.add(check); ensureTimer();
+        return () => checks.delete(check);
+      });
+      // Core yield of while loops (Scratch loops yield once per frame).
+      case 'program.frame': return deferred(record, resolve => {
+        const seen = runtime._lastStepDoneThreads;
+        const check = () => { if (runtime._lastStepDoneThreads !== seen) resolve(null); };
+        checks.add(check); ensureTimer();
+        return () => checks.delete(check);
+      });
+      // «detener todo»: the native stop (clones, threads and these callbacks).
+      // true tells the translated text to return right away.
+      case 'program.stopAll': runtime.stopAll(); return true;
     }
   }
+  function state(target) { return {x: target.x, y: target.y, direction: target.direction, size: target.size, visible: target.visible, costume: target.currentCostume}; }
+  function message(record, value) { return typeof value === 'string' ? value : String(expression(record, value)); }
   function complete(payload) {
     const result = validateTextInvocationResult(payload);
     if (result.revision !== getRevision() || result.revision !== revision) return {accepted: false};

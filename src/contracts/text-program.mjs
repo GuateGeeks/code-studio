@@ -66,8 +66,22 @@ const arities = Object.freeze({
   'program.start': 1, 'program.stop': 0, 'program.move': 2, 'program.wait': 2,
   'program.setVariable': 3, 'program.changeVariable': 3, 'program.compare': 4,
   'program.broadcastAndWait': 2, 'program.createClone': 1, 'program.deleteClone': 1,
-  'program.playSound': 3, 'program.stopSounds': 1, 'program.setCostume': 2
+  'program.playSound': 3, 'program.stopSounds': 1, 'program.setCostume': 2,
+  // gg.sprites@0.2.0 (E1) and the core frame yield of while loops.
+  'program.turnRight': 2, 'program.turnLeft': 2, 'program.pointInDirection': 2, 'program.goTo': 3, 'program.glide': 4,
+  'program.changeX': 2, 'program.setX': 2, 'program.changeY': 2, 'program.setY': 2, 'program.bounceOnEdge': 1,
+  'program.say': 2, 'program.think': 2, 'program.sayFor': 3, 'program.thinkFor': 3, 'program.nextCostume': 1,
+  'program.changeSize': 2, 'program.setSize': 2, 'program.show': 1, 'program.hide': 1, 'program.stopAll': 1, 'program.frame': 1
 });
+// Arguments after the invocation ID that are numeric expressions (number or variable reference).
+const expressionArguments = Object.freeze({'program.turnRight': [1], 'program.turnLeft': [1], 'program.pointInDirection': [1], 'program.goTo': [1, 2],
+  'program.glide': [2, 3], 'program.changeX': [1], 'program.setX': [1], 'program.changeY': [1], 'program.setY': [1], 'program.changeSize': [1], 'program.setSize': [1]});
+// Speech accepts text (≤ 330 characters, as Scratch shows) or a numeric expression.
+export function validateTextMessage(value) {
+  if (typeof value === 'string') { if (value.length > 330 || /[\u0000-\u001f\u007f]/.test(value)) fail('invalid message'); return value; }
+  return validateTextExpression(value);
+}
+function validateSeconds(value) { if (typeof value !== 'number' || !Number.isFinite(value) || value < 0 || value > 60) fail('invalid duration'); }
 export function validateTextProgramRPC(method, args) {
   if (typeof method !== 'string' || !Object.hasOwn(arities, method) || !Array.isArray(args) || args.length !== arities[method]) fail('unsupported operation or arity');
   boundedJSON({method, args});
@@ -83,6 +97,10 @@ export function validateTextProgramRPC(method, args) {
     if (!['EQ', 'LT', 'GT'].includes(args[1])) fail('invalid comparison');
     validateTextExpression(args[2]); validateTextExpression(args[3]);
   }
+  for (const index of expressionArguments[method] ?? []) validateTextExpression(args[index]);
+  if (method === 'program.glide') validateSeconds(args[1]);
+  if (['program.say', 'program.think', 'program.sayFor', 'program.thinkFor'].includes(method)) validateTextMessage(args[1]);
+  if (['program.sayFor', 'program.thinkFor'].includes(method)) validateSeconds(args[2]);
   if (method === 'program.broadcastAndWait') text(args[1], textProgramLimits.message);
   if (method === 'program.playSound' && (typeof args[1]!=='string'||! /^[A-Za-z0-9:_-]{1,128}$/.test(args[1])||['__proto__','constructor','prototype'].includes(args[1])||typeof args[2] !== 'boolean')) fail('unsupported sound');
   if (method === 'program.setCostume' && (typeof args[1]!=='string'||! /^[A-Za-z0-9:_-]{1,128}$/.test(args[1])||['__proto__','constructor','prototype'].includes(args[1]))) fail('unsupported costume');

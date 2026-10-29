@@ -49,6 +49,37 @@ export function generateCode(ir,options={}) {
         case 'playSound': line(`tocar sonido ${quoted(node.sound)}${node.wait ? ' y esperar' : ' sin esperar'}`, ids, depth); break;
         case 'stopSounds': line('detener sonidos', ids, depth); break;
         case 'setCostume': line(`cambiar disfraz a ${quoted(node.costume)}`, ids, depth); break;
+        // gg.sprites@0.2.0 (E1)
+        case 'turnRight': line(`girar a la derecha ${expression(node.degrees, ids)} grados`, ids, depth); break;
+        case 'turnLeft': line(`girar a la izquierda ${expression(node.degrees, ids)} grados`, ids, depth); break;
+        case 'pointDirection': line(`apuntar en dirección ${expression(node.direction, ids)}`, ids, depth); break;
+        case 'goTo': line(`ir a x: ${expression(node.x, ids)} y: ${expression(node.y, ids)}`, ids, depth); break;
+        case 'glide': line(`deslizar en ${node.seconds} segundos a x: ${expression(node.x, ids)} y: ${expression(node.y, ids)}`, ids, depth); break;
+        case 'changeX': line(`cambiar x por ${expression(node.dx, ids)}`, ids, depth); break;
+        case 'setX': line(`fijar x a ${expression(node.x, ids)}`, ids, depth); break;
+        case 'changeY': line(`cambiar y por ${expression(node.dy, ids)}`, ids, depth); break;
+        case 'setY': line(`fijar y a ${expression(node.y, ids)}`, ids, depth); break;
+        case 'bounce': line('rebotar si toca un borde', ids, depth); break;
+        case 'say': case 'think': line(`${node.kind === 'say' ? 'decir' : 'pensar'} ${quoted(node.message)}`, ids, depth); break;
+        case 'sayFor': case 'thinkFor': line(`${node.kind === 'sayFor' ? 'decir' : 'pensar'} ${quoted(node.message)} durante ${node.seconds} segundos`, ids, depth); break;
+        case 'nextCostume': line('siguiente disfraz', ids, depth); break;
+        case 'changeSize': line(`cambiar tamaño por ${expression(node.delta, ids)}`, ids, depth); break;
+        case 'setSize': line(`fijar tamaño a ${expression(node.size, ids)} %`, ids, depth); break;
+        case 'show': line('mostrar', ids, depth); break;
+        case 'hide': line('esconder', ids, depth); break;
+        case 'stopAll': line('detener todo', ids, depth); break;
+        case 'stopScript': line('detener este programa', ids, depth); break;
+        case 'waitUntil': line(`esperar hasta que ${expression(node.condition, ids)}`, ids, depth); break;
+        case 'forever':
+          line('por siempre', ids, depth);
+          statements(node.body, depth + 1);
+          line('fin por siempre', ids, depth);
+          break;
+        case 'repeatUntil':
+          line(`repetir hasta que ${expression(node.condition, ids)}`, ids, depth);
+          statements(node.body, depth + 1);
+          line('fin repetir', ids, depth);
+          break;
       }
     }
   }

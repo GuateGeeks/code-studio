@@ -122,7 +122,11 @@ await GG.events.run();`, {holdWaits: true});
 test('GG-TEXT-PROGRAM-002: cancelled callbacks cannot use retained ctx operations or legacy mutations after an awaited reply', {timeout: 5000}, async t => {
   const operations = {
     move: [1], wait: [0], setVariable: ['score', 1], changeVariable: ['score', 1], compare: ['EQ', 1, 1],
-    broadcastAndWait: ['go'], createClone: [], deleteClone: [], playSound: ['tone', false], stopSounds: [], setCostume: ['hero-alt']
+    broadcastAndWait: ['go'], createClone: [], deleteClone: [], playSound: ['tone', false], stopSounds: [], setCostume: ['hero-alt'],
+    // gg.sprites@0.2.0 (E1) and the core frame yield are revoked the same way.
+    turnRight: [15], turnLeft: [15], pointInDirection: [90], goTo: [0, 0], glide: [1, 0, 0], changeX: [1], setX: [0], changeY: [1], setY: [0],
+    bounceOnEdge: [], say: ['Hola'], think: ['Mmm'], sayFor: ['Hola', 1], thinkFor: ['Mmm', 1], nextCostume: [], changeSize: [1], setSize: [100],
+    show: [], hide: [], stopAll: [], frame: []
   };
   assert.deepEqual(Object.keys(operations), Object.keys(contextOperations));
   const run = await harness(t, `GG.events.onStart(async ctx => {
