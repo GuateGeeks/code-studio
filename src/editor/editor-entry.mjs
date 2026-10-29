@@ -4,6 +4,7 @@ import {workspaceToIR, saveWorkspace, loadWorkspace, validateWorkspaceResources}
 import {validateProgram} from '../contracts/program-contract.mjs';
 import {validateCapabilities} from '../contracts/packs.mjs';
 import {createContributions, registerContributions} from './contributions.mjs';
+import {withDeferredAudioContext} from './deferred-audio.mjs';
 import {setWorkspaceResourceView} from './resource-menus.mjs';
 import {captureCodeViewSnapshot, prepareCodeViewCandidate} from './code-view-conversion.mjs';
 
@@ -17,12 +18,12 @@ export function createEditor(container, example) {
   let contributions = registerContributions(Blockly, createContributions());
   const shadow = (name, value) => ({[name]: {shadow: {type: 'math_number', fields: {NUM: value}}}});
   const block = (type, inputs) => ({kind: 'block', type, ...(inputs ? {inputs} : {})});
-  const workspace = Blockly.inject(container, {
+  const workspace = withDeferredAudioContext(() => Blockly.inject(container, {
     renderer: 'zelos', media: '/blockly-media/', sounds: false, trashcan: true,
     scrollbars: true, move: {scrollbars: true, drag: true, wheel: true},
     zoom: {controls: true, wheel: false, startScale: 0.85, maxScale: 1.5, minScale: 0.5},
     toolbox: {kind: 'categoryToolbox', contents: contributions.toolbox}
-  });
+  }));
   workspace.registerToolboxCategoryCallback('GG_VARIABLE', current => {
     const entries = Blockly.Variables.flyoutCategory(current);
     const model = current.getVariableMap().getAllVariables().find(variable => variable.type === '');

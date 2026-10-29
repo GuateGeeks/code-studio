@@ -9,7 +9,7 @@ async function open(page, mobile = false) {
 async function readOnlyBlockly(page) {
   await page.route('**/editor.bundle.js', async route => {
     const response = await route.fetch(), source = await response.text();
-    const declaration = /(function createEditor\(container, example\) \{[\s\S]*?const workspace = )([\w$]+)\.inject\(container, \{/;
+    const declaration = /(function createEditor\(container, example\) \{[\s\S]*?const workspace = \(0,[\w$]+\.withDeferredAudioContext\)\(\(\) => )([\w$]+)\.inject\(container, \{/;
     expect(source).toMatch(declaration);
     // These references are used only for reads below. Creation, selection,
     // movement, connection, field editing and deletion use actual keyboard IO.

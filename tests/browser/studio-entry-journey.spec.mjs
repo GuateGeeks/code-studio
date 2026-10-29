@@ -201,3 +201,27 @@ test('GG-ENTRY-008: keyboard entry, result and Stop work with reduced motion and
   expect((await snapshot(page)).x).toBe(0);
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });
+
+test('GG-ENTRY-001: arrancar no crea audio, así un dispositivo de audio colgado no bloquea Ejecutar; el pitido de teclado sigue tras el gesto', async ({page}) => {
+  // Chromium construye cada AudioContext de forma síncrona contra el servicio de
+  // audio: con el servidor de audio colgado, cada constructor bloqueó el hilo
+  // principal ~20 s y el arranque quedó minutos con Ejecutar deshabilitado
+  // (docs/engineering/STARTUP-HANG-INVESTIGATION.md). Se cuentan construcciones reales.
+  await page.addInitScript(() => {
+    const Native = window.AudioContext; window.ggAudioProbe = {contexts: [], oscillators: 0};
+    if (Native) window.AudioContext = class extends Native {
+      constructor(...args) { super(...args); window.ggAudioProbe.contexts.push(new Error().stack.split('\n').slice(2, 5).join(' | ')); }
+      createOscillator() { window.ggAudioProbe.oscillators++; return super.createOscillator(); }
+    };
+  });
+  await open(page);
+  expect(await page.evaluate(() => window.ggAudioProbe)).toEqual({contexts: [], oscillators: 0});
+  // Blockly avisa con un pitido una acción de teclado imposible (← en la caja de
+  // herramientas). Sigue sonando: el contexto se crea entonces, tras el gesto.
+  await page.locator('#authoring-context').focus();
+  for (let count = 0; count < 15 && !await page.evaluate(() => document.querySelector('#blockly-editor .blocklyToolbox')?.contains(document.activeElement)); count++) await page.keyboard.press('Tab');
+  await page.keyboard.press('ArrowLeft');
+  await expect.poll(() => page.evaluate(() => window.ggAudioProbe.oscillators)).toBe(1);
+  expect((await page.evaluate(() => window.ggAudioProbe)).contexts).toHaveLength(1);
+  await expect(page.locator('#run-editor')).toBeEnabled();
+});

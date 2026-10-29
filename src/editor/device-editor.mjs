@@ -3,6 +3,7 @@ import * as Es from 'blockly/msg/es';
 import {validateDeviceGraph, lowerDeviceGraph, generateDeviceSource, defaultDeviceGraph} from '../contracts/device-program.mjs';
 import {blocks, toolbox} from '../packs/gg.microbit/blocks.mjs';
 import {registerContributions} from './contributions.mjs';
+import {withDeferredAudioContext} from './deferred-audio.mjs';
 
 function registerDeviceBlocks() {
   registerContributions(Blockly, {blocks});
@@ -53,12 +54,12 @@ export function createDeviceEditor(container, {onChange = () => {}} = {}) {
   let visible = !container.hidden;
   let applying = false;
   let firstLayout = true;
-  const workspace = Blockly.inject(container, {
+  const workspace = withDeferredAudioContext(() => Blockly.inject(container, {
     renderer: 'zelos', media: '/blockly-media/', sounds: false, trashcan: true,
     scrollbars: true, move: {scrollbars: true, drag: true, wheel: true},
     zoom: {controls: true, wheel: false, startScale: 0.85, maxScale: 1.5, minScale: 0.5},
     toolbox: structuredClone(Array.isArray(toolbox) ? {kind: 'categoryToolbox', contents: toolbox} : toolbox)
-  });
+  }));
   function assertLive() { if (disposed) throw new Error('El editor de dispositivo ya está cerrado.'); }
   function notify() {
     onChange();

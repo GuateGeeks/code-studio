@@ -3,6 +3,7 @@ import * as Es from 'blockly/msg/es';
 import {validateCapabilityGraph, lowerCapabilityGraph} from '../contracts/program-ir1.mjs';
 import {capabilityBlockDefinitions as blocks, contextToolbox, operationDescriptors} from '../contracts/operations.mjs';
 import {registerContributions} from './contributions.mjs';
+import {withDeferredAudioContext} from './deferred-audio.mjs';
 import {applyCapabilityLabels} from './capability-labels.mjs';
 
 function registerCapabilityBlocks() {
@@ -56,12 +57,12 @@ export function createCapabilityEditor(container, {contextId, documentId, initia
   let visible = !container.hidden;
   let applying = false;
   let firstLayout = true;
-  const workspace = Blockly.inject(container, {
+  const workspace = withDeferredAudioContext(() => Blockly.inject(container, {
     renderer: 'zelos', media: '/blockly-media/', sounds: false, trashcan: true,
     scrollbars: true, move: {scrollbars: true, drag: true, wheel: true},
     zoom: {controls: true, wheel: false, startScale: 0.85, maxScale: 1.5, minScale: 0.5},
     toolbox: contextToolbox(contextId)
-  });
+  }));
   function assertLive() { if (disposed) throw new Error('El editor de contexto ya está cerrado.'); }
   function notify() {
     onChange();

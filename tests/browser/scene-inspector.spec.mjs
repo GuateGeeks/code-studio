@@ -68,7 +68,7 @@ async function instrumentEditorReadOnly(page) {
     // movement, connection and field edits below use real pointer events.
     // F4 bundles a second Blockly editor. Select the scene factory explicitly;
     // the first inject() in bundle order may belong to the device workspace.
-    const declaration = /(function createEditor\(container, example\) \{[\s\S]*?const workspace = )([\w$]+)\.inject\(container, \{/;
+    const declaration = /(function createEditor\(container, example\) \{[\s\S]*?const workspace = \(0,[\w$]+\.withDeferredAudioContext\)\(\(\) => )([\w$]+)\.inject\(container, \{/;
     expect(source).toMatch(declaration);
     await route.fulfill({response, body: source.replace(declaration, '$1window.inspectorTestWorkspace = $2.inject(container, {')});
   });
