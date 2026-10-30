@@ -115,7 +115,15 @@ export function validateTextProgramRPC(method, args) {
   if (['program.sayFor', 'program.thinkFor'].includes(method)) validateSeconds(args[2]);
   if (method === 'program.broadcastAndWait') text(args[1], textProgramLimits.message);
   if (method === 'program.playSound' && (typeof args[1]!=='string'||! /^[A-Za-z0-9:_-]{1,128}$/.test(args[1])||['__proto__','constructor','prototype'].includes(args[1])||typeof args[2] !== 'boolean')) fail('unsupported sound');
-  if (method === 'program.goToObject' && (typeof args[1] !== 'string' || !/^[A-Za-z0-9:_-]{1,128}$/.test(args[1]) || ['__proto__', 'constructor', 'prototype'].includes(args[1]))) fail('unsupported object');
+  if (method === 'program.goToObject') {
+    if (typeof args[1] === 'string') {
+      if (!isScene2DSpriteId(args[1])) fail('unsupported object');
+    } else {
+      object(args[1], ['identifier']);
+      if (typeof args[1].identifier !== 'string' || !/^[A-Za-z_][A-Za-z0-9_]{0,63}$/.test(args[1].identifier) ||
+          ['__proto__', 'constructor', 'prototype', 'stage'].includes(args[1].identifier)) fail('unsupported object');
+    }
+  }
   if (method === 'program.setBackdrop' && (typeof args[1] !== 'string' || !args[1].trim() || args[1].length > 128 || /[\u0000-\u001f\u007f]/.test(args[1]))) fail('unsupported backdrop');
   if (method === 'program.setCostume' && (typeof args[1]!=='string'||! /^[A-Za-z0-9:_-]{1,128}$/.test(args[1])||['__proto__','constructor','prototype'].includes(args[1]))) fail('unsupported costume');
   return {method, args: structuredClone(args)};

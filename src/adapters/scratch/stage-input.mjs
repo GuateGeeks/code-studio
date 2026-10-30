@@ -1,3 +1,5 @@
+import {sceneIdFromScratchTargetName} from './scene-target-names.mjs';
+
 // Runner-local controls. Runtime objects never cross the adapter boundary.
 const clickOpcodes = ['event_whenthisspriteclicked', 'event_whenstageclicked'];
 const arrows = {ArrowLeft: 'left arrow', ArrowRight: 'right arrow', ArrowUp: 'up arrow', ArrowDown: 'down arrow'};
@@ -42,7 +44,7 @@ export function createStageInput({canvas, container, vm, isCurrent, mode = 'nati
   }
   function release() {releaseKeys(); releaseMouse();}
   function name(target) {
-    const text = target.getName();
+    const text = mode === 'native' ? sceneIdFromScratchTargetName(target.getName()) : target.getName();
     if (target.isStage) return 'escenario ' + text;
     if (target.isOriginal) return text;
     if (!cloneNumbers.has(target)) cloneNumbers.set(target, ++nextClone);

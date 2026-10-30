@@ -1,3 +1,4 @@
+import {scratchSceneTargetName} from './scene-target-names.mjs';
 import {
   textProgramLimits, validateTextProgram, validateTextProgramRPC,
   validateTextProgramNumber, validateTextInvocationResult
@@ -129,7 +130,7 @@ export function createTextProgram({getVM, getRevision, getScene = () => null, on
     const stage = runtime.getTargetForStage();
     if (!stage) fail('scene unavailable');
     const targetOf = id => {
-      const target = id === 'stage' ? stage : runtime.getSpriteTargetByName(id ?? 'hero');
+      const target = id === 'stage' ? stage : runtime.getSpriteTargetByName(scratchSceneTargetName(id ?? 'hero'));
       if (!target || (target !== stage && !target.isOriginal)) fail('scene unavailable');
       return target;
     };
@@ -289,7 +290,7 @@ export function createTextProgram({getVM, getRevision, getScene = () => null, on
         return state(record.target);
       case 'program.bounceOnEdge': runtime._primitives.motion_ifonedgebounce({}, util); return state(record.target);
       // gg.sprites@0.3.0: the primitives the blocks lower to (motion_goto, looks_switchbackdropto).
-      case 'program.goToObject': runtime._primitives.motion_goto({TO: objectOf(args[1])}, util); return state(record.target);
+      case 'program.goToObject': runtime._primitives.motion_goto({TO: scratchSceneTargetName(objectOf(args[1]))}, util); return state(record.target);
       case 'program.goToRandom': runtime._primitives.motion_goto({TO: '_random_'}, util); return state(record.target);
       case 'program.setBackdrop': runtime._primitives.looks_switchbackdropto({BACKDROP: backdropOf(args[1])}, util); return {changed: true};
       case 'program.nextBackdrop': runtime._primitives.looks_nextbackdrop({}, util); return {changed: true};
@@ -332,11 +333,14 @@ export function createTextProgram({getVM, getRevision, getScene = () => null, on
       case 'program.stopAll': runtime.stopAll(); return true;
     }
   }
-  // API v3 writes an identifier, API1 the sprite ID; both name one sprite of the scene.
-  function objectOf(name) {
+  // API3 carries a tagged identifier; an API1 string always means a stable ID.
+  function objectOf(reference) {
     const sprites = getScene()?.objects ?? [];
-    const id = sprites.length ? scene2DObjectIdentifiers({sprites}).targetIds[name] ?? sprites.find(sprite => sprite.id === name)?.id : undefined;
-    if (!id || id === 'stage') fail(`no hay ningún objeto llamado «${name}»`);
+    const name = typeof reference === 'string' ? reference : reference.identifier;
+    const identifiers = typeof reference === 'string' || !sprites.length ? {} : scene2DObjectIdentifiers({sprites}).targetIds;
+    const id = typeof reference === 'string' ? sprites.find(sprite => sprite.id === name)?.id
+      : Object.hasOwn(identifiers, name) ? identifiers[name] : undefined;
+    if (!id || id === 'stage') fail('no hay ningún objeto llamado «' + name + '»');
     return id;
   }
   function backdropOf(name) {

@@ -469,3 +469,36 @@ test('MS-035: a sprite named like any JavaScript or Python keyword gets an ident
   assert.equal(identifiers.get('public'), 'public_');
   assert.equal(isScene2DTextIdentifier('public'), false);
 });
+
+test('MS-072: API1 literal IDs and API3 identifiers retain distinct destinations through both language engines and the real VM', {timeout: 240000}, async t => {
+  const scene = {stage: {backdrop: 'stage'}, sprites: [
+    {...hero, name: 'Cesta', x: 73, y: 81},
+    {...cesta, name: 'Otro', x: -43, y: -29},
+    {...hero, id: 'sender', name: 'Emisor'}
+  ]};
+  const fixture = toScratchSceneProject({version: 1, sprites: ['hero', 'cesta', 'sender'], scripts: []}, {scene});
+  const vm = await createScratchSession(fixture.project), invocations = [];
+  const adapter = createTextProgram({getVM: () => vm, getRevision: () => 1, getScene: () => fixture,
+    onInvocation: event => invocations.push(event)});
+  t.after(() => {adapter.dispose(); vm.quit();});
+  adapter.call('program.start', [{variables: [], handlers: [{id: 'sender', event: 'start', targetId: 'sender'}]}], 1);
+  for (let i = 0; i < 100 && !invocations.length; i++) await new Promise(done => setTimeout(done, 5));
+  assert.equal(invocations.length, 1);
+  const sender = vm.runtime.getSpriteTargetByName('sender');
+  for (const reference of [{identifier: 'cesta', extra: true}, {}, {identifier: 1}, {identifier: 'bad-name'}, {identifier: '__proto__'}, {identifier: 'stage'}])
+    assert.throws(() => adapter.call('program.goToObject', [invocations[0].invocationId, reference], 1), /GG text program/);
+  assert.throws(() => adapter.call('program.goToObject', [invocations[0].invocationId, {identifier: 'toString'}], 1), /no hay ningún objeto/);
+  assert.deepEqual([sender.x, sender.y], [0, 0], 'invalid references do not move the sender');
+  for (const language of ['javascript', 'python']) {
+    for (const api of ['api1', 'api3']) {
+      const source = api === 'api3'
+        ? language === 'javascript' ? 'onStart(() => { emisor.goToObject(cesta); });' : '@on_start\ndef go():\n    emisor.go_to_object(cesta)'
+        : language === 'javascript' ? 'GG.program.object("sender");\nGG.events.onStart(async ctx => { await ctx.goToObject("cesta"); });\nawait GG.events.run();' : 'GG.program.object("sender")\nasync def go(ctx):\n    await ctx.goToObject("cesta")\nGG.events.onStart(go)\nawait GG.events.run()';
+      const result = await trace(language, source, api === 'api3' ? {api, targetIds: {emisor: 'sender'}} : {});
+      const destination = result.calls.find(call => call.method === 'program.goToObject').args[0];
+      sender.setXY(0, 0);
+      adapter.call('program.goToObject', [invocations[0].invocationId, destination], 1);
+      assert.deepEqual([sender.x, sender.y], api === 'api1' ? [-43, -29] : [73, 81], language + ' ' + api);
+    }
+  }
+});

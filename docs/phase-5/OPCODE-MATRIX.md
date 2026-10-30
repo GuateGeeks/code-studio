@@ -140,10 +140,10 @@ Límites: el renderer recorta tamaño y posición («fence»); por eso tamaño y
 
 | Opcode | Entradas / campos | Primitiva de la VM local (`packages/scratch-vm`) | Comprobación |
 |---|---|---|---|
-| motion_goto | TO | `goTo`: resuelve el menú con `getTargetXY`. `_random_` da un punto dentro del escenario; otro valor busca el sprite por nombre (los targets se llaman como el ID del objeto) y, si no existe, no hace nada | MS-063, MS-064 (Node) y MS-BROWSER-033 (Chromium) |
+| motion_goto | TO | `goTo`: resuelve el menú con `getTargetXY`. `_random_` da un punto dentro del escenario; otro valor busca el sprite por nombre (los targets usan el ID del objeto, con nombres privados seguros para los IDs centinela) y, si no existe, no hace nada | MS-063, MS-064 (Node) y MS-BROWSER-033 (Chromium) |
 | motion_goto_menu | campo TO | Menú sombra, como `looks_costume` | MS-063 |
 | looks_switchbackdropto | BACKDROP | `switchBackdrop`: cambia el fondo del escenario desde cualquier objeto y arranca `event_whenbackdropswitchesto`, que no se usa | MS-063, MS-BROWSER-033 |
 | looks_backdrops | campo BACKDROP | Menú sombra | MS-063 |
 | looks_nextbackdrop | — | `nextBackdrop`: siguiente fondo, con vuelta al primero | MS-064 |
 
-Un nombre reservado de la VM (`_mouse_`, `next backdrop`) no puede llegar al menú: el valor es siempre un ID validado de sprite o de recurso, y un ID de recurso no admite espacios.
+Los IDs válidos de sprite `_mouse_` y `_random_` se conservan en el proyecto. El adaptador los convierte a nombres privados de VM (`/gg/_mouse_` y `/gg/_random_`) tanto en los targets como en los destinos de bloques y texto; la barra no pertenece a la sintaxis de IDs, así que no colisionan con otro objeto válido. Solo «ir a una posición aleatoria» envía el centinela `_random_` a `motion_goto`. Los IDs de fondos no admiten espacios, por lo que no se confunden con `next backdrop`. MS-070/071 verifican ambos IDs en la VM real.

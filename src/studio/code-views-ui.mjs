@@ -1,6 +1,7 @@
 import {createCodeViewService} from './code-view-service.mjs';
 import {canonicalPackData,resolveCapabilities} from '../contracts/packs.mjs';
 import {languageAvailability,tablesForLocks} from '../contracts/language-table.mjs';
+import {scene2DBackdrops} from '../contracts/scene2d-objects.mjs';
 import {languageTables} from '../packs/language-tables.mjs';
 
 const name=language=>language==='javascript'?'JavaScript':language==='python'?'Python':'Bloques';
@@ -24,14 +25,30 @@ export function createCodeViewsUI({state,editor,textDocuments,contexts,config,ge
   const generate=(snapshot,language)=>GGEditor.generateCodeViewSource(snapshot,language,ownerOption());
   const same=(a,b)=>canonicalPackData(a)===canonicalPackData(b);
   const setText=(node,text)=>{if(node.textContent!==text)node.textContent=text;};
+  function activeTables(){
+    const plan=resolveCapabilities(editor.captureCapabilities());
+    const packs=plan.packs.filter(pack=>!pack.manifest.context||pack.manifest.context==='scratch-2d');
+    return tablesForLocks(packs.map(pack=>({id:pack.id,version:pack.version})),languageTables,
+      Object.fromEntries(packs.map(pack=>[pack.id+'@'+pack.version,pack.manifest])));
+  }
+  function textHelp(language){
+    const entries=Object.values(activeTables()).flat(),field=language==='python'?'python':'js';
+    const events=entries.filter(entry=>entry.kind==='event'&&['onStart','onKey','onMessage'].includes(entry.js)).map(entry=>entry[field]).filter(Boolean);
+    const examples=[],owner=ownerOption().owner;
+    const move=entries.find(entry=>entry.lower?.ir==='move'),wait=entries.find(entry=>entry.ctx==='wait');
+    if(owner?.kind!=='stage'&&move?.[field])examples.push((owner?.identifier??'hero')+'.'+move[field]+'(10)');
+    if(wait?.[field])examples.push(wait[field]+'(1)');
+    const backdrop=entries.find(entry=>entry.lower?.ir==='setBackdrop');
+    if(backdrop?.[field]){
+      const available=scene2DBackdrops(editor.codeViewSnapshot().resourceView);
+      if(available.length)examples.push(backdrop[field]+'('+JSON.stringify(available[0].label)+')');
+    }
+    return 'Usa '+events.join(', ')+' en '+name(language)+'. Dentro de un evento: '+examples.join(', ')+'. Puedes usar variables, repetición y comparaciones. El texto fuera del subconjunto se puede conservar como copia independiente.';
+  }
   function availability(context,language){
     if(!supports(context))return {editable:false,reason:'Este contexto todavía no tiene vistas sincronizadas.'};
     try{
-      const plan=resolveCapabilities(editor.captureCapabilities());
-      const packs=plan.packs.filter(pack=>!pack.manifest.context||pack.manifest.context==='scratch-2d');
-      const tables=tablesForLocks(packs.map(pack=>({id:pack.id,version:pack.version})),languageTables,
-        Object.fromEntries(packs.map(pack=>[pack.id+'@'+pack.version,pack.manifest])));
-      const result=languageAvailability(tables,{lowering:'ir'})[language];
+      const result=languageAvailability(activeTables(),{lowering:'ir'})[language];
       return {editable:result.available,reason:result.reason};
     }catch(failure){return {editable:false,reason:failure.message};}
   }
@@ -299,7 +316,7 @@ export function createCodeViewsUI({state,editor,textDocuments,contexts,config,ge
     return {source:entry.source,language:entry.language,readOnly:!available.editable,
       status:baseStatus+(warning?' '+warning:''),
       destination:'Editas el mismo programa 2D. Cambiar de vista no ejecuta.',
-      help:'Usa onStart, onKey y onMessage en JavaScript; on_start, on_key y on_message en Python. Dentro de un evento: '+(owner=>owner?.kind==='stage'?'':(owner?.identifier??'hero')+'.move(10), ')(ownerOption().owner)+'wait(1), setBackdrop("Noche"), variables, repetición y comparaciones. El texto fuera del subconjunto se puede conservar como copia independiente.',
+      help:textHelp(entry.language),
       onInput:value=>{error=null;warning='';setText(errorOutput,'');source.removeAttribute('aria-invalid');
         state.editSource(context,value);cancelAnalysis();onSourceChanged();render();}};
   }

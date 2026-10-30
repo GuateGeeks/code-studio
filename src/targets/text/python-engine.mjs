@@ -26,7 +26,7 @@ export async function createPythonEngine({rpc, onDiagnostic, onProgramReady = ()
       context.wait=seconds=>capability.wait(data.invocationId,plainCapability(seconds));
     }else for(const [name,arity]of Object.entries(contextOperations))context[name]=async(...values)=>{
       if(values.length!==arity)throw new Error('Argumentos contextuales no válidos.');
-      return program.call(data.invocationId,name,values.map(plain));
+      return program.call(data.invocationId,name,values.map(plainCapability)); // Own copies of borrowed Python arguments, including API3 object-reference DTOs.
     };
     const event=profile?pyodide.toPy(data.event):null;
     const task=profile?invokePython(handler,Object.freeze(context),event):invokePython(handler,Object.freeze(context));

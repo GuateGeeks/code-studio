@@ -130,12 +130,12 @@ export function compileApi3JavaScript(source, {variableIds = {}, targetIds = {},
           if (action.stops) { edit(node.start, node.end, `if (await ctx.${action.ctx}()) return;`); return; }
           allowed.add(expression);
           edit(expression.callee.start, expression.callee.end, `await ctx.${action.ctx}`);
-          // Another object goes by its identifier; the scene knows which one that is.
+          // Keep the API3 identifier distinct from an API1 literal stable ID.
           if (action.object) {
             const target = expression.arguments[0];
             if (target.type !== 'Identifier' || variables.has(target.name)) throw located(`${calleeName(expression.callee)} recibe el nombre de un objeto, sin comillas.`, target);
             allowed.add(target);
-            edit(target.start, target.end, JSON.stringify(target.name));
+            edit(target.start, target.end, JSON.stringify({identifier: target.name}));
             return;
           }
           expression.arguments.forEach(argument);

@@ -1,3 +1,4 @@
+import {scratchSceneTargetName,sceneIdFromScratchTargetName} from './scene-target-names.mjs';
 import {toScratchProject,toScratchSceneProject,ownerResources} from './scratch-project.mjs';
 import {createGGBindings} from './gg-bindings.mjs';
 import {measureScenePerformance} from './performance-probe.mjs';
@@ -49,7 +50,7 @@ function snapshot(){
   const hero=vm.runtime.getSpriteTargetByName('hero');
   const variablesOf=target=>Object.fromEntries(Object.entries(target?.variables??{}).map(([id,variable])=>[id,{name:variable.name,value:structuredClone(variable.value)}]));
   const targets=vm.runtime.targets.filter(target=>!target.isStage).map(target=>({
-    id:target.id,name:target.getName(),x:target.x,y:target.y,isOriginal:target.isOriginal,visible:target.visible,size:target.size,direction:target.direction,
+    id:target.id,name:compatibilityMode?target.getName():sceneIdFromScratchTargetName(target.getName()),x:target.x,y:target.y,isOriginal:target.isOriginal,visible:target.visible,size:target.size,direction:target.direction,
     costume:{index:target.currentCostume,name:target.getCostumes()[target.currentCostume]?.name??null},effects:{...target.effects},variables:variablesOf(target)}));
   // E1: the one-sprite state the 2D vocabulary changes (position, direction, size, visibility, costume and speech bubble).
   const state=target=>{const bubble=target.getCustomState('Scratch.looks');
@@ -57,7 +58,7 @@ function snapshot(){
       bubble:bubble?.text?{type:bubble.type,text:bubble.text}:null};};
   const sprite=hero?state(hero):null;
   // scene2d-multi-sprite 2.1: every configured sprite (VM targets are named by ID), in configuration order.
-  const sprites=(currentFixture?.objects??[{id:'hero',name:'hero'}]).flatMap(object=>{const target=vm.runtime.getSpriteTargetByName(object.id);
+  const sprites=(currentFixture?.objects??[{id:'hero',name:'hero'}]).flatMap(object=>{const target=vm.runtime.getSpriteTargetByName(scratchSceneTargetName(object.id));
     return target?.isOriginal?[{id:object.id,name:object.name,...state(target),variables:variablesOf(target)}]:[];});
   const stage=vm.runtime.getTargetForStage();
   return {x:hero?.x??null,hero:sprite,sprites,backdrop:stage?.getCostumes()[stage.currentCostume]?.name??null,pixels:{count,centerX:count?sumX/count:null,minX,maxX},origin:location.origin,bluePixels:blueCount,

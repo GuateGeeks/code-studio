@@ -29,10 +29,13 @@ import {contextOperations} from '../../src/targets/text/program-session.mjs';
 import {reconcileCodeViewIdentity} from '../../src/code-view-identity.mjs';
 import {toScratchSceneProject} from '../../src/adapters/scratch/scratch-project.mjs';
 import {createTextProgram} from '../../src/adapters/scratch/text-program.mjs';
+import {createGGBindings} from '../../src/adapters/scratch/gg-bindings.mjs';
 import {createScratchSession} from '../../spikes/scratch-adapter.mjs';
 import {buildProjectCatalog} from '../../tools/f1/build-project-catalog.mjs';
 import {createTone} from '../../tools/f0/tone.mjs';
 import * as presentation from '../../src/studio/presentation-text.mjs';
+import {createCodeViewsUI} from '../../src/studio/code-views-ui.mjs';
+import {createCodeViewsState} from '../../src/code-views-state.mjs';
 
 // scene2d-multi-sprite tarea 4.1 (E2, 30/10/2026): «ir a objeto», «ir a una
 // posición aleatoria», «cambiar fondo a» and «siguiente fondo» through every layer
@@ -305,7 +308,7 @@ test('MS-065: text names objects by identifier and backdrops by name, and refuse
     assert.throws(() => parse(line), error => reason.test(error.message) && error.lineNumber === 2, line);
   // The translator of a text document, before it reaches the scene.
   const compiled = compileApi3JavaScript('onStart(() => {\n  hero.goToObject(cesta);\n  setBackdrop("Noche");\n  hero.goToRandom();\n  nextBackdrop();\n});\n').source;
-  for (const expected of ['await ctx.goToObject("cesta")', 'await ctx.setBackdrop("Noche")', 'await ctx.goToRandom()', 'await ctx.nextBackdrop()']) assert.ok(compiled.includes(expected), expected);
+  for (const expected of ['await ctx.goToObject({"identifier":"cesta"})', 'await ctx.setBackdrop("Noche")', 'await ctx.goToRandom()', 'await ctx.nextBackdrop()']) assert.ok(compiled.includes(expected), expected);
   assert.throws(() => compileApi3JavaScript('onStart(() => {\n  hero.goToObject(3);\n});\n'), error => /nombre de un objeto/.test(error.message) && error.lineNumber === 2);
   assert.throws(() => compileApi3JavaScript('let x = 0;\nonStart(() => {\n  hero.goToObject(x);\n});\n'), error => /nombre de un objeto/.test(error.message) && error.lineNumber === 3);
   for (const [name, arity] of Object.entries({goToObject: 1, goToRandom: 0, setBackdrop: 1, nextBackdrop: 0})) assert.equal(contextOperations[name], arity, name);
@@ -328,7 +331,7 @@ test('MS-066: in text mode the scene resolves identifiers and backdrop names, an
   const [fromCesta, fromStage] = [invocations.find(item => item.handlerId === 'c').invocationId, invocations.find(item => item.handlerId === 's').invocationId];
   const cesta = vm.runtime.getSpriteTargetByName('cesta'), stage = vm.runtime.getTargetForStage();
   // By the identifier text writes, and by the ID API1 writes.
-  call('goToObject', [fromCesta, 'ana_maria']);
+  call('goToObject', [fromCesta, {identifier: 'ana_maria'}]);
   assert.deepEqual([cesta.x, cesta.y], [-120, 0]);
   cesta.setXY(5, 5);
   call('goToObject', [fromCesta, 'hero']);
@@ -396,3 +399,86 @@ test('MS-069: «Diálogo» validates as a project: its blocks, menus and resourc
   for (const kind of ['sayFor', 'say', 'broadcastWait', 'setBackdrop', 'goToObject']) assert.ok(kinds.includes(`"kind":"${kind}"`), kind);
 });
 
+
+// A valid project ID must not turn into Scratch's mouse/random destination.
+for (const id of ['_mouse_', '_random_']) {
+  test('MS-070: blocks go to the sprite whose stable ID is ' + id, async t => {
+    const scene = {stage: {backdrop: 'stage'}, sprites: [
+      {...config.sprites[0], x: 0, y: 0},
+      {...config.sprites[1], id, name: 'Destino', x: 73, y: 81, direction: 90}
+    ]};
+    const program = {version: 1, sprites: ['hero', id], scripts: [
+      {targetId: 'hero', event: 'start', sourceBlockId: 'start', body: [{kind: 'goToObject', target: id, sourceBlockId: 'go'}]}
+    ]};
+    const before = structuredClone(scene);
+    const fixture = toScratchSceneProject(program, {scene});
+    assert.deepEqual(scene, before, 'lowering keeps the stored object IDs and state');
+    const vm = await createScratchSession(fixture.project);
+    t.after(() => vm.quit());
+    vm.greenFlag();
+    for (let i = 0; i < 100 && vm.runtime.threads.length; i++) await delay(5);
+    const sender = vm.runtime.getSpriteTargetByName('hero');
+    assert.deepEqual([sender.x, sender.y], [73, 81]);
+  });
+  test('MS-071: text can target and program the sprite whose stable ID is ' + id, async t => {
+    const scene = {stage: {backdrop: 'stage'}, sprites: [
+      {...config.sprites[0], x: 0, y: 0},
+      {...config.sprites[1], id, name: 'Destino', x: 73, y: 81, direction: 90}
+    ]};
+    const fixture = toScratchSceneProject({version: 1, sprites: ['hero', id], scripts: []}, {scene});
+    const vm = await createScratchSession(fixture.project), invocations = [];
+    const adapter = createTextProgram({getVM: () => vm, getRevision: () => 1, getScene: () => fixture,
+      onInvocation: event => invocations.push(event)});
+    t.after(() => {adapter.dispose(); vm.quit();});
+    const call = (method, args) => adapter.call('program.' + method, args, 1);
+    call('start', [{variables: [], handlers: [{id: 'sender', event: 'start'}, {id: 'destination', event: 'start', targetId: id}]}]);
+    for (let i = 0; i < 100 && invocations.length < 2; i++) await delay(5);
+    assert.equal(invocations.length, 2, 'the reserved-ID sprite receives its own callback');
+    call('goToObject', [invocations.find(item => item.handlerId === 'sender').invocationId, id]);
+    const sender = vm.runtime.getSpriteTargetByName('hero');
+    assert.deepEqual([sender.x, sender.y], [73, 81]);
+    call('move', [invocations.find(item => item.handlerId === 'destination').invocationId, 2]);
+    const state = createGGBindings(() => vm, () => fixture.objects)('scene.get', []);
+    assert.deepEqual(state.sprites.map(item => [item.id, item.name, item.x, item.y]),
+      [['hero', config.sprites[0].name, 73, 81], [id, 'Destino', 75, 81]]);
+  });
+}
+
+test('MS-073: synchronized help teaches a usable backdrop action only in the locked vocabulary and active language', () => {
+  const original = globalThis.document;
+  try {
+    const nodes = new Map();
+    globalThis.document = {
+      querySelector(selector) {
+        if (!nodes.has(selector)) nodes.set(selector, {textContent: '', addEventListener() {},
+          append(child) { child.parentElement = this; }, removeAttribute() {}, setAttribute() {}});
+        return nodes.get(selector);
+      },
+      querySelectorAll() { return []; }
+    };
+    for (const version of ['0.1.0', '0.2.0', '0.3.0']) for (const language of ['javascript', 'python']) {
+      for (const resourceView of [createResourceView(base), {...structuredClone(view), costumes: view.costumes.filter(item => item.id === 'fondo-noche') }]) {
+        const capabilities = createCapabilities(['gg.sprites'], {versions: {'gg.sprites': version}});
+        const state = createCodeViewsState();
+        state.set({...state.get('2d'), language});
+        const ui = createCodeViewsUI({state, editor: {subscribe() {}, captureCapabilities: () => capabilities, codeViewSnapshot: () => ({resourceView})},
+          textDocuments: {}, contexts: {current: () => '2d', subscribe() {}}, config: {languageOrigin: 'http://localhost:5703'},
+          getProject: () => null});
+        const help = ui.presentation('2d').help;
+        const snippet = help.match(/set(?:Backdrop|_backdrop)\("[^"]*"\)/)?.[0];
+        if (version !== '0.3.0') {
+          assert.equal(snippet, undefined, language + ' ' + version + ' has no backdrop block');
+          continue;
+        }
+        const backdrop = resourceView.costumes.find(item => item.ownerId === 'stage');
+        const label = backdrop.name === 'stage' ? 'Fondo inicial' : 'Noche';
+        assert.equal(snippet, (language === 'python' ? 'set_backdrop' : 'setBackdrop') + '(' + JSON.stringify(label) + ')');
+        const options = {capabilities, resourceView};
+        const source = language === 'javascript' ? 'onStart(() => { ' + snippet + '; });' : '@on_start\ndef go():\n    ' + snippet;
+        const translated = language === 'javascript' ? source : runPython([source], pythonCodeViewVocabulary({capabilities}))[0].source;
+        assert.deepEqual(strip(parseJavaScriptCodeView(translated, options).ir.scripts[0].body),
+          [{kind: 'setBackdrop', backdrop: backdrop.id}], 'following the help yields a valid installed block');
+      }
+    }
+  } finally { globalThis.document = original; }
+});

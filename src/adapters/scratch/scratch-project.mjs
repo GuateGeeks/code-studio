@@ -1,3 +1,4 @@
+import {scratchSceneTargetName} from './scene-target-names.mjs';
 import {validateProgram} from '../../contracts/program-contract.mjs';
 import {isScene2DLoweringOpcode} from '../../contracts/scene2d-opcodes.mjs';
 import {validateScene2DObjects} from '../../contracts/scene2d-objects.mjs';
@@ -116,12 +117,12 @@ function lowerScripts(ir, {targetOf = () => 'hero', stageId = null} = {}) {
         block.opcode = 'sound_stopallsounds';
         reserve(id, block);
       } else if (node.kind === 'goToObject' || node.kind === 'goToRandom') {
-        // VM targets are named by sprite ID, so a rename never reaches this menu.
+        // Stable IDs map to private safe VM names; visible renames never reach this menu.
         block.opcode = 'motion_goto';
         const menuId = `${id}:menu`;
         block.inputs.TO = [1, menuId];
         reserve(id, block);
-        reserve(menuId, {opcode: 'motion_goto_menu', next: null, parent: id, inputs: {}, fields: {TO: [node.kind === 'goToRandom' ? '_random_' : node.target, null]}, shadow: true, topLevel: false});
+        reserve(menuId, {opcode: 'motion_goto_menu', next: null, parent: id, inputs: {}, fields: {TO: [node.kind === 'goToRandom' ? '_random_' : scratchSceneTargetName(node.target), null]}, shadow: true, topLevel: false});
         sourceMap[menuId] = id;
       } else if (node.kind === 'setBackdrop') {
         block.opcode = 'looks_switchbackdropto';
@@ -247,7 +248,7 @@ export function toScratchSceneProject(ir, {scene, resourceView, ownerAssets} = {
   const {blocksOf, sourceMap, broadcasts, variables} = lowerScripts(ir, {targetOf: script => script.targetId, stageId: 'stage'});
   const ownedBy = owner => Object.fromEntries((ir.variables ?? []).filter(model => owner === 'stage' ? model.scope === 'global' : model.scope !== 'global' && model.targetId === owner).map(model => [model.id, variables[model.id]]));
   const stage = place({...stageTarget(ownedBy('stage'), broadcasts), blocks: blocksOf('stage')}, 'stage', config.stage.backdrop);
-  const targets = config.sprites.map((sprite, index) => place(spriteTarget({name: sprite.id, variables: ownedBy(sprite.id), blocks: blocksOf(sprite.id), layerOrder: index + 1,
+  const targets = config.sprites.map((sprite, index) => place(spriteTarget({name: scratchSceneTargetName(sprite.id), variables: ownedBy(sprite.id), blocks: blocksOf(sprite.id), layerOrder: index + 1,
     visible: sprite.visible, x: sprite.x, y: sprite.y, size: sprite.size, direction: sprite.direction}), sprite.id, sprite.costume));
   return {
     sourceMap,

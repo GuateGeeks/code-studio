@@ -1,3 +1,5 @@
+import {scratchSceneTargetName} from './scene-target-names.mjs';
+
 // Scratch adapter for GG operations. Only this side knows VM/target internals.
 function finite(value, max) {
   if (typeof value !== 'number' || !Number.isFinite(value) || Math.abs(value) > max) throw new Error('Invalid GG numeric argument');
@@ -25,7 +27,7 @@ export function createGGBindings(getVM, getObjects = () => singleHero) {
     if (list.length === 1 && list[0].id === 'hero' && list[0].name === 'hero')
       return {sprites: [spriteDTO(hero('hero'))], variables: Object.entries(hero('hero').variables).filter(([, model]) => model.type === '').map(([id, model]) => variableDTO(id, model))};
     const targets = list.map(object => {
-      const target = getVM().runtime.getSpriteTargetByName(object.id);
+      const target = getVM().runtime.getSpriteTargetByName(scratchSceneTargetName(object.id));
       if (!target?.isOriginal) throw new Error('GG sprite unavailable');
       return [object, target];
     });
@@ -35,7 +37,7 @@ export function createGGBindings(getVM, getObjects = () => singleHero) {
   const variable = id => {
     if (typeof id !== 'string' || !id.trim() || ['__proto__', 'prototype', 'constructor'].includes(id)) throw new Error('Unknown GG numeric variable');
     // Every sprite of the scene (a lesson reads the locals of its object, 3.2); hero alone otherwise.
-    const sprites = [...new Set(['hero', ...objects().map(object => object.id)])].map(name => getVM().runtime.getSpriteTargetByName(name));
+    const sprites = [...new Set(['hero', ...objects().map(object => object.id)])].map(name => getVM().runtime.getSpriteTargetByName(scratchSceneTargetName(name)));
     const owners = [...sprites.filter(target => target?.isOriginal), getVM().runtime.getTargetForStage()];
     const matches = owners.filter(owner => owner && Object.hasOwn(owner.variables, id));
     if (matches.length > 1) throw new Error('Ambiguous GG numeric variable');

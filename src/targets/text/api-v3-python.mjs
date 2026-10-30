@@ -138,7 +138,7 @@ def _gg_api3_compile(source, variable_ids_json, target_ids_json="{}"):
                 # Another object goes by its identifier; the scene knows which one that is.
                 if action.get("object"):
                     if not isinstance(call.args[0], ast.Name) or call.args[0].id in variables: fail(written(call.func) + " recibe el nombre de un objeto, sin comillas.", call.args[0])
-                    call.args[0] = at(ast.Constant(call.args[0].id), call.args[0])
+                    call.args[0] = at(ast.Dict(keys=[ast.Constant('identifier')], values=[ast.Constant(call.args[0].id)]), call.args[0])
                     args = list(call.args)
                 else:
                     args = [argument(item) for item in call.args] + ([ast.Constant(action["append"])] if "append" in action else [])

@@ -202,6 +202,12 @@
 
     Pruebas MS-058…069 (`tests/integration/scene2d-dialogo.test.mjs`) y MS-BROWSER-033…041 (`tests/browser/scene2d-dialogo.spec.mjs`).
 
+### Corrección de revisión de tarea 4.1 (30/10/2026)
+
+62. **IDs válidos frente a centinelas de Scratch.** El punto 55 conserva los IDs del proyecto; en la frontera del adaptador, solo los IDs `_mouse_` y `_random_` reciben nombres privados de VM con prefijo `/gg/`, imposible en un ID válido. Los destinos, callbacks, consultas y controles nativos traducen la misma correspondencia; Scratch importado conserva sus nombres. Motivo: la VM reconoce esos centinelas antes de buscar un sprite. No se cambia la validación, el archivo ni los manifiestos publicados.
+63. **Referencias textuales sin ambigüedad.** Precisa el punto 55: API1 envía una cadena con el ID literal; los traductores API3 JavaScript/Python envían el DTO propio estricto `{identifier: "cesta"}`. La escena resuelve cada forma en su espacio, sin prioridad ni fallback entre ID e identificador. Se rechazan formas extra y nombres heredados. Python convierte una copia propia del argumento prestado, como ya hacía la ruta de capacidades, para transportar el DTO sin destruir el proxy que usa el puente. MS-072 comprueba la colisión con QuickJS, Pyodide y la VM real.
+64. **Ayuda contextual comprobable.** Los ejemplos de ayuda sincronizada se derivan de las tablas bloqueadas, el lenguaje activo, el objeto seleccionado y el primer fondo realmente disponible. Un proyecto 0.1/0.2 no ofrece una acción de fondo; Python escribe `set_backdrop` y el proyecto inicial 0.3 usa «Fondo inicial». MS-073 sigue el ejemplo por los parsers reales de ambas lenguas con los tres locks y fondos distintos.
+
 ## Risks / Trade-offs
 
 - [Supuestos de `hero` dispersos] → CodeGraph e inventario antes de tocar; una búsqueda de `'hero'` literal como prueba de herramientas al cerrar.
