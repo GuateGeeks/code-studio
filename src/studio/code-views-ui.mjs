@@ -238,10 +238,11 @@ export function createCodeViewsUI({state,editor,textDocuments,contexts,config,ge
   // the object), or {ok:false,reason}: `unavailable` (one-object profile), `busy`
   // (a check is running), `rejected` (the text has an error; #text-error says it),
   // `cancelled` (a newer edit replaced the check) or `failed` (with `message`).
+  // `step` says what failed: `text` (the object was never tried) or `mount`.
   async function settleText(){
     if(!ready||busy)return {ok:false,reason:'busy'};
     if(await apply('2d'))return {ok:true};
-    return {ok:false,...applyFailure};
+    return {ok:false,step:'text',...applyFailure};
   }
   async function selectObject(id){
     const from=objects?.current()??null;
@@ -272,7 +273,7 @@ export function createCodeViewsUI({state,editor,textDocuments,contexts,config,ge
       if(previous)known.set(context,{...previous,snapshot:editor.codeViewSnapshot()});
       // The text was not the cause: the panel says what failed, and it is logged.
       onDiagnostic({level:'error',code:'CODE_VIEW_OBJECT',origin:'shell',message:failure.message});
-      render();return {ok:false,reason:'failed',message:failure.message};
+      render();return {ok:false,reason:'failed',step:'mount',message:failure.message};
     }finally{selfCommit=false;}
     render();return {ok:true};
   }

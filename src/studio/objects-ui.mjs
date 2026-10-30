@@ -83,6 +83,7 @@ export function createObjectsUI({authoring,codeViews,contexts,resources,editObje
     if(result.reason==='rejected')say('El texto tiene un error: arréglalo para '+(target?'cambiar a «'+target+'»':'continuar')+'.'+stay,'error');
     else if(result.reason==='busy')say('Espera un momento: se está comprobando el programa.'+stay);
     else if(result.reason==='cancelled')say('Cambiaste el texto mientras se comprobaba. Vuelve a intentarlo.'+stay);
+    else if(result.step==='text')say('No se pudo comprobar el texto'+(target?' para cambiar a «'+target+'»':'')+'.'+stay+(result.message?' '+result.message:''),'error');
     else say((target?'No se pudo abrir «'+target+'»':'No se pudo completar')+'.'+stay+(result.message?' '+result.message:'')+(unopened&&nameOf(unopened)===target?' Si no lo necesitas, puedes borrarlo.':''),'error');
   }
   // A failure leaves the project as it was; `fallback` takes the focus if the
@@ -105,11 +106,14 @@ export function createObjectsUI({authoring,codeViews,contexts,resources,editObje
     document.querySelector('#editor-status').textContent='Objetos actualizados · sin ejecutar';
     return result;
   }
+  // Only a sprite that failed to mount: a text check that failed says nothing
+  // about the object, and the stage cannot be deleted.
+  function noteUnopened(result,id){if(result.step==='mount'&&id!=='stage')unopened=id;}
   function choose(id){
     if(!form.hidden)closeForm({restore:false});
     return exclusive(async()=>{
       const target=nameOf(id),result=await codeViews.selectObject(id);
-      if(!result.ok){unopened=result.reason==='failed'?id:null;explain(result,{target});return;}
+      if(!result.ok){noteUnopened(result,id);explain(result,{target});return;}
       say('');render();optionOf(id)?.focus({preventScroll:true});
     });
   }
@@ -153,7 +157,7 @@ export function createObjectsUI({authoring,codeViews,contexts,resources,editObje
   async function finishNew(id,message,{focus=true}={}){
     const result=await codeViews.selectObject(id);
     if(result.ok){render();if(focus)focusSelected();say(message);return true;}
-    if(result.reason==='failed')unopened=id;
+    noteUnopened(result,id);
     explain(result,{target:nameOf(id)});
     return false;
   }

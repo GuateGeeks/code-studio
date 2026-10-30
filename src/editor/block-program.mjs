@@ -24,6 +24,22 @@ function numericInput(block, name) {
   return number;
 }
 
+const coreStructures = Object.freeze({gg_forever: 'forever', gg_repeat_until: 'repeatUntil', gg_wait_until: 'waitUntil', gg_stop_script: 'stopScript'});
+const coreBlocks = new Set(['math_number', 'variables_get', 'variables_set', 'math_change', 'controls_repeat_ext', 'controls_if', 'logic_compare']);
+// What a file may bring: blocks its packs offer, finished or not. A project with
+// objects opens unfinished work, so this is what stays of the import's guard (the
+// lowering): Run still lowers and validates what it executes.
+export function validateWorkspaceBlocks(state, {capabilities = null} = {}) {
+  const contributions = createContributions(capabilities), offered = offeredCoreStructures(contributions.plan.packs);
+  const known = type => coreBlocks.has(type) || offered.has(coreStructures[type]) || ['hats', 'statements', 'expressions'].some(kind => contributions[kind].has(type));
+  function visit(value) {
+    if (!value || typeof value !== 'object') return;
+    if (typeof value.type === 'string' && !known(value.type)) throw blockError(`Unsupported block ${value.type} (${value.id})`, value);
+    for (const child of Object.values(value)) visit(child);
+  }
+  visit(state?.blocks);
+}
+
 // The top blocks in the saved order of scripts, when there is one.
 export function orderedRoots(workspace, scriptOrder) {
   const roots = workspace.getTopBlocks(true);
@@ -73,7 +89,7 @@ export function workspaceToIR(workspace, {capabilities = null, resourceView = ge
         if (source.type === 'text' && (typeof value !== 'string' || value.length > 330 || /[\u0000-\u001f\u007f]/.test(value)))
           throw blockError('Texto no válido (hasta 330 caracteres, sin saltos de línea) en ' + block.id, block);
       } else throw blockError('Unsupported declarative lowering at ' + block.id, block);
-      if (source.resource && value === missingResource) throw Object.assign(blockError('Este objeto aún no tiene ese recurso. Añádeselo en Recursos o quita el bloque.', block), {pendingResource: true});
+      if (source.resource && value === missingResource) throw blockError('Este objeto aún no tiene ese recurso. Añádeselo en Recursos o quita el bloque.', block);
       if (source.resource && !(resourceView?.[source.resource] ?? []).some(item => item.id === value && item.ownerId === (ownerId ?? source.ownerId))) throw blockError('Recurso no disponible en este objeto: ' + value,block);
       // The fixed menus list hero's built-in resources: on another object (a pasted block) they are not its own.
       if (source.enum && ownerId && ownerId !== 'hero' && ['setCostume', 'playSound'].includes(rule.kind)) throw blockError('Recurso no disponible en este objeto: ' + value, block);
@@ -107,7 +123,7 @@ export function workspaceToIR(workspace, {capabilities = null, resourceView = ge
   // E1 core structures exist only where an active pack offers them.
   const offered = offeredCoreStructures(contributions.plan.packs);
   const conditionOf = block => { const target = block.getInputTargetBlock('CONDITION'); if (!target) throw blockError('Falta la condición en ' + block.id, block); return condition(target); };
-  const structure = block => { const kind = {gg_forever: 'forever', gg_repeat_until: 'repeatUntil', gg_wait_until: 'waitUntil', gg_stop_script: 'stopScript'}[block.type]; if (kind && !offered.has(kind)) unsupported(block); return kind; };
+  const structure = block => { const kind = coreStructures[block.type]; if (kind && !offered.has(kind)) unsupported(block); return kind; };
   function statements(first) {
     const nodes = [];
     for (let block = first; block; block = block.getNextBlock()) {

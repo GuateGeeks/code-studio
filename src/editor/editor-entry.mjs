@@ -1,6 +1,6 @@
 import * as Blockly from 'blockly';
 import * as Es from 'blockly/msg/es';
-import {workspaceToIR, orderedRoots, saveWorkspace, loadWorkspace, validateWorkspaceResources} from './block-program.mjs';
+import {workspaceToIR, orderedRoots, saveWorkspace, loadWorkspace, validateWorkspaceBlocks, validateWorkspaceResources} from './block-program.mjs';
 import {validateProgram, scene2DStageOffers} from '../contracts/program-contract.mjs';
 import {validateCapabilities} from '../contracts/packs.mjs';
 import {createContributions, registerContributions} from './contributions.mjs';
@@ -77,17 +77,15 @@ export function createEditor(container, example) {
     notify();
   }
   const ownerOption = owner => owner ? {resourceOwnerId: owner} : {};
-  // A candidate is lowered as a final check. `lower: false` skips it: changing
-  // object must open unfinished work, and only running asks it to be complete.
-  // A block waiting for a resource passes too: adding the resource is the way out.
+  // A candidate is lowered as a final check. `lower: false` skips it: a project
+  // with objects keeps unfinished work, and only running asks it to be complete.
   function prepare(state, {capabilities: profile = null,resourceView: nextResourceView = null, scriptOrder: nextScriptOrder = null, ownerId = null, lower = true} = {}) {
     const nextCapabilities = validateCapabilities(profile);
     if (new TextEncoder().encode(JSON.stringify(state)).length > 65536) throw new Error('Workspace exceeds size limit');
     const candidate = loadWorkspace(structuredClone(state), {capabilities: nextCapabilities,resourceView:nextResourceView,ownerId});
     try {
-      let ir = null;
-      if (lower) try { ir = structuredClone(validateProgram(workspaceToIR(candidate, {capabilities: nextCapabilities,resourceView:nextResourceView,scriptOrder:nextScriptOrder,ownerId}),{resourceView:nextResourceView,...ownerOption(ownerId)})); }
-      catch (error) { if (!error.pendingResource) throw error; }
+      orderedRoots(candidate, nextScriptOrder);
+      const ir = lower ? structuredClone(validateProgram(workspaceToIR(candidate, {capabilities: nextCapabilities,resourceView:nextResourceView,scriptOrder:nextScriptOrder,ownerId}),{resourceView:nextResourceView,...ownerOption(ownerId)})) : null;
       return {state: saveWorkspace(candidate), capabilities: nextCapabilities, resourceView:nextResourceView, ownerId, ir, scriptOrder:structuredClone(nextScriptOrder)};
     } finally { candidate.dispose(); }
   }
@@ -165,6 +163,7 @@ export function createEditor(container, example) {
     },
     resourceView: () => resourceView == null ? null : structuredClone(resourceView),
     resourceOwner: () => resourceOwner,
+    validateBlocks: validateWorkspaceBlocks,
     // History and camera of the workspace on screen, live for this session only.
     // Each object keeps its own: replaying one object's events on another would
     // bring its blocks here. Blockly has no public accessor for the stacks.

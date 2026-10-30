@@ -154,6 +154,15 @@ export function createProjectAuthoring({editor,textDocuments,codeViews,source,ca
   const blockly=scene2d?structuredClone(scene2d.sprites[objects.primary]):live;
   return {blockly,...(scene2d?{scene2d}:{}),deviceSource:source.value,...(textDocuments?.capture()??{}),...(views?{codeViews:views}:{}),...(capabilities?{capabilities}:{}),...(resourceStore?{resources:resourceStore.capture()}:{})};
  }
+ // The import path's guard for projects with objects, on every object: `prepare`
+ // does not lower them, because unfinished work must save, change and reopen.
+ function validateImport(model){
+  const capabilities=validateCapabilities(model.capabilities??null),config=scene2DObjectsOf(capabilities);
+  if(!config||typeof editor.validateBlocks!=='function')return;
+  const scene=model.authoring.scene2d??scene2DAuthoringFromBlockly(model.authoring.blockly,config);
+  const execution=projectExecution(capabilities,'scratch-2d',{allowInactive:true});
+  for(const state of [scene.stage,...Object.values(scene.sprites)])editor.validateBlocks(state,{capabilities:execution});
+ }
  function prepare(model,options={}) {
   if(!model?.authoring||typeof model.authoring.deviceSource!=='string')throw new TypeError('Invalid project authoring');
   const capabilities=prepareCapabilities(model.capabilities??null,options);
@@ -168,7 +177,7 @@ export function createProjectAuthoring({editor,textDocuments,codeViews,source,ca
   const scene2d=objectsOf(model,capabilities,viewsCandidate);
   const plan={
    projectId:model.project?.id??null,capabilities,resourceCandidate,objects:scene2d,
-   editor:editor.prepare(scene2d?objectWorkspace(scene2d,scene2d.mounted):model.authoring.blockly,{scriptOrder:viewsCandidate?.entries.find(entry=>entry.contextId==='2d')?.scriptOrder??null,ownerId:scene2d?.mounted??null,capabilities:projectExecution(capabilities,'scratch-2d',{allowInactive:true}),...(resourceView?{resourceView}:{})}),
+   editor:editor.prepare(scene2d?objectWorkspace(scene2d,scene2d.mounted):model.authoring.blockly,{scriptOrder:viewsCandidate?.entries.find(entry=>entry.contextId==='2d')?.scriptOrder??null,ownerId:scene2d?.mounted??null,...(scene2d?{lower:false}:{}),capabilities:projectExecution(capabilities,'scratch-2d',{allowInactive:true}),...(resourceView?{resourceView}:{})}),
    text:textCandidate,codeViews:viewsCandidate,
    source:model.authoring.deviceSource,
    managed:[...managed].map(([id,participant])=>{const config=capabilities?.config[id]??null;const contextId=(participant.contexts??[participant.context??participant.id])[0];const view=resourceStore?.candidateView(resourceCandidate,{contextId,documentId:config?.documentId});return {id,candidate:participant.prepareConfig(config,{resources,resourceView:view,textDocuments:model.authoring.textDocuments??[]})};})
@@ -230,7 +239,7 @@ export function createProjectAuthoring({editor,textDocuments,codeViews,source,ca
   const unsubscribe=participant.subscribe(emit);if(typeof unsubscribe==='function')disposers.push(unsubscribe);
  }
  if(source.addEventListener){source.addEventListener('input',emit);disposers.push(()=>source.removeEventListener('input',emit));}
- return Object.freeze({capture,sceneProgram,exportProgram,blocksKey,objectOfBlock,mountObject,mountedObject:()=>objects?.mounted??null,captureCapabilities,capabilities:captureCapabilities,captureExecutionCapabilities,prepareCapabilities,prepare,commit,checkpoint,restoreDraft,
+ return Object.freeze({capture,sceneProgram,exportProgram,blocksKey,objectOfBlock,validateImport,mountObject,mountedObject:()=>objects?.mounted??null,captureCapabilities,capabilities:captureCapabilities,captureExecutionCapabilities,prepareCapabilities,prepare,commit,checkpoint,restoreDraft,
   subscribe(callback){subscribers.add(callback);return()=>subscribers.delete(callback);},
   dispose(){disposed=true;for(const dispose of disposers)dispose();subscribers.clear();}
  });

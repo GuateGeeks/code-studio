@@ -111,6 +111,7 @@ export function createProjectUI({editor, source, stop, textDocuments, authoring:
   async function validate(serialized) {
     const model = await parseProject(serialized, {catalog});
     await validateResources(model.resources);
+    authoring.validateImport?.(model);
     authoring.prepare(model,{allowRemoval:true});
     return model;
   }
@@ -244,6 +245,7 @@ export function createProjectUI({editor, source, stop, textDocuments, authoring:
     try {
       return await exclusive(async () => {
         const model = await parseProjectArchive(bytes, {catalog});
+        authoring.validateImport?.(model);
         authoring.prepare(model,{allowRemoval:true});
         await apply(model);
         await flush().catch(report);

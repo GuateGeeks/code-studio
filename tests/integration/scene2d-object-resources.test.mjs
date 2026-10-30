@@ -12,7 +12,8 @@ import {buildStarterLibrary} from '../../tools/resources/starter-library.mjs';
 import {authorizeProgram, authorizeProjectOperation} from '../../src/contracts/pack-broker.mjs';
 import {composeScene2DProgram, validateProgram} from '../../src/contracts/program-contract.mjs';
 import {scene2DTextOwner} from '../../src/contracts/scene2d-identifiers.mjs';
-import {loadWorkspace, workspaceToIR, validateWorkspaceResources} from '../../src/editor/block-program.mjs';
+import * as blockProgram from '../../src/editor/block-program.mjs';
+const {loadWorkspace, workspaceToIR, validateWorkspaceResources} = blockProgram;
 import {captureCodeViewSnapshot, generateCodeViewSource, prepareCodeViewCandidate} from '../../src/editor/code-view-conversion.mjs';
 import {workspaceFromIR} from '../../src/editor/workspace-from-ir.mjs';
 import {parseJavaScriptCodeView} from '../../src/targets/text/code-view-parser.mjs';
@@ -292,4 +293,32 @@ test('MS-055: GG reads a local variable of any sprite; hero and the stage stay a
   assert.deepEqual(call('variables.get', ['c']), {id: 'c', name: 'pasos', value: 3});
   const single = createGGBindings(() => vm);
   assert.throws(() => single('variables.get', ['c']), /Unknown GG numeric variable/, 'a single hero sees what it always saw');
+});
+
+test('MS-056: object profiles do not lower on project transactions; legacy ones do; a file\'s blocks are guarded by the import', async () => {
+  const hero = {blocks: {blocks: [{type: 'gg_when_start', id: 'h'}]}}, seen = [];
+  const editorFor = capabilities => ({save: () => ({}), program: () => ({version: 0, scripts: []}), commit() {}, subscribe: () => () => {}, captureCapabilities: () => capabilities,
+    prepare(state, options) { seen.push(options.lower); return {state, ...options}; }, validateBlocks(state, options) { blockProgram.validateWorkspaceBlocks?.(state, options); }});
+  const objects = profile([heroSprite]), legacy = createCapabilities(['gg.sprites'], {versions: {'gg.sprites': '0.2.0'}});
+  const scene = createProjectAuthoring({editor: editorFor(objects), source: {value: ''}, initialCapabilities: objects});
+  scene.prepare(await createProject({name: 'O', scene2d: {stage: {}, sprites: {hero}}, deviceSource: '', catalog, capabilities: objects}));
+  assert.equal(seen.at(-1), false, 'only Run asks an object profile to finish');
+  const old = createProjectAuthoring({editor: editorFor(legacy), source: {value: ''}, initialCapabilities: legacy});
+  old.prepare(await createProject({name: 'L', blockly: hero, deviceSource: '', catalog, capabilities: legacy}));
+  assert.notEqual(seen.at(-1), false, 'a single-workspace profile stays as it was');
+  // The guard: what the profile offers, finished or not, and nothing else.
+  assert.equal(typeof blockProgram.validateWorkspaceBlocks, 'function');
+  const of = (...blocks) => ({blocks: {languageVersion: 0, blocks}});
+  const check = (state, capabilities) => blockProgram.validateWorkspaceBlocks(state, {capabilities});
+  assert.doesNotThrow(() => check(of({type: 'gg_when_start', id: 's', inputs: {DO: {block: {type: 'controls_if', id: 'i'}}}}, {type: 'gg_move', id: 'loose'}), two));
+  assert.throws(() => check(of({type: 'gg_score_set', id: 'x'}), two), error => /gg_score_set/.test(error.message) && error.sourceBlockId === 'x');
+  assert.throws(() => check(of({type: 'gg_when_start', id: 's', inputs: {DO: {block: {type: 'gg_score_set', id: 'nested'}}}}), two), /gg_score_set/);
+  assert.throws(() => check(of({type: 'gg_forever', id: 'f'}), createCapabilities(['gg.sprites'], {versions: {'gg.sprites': '0.1.0'}})), /gg_forever/, 'a core structure only where a pack offers it');
+  assert.doesNotThrow(() => check(of({type: 'gg_forever', id: 'f'}), two));
+  // The import reads every object, not the one on screen.
+  assert.equal(typeof scene.validateImport, 'function');
+  const foreign = await createProject({name: 'F', scene2d: {stage: of({type: 'gg_score_set', id: 'x'}), sprites: {hero}}, deviceSource: '', catalog, capabilities: objects});
+  assert.throws(() => scene.validateImport(foreign), /gg_score_set/);
+  const clean = await createProject({name: 'C', scene2d: {stage: {}, sprites: {hero}}, deviceSource: '', catalog, capabilities: objects});
+  assert.doesNotThrow(() => scene.validateImport(clean));
 });

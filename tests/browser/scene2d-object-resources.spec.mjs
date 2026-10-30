@@ -491,15 +491,96 @@ test('MS-BROWSER-025: the name form keeps what was typed when refused, and never
   await expect(page.locator('#text-source')).toHaveValue(typed);
 });
 
-test('MS-BROWSER-026: a tool that fails while checking the text is not called an error of the text',async({page})=>{
+test('MS-BROWSER-026: a tool that fails while checking the text is not called an error of the text, and offers to delete nothing',async({page})=>{
   await open(page);
+  await add(page,'Cesta');
+  await pick(page,'hero');
   await page.context().route('**/code-view-parser.bundle.mjs',route=>route.abort());
   await mode(page,'javascript');
   await page.locator('#text-source').fill('onStart(() => {\n  hero.move(4);\n});\n');
-  await option(page,'Escenario').click();
-  await expect(status(page)).toContainText('No se pudo abrir «Escenario»');
-  await expect(status(page)).not.toContainText('El texto tiene un error');
-  await expect(option(page,'hero')).toHaveAttribute('aria-selected','true');
+  // A sprite and the stage: both intact, the failure is the tool's.
+  for(const target of ['Cesta','Escenario']){
+    await option(page,target).click();
+    await expect(status(page)).toContainText('No se pudo comprobar el texto para cambiar a «'+target+'»');
+    await expect(status(page)).not.toContainText('El texto tiene un error');
+    await expect(status(page)).not.toContainText('puedes borrarlo');
+    await expect(page.locator('#object-delete-unopened')).toBeHidden();
+    await expect(option(page,'hero')).toHaveAttribute('aria-selected','true');
+  }
+});
+
+const unfinished=id=>onStart(id+'-start',{type:'controls_if',id:id+'-if'});
+const sprite=(id,name,x=50)=>({id,name,x,y:0,direction:90,size:100,visible:true,costume:'hero'});
+test('MS-BROWSER-029: unfinished work on the selected object blocks no panel edit, library addition or delete',async({page})=>{
+  await open(page);
+  const rota=onStart('r-start',{type:'gg_assets_set_costume',id:'r-costume',fields:{COSTUME:'fantasma'}});
+  await openScene(page,{sprites:{hero:onStart('h-start',move('h-move',10)),rota,cesta:unfinished('c'),nube:{}},extra:[sprite('rota','Rota'),sprite('cesta','Cesta',-50),sprite('nube','Nube',80)]});
+  await pick(page,'Cesta');
+  // Add, rename, duplicate.
+  await add(page,'Caja');
+  await pick(page,'Cesta');
+  await clickVisible(page,page.locator('#object-rename'));
+  await nameForm(page,'Canasta');
+  await expect(option(page,'Canasta')).toBeFocused();
+  await expect(status(page)).toContainText('se llama ahora');
+  // Duplicate needs a costume of its own, so it uses the added object.
+  await pick(page,'Caja');
+  await page.evaluate(state=>studioProbe.editor.load(state),unfinished('k'));
+  await clickVisible(page,page.locator('#object-duplicate'));
+  await expect(option(page,'Caja 2')).toHaveAttribute('aria-selected','true');
+  await pick(page,'Canasta');
+  // The library, with the unfinished object on screen.
+  await openLibrary(page);await show(page,'sound');
+  await clickVisible(page,card(page,'sonido-salto').getByRole('button',{name:'Añadir «Salto» a los sonidos'}));
+  await expect(page.locator('#starter-library-status')).toContainText('sonidos de Canasta');
+  await expect(page.locator('#resources-error')).toBeEmpty();
+  // The stuck object goes, whatever is on screen.
+  await option(page,'Rota').click();
+  await expect(status(page)).toContainText('No se pudo abrir «Rota»');
+  page.once('dialog',dialog=>void dialog.accept());
+  await page.getByRole('button',{name:'Borrar «Rota»',exact:true}).click();
+  await expect(option(page,'Rota')).toHaveCount(0);
+  await expect(status(page)).toContainText('«Rota» se borró');
+  await expect(option(page,'Canasta')).toHaveAttribute('aria-selected','true');
+  // Deleting the neighbour of an unfinished object: selection moves there and the delete completes.
+  await pick(page,'Nube');
+  await pick(page,'hero');
+  await removeSelected(page);
+  await expect(option(page,'hero')).toHaveCount(0);
+  await expect(status(page)).toContainText('«hero» se borró');
+  await expect(option(page,'Canasta')).toHaveAttribute('aria-selected','true');
+  expect(JSON.stringify(await page.evaluate(()=>studioProbe.editor.save()))).toContain('c-if');
+  // Only Run asks to finish it.
+  await clickVisible(page,page.locator('#run-editor'));
+  await expect(blockErrors(page)).not.toHaveText('');
+  expect((await snapshot(page)).threads).toBe(0);
+});
+
+test('MS-BROWSER-030: unfinished work reopens as it was, from the browser and from a file; a file with blocks outside its packs is refused',async({page})=>{
+  await open(page);
+  await openScene(page,{sprites:{hero:onStart('h-start',move('h-move',10)),cesta:unfinished('c')},extra:[sprite('cesta','Cesta')]});
+  await pick(page,'Cesta');
+  const before=await capture(page);
+  expect(await page.evaluate(()=>studioProbe.project.flush().then(()=>true,()=>false))).toBe(true);
+  await expect(page.locator('#project-status')).toHaveText('Guardado en este navegador');
+  await open(page);
+  expect(await mounted(page)).toBe('cesta');
+  await expect(option(page,'Cesta')).toHaveAttribute('aria-selected','true');
+  expect((await capture(page)).scene2d.sprites.cesta).toEqual(before.scene2d.sprites.cesta);
+  expect((await capture(page)).scene2d.sprites.hero).toEqual(before.scene2d.sprites.hero);
+  // The same through a file.
+  const opened=await page.evaluate(async()=>{const text=await studioProbe.project.export();return studioProbe.project.open(text).then(()=>null,error=>error.message);});
+  expect(opened).toBeNull();
+  expect(await mounted(page)).toBe('cesta');
+  // Import safety is the import's: blocks of a pack the file does not lock stay out, on any object.
+  const refused=await page.evaluate(async()=>{
+    const document=JSON.parse(await studioProbe.project.export());
+    document.authoring.scene2d.sprites.hero.blocks.blocks.push({type:'gg_score_set',id:'ajeno',x:200,y:200});
+    return studioProbe.project.open(JSON.stringify(document)).then(()=>null,error=>error.message);
+  });
+  expect(refused).toContain('gg_score_set');
+  expect(await mounted(page)).toBe('cesta');
+  expect((await capture(page)).scene2d.sprites.hero).toEqual(before.scene2d.sprites.hero);
 });
 
 test('MS-BROWSER-013-LIMIT: the nine tiles of a full project leave Blockly at least 300 px at 1280×720',async({page})=>{
