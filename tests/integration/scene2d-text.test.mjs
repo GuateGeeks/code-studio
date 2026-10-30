@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {parse} from 'acorn';
 import {spawnSync} from 'node:child_process';
 import {readFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
@@ -433,4 +434,38 @@ test('MS-033: per-object conversion keeps block IDs; v6 validates the views; the
   // Reopening saved views mounts their object with its order, not the first sprite.
   authoring.commit(authoring.prepare(project));
   assert.deepEqual([authoring.mountedObject(), live, order], ['cesta', cestaBlocks, ['c-click']]);
+});
+
+// Words from the languages themselves, not from the project's list (fix round 1):
+// ECMAScript reserved words, including those reserved only in strict mode, which
+// is how modules parse; Python's come from the interpreter's own keyword module.
+const javascriptWords = ['await', 'break', 'case', 'catch', 'class', 'const', 'continue', 'debugger', 'default', 'delete', 'do', 'else', 'enum', 'export', 'extends', 'false', 'finally', 'for', 'function', 'if', 'import', 'in', 'instanceof', 'new', 'null', 'return', 'super', 'switch', 'this', 'throw', 'true', 'try', 'typeof', 'var', 'void', 'while', 'with', 'yield',
+  'implements', 'interface', 'let', 'package', 'private', 'protected', 'public', 'static'];
+test('MS-035: a sprite named like any JavaScript or Python keyword gets an identifier valid in both languages', () => {
+  const listed = spawnSync('python3', ['-c', 'import keyword, json; print(json.dumps(keyword.kwlist + keyword.softkwlist))'], {encoding: 'utf8'});
+  assert.equal(listed.status, 0, listed.stderr);
+  const pythonWords = JSON.parse(listed.stdout);
+  assert.ok(pythonWords.includes('nonlocal') && pythonWords.includes('match'), 'the interpreter lists its keywords');
+  const words = [...new Set([...javascriptWords, ...pythonWords])];
+  const capitalized = words.map(word => word[0].toUpperCase() + word.slice(1));
+  const rejected = [], identifiers = new Map();
+  for (const name of [...words, ...capitalized]) {
+    const scene = {stage: {backdrop: 'stage'}, sprites: [{...hero, id: 'pieza', name}]};
+    const owner = scene2DTextOwner(scene, 'pieza'), line = `${owner.identifier}.move(1);`;
+    identifiers.set(name, owner.identifier);
+    const attempts = [
+      () => parse(`onStart(() => {\n  ${line}\n});`, {ecmaVersion: 2022, sourceType: 'module'}),
+      () => parseJavaScriptCodeView(generateApi3ProgramSource(spriteProgram, 'javascript', {owner}).text, jsOptions(owner, generateApi3ProgramSource(spriteProgram, 'javascript', {owner}))),
+      () => compileApi3JavaScript(`onStart(() => {\n  ${line}\n});`, {targetIds: {[owner.identifier]: 'pieza'}})];
+    for (const attempt of attempts) try { attempt(); } catch (error) { rejected.push(`${name} → ${owner.identifier}: ${error.message}`); break; }
+  }
+  assert.deepEqual(rejected, []);
+  // Every identifier also parses as Python, on the interpreter itself.
+  const distinct = [...new Set(identifiers.values())];
+  const script = 'import ast, sys, json\nbad = []\nfor name in json.loads(sys.stdin.read()):\n    try: ast.parse(name + ".move(1)")\n    except SyntaxError: bad.append(name)\nprint(json.dumps(bad))';
+  const checked = spawnSync('python3', ['-c', script], {input: JSON.stringify(distinct), encoding: 'utf8'});
+  assert.equal(checked.status, 0, checked.stderr);
+  assert.deepEqual(JSON.parse(checked.stdout), []);
+  assert.equal(identifiers.get('public'), 'public_');
+  assert.equal(isScene2DTextIdentifier('public'), false);
 });
