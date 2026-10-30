@@ -11,8 +11,10 @@ import {auxiliaryServer} from './origins.mjs';
 const sourceNames=['index.html','source.tar.gz','source-manifest.json','LICENSE','THIRD_PARTY_NOTICES.txt','SBOM.json'];
 const digest=bytes=>createHash('sha256').update(bytes).digest('hex');
 // Studio server in a block derived from the configured base (offset +70).
-// The exported packages' own servers (serve.mjs) listen on 4211–4216, ports fixed by the
-// package format itself (deployment.json), so they are not derived from the base.
+// The exported packages' own server (serve.mjs) listens on 4211–4213 (shell, language and
+// context); deployment.json also names 4214–4216 as origins, but nothing binds them. Those
+// ports are fixed by the export format, not derived from the base, so this suite is
+// exclusive (exclusiveSuites in tools/test/partitions.mjs): never run it in two runs at once.
 const {env:ports,origin:studioOrigin}=auxiliaryServer('standalone');
 async function server(command,args,options,origin){
  const child=spawn(command,args,{...options,stdio:['ignore','pipe','pipe']});let log='';

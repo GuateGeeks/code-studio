@@ -1,19 +1,50 @@
-import {readFileSync} from 'node:fs';
+import {readFileSync, readdirSync} from 'node:fs';
 import {freemem, loadavg} from 'node:os';
 import {resolve} from 'node:path';
 
-// Suites that assert the default origins (4173–4182) or start their own
-// servers/global state stay in partition 0, which keeps the default ports.
-// tests/tools/test-partitions.test.mjs fails if a suite outside this list
-// starts naming default origins, so the list cannot silently go stale.
-export const defaultPortSuites = Object.freeze([
-  'accessibility-zoom', 'audio-variables', 'code-console', 'device-integration', 'device-transfer', 'isolation', 'language-runtime',
-  'offline-recovery', 'pilot-2d-mode', 'project-persistence', 'pxt-worker', 'runner', 'scene-inspector', 'simulator',
-  'standalone-contexts', 'textual-corpus'
-].map(name => `tests/browser/${name}.spec.mjs`));
+// Empty: no suite depends on the default ports any more. Suites read their
+// origins from tests/browser/origins.mjs and derive their own servers from the
+// base (auxiliaryServer), so they run in any partition. The export stays
+// because plans in progress cite it; the port-literal test in
+// tests/tools/test-partitions.test.mjs keeps fixed ports from coming back.
+export const defaultPortSuites = Object.freeze([]);
 
-// Partition i ≥ 1 uses 4400 + 100·i. 4183–4236, 4260 and 4360 belong to the
-// offline/standalone helpers; 5083 and 5183 to the user's open previews.
+// Exclusive suites bind ports that do not derive from the base, so they must
+// never run in two concurrent runs (e.g. agents in other worktrees). Within a
+// run they all share one partition (partition 0) and therefore run serially.
+export const exclusiveSuites = Object.freeze([
+  {file: 'tests/browser/standalone-contexts.spec.mjs', reason: 'arranca el serve.mjs de los paquetes exportados, que escucha en 4211–4213 fijados por el formato de exportación'}
+].map(item => Object.freeze(item)));
+
+// Port literals forbidden in browser/quick specs and helpers. An exception
+// covers only its own file and the literals it lists, never other ports.
+export const portLiteralPatterns = Object.freeze([/127\.0\.0\.1:\d{4}/g, /\[\s*41\d\d\s*,/g, /location\.port\s*[!=]==\s*'\d/g]);
+export const portLiteralExceptions = Object.freeze([
+  {file: 'tests/browser/standalone-contexts.spec.mjs', literals: ['127.0.0.1:4211', '127.0.0.1:4212', '127.0.0.1:4213'],
+    reason: 'puertos de serve.mjs fijados por el formato de exportación (src/export/export-context.mjs, tools/export/serve.template.mjs); la suite es exclusiva'}
+].map(item => Object.freeze(item)));
+export function findPortLiterals(root = '.', {directories = ['tests/browser', 'tests/quick'], exceptions = portLiteralExceptions} = {}) {
+  const found = [];
+  for (const directory of directories) {
+    let names;
+    try { names = readdirSync(resolve(root, directory)).filter(name => name.endsWith('.mjs')).sort(); }
+    catch (error) { if (error.code === 'ENOENT') continue; throw error; }
+    for (const name of names) {
+      const file = `${directory}/${name}`;
+      const allowed = new Set(exceptions.filter(item => item.file === file).flatMap(item => item.literals));
+      readFileSync(resolve(root, file), 'utf8').split('\n').forEach((content, index) => {
+        for (const pattern of portLiteralPatterns) for (const match of content.matchAll(pattern)) {
+          if (!allowed.has(match[0])) found.push({file, line: index + 1, text: match[0]});
+        }
+      });
+    }
+  }
+  return found;
+}
+
+// Partition i ≥ 1 uses 4400 + 100·i; its suites' own servers sit at +50…+79
+// inside the same hundred (tests/browser/origins.mjs). 4211–4213 belong to
+// the exported packages; 5083, 5183, 5283 and 5383 to the user's previews.
 export function partitionEnv(index, {root = '.'} = {}) {
   if (!Number.isSafeInteger(index) || index < 0 || index > 8) throw new Error('Índice de partición inválido');
   const folder = `artifacts/test-runs/partitions/p${index}`;
@@ -43,14 +74,16 @@ export function readDurations(reportFile) {
 }
 
 // Longest-processing-time first over every partition, partition 0 starting
-// with its pinned suites. Unknown durations count as one minute.
-export function planPartitions(files, {count, durations = {}} = {}) {
+// with the pinned suites: every exclusive suite together, so two of them never
+// share their fixed ports at once. Unknown durations count as one minute.
+export function planPartitions(files, {count, durations = {}, exclusive = exclusiveSuites.map(item => item.file)} = {}) {
   if (!Number.isSafeInteger(count) || count < 1 || count > 8) throw new Error('Número de particiones inválido (1–8)');
   const unique = [...new Set(files)].sort();
   const cost = file => durations[file] ?? 60000;
+  const pinned = new Set([...defaultPortSuites, ...exclusive]);
   const partitions = Array.from({length: count}, (_, index) => ({index, files: [], estimateMs: 0}));
-  for (const file of unique.filter(file => defaultPortSuites.includes(file))) { partitions[0].files.push(file); partitions[0].estimateMs += cost(file); }
-  const free = count === 1 ? unique.filter(file => !defaultPortSuites.includes(file)) : unique.filter(file => !defaultPortSuites.includes(file)).sort((a, b) => cost(b) - cost(a) || a.localeCompare(b));
+  for (const file of unique.filter(file => pinned.has(file))) { partitions[0].files.push(file); partitions[0].estimateMs += cost(file); }
+  const free = count === 1 ? unique.filter(file => !pinned.has(file)) : unique.filter(file => !pinned.has(file)).sort((a, b) => cost(b) - cost(a) || a.localeCompare(b));
   for (const file of free) {
     const target = partitions.reduce((best, item) => item.estimateMs < best.estimateMs ? item : best);
     target.files.push(file); target.estimateMs += cost(file);
