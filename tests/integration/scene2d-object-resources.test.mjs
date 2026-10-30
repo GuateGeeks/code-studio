@@ -138,7 +138,6 @@ test('MS-050: the text view of an object reads, writes and converts its own reso
   assert.match(text, /cesta\.setCostume\("cesta:c1"\)/);
   const parsed = parseJavaScriptCodeView(text, {capabilities: two, resourceView: view, owner});
   assert.equal(parsed.ir.scripts[0].body[0].costume, 'cesta:c1');
-  // Python reaches the same validator through the shared lowering.
   assert.throws(() => parseJavaScriptCodeView('onStart(() => {\n  cesta.setCostume("hero-alt");\n});\n', {capabilities: two, resourceView: view, owner}),
     error => error.code === 'CV_PROGRAM' && error.lineNumber === 2);
   // Blocks ↔ text, through the same path the editor uses.

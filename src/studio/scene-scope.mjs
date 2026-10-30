@@ -13,11 +13,14 @@ export function createSceneScope(editor) {
   return Object.freeze({
     connect(value) { authoring = value; },
     config, selected, nameOf,
-    // The object the Código listing shows. With hero alone there is nothing to tell apart.
+    // The object the Código listing shows, as the editor holds it: the listing
+    // follows the editor, which changes before the coordinator publishes a project.
+    // With hero alone there is nothing to tell apart.
     listingOwner() {
-      const objects = config(), id = selected();
+      const objects = scene2DObjectsOf(editor.captureCapabilities()), id = editor.resourceOwner();
       if (!objects || id === null) return null;
-      return {textOwner: scene2DTextOwner(objects, id), name: objects.sprites.length > 1 || id === 'stage' ? nameOf(id) : null};
+      const name = id === 'stage' ? scene2DStageName : objects.sprites.find(sprite => sprite.id === id)?.name;
+      return {textOwner: scene2DTextOwner(objects, id), name: objects.sprites.length > 1 || id === 'stage' ? name : null};
     },
     // The object a new text document writes for: the selected sprite, or the first one.
     documentOwner() {

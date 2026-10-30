@@ -164,6 +164,7 @@ export function createEditor(container, example) {
       try { return structuredClone(validateProgram(workspaceToIR(stored, {capabilities, resourceView, ownerId}), {resourceView, ...ownerOption(ownerId)})); } finally { stored.dispose(); }
     },
     resourceView: () => resourceView == null ? null : structuredClone(resourceView),
+    resourceOwner: () => resourceOwner,
     // History and camera of the workspace on screen, live for this session only.
     // Each object keeps its own: replaying one object's events on another would
     // bring its blocks here. Blockly has no public accessor for the stacks.

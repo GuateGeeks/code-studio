@@ -363,6 +363,13 @@ test('MS-BROWSER-021: inspector and derived code follow the selected object',asy
   await expect(code).not.toHaveValue(/hero/);
   await language.selectOption('python');
   await expect(code).toHaveValue(/cesta\.say\("Hola"\)/);
+  // A rename reaches the listing without touching the blocks.
+  await language.selectOption('javascript');
+  await clickVisible(page,page.locator('#object-rename'));
+  await nameForm(page,'Canasta');
+  await clickVisible(page,page.locator('#tab-code'));
+  await expect(code).toHaveValue(/canasta\.say\("Hola"\)/);
+  await expect(page.locator('#generated-status')).toHaveText('Código de «Canasta» · actualizado desde tus bloques');
   await pick(page,'hero');
   await language.selectOption('javascript');
   await expect(code).toHaveValue(/hero\.move\(12\)/);
@@ -504,7 +511,8 @@ test('MS-BROWSER-013-LIMIT: the nine tiles of a full project leave Blockly at le
   await expect(page.locator('#objects-list [role=option]')).toHaveCount(9);
   await page.locator('#objects-panel').scrollIntoViewIfNeeded();
   const box=await page.evaluate(()=>{const rect=selector=>document.querySelector(selector).getBoundingClientRect();
-    return {scroll:document.scrollingElement.scrollWidth,viewport:innerWidth,editor:rect('#blockly-editor').height,panel:rect('#objects-panel').height,list:rect('#objects-list').height};});
+    const editor=rect('#blockly-editor');
+    return {scroll:document.scrollingElement.scrollWidth,viewport:innerWidth,editor:editor.height,visibleEditor:Math.min(innerHeight,editor.bottom)-Math.max(0,editor.top),panel:rect('#objects-panel').height,list:rect('#objects-list').height};});
   await page.screenshot({path:artifactPath('objects-nine-laptop.png')});
   await writeFile(artifactPath('objects-nine-laptop.json'),JSON.stringify(box,null,2));
   expect(box.scroll).toBeLessThanOrEqual(box.viewport);
