@@ -15,7 +15,7 @@
 ## 3. Interfaz
 
 - [x] 3.1 Panel de objetos (añadir, renombrar, duplicar, borrar, seleccionar) con teclado; editor montado para el objeto seleccionado sin perder borradores. (30/10/2026: design puntos 28–40; MS-036…047 en `tests/integration/scene2d-object-edits.test.mjs`; MS-BROWSER-007…015 en `tests/browser/scene2d-objects-panel.spec.mjs`; capturas en `artifacts/stabilization-2d/e2-multisprite/task-6/`.)
-- [ ] 3.2 Menús de recursos, inspector y código derivado por objeto.
+- [x] 3.2 Menús de recursos, inspector y código derivado por objeto; biblioteca inicial (R4) y actividades con `targetId`. (30/10/2026: design puntos 41–52; MS-048…055 en `tests/integration/scene2d-object-resources.test.mjs`; MS-BROWSER-016…028 en `tests/browser/scene2d-object-resources.spec.mjs`; evidencia en `artifacts/stabilization-2d/e2-multisprite/task-7/`.)
 
 ## 4. Verificación
 
