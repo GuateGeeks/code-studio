@@ -108,7 +108,7 @@ test('MS-038: a new object has its own ID and costume, an empty program and the 
   // No scripts; the scene's global variables keep their IDs, locals stay out.
   assert.deepEqual(after.scene2d.sprites['sprite-1'], {variables: [{name: 'nivel', id: 'nivel'}, {name: 'puntos', id: 'puntos'}]});
   assert.deepEqual(after.scene2d.sprites.hero, heroProgram);
-  assert.deepEqual(after.scene2d.stage, stage);
+  assert.deepEqual(after.scene2d.stage, {...stage, variables: [{name: 'nivel', id: 'nivel'}, {name: 'puntos', id: 'puntos'}]});
   // No globals: the empty workspace is {}, as Blockly saves it.
   const plain = await addSceneObject(state({scene2d: scene({hero: workspace([say('s', 'x')])})}), {id: 'sprite-2', name: 'B', sourceId: 'hero', rules});
   assert.deepEqual(plain.scene2d.sprites['sprite-2'], {});
@@ -337,4 +337,55 @@ test('MS-046: scripts written in text on two objects keep unique block and varia
   assert.equal(program.variables.length, 2);
   // hero keeps the IDs it always had.
   assert.match(hero.ir.scripts[0].sourceBlockId, /^gg-code-view-\d+$/);
+});
+
+test('MS-047: a shared variable stays shared when its declaring block or object goes; a project without additions does not change', async () => {
+  const profile = createCapabilities(['gg.sprites']);
+  const lower = state => { const loaded = loadWorkspace(structuredClone(state), {capabilities: profile}); try { return workspaceToIR(loaded, {capabilities: profile}); } finally { loaded.dispose(); } };
+  const compose = ({config: objects, scene2d}) => composeScene2DProgram(objects, {stage: lower(scene2d.stage), sprites: Object.fromEntries(Object.entries(scene2d.sprites).map(([id, state]) => [id, lower(state)]))});
+  const globals = program => program.variables.filter(variable => variable.scope === 'global').map(variable => variable.id);
+  const withoutBlocks = (edited, ...ids) => ({...edited, scene2d: {...edited.scene2d, sprites: {...edited.scene2d.sprites,
+    ...Object.fromEntries(ids.map(id => [id, {variables: edited.scene2d.sprites[id].variables}]))}}});
+  const added = await addSceneObject(state(), {id: 'sprite-1', name: 'Cesta', sourceId: 'hero', rules});
+  const both = {...added, ...await addSceneObject({...state(), ...added, resources: await validateResources(added.resources)}, {id: 'sprite-2', name: 'Pelota', sourceId: 'hero', rules})};
+
+  // The declaring block goes; one added object is enough, because hero keeps the model.
+  assert.doesNotThrow(() => compose(withoutBlocks(added, 'hero')));
+  assert.deepEqual(globals(compose(withoutBlocks(added, 'hero'))), ['puntos']);
+  // The declaring object goes.
+  const deleted = deleteSceneObject({...state(), ...both, mounted: 'sprite-1'}, {id: 'hero'});
+  assert.doesNotThrow(() => compose(deleted));
+  assert.deepEqual(globals(compose(deleted)), ['puntos']);
+  // A duplicate, with the block removed from both.
+  const copied = await duplicateSceneObject(state(), {id: 'sprite-3', name: 'hero 2', sourceId: 'hero', rules});
+  assert.doesNotThrow(() => compose(withoutBlocks(copied, 'hero', 'sprite-3')));
+  assert.deepEqual(globals(compose(withoutBlocks(copied, 'hero', 'sprite-3'))), ['puntos']);
+
+  // The stage holds the shared models, once each; locals stay out and the source does not change.
+  assert.deepEqual(both.scene2d.stage, {variables: [{name: 'puntos', id: 'puntos'}]});
+  assert.deepEqual(copied.scene2d.stage, {variables: [{name: 'puntos', id: 'puntos'}]});
+  assert.deepEqual(state().scene2d.stage, {});
+
+  // Saved and reopened, the stage keeps them.
+  const saved = createCapabilities(['gg.sprites', 'gg.assets']);
+  saved.config['gg.sprites'] = both.config;
+  const document = await createProject({name: 'Global', scene2d: both.scene2d, deviceSource: '', catalog, capabilities: saved, resources: await validateResources(both.resources)});
+  const reopened = await parseProject(serializeProject(document), {catalog});
+  assert.deepEqual(reopened.authoring.scene2d.stage, {variables: [{name: 'puntos', id: 'puntos'}]});
+  assert.deepEqual(compose({config: both.config, scene2d: reopened.authoring.scene2d}), compose(both));
+
+  // The stage's own view still reads back with those IDs.
+  const owner = scene2DTextOwner(both.config, 'stage'), snapshot = captureCodeViewSnapshot(both.scene2d.stage, {capabilities: profile});
+  const generated = generateCodeViewSource(snapshot, 'javascript', {owner});
+  const parsed = parseJavaScriptCodeView(generated.text, {capabilities: profile, owner, variableIds: generated.variableIds, variableNames: generated.variableNames});
+  assert.deepEqual(prepareCodeViewCandidate(snapshot, parsed, {targetId: 'stage'}).ir.variables.map(variable => variable.id), ['puntos']);
+
+  // Nothing added: no edit touches the stage, and the program is the same.
+  const untouched = {config: config(), scene2d: scene()}, before = compose(untouched);
+  const renamed = renameSceneObject(state(), {id: 'hero', name: 'Héroe'});
+  assert.deepEqual(renamed.scene2d.stage, {});
+  assert.deepEqual(compose(renamed), before);
+  // Without shared variables, adding leaves the stage empty.
+  const quiet = await addSceneObject(state({scene2d: scene({hero: workspace([say('s', 'x')])})}), {id: 'sprite-4', name: 'B', sourceId: 'hero', rules});
+  assert.deepEqual(quiet.scene2d.stage, {});
 });

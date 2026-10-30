@@ -438,6 +438,35 @@ test('MS-BROWSER-014: a project of one workspace keeps its screen: no panel, no 
   expect(await mounted(page)).toBeNull();
 });
 
+test('MS-BROWSER-015: a shared variable survives deleting the object that declares it, in the run and after reopening',async({page})=>{
+  await open(page);
+  await page.evaluate(async()=>{
+    const app=path=>import(new URL('./app/'+path,location.href).href);
+    const {createProject}=await app('project-format.mjs'),capture=studioProbe.authoring.capture();
+    const hero={variables:[{name:'puntos',id:'puntos'}],blocks:{languageVersion:0,blocks:[{type:'gg_when_start',id:'h-start',x:20,y:20,inputs:{DO:{block:{type:'gg_set_global',id:'h-global',fields:{VAR:{id:'puntos'}},inputs:{VALUE:{shadow:{type:'math_number',id:'h-value',fields:{NUM:1}}}}}}}}]}};
+    const document=await createProject({name:'Global',scene2d:{stage:{},sprites:{hero}},deviceSource:'',catalog:studioProbe.project.catalog(),capabilities:capture.capabilities,resources:capture.resources});
+    await studioProbe.project.open(JSON.stringify(document));
+  });
+  await expect(page.locator('#run-editor')).toBeEnabled();
+  await add(page,'Cesta');await add(page,'Pelota');
+  await option(page,'hero').click();
+  await expect(option(page,'hero')).toHaveAttribute('aria-selected','true');
+  page.once('dialog',dialog=>void dialog.accept());
+  await clickVisible(page,page.locator('#object-delete'));
+  await expect(option(page,'hero')).toHaveCount(0);
+  await expect(page.locator('#run-editor')).toBeEnabled();
+  await clickVisible(page,page.locator('#run-editor'));
+  await expect(page.locator('#status')).toHaveText('Bloques ejecutados');
+  await expect(page.locator('#editor-error')).toHaveText('');
+  await clickVisible(page,page.locator('#stop-result'));
+  await expect.poll(async()=>(await settled(snapshot,page)).threads).toBe(0);
+  await page.evaluate(()=>studioProbe.project.flush());
+  await page.reload();await page.waitForFunction(()=>!!window.studioProbe?.project);await page.evaluate(()=>studioProbe.project.ready());
+  await expect(page.locator('#run-editor')).toBeEnabled();
+  expect((await capture(page)).scene2d.stage.variables).toEqual([{name:'puntos',id:'puntos'}]);
+  expect(await page.evaluate(()=>studioProbe.authoring.sceneProgram().variables)).toEqual([expect.objectContaining({id:'puntos',scope:'global'})]);
+});
+
 const views=[['desktop',1440,900],['laptop',1280,720],['narrow',390,844],['zoom',320,568]];
 for(const [label,width,height] of views)test('MS-BROWSER-013: the panel fits '+label+' '+width+'×'+height+' without page overflow',async({page})=>{
   await page.setViewportSize({width,height});

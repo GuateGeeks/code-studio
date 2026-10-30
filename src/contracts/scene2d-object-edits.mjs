@@ -58,6 +58,14 @@ function globalVariables(scene2d, rules) {
   return found;
 }
 const programFromVariables = models => models.length ? {variables: models} : {};
+// A block declares a variable global only while it exists. Once a second object
+// holds the same model, the stage must hold it too: the stage's variables are
+// global whatever happens to those blocks or objects (composeScene2DProgram).
+function stageWithGlobals(stage, globals) {
+  const known = new Set((stage.variables ?? []).map(model => model.id));
+  const missing = [...globals.values()].filter(model => !known.has(model.id));
+  return missing.length ? {...stage, variables: [...(stage.variables ?? []), ...structuredClone(missing)]} : stage;
+}
 
 // A free spot on the stage, so a new object does not hide under another.
 const spots = [[-120, -60], [120, -60], [-120, 60], [120, 60], [0, -100], [0, 100], [-180, 0], [180, 0], [60, 0], [-60, 0]];
@@ -97,7 +105,7 @@ export function renameSceneObject({config, scene2d, codeViews}, {id, name}) {
 
 // A new object starts empty, with one costume of its source so that it can be
 // seen: the costume of the selected sprite, or of the first one from the stage.
-// It knows the scene's global variables, under the same IDs.
+// It knows the scene's global variables, under the same IDs, and the stage keeps them.
 export async function addSceneObject({config, scene2d, codeViews, resources}, {id, name, sourceId, rules}) {
   requireRoom(config);
   const normalized = checkedName(name, config);
@@ -108,8 +116,9 @@ export async function addSceneObject({config, scene2d, codeViews, resources}, {i
   requireResourceRoom(resources, 1, 0);
   const copy = {...structuredClone(costume), id: id + ':c0', ownerId: id};
   const sprite = {id, name: normalized, ...freeSpot(config), direction: 90, size: 100, visible: true, costume: copy.id};
+  const globals = globalVariables(scene2d, rules);
   return {id, config: validateScene2DObjects({...config, sprites: [...structuredClone(config.sprites), sprite]}), codeViews,
-    scene2d: {stage: scene2d.stage, sprites: {...scene2d.sprites, [id]: programFromVariables([...globalVariables(scene2d, rules).values()])}},
+    scene2d: {stage: stageWithGlobals(scene2d.stage, globals), sprites: {...scene2d.sprites, [id]: programFromVariables([...globals.values()])}},
     resources: {...structuredClone(resources), costumes: [...structuredClone(resources.costumes), copy]}};
 }
 
@@ -152,12 +161,13 @@ export async function duplicateSceneObject({config, scene2d, codeViews, resource
   const owned = kind => resources[kind].filter(item => item.ownerId === source.id).length;
   requireResourceRoom(resources, owned('costumes'), owned('sounds'));
   const copied = await copyResourceOwner(resources, source.id, id, {idPrefix: id});
-  const {state, blockIds} = copiedWorkspace(scene2d.sprites[source.id], {id, globals: globalVariables(scene2d, rules), mapping: copied.mapping, rules});
+  const globals = globalVariables(scene2d, rules);
+  const {state, blockIds} = copiedWorkspace(scene2d.sprites[source.id], {id, globals, mapping: copied.mapping, rules});
   const sprite = {...structuredClone(source), id, name: normalized, x: clamp(source.x + 30, 240), y: clamp(source.y - 30, 180),
     costume: copied.mapping.costumes[source.costume] ?? Object.values(copied.mapping.costumes)[0]};
   const order = viewOrder(codeViews, mounted, source.id);
   return {id, config: validateScene2DObjects({...config, sprites: [...structuredClone(config.sprites), sprite]}), resources: copied.resources,
-    scene2d: {stage: scene2d.stage, sprites: {...scene2d.sprites, [id]: state}},
+    scene2d: {stage: stageWithGlobals(scene2d.stage, globals), sprites: {...scene2d.sprites, [id]: state}},
     codeViews: order ? withStoredView(codeViews, mounted, id, {scriptOrder: order.map(block => blockIds.get(block) ?? block), restorePoint: null}) : codeViews};
 }
 
