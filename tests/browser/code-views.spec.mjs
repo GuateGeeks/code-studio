@@ -6,7 +6,9 @@ test.setTimeout(90000);
 async function open(page){await page.goto('/');await page.waitForFunction(()=>!!window.studioProbe?.project);await page.evaluate(()=>studioProbe.project.ready());await expect(page.locator('#run-editor')).toBeEnabled();}
 const authoring=page=>page.evaluate(()=>studioProbe.editor.save());
 const snapshot=page=>page.evaluate(()=>studioProbe.request('snapshot'));
-async function run(page,x){await clickVisible(page,page.locator('#run-editor'));await expect(page.locator('#status')).toHaveText('Bloques ejecutados');await expect.poll(async()=>(await settled(snapshot,page)).x).toBe(x);}
+// Wait for this run's own session: from a text view, Run converts first and the
+// status still shows the previous «Bloques ejecutados» meanwhile (29/10/2026).
+async function run(page,x){const before=await page.evaluate(()=>studioProbe.state().sessionId);await clickVisible(page,page.locator('#run-editor'));await expect.poll(()=>page.evaluate(()=>studioProbe.state().sessionId)).not.toBe(before);await expect(page.locator('#status')).toHaveText('Bloques ejecutados');await expect.poll(async()=>(await settled(snapshot,page)).x).toBe(x);}
 async function mode(page,value){await clickVisible(page,page.locator('#program-mode input[value="'+value+'"]'));await expect(page.locator('#program-mode input[value="'+value+'"]')).toBeChecked();}
 test('CV-VIEWS-001: looking and returning preserves blocks, IDs, positions and active result',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));await open(page);await run(page,12);

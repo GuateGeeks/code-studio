@@ -182,6 +182,8 @@ Registro iniciado el 29/10/2026 para no perder lo aprendido entre sesiones. Una 
 
 ### Familia relacionada: un caso ajeno falla por corrida bajo carga
 
+**`CV-VIEWS-005` (29/10/2026, full conjunta intento 1 y foco de E1): carrera de la prueba, corregida.** Desde una vista de texto, Ejecutar convierte primero (Python tarda más bajo carga) y `#status` conserva mientras tanto el «Bloques ejecutados» de la ejecución anterior. El helper `run` aceptaba ese texto viejo y leía la escena durante su reemplazo: `GG scene loading`, que `settled` no reintenta. Lo demostró la traza (`toHaveText` aprobó a los 65 ms; después `Session stopped` y `GG scene loading`). La prueba ahora espera la sesión nueva de su propia ejecución antes del estado. Es más estricta, no más laxa: 42/42 en tres corridas con carga ~7. Evidencia en `artifacts/stabilization-2d/joint-20261029/`.
+
 [TEST-GATE-SCALING-RESULTS](TEST-GATE-SCALING-RESULTS.md) (24/10) registró 4 de 6 fulls fallidas por un solo caso (`GG-OFFLINE`, `GG-SB3-005`, `GG-ASSET-003` con otra sesión al 480 % de CPU) y la aprobación solo con las demás sesiones en pausa. La fase API3 terminó 199/200 por `GG-COPY-002 audioStop` (6/6 al repetir). De ahí la regla de iniciar la full con carga media de cinco minutos menor de 6 y no ejecutar suites simultáneas.
 
 ### Puertos ocupados por otros proyectos
