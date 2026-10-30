@@ -34,8 +34,9 @@ export function createGGBindings(getVM, getObjects = () => singleHero) {
   }
   const variable = id => {
     if (typeof id !== 'string' || !id.trim() || ['__proto__', 'prototype', 'constructor'].includes(id)) throw new Error('Unknown GG numeric variable');
-    const heroTarget = getVM().runtime.getSpriteTargetByName('hero');
-    const owners = [heroTarget?.isOriginal ? heroTarget : null, getVM().runtime.getTargetForStage()];
+    // Every sprite of the scene (a lesson reads the locals of its object, 3.2); hero alone otherwise.
+    const sprites = [...new Set(['hero', ...objects().map(object => object.id)])].map(name => getVM().runtime.getSpriteTargetByName(name));
+    const owners = [...sprites.filter(target => target?.isOriginal), getVM().runtime.getTargetForStage()];
     const matches = owners.filter(owner => owner && Object.hasOwn(owner.variables, id));
     if (matches.length > 1) throw new Error('Ambiguous GG numeric variable');
     const model = matches[0]?.variables[id];

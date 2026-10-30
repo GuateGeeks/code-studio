@@ -25,7 +25,7 @@ export const localPackCatalog = freezeData([
   {manifest: microbitPack, sha256: '1ce6214b23eb2a90a9c236bf5270fe61c69ec78ff9122690eb8800c0354d72cf'},
   {manifest: spritesPack, sha256: '225d6c992253966ac0645d9e73360c13da853787c0b02ff23c6cc9bdad6072d2'},
   {manifest: spritesPack02, sha256: '70475dfae3921d1ac28e862d30c2c31e815da2b2f1133060038f37c24c4e366a'},
-  {manifest: spritesPack03, sha256: '6e403217357ecd161473626ca0be4e5572ff7fb349ecbb08303da28cebd4400a'},
+  {manifest: spritesPack03, sha256: '4bbff5856635366d7bc416894a8dc18a1b4d2497dc999da061b303f58da250d0'},
   {manifest: scorePack01, sha256: 'fae8b8a0f9095df052a3aec6b849c118603ae23a9e957f87f3e321559667348b'},
   {manifest: scorePack02, sha256: 'eeab7a5d0e90bf23f4fd5e55d056ce61434c85f7cc82984e59248b45ff73f53c'}
 ]);

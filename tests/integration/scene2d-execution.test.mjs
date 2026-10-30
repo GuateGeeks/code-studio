@@ -353,12 +353,12 @@ test('MS-023: the broker authorizes IR v1 only on explicit opt-in, for the confi
   // IR0 still authorizes with the opt-in (text documents run IR0 on 0.3.0 profiles).
   const ir0 = irOf(heroPresents.blockly, sprites('0.2.0'));
   assert.deepEqual(authorizeProgram(two, ir0, {objects: true}), authorizeProgram(two, ir0));
-  // Resources are authorized against the script's owner: gg.assets grants hero's; others wait for per-object menus (3.2).
+  // Resources are authorized against the script's owner: each object has its own, and no other's (3.2).
   const assetsProfile = createCapabilities(['gg.sprites', 'gg.assets'], {versions: {'gg.sprites': '0.3.0', 'gg.assets': '0.2.0'}});
   assetsProfile.config['gg.sprites'] = scene();
   const costume = (targetId, value) => ({version: 1, sprites: ['hero', 'cesta'], scripts: [script(targetId, targetId + '-s', [node('setCostume', targetId + '-c', {costume: value})])]});
   assert.doesNotThrow(() => authorizeProgram(assetsProfile, costume('hero', 'hero-alt'), {objects: true, resourceView: view}));
-  assert.throws(() => authorizeProgram(assetsProfile, costume('cesta', 'cesta:c1'), {objects: true, resourceView: view}), /no declarado/);
+  assert.doesNotThrow(() => authorizeProgram(assetsProfile, costume('cesta', 'cesta:c1'), {objects: true, resourceView: view}));
   assert.throws(() => authorizeProgram(assetsProfile, costume('cesta', 'hero-alt'), {objects: true, resourceView: view}), /unsupported costume/);
 });
 

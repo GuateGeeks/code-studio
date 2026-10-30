@@ -44,12 +44,15 @@ test('MS-001: gg.sprites@0.3.0 is a frozen apiVersion 2 manifest that keeps the 
   assert.equal(entries[1].sha256, '70475dfae3921d1ac28e862d30c2c31e815da2b2f1133060038f37c24c4e366a');
   for (const item of entries) assert.equal(createHash('sha256').update(canonicalPackData(item.manifest)).digest('hex'), item.sha256);
   const [, previous, next] = entries.map(item => item.manifest);
-  // Same language table, blocks, rules, toolbox, resources and permissions: only the configuration changes.
+  // Same language table, blocks, rules, toolbox and resources. Beyond the
+  // configuration, the only change is that each object owns its resources (3.2).
   assert.equal(next.language, spriteLanguage02);
   assert.equal(languageTables['gg.sprites@0.3.0'], spriteLanguage02);
   assert.deepEqual(languageCoverage(localPackCatalog, {tables: languageTables}), {missing: [], orphan: [], core: []});
   assert.deepEqual(next.contributions, previous.contributions);
-  assert.deepEqual(next.permissions, previous.permissions);
+  const {objectResources, ...permissions} = next.permissions;
+  assert.equal(objectResources, true);
+  assert.deepEqual(permissions, previous.permissions);
   assert.deepEqual(next.resources, previous.resources);
   assert.deepEqual(next.dependencies, []);
   assert.deepEqual(next.defaults, defaults);

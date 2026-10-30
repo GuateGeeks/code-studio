@@ -280,10 +280,10 @@ test('MS-044: each object keeps its session: history and camera follow it, a sta
   const editor = {
     save: () => structuredClone(live.state), program: () => ({version: 0, scripts: []}), resourceView: () => null, programOf: () => ({version: 0, scripts: []}),
     captureCapabilities: () => structuredClone(profile),
-    prepare: (state, options) => ({state: structuredClone(state), scriptOrder: options.scriptOrder, capabilities: options.capabilities}),
-    commit(candidate) { live.state = structuredClone(candidate.state); },
-    sessionState: () => live.session, restoreSessionState(session) { live.restored.push(session); live.session = session; },
-    setStageToolbox(value) { live.stage = value; }
+    prepare: (state, options) => ({state: structuredClone(state), scriptOrder: options.scriptOrder, capabilities: options.capabilities, ownerId: options.ownerId}),
+    // The editor offers the toolbox of the object it holds (3.2).
+    commit(candidate) { live.state = structuredClone(candidate.state); live.stage = candidate.ownerId === 'stage'; },
+    sessionState: () => live.session, restoreSessionState(session) { live.restored.push(session); live.session = session; }
   };
   const authoring = createProjectAuthoring({editor, source: {value: ''}, codeViews: createCodeViewsState(), initialCapabilities: profile});
   const open = async id => authoring.commit(authoring.prepare(await createProject({name: 'Sesión', id, scene2d: {stage: {}, sprites: {hero: {}, cesta: {}}}, deviceSource: '', catalog, capabilities: profile})));

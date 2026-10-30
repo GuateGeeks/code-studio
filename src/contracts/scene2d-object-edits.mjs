@@ -4,6 +4,7 @@
 // the result as one project transaction: nothing here mounts, saves or runs.
 import {resolveCapabilities} from './packs.mjs';
 import {copyResourceOwner, resourceLimits} from './resources.mjs';
+import {applyStarterLibraryEntry} from './starter-library.mjs';
 import {normalizeScene2DSpriteName, scene2DObjectLimits, scene2DSpriteNameProblem, scene2DStageName, spriteNameKey, validateScene2DObjects} from './scene2d-objects.mjs';
 
 const fail = message => { throw new Error(message); };
@@ -34,7 +35,7 @@ export function scene2DObjectRules(capabilities) {
 }
 
 // Every block of a workspace, shadows included, wherever it is connected.
-function eachBlock(state, visit) {
+export function eachWorkspaceBlock(state, visit) {
   const connection = link => { for (const block of [link?.block, link?.shadow]) if (block) walk(block); };
   const walk = block => {
     visit(block);
@@ -49,7 +50,7 @@ function globalVariables(scene2d, rules) {
   for (const model of scene2d.stage?.variables ?? []) found.set(model.id, model);
   for (const state of Object.values(scene2d.sprites)) {
     const declared = new Set();
-    eachBlock(state, block => {
+    eachWorkspaceBlock(state, block => {
       const field = rules.globals.get(block.type);
       if (field) declared.add(block.fields?.[field]?.id);
     });
@@ -103,9 +104,16 @@ export function renameSceneObject({config, scene2d, codeViews}, {id, name}) {
   return {config: validateScene2DObjects(next), scene2d, codeViews, resources: null, id};
 }
 
-// A new object starts empty, with one costume of its source so that it can be
-// seen: the costume of the selected sprite, or of the first one from the stage.
-// It knows the scene's global variables, under the same IDs, and the stage keeps them.
+// A new object has one costume, no scripts and the scene's global variables,
+// under the same IDs; the stage keeps them.
+function withNewObject({config, scene2d, codeViews}, {id, name, costumeId, resources, rules}) {
+  const sprite = {id, name, ...freeSpot(config), direction: 90, size: 100, visible: true, costume: costumeId};
+  const globals = globalVariables(scene2d, rules);
+  return {id, config: validateScene2DObjects({...config, sprites: [...structuredClone(config.sprites), sprite]}), codeViews,
+    scene2d: {stage: stageWithGlobals(scene2d.stage, globals), sprites: {...scene2d.sprites, [id]: programFromVariables([...globals.values()])}}, resources};
+}
+// One costume of its source, so that it can be seen: the costume of the selected
+// sprite, or of the first one from the stage.
 export async function addSceneObject({config, scene2d, codeViews, resources}, {id, name, sourceId, rules}) {
   requireRoom(config);
   const normalized = checkedName(name, config);
@@ -115,13 +123,27 @@ export async function addSceneObject({config, scene2d, codeViews, resources}, {i
   const costume = candidates[0] ?? fail('No hay ningún disfraz que copiar para el objeto nuevo.');
   requireResourceRoom(resources, 1, 0);
   const copy = {...structuredClone(costume), id: id + ':c0', ownerId: id};
-  const sprite = {id, name: normalized, ...freeSpot(config), direction: 90, size: 100, visible: true, costume: copy.id};
-  const globals = globalVariables(scene2d, rules);
-  return {id, config: validateScene2DObjects({...config, sprites: [...structuredClone(config.sprites), sprite]}), codeViews,
-    scene2d: {stage: stageWithGlobals(scene2d.stage, globals), sprites: {...scene2d.sprites, [id]: programFromVariables([...globals.values()])}},
-    resources: {...structuredClone(resources), costumes: [...structuredClone(resources.costumes), copy]}};
+  return withNewObject({config, scene2d, codeViews}, {id, name: normalized, costumeId: copy.id, rules,
+    resources: {...structuredClone(resources), costumes: [...structuredClone(resources.costumes), copy]}});
+}
+// A sprite of the starter library, as a new object named like it: `prepared` is
+// the output of the installed media preparation for the entry's bytes.
+export async function addLibrarySceneObject({config, scene2d, codeViews, resources}, {id, entry, prepared, rules}) {
+  requireRoom(config);
+  requireResourceRoom(resources, 1, 0);
+  const name = uniqueScene2DSpriteName(normalizeScene2DSpriteName(entry.name).slice(0, scene2DObjectLimits.nameLength).trimEnd(), config);
+  const applied = await applyStarterLibraryEntry(resources, entry, prepared, {ownerId: id});
+  return withNewObject({config, scene2d, codeViews}, {id, name, costumeId: applied.descriptorId, resources: applied.resources, rules});
 }
 
+// The fixed menus of gg.sprites list hero's built-in resources, so a copy cannot
+// keep them: it gets the block of gg.assets, whose menu lists the object's own.
+// The transaction that applies a copy locks gg.assets, also if it was not there.
+const fixedResourceBlocks = Object.freeze({
+  gg_set_costume: {type: 'gg_assets_set_costume', field: 'COSTUME', resource: 'costumes'},
+  gg_play_sound: {type: 'gg_assets_play_sound', field: 'SOUND', resource: 'sounds'},
+  gg_play_sound_wait: {type: 'gg_assets_play_sound_wait', field: 'SOUND', resource: 'sounds'}
+});
 // New IDs for every block and local variable: a program's block IDs are unique
 // across objects, and a local shared by two objects would be rejected. Global
 // variables keep theirs (the copy shares them), and resource menus follow `mapping`.
@@ -133,13 +155,15 @@ function copiedWorkspace(state, {id, globals, mapping, rules}) {
     variableIds.set(model.id, next);
     model.id = next;
   });
-  eachBlock(copy, block => {
+  eachWorkspaceBlock(copy, block => {
     const next = `${id}:b${blockIds.size}`;
     blockIds.set(block.id, next);
     block.id = next;
     for (const field of Object.values(block.fields ?? {})) if (field && typeof field === 'object' && variableIds.has(field.id)) field.id = variableIds.get(field.id);
-    const menu = rules.menus.get(block.type);
-    if (menu && Object.hasOwn(mapping[menu.resource], block.fields?.[menu.field])) block.fields[menu.field] = mapping[menu.resource][block.fields[menu.field]];
+    const fixed = fixedResourceBlocks[block.type], menu = fixed ?? rules.menus.get(block.type);
+    if (!menu || !Object.hasOwn(mapping[menu.resource], block.fields?.[menu.field])) return;
+    block.fields[menu.field] = mapping[menu.resource][block.fields[menu.field]];
+    if (fixed) block.type = fixed.type;
   });
   return {state: copy, blockIds};
 }

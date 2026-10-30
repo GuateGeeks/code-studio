@@ -13,6 +13,9 @@ function operationPresent(body, check) {
   return body.some(node => (node.kind === check.operation && (check.operation === 'move' ? node.steps === check.steps : node.costume === check.costume)) ||
     operationPresent(node.body ?? [], check) || operationPresent(node.elseBody ?? [], check));
 }
+// An authored check reads the scripts of its object: IR 2D v1 of a whole scene, or
+// IR0, which is hero's. Whichever object is on screen, the answer is the same.
+const scriptsOf = (ir, targetId) => (ir?.scripts ?? []).filter(script => (script.targetId ?? 'hero') === targetId);
 export function evaluateLesson(lesson, {scene, variables = [], authoring = {}, identity, copyFacts = [], mode = 'main'}) {
   const model = validateLesson(lesson);
   const selectedSteps = lessonSteps(model, mode);
@@ -23,7 +26,7 @@ export function evaluateLesson(lesson, {scene, variables = [], authoring = {}, i
     variableValues.set(check.variableId, validateLessonVariable(reading, check.variableId).value);
   }
   let ir = null;
-  if (authoring.ir) { try { ir = validateProgram(authoring.ir); } catch {} }
+  if (authoring.ir) { try { ir = validateProgram(authoring.ir, {objects: true, ...(authoring.resourceView ? {resourceView: authoring.resourceView} : {})}); } catch {} }
   const matchingCopy = Array.isArray(copyFacts) && copyFacts.find(fact => fact && fact.documentId === identity?.documentId &&
     ['javascript', 'python'].includes(fact.language) && fact.language === identity.backend &&
     (fact.projectId === undefined || fact.projectId === identity.projectId) &&
@@ -31,18 +34,24 @@ export function evaluateLesson(lesson, {scene, variables = [], authoring = {}, i
   const steps = selectedSteps.map(step => {
     const checks = step.checks.map(check => {
       let passed = false; let message; let basis;
+      const targetId = check.targetId ?? 'hero';
       switch (check.kind) {
         case 'position': {
-          const observed = snapshot.sprites[0][check.axis];
+          const sprite = snapshot.sprites.find(item => item.id === targetId);
+          basis = 'execution';
+          if (!sprite) { message = `Lectura de ejecución: este proyecto no tiene a «${targetId}», y este paso lo necesita.`; break; }
+          const observed = sprite[check.axis];
           passed = Math.abs(observed - check.equals) <= check.tolerance;
-          message = `Lectura de ejecución: ${check.axis}=${observed}; meta ${check.equals}.`; basis = 'execution'; break;
+          message = `Lectura de ejecución: ${check.axis}=${observed}; meta ${check.equals}.`; break;
         }
         case 'variable': {
-          const observed = variableValues.get(check.variableId); passed = observed === check.equals;
+          // With an owner, the reading must be that object's local variable.
+          const owned = !Object.hasOwn(check, 'targetId') || snapshot.variables.some(item => item.id === check.variableId && (item.targetId ?? 'hero') === targetId);
+          const observed = variableValues.get(check.variableId); passed = owned && observed === check.equals;
           message = `Lectura de ejecución: Puntos=${observed}; meta ${check.equals}.`; basis = 'execution'; break;
         }
         case 'authored-operation':
-          passed = Boolean(ir?.scripts.some(script => operationPresent(script.body, check)));
+          passed = scriptsOf(ir, targetId).some(script => operationPresent(script.body, check));
           if (check.operation === 'move') message = passed ? `Autoría: tus bloques incluyen un movimiento de ${check.steps} pasos.`
             : `Autoría: tus bloques aún no tienen un movimiento de ${check.steps} pasos.`;
           else message = passed ? `Autoría: tu programa incluye el cambio al disfraz ${check.costume}. No se comprobaron píxeles.`

@@ -112,9 +112,11 @@ export const spritesPack02 = {
   }
 };
 
-// gg.sprites@0.3.0 (scene2d-multi-sprite, E2). Same vocabulary, language table,
-// resources and permissions as 0.2.0, whose manifest above stays frozen by its
-// hash. The configuration holds the stage and a list of 1–8 sprites; the
+// gg.sprites@0.3.0 (scene2d-multi-sprite, E2). Same vocabulary, language table
+// and resources as 0.2.0, whose manifest above stays frozen by its hash, and
+// the same permissions plus `objectResources`: a resource permission or menu
+// that names `hero` (gg.assets, frozen) means the object that owns the script.
+// The configuration holds the stage and a list of 1–8 sprites; the
 // 0.2.0 → 0.3.0 migration (initialScene → sprites[0] «hero», no block changes)
 // is a catalog record and 0.3.0 satisfies dependencies declared on 0.1.0
 // (catalog compatibility data).
@@ -123,7 +125,7 @@ export const spritesPack03 = {
   id: 'gg.sprites', version: '0.3.0', apiVersion: 2, dependencies: [], resources: [...spritesPack02.resources],
   configSchema: structuredClone(scene2DObjectsSchema), configValidator: 'scene2d-objects-v1',
   defaults: {stage: {backdrop: 'stage'}, sprites: [hero]}, variables: [], migrations: [],
-  permissions: structuredClone(spritesPack02.permissions),
+  permissions: {...structuredClone(spritesPack02.permissions), objectResources: true},
   language: spriteLanguage02,
   contributions: structuredClone(spritesPack02.contributions)
 };

@@ -8,8 +8,8 @@ const variable = node => `${quoted(node.name)} [${quoted(node.variableId)}]`;
 
 // IR0 only: just the resource view reaches the validator, so a forwarded
 // `objects` option can never open it to IR 2D v1 (2.2 adds per-object listings).
-export function generateCode(ir,{resourceView}={}) {
-  validateProgram(ir,{resourceView});
+export function generateCode(ir,{resourceView,resourceOwnerId}={}) {
+  validateProgram(ir,{resourceView,...(resourceOwnerId?{resourceOwnerId}:{})});
   const lines = [];
   const sourceMap = [];
   function line(text, ids = [], depth = 0) {

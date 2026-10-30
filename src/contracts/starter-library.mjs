@@ -74,8 +74,10 @@ async function edit(resources,change){try{return await applyResourceEdit(resourc
 export const starterOwners=Object.freeze({sprite:'hero',stage:'stage'});
 
 // resources: validated gg-resources-v1 projection; prepared: output of the
-// installed media preparation (prepareAsset) for the entry's bytes.
-export async function applyStarterLibraryEntry(resources,entry,prepared){
+// installed media preparation (prepareAsset) for the entry's bytes. ownerId:
+// the object that receives a costume or a sound (hero by default); a backdrop
+// is always the stage's.
+export async function applyStarterLibraryEntry(resources,entry,prepared,{ownerId=starterOwners.sprite}={}){
  checkPrepared(entry,prepared);
  if(resources?.version!==1)fail('se requiere la proyección de recursos 2D');
  if(entry.kind==='backdrop'){
@@ -85,12 +87,12 @@ export async function applyStarterLibraryEntry(resources,entry,prepared){
   return {resources:await edit(resources,{type:'replace-costume',descriptor,prepared:{id:prepared.id,asset:prepared.asset,integrity:prepared.integrity}}),status:'backdrop',descriptorId:descriptor.id};
  }
  const sound=entry.kind==='sound',items=sound?resources.sounds:resources.costumes;
- const existing=items.find(item=>item.ownerId===starterOwners.sprite&&item.assetId===prepared.id);
+ const existing=items.find(item=>item.ownerId===ownerId&&item.assetId===prepared.id);
  if(existing)return {resources:cloneValidatedResources(resources),status:'present',descriptorId:existing.id};
  const limit=sound?resourceLimits.sounds:resourceLimits.costumes;
  if(items.length>=limit)fail('tu proyecto ya tiene '+limit+(sound?' sonidos':' disfraces')+', el máximo. Reemplaza uno existente antes de añadir otro.');
  if(!Object.hasOwn(resources.assets,prepared.id)&&Object.keys(resources.assets).length>=resourceLimits.assets)throw friendly(new Error('cuota'));
- const descriptor={id:descriptorId(resources,entry.id),ownerId:starterOwners.sprite,name:entry.name,assetId:prepared.id,
+ const descriptor={id:descriptorId(resources,entry.id),ownerId,name:entry.name,assetId:prepared.id,
   ...(sound?{}:{centerX:entry.centerX,centerY:entry.centerY,bitmapResolution:1})};
  return {resources:await edit(resources,{type:sound?'replace-sound':'replace-costume',descriptor,prepared:{id:prepared.id,asset:prepared.asset,integrity:prepared.integrity}}),status:'added',descriptorId:descriptor.id};
 }

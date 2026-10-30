@@ -1,8 +1,10 @@
 import {lessonDefinitions} from './assets/lessons/catalog.mjs';
+import {isScene2DSpriteId} from './contracts/scene2d-objects.mjs';
 
 export const lessonLimits = Object.freeze({lessons: 8, steps: 8, checks: 8, hints: 3, bytes: 131072});
 const fail = message => { throw new Error(`Actividad: ${message}`); };
 const id = value => typeof value === 'string' && /^[a-z][a-z0-9-]{0,63}$/.test(value);
+const isResourceId = value => typeof value === 'string' && /^[A-Za-z0-9:_-]{1,128}$/.test(value) && !['__proto__', 'constructor', 'prototype'].includes(value);
 function text(value, maximum = 1024) { if (typeof value !== 'string' || !value.trim() || value.length > maximum) fail('texto inválido'); }
 function object(value, fields) {
   if (!value || typeof value !== 'object' || Array.isArray(value) || ![Object.prototype, null].includes(Object.getPrototypeOf(value)) ||
@@ -15,25 +17,33 @@ function json(value, depth = 0) {
   if (Array.isArray(value) && (Object.keys(value).length !== value.length || Array.from({length: value.length}, (_, index) => index).some(index => !Object.hasOwn(value, index)))) fail('array disperso o con metadatos');
   for (const [key, child] of Object.entries(value)) { if (['__proto__', 'constructor', 'prototype'].includes(key)) fail('propiedad peligrosa'); json(child, depth + 1); }
 }
+// Optional owner of a check (scene2d-multi-sprite 3.2); without it, hero, as every
+// stored activity. The stage has variables and scripts, but no position.
+function target(check, fields, {stage = true} = {}) {
+  if (!Object.hasOwn(check, 'targetId')) { object(check, fields); return; }
+  object(check, [...fields, 'targetId']);
+  if (!isScene2DSpriteId(check.targetId) && !(stage && check.targetId === 'stage')) fail('objeto de la comprobación inválido');
+}
 export function validateLessonCheck(check) {
   switch (check?.kind) {
     case 'position':
-      object(check, ['kind', 'axis', 'equals', 'tolerance']);
+      target(check, ['kind', 'axis', 'equals', 'tolerance'], {stage: false});
       if (!['x', 'y'].includes(check.axis) || !Number.isFinite(check.equals) || Math.abs(check.equals) > 1e6 ||
           !Number.isFinite(check.tolerance) || check.tolerance < 0 || check.tolerance > 1) fail('posición inválida');
       break;
     case 'variable':
-      object(check, ['kind', 'variableId', 'equals']); text(check.variableId, 128);
+      target(check, ['kind', 'variableId', 'equals'], {stage: false}); text(check.variableId, 128);
       if (['__proto__', 'constructor', 'prototype'].includes(check.variableId) || !Number.isFinite(check.equals) || Math.abs(check.equals) > 1e6) fail('variable inválida');
       break;
     case 'authored-operation':
       if (check.operation === 'move') {
-        object(check, ['kind', 'operation', 'steps']);
+        target(check, ['kind', 'operation', 'steps']);
         if (!Number.isFinite(check.steps) || Math.abs(check.steps) > 1e6) fail('operación de autoría no admitida');
         break;
       }
-      object(check, ['kind', 'operation', 'costume']);
-      if (check.operation !== 'setCostume' || !['hero', 'hero-alt'].includes(check.costume)) fail('operación de autoría no admitida');
+      target(check, ['kind', 'operation', 'costume']);
+      // Only hero's built-in costumes exist in every project; another object's needs its owner.
+      if (check.operation !== 'setCostume' || !(['hero', 'hero-alt'].includes(check.costume) || (Object.hasOwn(check, 'targetId') && isResourceId(check.costume)))) fail('operación de autoría no admitida');
       break;
     case 'text-copy': case 'blocks-unchanged': case 'edited-in-text': object(check, ['kind']); break;
     default: fail('predicado no admitido');

@@ -265,7 +265,7 @@ export function parseJavaScriptCodeView(source, {capabilities = null, resourceVi
   scripts.forEach(script => walk(script.body));
   for (const model of variables.values()) if (model.scope === 'global' && declarations.has(model.id) && !plan.variables.some(variable => variable.id === model.id) && !seenAssignments.has(model.id))
     reject('La variable shared necesita una asignación global dentro de un evento para conservar su bloque.', declarations.get(model.id));
-  try { validateProgram(ir, {resourceView}); }
+  try { validateProgram(ir, {resourceView, resourceOwnerId: owner.targetId}); }
   catch (error) {
     const location = sourceLocations.find(item => item.sourceBlockId === error.sourceBlockId);
     throw Object.assign(new Error('El programa no cumple los límites de sus bloques: ' + error.message),

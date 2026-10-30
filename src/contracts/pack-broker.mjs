@@ -36,16 +36,21 @@ function permittedVariable(pack, id, variables) {
   if (restriction === 'declared') return true;
   return restriction && id === pack.config[restriction.config] && (declaration.scope ?? 'local') === restriction.scope;
 }
-// ownerId: the object whose script uses the resource (IR v1), hero for IR0 and
-// text programs. A pack restriction names its owner; until per-object resource
-// menus (scene2d-multi-sprite 3.2) no installed pack grants another object's.
-function resourceAllowed(restriction,id,kind,resourceView,ownerId='hero') {
- const descriptor=resourceView?(kind==='costumes'?getResourceCostume(resourceView,id,ownerId):getResourceSound(resourceView,id,ownerId)):null;
+// ownerId: the object whose script uses the resource (hero for IR0 by default).
+// A pack restriction names its owner; with gg.sprites@0.3.0 (`objectResources`,
+// scene2d-multi-sprite 3.2) that owner stands for the script's object, so what
+// counts is that the object owns the resource. A text call names no object
+// (ownerId null): any object's resource passes here and the scene refuses
+// another object's, because it runs the call on the calling target.
+const declaresObjectResources = plan => plan.packs.some(pack => pack.manifest.permissions?.objectResources === true);
+function resourceAllowed(restriction,id,kind,resourceView,ownerId,perObject) {
+ const owner=ownerId??undefined,descriptor=resourceView?(kind==='costumes'?getResourceCostume(resourceView,id,owner):getResourceSound(resourceView,id,owner)):null;
  if(resourceView&&!descriptor)return false;
- if(Array.isArray(restriction))return ownerId==='hero'&&restriction.includes(id);
- return !!resourceView&&restriction?.resource===kind&&restriction.ownerId===ownerId&&!!descriptor;
+ if(Array.isArray(restriction))return (ownerId===null||ownerId==='hero')&&restriction.includes(id);
+ return !!resourceView&&restriction?.resource===kind&&(perObject||restriction.ownerId===ownerId)&&!!descriptor;
 }
 function authorize(plan, method, args, variables, principal = null,resourceView=null,ownerId='hero') {
+  const perObject = declaresObjectResources(plan);
   const packs = principal === null ? plan.packs : plan.packs.filter(pack => pack.manifest.id === principal);
   if (!packs.length) fail('cliente de pack desconocido');
   const variableIds = [];
@@ -60,8 +65,8 @@ function authorize(plan, method, args, variables, principal = null,resourceView=
     const permissions = pack.manifest.permissions;
     if (!permissions.operations.includes(method) || variableIds.some(id => !permittedVariable(pack, id, variables))) return false;
     if (method.startsWith('sprite.') && !permissions.sprites.includes(args[0])) return false;
-    if (method === 'program.playSound' && !resourceAllowed(permissions.sounds,args[1],'sounds',resourceView,ownerId)) return false;
-    if (method === 'program.setCostume' && !resourceAllowed(permissions.costumes,args[1],'costumes',resourceView,ownerId)) return false;
+    if (method === 'program.playSound' && !resourceAllowed(permissions.sounds,args[1],'sounds',resourceView,ownerId,perObject)) return false;
+    if (method === 'program.setCostume' && !resourceAllowed(permissions.costumes,args[1],'costumes',resourceView,ownerId,perObject)) return false;
     return true;
   });
   if (!allowed) fail('operación o recurso no declarado: ' + method);
@@ -76,18 +81,19 @@ export function authorizeProjectOperation(capabilities, method, args, {variables
     request = validateLanguageRPC(method, [descriptor]);
     variables = descriptor.variables;
   } else request = validateLanguageRPC(method, args);
-  authorize(plan, request.method, request.args, variables,null,resourceView);
+  authorize(plan, request.method, request.args, variables,null,resourceView,declaresObjectResources(plan)?null:'hero');
   return request;
 }
 // IR 2D v1 is accepted only with an explicit `objects: true` from a caller that
 // runs every object (the simulator boundary for 0.3.0 scenes); the program
 // must name exactly the configured objects, in order. IR0 stays accepted.
-export function authorizeProgram(capabilities, ir,{resourceView,objects=false}={}) {
+// ownerId: the object an IR0 belongs to (one workspace of a scene); hero by default.
+export function authorizeProgram(capabilities, ir,{resourceView,objects=false,ownerId=null}={}) {
   if(resourceView)resourceView=validateResourceView(resourceView);
   const plan = resolveCapabilities(capabilities);
   const result = structuredClone(ir);
   if (plan.variables.length || Object.hasOwn(result, 'variables')) result.variables = defaults(result.variables, plan);
-  validateProgram(result,{resourceView,objects:objects===true});
+  validateProgram(result,{resourceView,objects:objects===true,...(ownerId?{resourceOwnerId:ownerId}:{})});
   if (result.version === 1) {
     const configured = plan.packs.find(pack => pack.manifest.id === 'gg.sprites')?.config?.sprites;
     if (!Array.isArray(configured) || configured.length !== result.sprites.length || configured.some((sprite, index) => sprite.id !== result.sprites[index]))
@@ -119,7 +125,7 @@ export function authorizeProgram(capabilities, ir,{resourceView,objects=false}={
       valueReference(node.value); for (const field of expressionFields[node.kind] ?? []) valueReference(node[field]);
     }
   }
-  for (const script of result.scripts) { owner = script.targetId ?? 'hero'; statements(script.body); }
+  for (const script of result.scripts) { owner = script.targetId ?? ownerId ?? 'hero'; statements(script.body); }
   return result;
 }
 // The client principal is captured by trusted host code. No imported request
@@ -133,7 +139,7 @@ export function createCapabilityBroker({capabilities = null, call, getContext = 
     const variables = context.variables ?? declarations;
     const request = authorizeProjectOperation(captured, method, args, {variables,resourceView:context.resourceView});
     if (principal !== null) authorize(resolveCapabilities(captured), request.method, request.args,
-      method === 'program.start' ? request.args[0].variables : variables, principal,context.resourceView);
+      method === 'program.start' ? request.args[0].variables : variables, principal,context.resourceView,declaresObjectResources(resolveCapabilities(captured))?null:'hero');
     if (method !== 'program.start') return call(request.method, request.args);
     if (configuring) fail('activación de programa pendiente');
     configuring = true;

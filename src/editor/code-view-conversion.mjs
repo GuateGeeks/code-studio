@@ -18,10 +18,10 @@ function blocks(state) {
   for (const block of state.blocks?.blocks ?? []) visit(block);
   return result;
 }
-export function captureCodeViewSnapshot(state, {capabilities = null, resourceView = null, scriptOrder = null} = {}) {
-  const workspace = loadWorkspace(structuredClone(state), {capabilities, resourceView});
+export function captureCodeViewSnapshot(state, {capabilities = null, resourceView = null, scriptOrder = null, ownerId = null} = {}) {
+  const workspace = loadWorkspace(structuredClone(state), {capabilities, resourceView, ownerId});
   try {
-    return {state: saveWorkspace(workspace), ir: workspaceToIR(workspace, {capabilities, resourceView, scriptOrder}), scriptOrder: structuredClone(scriptOrder),
+    return {state: saveWorkspace(workspace), ir: workspaceToIR(workspace, {capabilities, resourceView, scriptOrder, ownerId}), scriptOrder: structuredClone(scriptOrder), ownerId,
       numericInputIdentity: captureNumericInputIdentity(workspace),
       layout: workspace.getTopBlocks(true).map(block => ({sourceBlockId: block.id, ...block.getRelativeToSurfaceXY()})),
       capabilities: structuredClone(capabilities), resourceView: structuredClone(resourceView)};
@@ -81,10 +81,11 @@ function validateMetadata(parsed) {
 // objects of a scene, so its new ones carry it; hero's stay as they always were.
 export function prepareCodeViewCandidate(snapshot, parsed, {targetId = 'hero'} = {}) {
   if (!plain(parsed)) throw new Error('Metadatos de conversión inválidos.');
-  const candidate = authorizeProgram(snapshot.capabilities, parsed.ir, {resourceView: snapshot.resourceView});
+  const ownerId = snapshot.ownerId ?? null;
+  const candidate = authorizeProgram(snapshot.capabilities, parsed.ir, {resourceView: snapshot.resourceView, ownerId});
   validateMetadata(parsed);
   const result = reconcileCodeViewIdentity(snapshot.ir, candidate, {...snapshot, resourceView: snapshot.resourceView, idPrefix: targetId === 'hero' ? '' : targetId.slice(0, 96) + '-'});
-  const state = workspaceFromIR(result.ir, {...result, capabilities: snapshot.capabilities, resourceView: snapshot.resourceView});
+  const state = workspaceFromIR(result.ir, {...result, capabilities: snapshot.capabilities, resourceView: snapshot.resourceView, ownerId});
   const old = blocks(snapshot.state), next = blocks(state);
   for (const [id, block] of next) {
     const original = old.get(id);
@@ -113,11 +114,11 @@ export function prepareCodeViewCandidate(snapshot, parsed, {targetId = 'hero'} =
     const block = next.get(id);
     block.icons = {comment: {...(block.icons?.comment ?? {pinned: false, width: 160, height: 80}), text: comments.join('\n')}};
   }
-  const workspace = loadWorkspace(state, {capabilities: snapshot.capabilities, resourceView: snapshot.resourceView});
+  const workspace = loadWorkspace(state, {capabilities: snapshot.capabilities, resourceView: snapshot.resourceView, ownerId});
   try {
     return {state: saveWorkspace(workspace), capabilities: structuredClone(snapshot.capabilities),
-      resourceView: structuredClone(snapshot.resourceView), ir: workspaceToIR(workspace,
-        {capabilities: snapshot.capabilities, resourceView: snapshot.resourceView, scriptOrder: result.scriptOrder}),
+      resourceView: structuredClone(snapshot.resourceView), ownerId, ir: workspaceToIR(workspace,
+        {capabilities: snapshot.capabilities, resourceView: snapshot.resourceView, scriptOrder: result.scriptOrder, ownerId}),
       scriptOrder: result.scriptOrder, sourceLocations: locations, identityMatches: result.matches};
   } finally { workspace.dispose(); }
 }

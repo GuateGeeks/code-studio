@@ -1,6 +1,8 @@
 import {validateCapabilities,resolveResourcePolicy,selectCapabilityLocksForContext,validateCapabilityReferences} from './contracts/packs.mjs';
 import {scene2DObjectsOf,scene2DAuthoringFromBlockly} from './project-format.mjs';
 import {composeScene2DProgram} from './contracts/program-contract.mjs';
+import {eachWorkspaceBlock} from './contracts/scene2d-object-edits.mjs';
+import {scene2DStageName} from './contracts/scene2d-objects.mjs';
 
 // Injected participants own live drafts. This coordinator owns profile metadata
 // and transaction capabilities, never a second mutable workspace.
@@ -17,7 +19,6 @@ export function createProjectAuthoring({editor,textDocuments,codeViews,source,ca
  // Blockly history and camera of the objects not in the editor (session only,
  // never saved). They belong to one project: another project starts clean.
  const sessions=new Map();let sessionProject=null;
- const offerStageToolbox=()=>editor.setStageToolbox?.(objects?.mounted==='stage');
  function objectsOf(model,capabilities,views){
   const config=scene2DObjectsOf(capabilities);if(!config)return null;
   const primary=config.sprites[0].id,mounted=views?.version===2?views.objectId:primary;
@@ -80,34 +81,66 @@ export function createProjectAuthoring({editor,textDocuments,codeViews,source,ca
  // sprites, each lowered headless with the same profile and resources. Pure
  // reading: nothing is mounted, saved or run.
  const emptyWorkspace=state=>!state?.blocks?.blocks?.length&&!state?.variables?.length;
- function sceneProgram() {
-  const mounted=editor.program();
-  if(!objects)return mounted;
+ const sceneConfig=()=>{
   const config=scene2DObjectsOf(projectExecution(template,'scratch-2d'));
   if(!config)throw new Error('El perfil 2D perdió sus objetos.');
-  const lower=state=>{
-   if(emptyWorkspace(state))return {version:0,scripts:[]};
-   if(typeof editor.programOf!=='function')throw new Error('Este editor no puede convertir los scripts de otros objetos.');
-   return editor.programOf(structuredClone(state));
-  };
-  return composeScene2DProgram(config,{stage:objects.mounted==='stage'?mounted:lower(objects.scene2d.stage),
-   sprites:Object.fromEntries(config.sprites.map(sprite=>[sprite.id,sprite.id===objects.mounted?mounted:lower(objects.scene2d.sprites[sprite.id])]))});
+  return config;
+ };
+ // A program that cannot be lowered names its object: the student must be able
+ // to find it among the others, and the failure keeps its block and target.
+ function objectProgram(config,id){
+  if(id===objects.mounted)return editor.program();
+  const state=objectWorkspace(objects,id);
+  if(emptyWorkspace(state))return {version:0,scripts:[]};
+  if(typeof editor.programOf!=='function')throw new Error('Este editor no puede convertir los scripts de otros objetos.');
+  try{return editor.programOf(structuredClone(state),{ownerId:id});}
+  catch(error){error.targetId=id;error.message='«'+(config.sprites.find(sprite=>sprite.id===id)?.name??scene2DStageName)+'»: '+error.message;throw error;}
  }
- // Puts another object in the single editor (2.2): the coordinator stores the
- // outgoing workspace only after the incoming one validated and loaded, so a
- // rejected object changes nothing. Nothing runs. The panel arrives with 3.1.
+ function sceneProgram() {
+  if(!objects)return editor.program();
+  const config=sceneConfig();
+  return composeScene2DProgram(config,{stage:objectProgram(config,'stage'),
+   sprites:Object.fromEntries(config.sprites.map(sprite=>[sprite.id,objectProgram(config,sprite.id)]))});
+ }
+ // The Scratch export is of one sprite (IR0), hero: a copy of several objects is
+ // not offered (R5). Whichever object is on screen, it exports hero's program.
+ function exportProgram() {
+  if(!objects)return editor.program();
+  const config=sceneConfig();
+  if(config.sprites.length!==1||config.sprites[0].id!=='hero')throw new Error('Exportar a Scratch funciona, por ahora, con un solo objeto: hero. Este proyecto tiene otros objetos. Se guardan al descargar el proyecto.');
+  if(objectProgram(config,'stage').scripts.length)throw new Error('Exportar a Scratch funciona, por ahora, sin scripts en el escenario. Se guardan al descargar el proyecto.');
+  return objectProgram(config,'hero');
+ }
+ // The program's identity: the whole scene, whichever object is on screen.
+ function blocksKey(){
+  const live=editor.save();
+  if(!objects)return JSON.stringify(live);
+  return JSON.stringify({stage:objects.mounted==='stage'?live:objects.scene2d.stage,sprites:objects.mounted==='stage'?objects.scene2d.sprites:{...objects.scene2d.sprites,[objects.mounted]:live}});
+ }
+ // Which object holds a block: source IDs are unique across a scene (1.4).
+ function objectOfBlock(id){
+  if(!objects)return null;
+  const holds=state=>{let found=false;eachWorkspaceBlock(state,block=>{found||=block.id===id;});return found;};
+  if(holds(editor.save()))return objects.mounted;
+  return ['stage',...Object.keys(objects.scene2d.sprites)].find(key=>key!==objects.mounted&&holds(objectWorkspace(objects,key)))??null;
+ }
+ // Puts another object in the single editor (2.2): the incoming workspace is
+ // validated first, and a failed commit puts the object back, so a rejected
+ // object changes nothing. Nothing runs. The panel arrives with 3.1.
  function mountObject(id,{scriptOrder=null}={}) {
   if(!objects)throw new Error('Este proyecto tiene un solo objeto.');
   if(id!=='stage'&&!Object.hasOwn(objects.scene2d.sprites,id))throw new Error('Objeto desconocido.');
   if(id===objects.mounted)return;
   const resourceView=editor.resourceView?.()??null;
-  const candidate=editor.prepare(structuredClone(objectWorkspace(objects,id)),{scriptOrder,capabilities:projectExecution(template,'scratch-2d',{allowInactive:true}),...(resourceView?{resourceView}:{})});
+  const candidate=editor.prepare(structuredClone(objectWorkspace(objects,id)),{scriptOrder,ownerId:id,lower:false,capabilities:projectExecution(template,'scratch-2d',{allowInactive:true}),...(resourceView?{resourceView}:{})});
   const outgoing=editor.save(),session=editor.sessionState?.();
   muted++;
   try{
-   editor.commit(candidate);storeWorkspace(objects,objects.mounted,outgoing);
-   if(session)sessions.set(objects.mounted,session);
-   objects.mounted=id;offerStageToolbox();
+   // The object changes before the editor speaks: whoever it notifies reads
+   // the scene as it will be. The stored workspace is the one the editor holds.
+   const from=objects.mounted;storeWorkspace(objects,from,outgoing);objects.mounted=id;
+   try{editor.commit(candidate);}catch(error){objects.mounted=from;throw error;}
+   if(session)sessions.set(from,session);
    editor.restoreSessionState?.(sessions.get(id)??null);sessions.delete(id);
   }finally{muted--;}
   emit();
@@ -135,7 +168,7 @@ export function createProjectAuthoring({editor,textDocuments,codeViews,source,ca
   const scene2d=objectsOf(model,capabilities,viewsCandidate);
   const plan={
    projectId:model.project?.id??null,capabilities,resourceCandidate,objects:scene2d,
-   editor:editor.prepare(scene2d?objectWorkspace(scene2d,scene2d.mounted):model.authoring.blockly,{scriptOrder:viewsCandidate?.entries.find(entry=>entry.contextId==='2d')?.scriptOrder??null,capabilities:projectExecution(capabilities,'scratch-2d',{allowInactive:true}),...(resourceView?{resourceView}:{})}),
+   editor:editor.prepare(scene2d?objectWorkspace(scene2d,scene2d.mounted):model.authoring.blockly,{scriptOrder:viewsCandidate?.entries.find(entry=>entry.contextId==='2d')?.scriptOrder??null,ownerId:scene2d?.mounted??null,capabilities:projectExecution(capabilities,'scratch-2d',{allowInactive:true}),...(resourceView?{resourceView}:{})}),
    text:textCandidate,codeViews:viewsCandidate,
    source:model.authoring.deviceSource,
    managed:[...managed].map(([id,participant])=>{const config=capabilities?.config[id]??null;const contextId=(participant.contexts??[participant.context??participant.id])[0];const view=resourceStore?.candidateView(resourceCandidate,{contextId,documentId:config?.documentId});return {id,candidate:participant.prepareConfig(config,{resources,resourceView:view,textDocuments:model.authoring.textDocuments??[]})};})
@@ -157,7 +190,7 @@ export function createProjectAuthoring({editor,textDocuments,codeViews,source,ca
   const saved=checkpoints.get(token);if(!saved)throw new TypeError('El borrador no pertenece a este coordinador.');
   const failures=[];muted++;
   try {
-   template=structuredClone(saved.template);objects=structuredClone(saved.objects);offerStageToolbox();
+   template=structuredClone(saved.template);objects=structuredClone(saved.objects);
    try {if(resourceStore)resourceStore.restoreDraft(saved.resources,{silent:true});}catch(error){failures.push(error);}
    try {if(saved.editor&&editor.restoreDraft)editor.restoreDraft(saved.editor);else editor.commit({state:structuredClone(saved.blockly),capabilities:structuredClone(saved.editorCapabilities)});}catch(error){failures.push(error);}
    try {if(codeViews)codeViews.restoreDraft(saved.codeViews);}catch(error){failures.push(error);}
@@ -183,7 +216,6 @@ export function createProjectAuthoring({editor,textDocuments,codeViews,source,ca
    source.value=plan.source;template=templateOf(plan.capabilities);objects=structuredClone(plan.objects);
    if(codeViews)codeViews.commit(plan.codeViews);
    if(plan.projectId!==sessionProject){sessions.clear();sessionProject=plan.projectId;}
-   offerStageToolbox();
   }catch(error){failed=error;}
   finally{muted--;}
   if(!failed)try{emit();}catch(error){failed=error;}
@@ -198,7 +230,7 @@ export function createProjectAuthoring({editor,textDocuments,codeViews,source,ca
   const unsubscribe=participant.subscribe(emit);if(typeof unsubscribe==='function')disposers.push(unsubscribe);
  }
  if(source.addEventListener){source.addEventListener('input',emit);disposers.push(()=>source.removeEventListener('input',emit));}
- return Object.freeze({capture,sceneProgram,mountObject,mountedObject:()=>objects?.mounted??null,captureCapabilities,capabilities:captureCapabilities,captureExecutionCapabilities,prepareCapabilities,prepare,commit,checkpoint,restoreDraft,
+ return Object.freeze({capture,sceneProgram,exportProgram,blocksKey,objectOfBlock,mountObject,mountedObject:()=>objects?.mounted??null,captureCapabilities,capabilities:captureCapabilities,captureExecutionCapabilities,prepareCapabilities,prepare,commit,checkpoint,restoreDraft,
   subscribe(callback){subscribers.add(callback);return()=>subscribers.delete(callback);},
   dispose(){disposed=true;for(const dispose of disposers)dispose();subscribers.clear();}
  });

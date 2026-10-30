@@ -163,12 +163,12 @@ export function generateProgramSource(ir, language,options={}) {
 // this is, from scene2DTextOwner. Its sprite actions and sprite events use its
 // identifier (`cesta.move(10)`, `cesta.onClick`); global events stay at the top
 // level. The stage has no sprite actions and cannot clone itself. Without an
-// owner the program is hero's, exactly as before. Only `resourceView` reaches
-// the validator: the generator stays closed to IR v1.
+// owner the program is hero's, exactly as before. Only `resourceView` and the
+// owner reach the validator: the generator stays closed to IR v1.
 const heroOwner = Object.freeze({identifier: 'hero', kind: 'sprite', targetId: 'hero', others: Object.freeze({})});
 export function generateApi3ProgramSource(ir, language, options = {}) {
-  validateProgram(ir, {resourceView: options.resourceView});
   const owner = options.owner === undefined ? heroOwner : validateScene2DTextOwner(options.owner);
+  validateProgram(ir, {resourceView: options.resourceView, resourceOwnerId: owner.targetId});
   return writeApi3(ir, language, {owner, taken: [owner.identifier, ...Object.keys(owner.others)]});
 }
 // Copy of a whole gg.sprites@0.3.0 project from its IR 2D v1, the one route that

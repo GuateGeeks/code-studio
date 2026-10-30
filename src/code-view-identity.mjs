@@ -52,8 +52,9 @@ function align(old, next) {
   return pairs;
 }
 
-export function reconcileCodeViewIdentity(previous, candidate, {numericInputIdentity = [], layout = [], resourceView, idPrefix = ''} = {}) {
-  validateProgram(previous, {resourceView}); validateProgram(candidate, {resourceView});
+export function reconcileCodeViewIdentity(previous, candidate, {numericInputIdentity = [], layout = [], resourceView, idPrefix = '', ownerId = null} = {}) {
+  const options = {resourceView, ...(ownerId ? {resourceOwnerId: ownerId} : {})};
+  validateProgram(previous, options); validateProgram(candidate, options);
   const before = signature(candidate), ir = structuredClone(candidate);
   const oldNodes = nodes(previous), nextNodes = nodes(ir), oldIDs = new Set(oldNodes.map(node => node.sourceBlockId));
   if (!Array.isArray(numericInputIdentity) || numericInputIdentity.length > programLimits.nodes * 2) throw new Error('Identidad numérica inválida.');
@@ -122,7 +123,7 @@ export function reconcileCodeViewIdentity(previous, candidate, {numericInputIden
       rootPoints.set(point.sourceBlockId, point); retainedLayout.push(point);
     }
   }
-  validateProgram(ir, {resourceView});
+  validateProgram(ir, options);
   if (signature(ir) !== before) {
     // Variable IDs are identity too; compare semantics after normalizing them.
     const strip = value => JSON.stringify(value, (key, item) => ['sourceBlockId', 'variableId', 'id'].includes(key) ? undefined : item);

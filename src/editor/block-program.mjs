@@ -3,7 +3,7 @@ import 'blockly/blocks';
 
 import {createContributions, registerContributions} from './contributions.mjs';
 import {authorizeProgram} from '../contracts/pack-broker.mjs';
-import {getWorkspaceResourceView,setWorkspaceResourceView} from './resource-menus.mjs';
+import {getWorkspaceResourceOwner,getWorkspaceResourceView,missingResource,setWorkspaceResourceOwner,setWorkspaceResourceView} from './resource-menus.mjs';
 import {registerCoreBlocks} from './core-blocks.mjs';
 import {offeredCoreStructures} from '../contracts/language-table.mjs';
 registerCoreBlocks(Blockly);
@@ -24,7 +24,19 @@ function numericInput(block, name) {
   return number;
 }
 
-export function workspaceToIR(workspace, {capabilities = null, resourceView = getWorkspaceResourceView(workspace), scriptOrder = null} = {}) {
+// The top blocks in the saved order of scripts, when there is one.
+export function orderedRoots(workspace, scriptOrder) {
+  const roots = workspace.getTopBlocks(true);
+  if (scriptOrder === null || scriptOrder === undefined) return roots;
+  const byID = new Map(roots.map(block => [block.id, block]));
+  if (!Array.isArray(scriptOrder) || scriptOrder.length !== roots.length || scriptOrder.length > 16 ||
+      new Set(scriptOrder).size !== scriptOrder.length || scriptOrder.some(id => !byID.has(id)))
+    throw new Error('El orden de eventos no coincide con los bloques del programa.');
+  return scriptOrder.map(id => byID.get(id));
+}
+// ownerId (scene2d-multi-sprite 3.2): the object this workspace programs. Its
+// menus and resources are that object's; null keeps the owner the pack names.
+export function workspaceToIR(workspace, {capabilities = null, resourceView = getWorkspaceResourceView(workspace), scriptOrder = null, ownerId = getWorkspaceResourceOwner(workspace)} = {}) {
   const contributions = registerContributions(Blockly, createContributions(capabilities));
   // Scope belongs to the GG program, identified by the stable Blockly variable
   // ID. A global assignment declares that ID for all scripts and clone reads.
@@ -61,7 +73,10 @@ export function workspaceToIR(workspace, {capabilities = null, resourceView = ge
         if (source.type === 'text' && (typeof value !== 'string' || value.length > 330 || /[\u0000-\u001f\u007f]/.test(value)))
           throw blockError('Texto no válido (hasta 330 caracteres, sin saltos de línea) en ' + block.id, block);
       } else throw blockError('Unsupported declarative lowering at ' + block.id, block);
-      if (source.resource && !(resourceView?.[source.resource] ?? []).some(item => item.id === value && item.ownerId === source.ownerId)) throw blockError('Recurso no disponible en este objeto: ' + value,block);
+      if (source.resource && value === missingResource) throw Object.assign(blockError('Este objeto aún no tiene ese recurso. Añádeselo en Recursos o quita el bloque.', block), {pendingResource: true});
+      if (source.resource && !(resourceView?.[source.resource] ?? []).some(item => item.id === value && item.ownerId === (ownerId ?? source.ownerId))) throw blockError('Recurso no disponible en este objeto: ' + value,block);
+      // The fixed menus list hero's built-in resources: on another object (a pasted block) they are not its own.
+      if (source.enum && ownerId && ownerId !== 'hero' && ['setCostume', 'playSound'].includes(rule.kind)) throw blockError('Recurso no disponible en este objeto: ' + value, block);
       if (source.enum && !source.enum.includes(value)) throw blockError('Unsupported local ' + key + ' ' + value + ' at ' + block.id, block);
       if ((source.minimum !== undefined && value < source.minimum) || (source.maximum !== undefined && value > source.maximum)) throw blockError('Invalid ' + (source.label ?? key) + ' at ' + block.id, block);
       node[key] = value;
@@ -116,17 +131,9 @@ export function workspaceToIR(workspace, {capabilities = null, resourceView = ge
     }
     return nodes;
   }
-  let roots = workspace.getTopBlocks(true);
-  if (scriptOrder !== null && scriptOrder !== undefined) {
-    const byID = new Map(roots.map(block => [block.id, block]));
-    if (!Array.isArray(scriptOrder) || scriptOrder.length !== roots.length || scriptOrder.length > 16 ||
-        new Set(scriptOrder).size !== scriptOrder.length || scriptOrder.some(id => !byID.has(id)))
-      throw new Error('El orden de eventos no coincide con los bloques del programa.');
-    roots = scriptOrder.map(id => byID.get(id));
-  }
   const ir = {
     version: 0,
-    scripts: roots.map(block => {
+    scripts: orderedRoots(workspace, scriptOrder).map(block => {
       const contribution = contributions.hats.get(block.type);
       if (!contribution) unsupported(block);
       const script = lower(block, {...contribution, rule: {kind: 'hat', fields: contribution.rule.fields}}, expression);
@@ -139,10 +146,10 @@ export function workspaceToIR(workspace, {capabilities = null, resourceView = ge
   const variables = workspace.getVariableMap().getAllVariables();
   if (variables.some(model => model.type !== '')) throw new Error('Only numeric scalar variables are supported');
   if (variables.length) ir.variables = variables.map(model => ({id: model.getId(), name: model.name, initialValue: 0, ...(globalIds.has(model.getId()) ? {scope: 'global'} : {})})).sort((a, b) => a.id.localeCompare(b.id));
-  return authorizeProgram(capabilities, ir, {resourceView});
+  return authorizeProgram(capabilities, ir, {resourceView, ownerId});
 }
 
-export function validateWorkspaceResources(state, {capabilities = null,resourceView = null} = {}) {
+export function validateWorkspaceResources(state, {capabilities = null,resourceView = null,ownerId = null} = {}) {
   const definitions = createContributions(capabilities).fieldMenus ?? [];
   const byType = new Map(definitions.map(menu => [menu.type,menu]));
   function visit(value) {
@@ -151,18 +158,19 @@ export function validateWorkspaceResources(state, {capabilities = null,resourceV
     const menu = byType.get(value.type);
     if (menu) {
       const id = value.fields?.[menu.field];
-      if (typeof id !== 'string' || !(resourceView?.[menu.resource] ?? []).some(item => item.id === id && item.ownerId === menu.ownerId)) throw blockError('Recurso no disponible en este objeto: ' + String(id),value);
+      if (id !== missingResource && (typeof id !== 'string' || !(resourceView?.[menu.resource] ?? []).some(item => item.id === id && item.ownerId === (ownerId ?? menu.ownerId)))) throw blockError('Recurso no disponible en este objeto: ' + String(id),value);
     }
     for (const child of Object.values(value)) visit(child);
   }
   visit(state);
 }
 
-export function loadWorkspace(state, {capabilities = null,resourceView = null} = {}) {
+export function loadWorkspace(state, {capabilities = null,resourceView = null,ownerId = null} = {}) {
   registerContributions(Blockly, createContributions(capabilities));
-  validateWorkspaceResources(state,{capabilities,resourceView});
+  validateWorkspaceResources(state,{capabilities,resourceView,ownerId});
   const workspace = new Blockly.Workspace();
   setWorkspaceResourceView(workspace,resourceView);
+  setWorkspaceResourceOwner(workspace,ownerId);
   try { Blockly.serialization.workspaces.load(state, workspace); }
   catch (error) { workspace.dispose(); throw error; }
   return workspace;
