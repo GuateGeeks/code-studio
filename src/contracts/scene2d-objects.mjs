@@ -7,7 +7,7 @@ const fail = message => { throw new Error('GG packs: ' + message); };
 export const scene2DObjectLimits = Object.freeze({sprites: 8, nameLength: 32});
 // Sprite and resource IDs share the resource owner syntax (resources.mjs);
 // `stage` names the stage as resource owner and cannot be a sprite.
-const resourceId = {type: 'string', pattern: '^[A-Za-z0-9:_-]+$', maxLength: 128, notEnum: ['prototype', 'constructor']};
+const resourceId = {type: 'string', pattern: '^[A-Za-z0-9:_-]+$', maxLength: 128, notEnum: ['__proto__', 'prototype', 'constructor']};
 const number = (minimum, maximum) => ({type: 'number', minimum, maximum});
 const spriteFields = ['id', 'name', 'x', 'y', 'direction', 'size', 'visible', 'costume'];
 // Generic schema for the pack manifest (pack-config-schema.mjs); the rules it
@@ -32,7 +32,7 @@ function exact(value, fields, label) {
   if (!plain(value) || Object.keys(value).length !== fields.length || fields.some(field => !Object.hasOwn(value, field))) fail(label + ': propiedades inválidas');
 }
 function id(value, label) {
-  if (typeof value !== 'string' || !/^[A-Za-z0-9:_-]{1,128}$/.test(value) || ['prototype', 'constructor'].includes(value)) fail(label + ': ID inválido');
+  if (typeof value !== 'string' || !/^[A-Za-z0-9:_-]{1,128}$/.test(value) || ['__proto__', 'prototype', 'constructor'].includes(value)) fail(label + ': ID inválido');
 }
 const between = (value, minimum, maximum) => typeof value === 'number' && Number.isFinite(value) && value >= minimum && value <= maximum;
 // Names are what the student sees and what a textual identifier is derived
