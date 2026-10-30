@@ -159,7 +159,8 @@ test('GG-INSPECT-003: real toolbox drag connects costume block, portable reopen 
   await open(page);
   expect(await page.evaluate(() => document.querySelector('#blockly-editor').contains(inspectorTestWorkspace.getInjectionDiv()))).toBe(true);
   await clickVisible(page.getByRole('treeitem', {name: 'Apariencia', exact: true}));
-  const flyout = page.locator('.blocklyFlyout .blocklyDraggable').first();
+  // The 0.2.0 Apariencia menu (R1: initial project) starts with «decir … durante»; drag «cambiar disfraz a».
+  const flyout = page.locator('.blocklyFlyout .blocklyDraggable').filter({hasText: /cambiar\sdisfraz\sa/}).first();
   await expect(flyout).toBeVisible();
   const start = await flyout.boundingBox();
   const editor = await page.locator('#blockly-editor').boundingBox();
