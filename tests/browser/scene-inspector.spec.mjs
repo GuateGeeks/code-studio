@@ -1,3 +1,4 @@
+import {origins} from './origins.mjs';
 import {selectContext,clickVisible,settled} from './workspace-controls.mjs';
 import {revealAdvanced} from './advanced-controls.mjs';
 import {test, expect} from '@playwright/test';
@@ -126,7 +127,7 @@ test('GG-INSPECT-002: invalid DTO preserves valid reading and Stop discards an o
   await open(page); await run(page);
   await expect(field(page, '#inspector-runtime', 'x')).toHaveText('12');
   const authoring = await authored(page);
-  const frame = page.frames().find(frame => frame.url().startsWith('http://127.0.0.1:4174/'));
+  const frame = page.frames().find(frame => frame.url().startsWith(origins.runnerOrigin + '/'));
   await frame.evaluate(() => inspectorTest.mode('invalid'));
   await clickVisible(page.getByRole('button', {name: 'Actualizar lectura', exact: true}));
   await expect(page.locator('#inspector-status')).toHaveAttribute('data-state', 'error');

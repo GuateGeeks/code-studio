@@ -1,3 +1,4 @@
+import {origins} from '../browser/origins.mjs';
 import {selectContext,clickVisible,revealControl} from '../browser/workspace-controls.mjs';
 import {revealAdvanced} from '../browser/advanced-controls.mjs';
 import {test, expect} from '@playwright/test';
@@ -40,7 +41,7 @@ test('Quick: native Blockly edit, Run, GG control and Stop preserve authoring', 
   await expect.poll(async () => (await state(page)).x).toBe(28);
   const after = await state(page);
   expect(after.pixels.centerX - before.pixels.centerX).toBeCloseTo(10, 0);
-  const oldFrame = page.frames().find(frame => frame.url().startsWith('http://127.0.0.1:4174/'));
+  const oldFrame = page.frames().find(frame => frame.url().startsWith(origins.runnerOrigin + '/'));
   await selectContext(page,'2d');
   await clickVisible(page.getByRole('button', {name:'Detener',exact:true}));
   await expect(page.locator('#run-editor')).toBeEnabled();
@@ -97,7 +98,7 @@ test('Quick: origin isolation and Stop discard a blocked worker and stale GG ref
     workers.push(item);
     worker.on('close', () => { item.closed = true; });
   });
-  const oldFrame = page.frames().find(frame => frame.url().startsWith('http://127.0.0.1:4174/'));
+  const oldFrame = page.frames().find(frame => frame.url().startsWith(origins.runnerOrigin + '/'));
   await page.evaluate(() => { window.__quickOldGG = GG; return studioProbe.request('start-loop-worker'); });
   await expect.poll(() => workers.some(worker => worker.url.endsWith('/loop-worker.js') && !worker.closed)).toBe(true);
   const oldWorkers = [...workers];

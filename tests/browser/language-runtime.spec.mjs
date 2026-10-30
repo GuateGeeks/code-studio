@@ -1,3 +1,4 @@
+import {origins} from './origins.mjs';
 import {selectContext,clickVisible,settled} from './workspace-controls.mjs';
 import {test, expect} from '@playwright/test';
 import {artifactPath} from './artifacts.mjs';
@@ -161,8 +162,8 @@ test('GG-TEXT-005: unavailable runtime and cancelled preparation preserve curren
   expect((await page.evaluate(() => studioProbe.state())).sessionId).toBe(before.sessionId);
   expect((await snapshot(page)).x).toBe(12);
   const shell = await request.get('/');
-  const runner = await request.get('http://127.0.0.1:4174/');
-  const language = await request.get('http://127.0.0.1:4176/');
+  const runner = await request.get(origins.runnerOrigin + '/');
+  const language = await request.get(origins.languageOrigin + '/');
   expect(shell.headers()['content-security-policy']).not.toContain("'unsafe-eval'");
   expect(runner.headers()['content-security-policy']).not.toContain("'unsafe-eval'");
   expect(language.headers()['content-security-policy']).toContain("'wasm-unsafe-eval'");
@@ -208,7 +209,7 @@ test('GG-TEXT-006: Stop cancels a prepared-runtime candidate and invalid import 
 });
 test('GG-TEXT-007: log quota retains terminal error and location; runtime has no shell DOM or remote packages', async ({page}) => {
   const external = [];
-  const localOrigins = new Set([4173,4174,4175,4176].map(port=>'http://127.0.0.1:'+port));
+  const localOrigins = new Set([origins.shellOrigin,origins.runnerOrigin,origins.simulatorOrigin,origins.languageOrigin]);
   page.on('request', request => {
     const url = new URL(request.url());
     // A blob URL names local preview bytes; it is not a remote package request.

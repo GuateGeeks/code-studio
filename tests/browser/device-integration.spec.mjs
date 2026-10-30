@@ -1,3 +1,4 @@
+import {origins,ports} from './origins.mjs';
 import {selectContext,clickVisible,revealPanel,revealControl} from './workspace-controls.mjs';
 import {test,expect} from '@playwright/test';
 import {readFile,writeFile} from 'node:fs/promises';
@@ -140,16 +141,16 @@ test('GG-DEVICE: editing during compilation revokes old diagnostics/download and
 });
 
 test('GG-DEVICE: simulator port rejects replay/forged/stale scopes and bounds valid event flood',async({page,context})=>{
- await context.addInitScript(()=>{
-  if(location.port!=='4175')return;
+ await context.addInitScript(simulatorPort=>{
+  if(location.port!==simulatorPort)return;
   const original=MessagePort.prototype.postMessage;
   MessagePort.prototype.postMessage=function(data,...rest){
    if(data?.type==='device-event')window.deviceWireTest={port:this,data:structuredClone(data)};
    return original.call(this,data,...rest);
   };
- });
+ },String(ports.simulator));
  await open(page);await run(page);await pressA(page);await expect.poll(async()=>(await snap(page)).x).toBe(10);
- const child=page.frames().find(frame=>new URL(frame.url()).port==='4175');
+ const child=page.frames().find(frame=>new URL(frame.url()).port===String(ports.simulator));
  const packet=await child.evaluate(()=>structuredClone(deviceWireTest.data));
  await child.evaluate(value=>{
   deviceWireTest.port.postMessage(value);

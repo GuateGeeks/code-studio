@@ -1,3 +1,4 @@
+import {origins} from './origins.mjs';
 import {selectContext,clickVisible,revealPanel} from './workspace-controls.mjs';
 import {revealAdvanced} from './advanced-controls.mjs';
 import {artifactPath} from './artifacts.mjs';
@@ -16,7 +17,7 @@ test('GG-PXT-006: generated JS executes the heart on the real board and SVG', as
   const errors = [];
   const external = [];
   page.on('pageerror', error => errors.push(error.message));
-  page.on('request', request => { if (!['http://127.0.0.1:4173', 'http://127.0.0.1:4174', 'http://127.0.0.1:4175'].includes(new URL(request.url()).origin)) external.push(request.url()); });
+  page.on('request', request => { if (![origins.shellOrigin, origins.runnerOrigin, origins.simulatorOrigin].includes(new URL(request.url()).origin)) external.push(request.url()); });
   const result = await start(page, 'basic.showIcon(IconNames.Heart)');
   expect(result.success).toBe(true);
   expect(result.state.codeHash).toBe(result.compileHash);
@@ -25,16 +26,16 @@ test('GG-PXT-006: generated JS executes the heart on the real board and SVG', as
   await expect.poll(async () => (await simState(page)).finished).toBe(true);
   const state = await simState(page);
   expect(state.fault).toBeNull();
-  expect(state.origin).toBe('http://127.0.0.1:4175');
+  expect(state.origin).toBe(origins.simulatorOrigin);
   expect(state.parentBlocked).toBe(true);
   expect(state.physicalBoardValidated).toBe(false);
-  const simulator = page.frames().find(frame => frame.url().startsWith('http://127.0.0.1:4175/'));
+  const simulator = page.frames().find(frame => frame.url().startsWith(origins.simulatorOrigin + '/'));
   await simulator.evaluate(() => window.postMessage({type: 'run', id: 'rogue', code: '(function () { document.body.dataset.untrusted = "executed"; return function () {}; })'}, location.origin));
   // A following authenticated request also lets the rogue message event run.
   expect((await simState(page)).matrix).toEqual(heart);
   expect(await simulator.evaluate(() => document.body.dataset.untrusted ?? null)).toBeNull();
-  const runnerPolicy = (await page.request.get('http://127.0.0.1:4174/')).headers()['content-security-policy'];
-  const simPolicy = (await page.request.get('http://127.0.0.1:4175/')).headers()['content-security-policy'];
+  const runnerPolicy = (await page.request.get(origins.runnerOrigin + '/')).headers()['content-security-policy'];
+  const simPolicy = (await page.request.get(origins.simulatorOrigin + '/')).headers()['content-security-policy'];
   expect(runnerPolicy).not.toContain('unsafe-eval');
   expect(simPolicy).toContain("script-src 'self' 'unsafe-eval'");
   expect(errors).toEqual([]);
@@ -62,7 +63,7 @@ test('GG-PXT-007: button A delivers an event to compiled code and toggles a LED'
 test('GG-PXT-007: Stop destroys the simulator frame and new code has no residual LEDs', async ({page}) => {
   await start(page, 'basic.forever(function () { led.toggle(0, 0); basic.pause(50) })');
   await expect.poll(async () => (await simState(page)).matrix[0]).toBe(1);
-  const oldSimulator = page.frames().find(frame => frame.url().startsWith('http://127.0.0.1:4175/'));
+  const oldSimulator = page.frames().find(frame => frame.url().startsWith(origins.simulatorOrigin + '/'));
   const previousSession = await page.evaluate(() => studioProbe.state().sessionId);
   const source = await page.locator('#source').inputValue();
   await selectContext(page,'2d');
