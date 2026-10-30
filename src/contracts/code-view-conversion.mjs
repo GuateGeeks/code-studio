@@ -1,11 +1,12 @@
 import {validateCapabilities} from './packs.mjs';
 import {validateResourceView} from './resources.mjs';
+import {validateScene2DTextOwner} from './scene2d-identifiers.mjs';
 
 const plain = value => value && typeof value === 'object' && !Array.isArray(value) &&
   [Object.prototype, null].includes(Object.getPrototypeOf(value));
 export function validateCodeViewRequest(input) {
   const fail = message => { throw Object.assign(new Error(message), {code: 'CV_REQUEST', lineNumber: 1, columnNumber: 1}); };
-  if (!plain(input) || Object.keys(input).some(key => !['language','source','capabilities','resourceView','variableIds','variableNames'].includes(key)))
+  if (!plain(input) || Object.keys(input).some(key => !['language','source','capabilities','resourceView','variableIds','variableNames','owner'].includes(key)))
     fail('Solicitud de conversión inválida.');
   if (!['javascript','python'].includes(input.language)) fail('Esta vista todavía no admite conversión en este contexto.');
   if (typeof input.source !== 'string' || new TextEncoder().encode(input.source).length > 65536)
@@ -16,6 +17,7 @@ export function validateCodeViewRequest(input) {
         Object.entries(input[key]).some(([name,value]) => !/^[A-Za-z_][A-Za-z0-9_]*$/.test(name) ||
           typeof value !== 'string' || !value.trim() || value.length > 128)) fail('Metadatos de variables inválidos.');
   }
+  if (input.owner !== undefined) validateScene2DTextOwner(input.owner, fail);
   if (input.capabilities != null) validateCapabilities(input.capabilities);
   if (input.resourceView != null) validateResourceView(input.resourceView);
   return structuredClone(input);

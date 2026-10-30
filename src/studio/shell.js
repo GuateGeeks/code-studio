@@ -17,7 +17,9 @@ import {createCodeConsoleUI} from './code-console-ui.mjs';
 import {createTextDocumentsUI} from './text-documents-ui.mjs';
 import {createLanguageController} from './language-controller.mjs';
 import {createSceneInspectorUI} from './scene-inspector-ui.mjs';
-import {projectInitialScene} from '../project-format.mjs';
+import {projectInitialScene, scene2DObjectsOf} from '../project-format.mjs';
+import {scene2DTextOwner} from '../contracts/scene2d-identifiers.mjs';
+import {generateApi3ProgramSource, generateApi3SceneSource} from '../generated-program-source.mjs';
 import {createCapabilities, resolveCapabilities} from '../contracts/packs.mjs';
 import {availablePackUpdates, migrateProject, describeMigrationSummary} from '../project-migration.mjs';
 import {createLessonsUI} from './lessons-ui.mjs';
@@ -62,6 +64,17 @@ const consoleUI = createCodeConsoleUI(editor, {selectSourceBlock:(id,record)=>['
   const created = textDocuments.add(document);
   copyFacts.set(created.id, {documentId: created.id, language: created.language, blocklyHashAtCopy, projectId: project.state().id});
   return created;
+},projectCopy:language=>{
+  // Single-object scenes keep the text of their view; a project with more
+  // objects copies them all in one document (scene2d-multi-sprite 2.2).
+  const config=scene2DObjectsOf(editor.captureCapabilities());
+  if(!config)return null;
+  const program=authoring.sceneProgram(),only=config.sprites[0].id;
+  if(config.sprites.length===1&&authoring.mountedObject()===only&&program.scripts.every(script=>script.targetId===only)){
+    const owner=scene2DTextOwner(config,only),generated=generateApi3ProgramSource(editor.program(),language,{owner,resourceView:editor.resourceView()});
+    return owner.identifier==='hero'&&only==='hero'?generated:{...generated,targetIds:{[owner.identifier]:only}};
+  }
+  return generateApi3SceneSource(program,language,{config,resourceView:editor.resourceView()});
 }});
 const runEditorButton = document.querySelector('#run-editor');
 const slot = document.querySelector('#runner-slot');
@@ -98,6 +111,7 @@ const capabilityExecution=createCapabilityExecution({config,getAuthoring:context
 syncedViews=createCodeViewsUI({state:codeViewsState,editor,textDocuments,contexts,config,getProject:()=>projectForCodeViews,
   onRender:()=>workspace?.render(),onDiagnostic:record=>consoleUI.local(record),onSourceChanged:()=>{consoleUI.invalidateSources();lessons?.invalidate();workspace?.authoringChanged();},
   requirePack:requirePreparedPack,
+  objects:{current:()=>scene2DObjectsOf(editor.captureCapabilities())?authoring.mountedObject():null,owner:id=>scene2DTextOwner(scene2DObjectsOf(editor.captureCapabilities()),id),mount:(id,options)=>authoring.mountObject(id,options)},
   onCopy:(document,blocklyHashAtCopy)=>copyFacts.set(document.id,{documentId:document.id,language:document.language,blocklyHashAtCopy,projectId:projectForCodeViews.state().id}),
   canRun:()=>scene2DEnabled&&Boolean(sessionId)&&activeRevision!==null});
 workspace=createContextualWorkspace({contexts,textDocuments,capabilityUI,device,codeViews:syncedViews,is2DEnabled:()=>scene2DEnabled,stopResult:()=>reset().then(()=>{document.querySelector('#position').textContent='x = 0';}),getAuthoringKey:contextAuthoringKey,getTextContext:id=>{const state=capabilityExecution.state();return state.sourceDocument===id?state.contextId:null;},onError:showError});
@@ -448,9 +462,13 @@ async function runTextDocument() {
   // must not prevent an independent textual program from running.
   let variables = [];
   try { variables = (editor.program().variables ?? []).filter(variable => !variable.scope || variable.scope === 'local'); } catch {}
-  const ir = {version: 0, variables, scripts: []};
   const key = authoringKey();
   const capabilities = authoring.captureExecutionCapabilities('scratch-2d');
+  // gg.sprites 0.3.0: the document runs in the scene of the project, with every
+  // sprite on stage and no block scripts (scene2d-multi-sprite 2.2).
+  const sceneObjects = scene2DObjectsOf(capabilities), mounted = authoring.mountedObject();
+  const ir = sceneObjects ? {version: 1, sprites: sceneObjects.sprites.map(sprite => sprite.id), ...(mounted && mounted !== 'stage' && variables.length ? {variables: variables.map(({scope, ...variable}) => ({...variable, targetId: mounted}))} : {}), scripts: []}
+    : {version: 0, variables, scripts: []};
   status.textContent = 'Preparando ' + (document.language === 'javascript' ? 'JavaScript…' : 'Python…');
   window.document.querySelector('#text-run-status').textContent = status.textContent;
   const candidate = await language.prepare(document);

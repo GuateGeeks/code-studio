@@ -4,6 +4,7 @@ import {validateProgram, programLimits} from '../../contracts/program-contract.m
 import {validateLanguageTables, tablesForLocks, languageAvailability, offeredCoreStructures} from '../../contracts/language-table.mjs';
 import {languageTables, coreLanguageEntries} from '../../packs/language-tables.mjs';
 import {api3Keywords} from '../../contracts/api3-names.mjs';
+import {validateScene2DTextOwner, scene2DStageIdentifier} from '../../contracts/scene2d-identifiers.mjs';
 
 const calleeName = node => node?.type === 'Identifier' ? node.name :
   node?.type === 'MemberExpression' && !node.computed && !node.optional && node.object.type === 'Identifier' &&
@@ -11,12 +12,24 @@ const calleeName = node => node?.type === 'Identifier' ? node.name :
 const own = (object, key) => Object.hasOwn(object, key);
 const plain = value => value && typeof value === 'object' && !Array.isArray(value) &&
   [Object.prototype, null].includes(Object.getPrototypeOf(value));
+// scene2d-multi-sprite 2.2 (R2): a view reads the program of one object, its
+// owner. Without one, hero's, as before.
+const viewOwner = owner => owner === undefined ? {identifier: 'hero', kind: 'sprite', targetId: 'hero', others: {}} :
+  validateScene2DTextOwner(owner, message => { throw Object.assign(new Error(message), {code: 'CV_METADATA', lineNumber: 1, columnNumber: 1}); });
+// As in Scratch the stage has no sprite actions and cannot clone itself; its
+// only sprite event is the click (`stage.onClick`).
+const stageAllows = entry => entry.kind === 'event' ? entry.target !== 'sprite' || entry.lower.ir === 'click' :
+  entry.target !== 'sprite' && !['createClone', 'deleteClone'].includes(entry.lower.ir);
+const otherObjectMessage = (call, name, identifier) => '«' + call + '» es una acción de ' +
+  (identifier === scene2DStageIdentifier ? 'el escenario' : '«' + name + '»') + '. Cada objeto programa sus propios scripts: selecciónalo y escríbela allí.';
+const stageMessage = call => 'El escenario no se mueve, no habla ni se clona: «' + call + '» es una acción de los sprites.';
 
 // Parses data only. Loaded by the language-origin worker, never by the shell.
 // Tables and installed declarative rules determine calls, fields and enums;
 // only the installed core syntax is recognized here.
 export function parseJavaScriptCodeView(source, {capabilities = null, resourceView,
-  variableIds = {}, variableNames = {}, catalog} = {}) {
+  variableIds = {}, variableNames = {}, catalog, owner: requestedOwner} = {}) {
+  const owner = viewOwner(requestedOwner), self = owner.identifier + '.';
   const reject = (message, node, code = 'CV_UNSUPPORTED') => {
     throw Object.assign(new Error(message), {code, lineNumber: node?.loc?.start.line ?? 1,
       columnNumber: (node?.loc?.start.column ?? 0) + 1, construction: node?.type ?? 'Program'});
@@ -35,14 +48,15 @@ export function parseJavaScriptCodeView(source, {capabilities = null, resourceVi
   const availability = languageAvailability(tables, {lowering: 'ir'}).javascript;
   if (!availability.available) reject(availability.reason, null, 'CV_LANGUAGE_UNAVAILABLE');
   const offered = offeredCoreStructures(packs);
-  const forms = new Map();
+  const forms = new Map(), stageOnly = new Set();
   for (const pack of packs) for (const entry of tables[pack.id + '@' + pack.version] ?? []) {
     if (!entry.js || !['call', 'event'].includes(entry.kind) || !entry.lower.ir) continue;
     const category = entry.kind === 'event' ? 'hats' : 'statements';
     const rule = pack.manifest.contributions[category][entry.block];
     if (!rule || (rule.kind ?? rule.event) !== entry.lower.ir)
       reject('La tabla no coincide con la bajada instalada de ' + entry.block + '.', null, 'CV_TABLE');
-    const key = (entry.target === 'sprite' ? 'hero.' : '') + entry.js;
+    if (owner.kind === 'stage' && !stageAllows(entry)) { stageOnly.add(entry.js); continue; }
+    const key = (entry.target === 'sprite' ? self : '') + entry.js;
     const previous = forms.get(key);
     if (!previous || entry.supersedes === previous.entry.block) forms.set(key, {entry, rule, config: pack.config});
   }
@@ -91,7 +105,7 @@ export function parseJavaScriptCodeView(source, {capabilities = null, resourceVi
     for (const declaration of node.declarations) {
       if (variables.size >= programLimits.variables) reject('El programa supera el límite de 16 variables.', declaration, 'CV_VARIABLE_LIMIT');
       const name = declaration.id?.name;
-      if (declaration.id.type !== 'Identifier' || api3Keywords.has(name) || variables.has(name) || forms.has(name))
+      if (declaration.id.type !== 'Identifier' || api3Keywords.has(name) || variables.has(name) || forms.has(name) || name === owner.identifier || own(owner.others, name))
         reject('Usa un nombre de variable nuevo, sin palabras reservadas ni nombres de la API.', declaration.id);
       if (!declaration.init) reject('La variable necesita un valor inicial 0.', declaration);
       const shared = declaration.init?.type === 'CallExpression' && calleeName(declaration.init.callee) === 'shared';
@@ -115,6 +129,11 @@ export function parseJavaScriptCodeView(source, {capabilities = null, resourceVi
   }
   function lower(call, kind, node) {
     const name = calleeName(call.callee), definition = forms.get(name);
+    if (!definition && !call.optional && name) {
+      const [object, method] = name.split('.');
+      if (method && own(owner.others, object)) reject(otherObjectMessage(name, owner.others[object], object), call, 'CV_OTHER_OBJECT');
+      if (owner.kind === 'stage' && (method ? object === owner.identifier && stageOnly.has(method) : stageOnly.has(name))) reject(stageMessage(method ?? name), call, 'CV_STAGE');
+    }
     if (!definition || definition.entry.kind !== kind || call.optional)
       reject('La llamada «' + (name ?? 'dinámica') + '» no tiene un bloque instalado para esta posición.', call);
     const {entry, rule, config} = definition, arity = kind === 'event' ? (entry.option ? 2 : 1) : (entry.args ?? []).length;
@@ -262,19 +281,27 @@ export function parseJavaScriptCodeView(source, {capabilities = null, resourceVi
 
 // Python AST parsing shares the reviewed installed forms and JavaScript
 // lowering validator; no API names are inferred from learner text.
-export function pythonCodeViewVocabulary({capabilities=null,catalog}={}) {
+export function pythonCodeViewVocabulary({capabilities=null,catalog,owner:requestedOwner}={}) {
+  const owner=viewOwner(requestedOwner);
   const plan=resolveCapabilities(capabilities,catalog?{catalog}:{});
   const packs=plan.packs.filter(pack=>!pack.manifest.context||pack.manifest.context==='scratch-2d');
   const manifests=Object.fromEntries(packs.map(pack=>[pack.id+'@'+pack.version,pack.manifest]));
   const tables=tablesForLocks(packs.map(pack=>({id:pack.id,version:pack.version})),languageTables,manifests);
   const available=languageAvailability(tables,{lowering:'ir'}).python;
   if(!available.available)throw new Error(available.reason);
-  const result={};
+  const result={},stageOnly=new Set();
   for(const entries of Object.values(tables))for(const entry of entries){
     if(!entry.python||!entry.js||!['call','event'].includes(entry.kind)||!entry.lower.ir)continue;
-    const owner=entry.target==='sprite'?'hero.':'';
-    result[owner+entry.python]={js:owner+entry.js,kind:entry.kind,option:Boolean(entry.option)};
+    if(owner.kind==='stage'&&!stageAllows(entry)){stageOnly.add(entry.python);continue;}
+    const self=entry.target==='sprite'?owner.identifier+'.':'';
+    result[self+entry.python]={js:self+entry.js,kind:entry.kind,option:Boolean(entry.option)};
   }
+  // Causes the AST reader reports itself: actions of another object and, on
+  // the stage, sprite actions. `{call}` is the name as written.
+  result['$owner']=owner.identifier;
+  result['$others']=Object.fromEntries(Object.entries(owner.others).map(([identifier,name])=>[identifier,otherObjectMessage('{call}',name,identifier)]));
+  result['$stageOnly']=[...stageOnly].sort();
+  result['$stageMessage']=stageMessage('{call}');
   // E1 core structures offered by the active packs (while True, while not, wait_until, return).
   result['$structures']=[...offeredCoreStructures(packs)].sort();
   return result;

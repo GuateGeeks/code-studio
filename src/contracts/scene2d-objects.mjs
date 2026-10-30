@@ -42,6 +42,11 @@ const between = (value, minimum, maximum) => typeof value === 'number' && Number
 // Names are what the student sees and what a textual identifier is derived
 // from (R3), so they are compared without case.
 const spriteNameKey = name => name.toLocaleLowerCase('es');
+// A name is shown and read aloud as typed: NFC (one spelling per name, so the
+// identifier derived from it is stable), no control (C0/C1), format (bidi,
+// zero-width), separator or lone surrogate characters (scene2d-multi-sprite 2.2).
+const validSpriteName = name => typeof name === 'string' && name.length > 0 && name === name.trim() && name.length <= scene2DObjectLimits.nameLength &&
+  name === name.normalize('NFC') && !/[\p{Cc}\p{Cf}\p{Cs}\p{Zl}\p{Zp}]/u.test(name);
 export function validateScene2DObjects(config) {
   exact(config, ['stage', 'sprites'], 'objetos 2D');
   exact(config.stage, ['backdrop'], 'escenario');
@@ -52,7 +57,7 @@ export function validateScene2DObjects(config) {
     exact(sprite, spriteFields, 'sprite');
     id(sprite.id, 'sprite'); id(sprite.costume, 'disfraz');
     if (sprite.id === 'stage') fail('sprite: el ID stage es del escenario');
-    if (typeof sprite.name !== 'string' || !sprite.name || sprite.name !== sprite.name.trim() || sprite.name.length > scene2DObjectLimits.nameLength || /[\u0000-\u001f\u007f]/.test(sprite.name)) fail('sprite: nombre inválido');
+    if (!validSpriteName(sprite.name)) fail('sprite: nombre inválido');
     if (!between(sprite.x, -240, 240) || !between(sprite.y, -180, 180) || !between(sprite.direction, -180, 180) || !between(sprite.size, 0, 1000) || typeof sprite.visible !== 'boolean') fail('sprite: estado inicial inválido');
     if (ids.has(sprite.id)) fail('sprite: ID repetido ' + sprite.id);
     if (names.has(spriteNameKey(sprite.name))) fail('sprite: nombre repetido ' + sprite.name);

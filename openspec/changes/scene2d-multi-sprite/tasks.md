@@ -10,7 +10,7 @@
 ## 2. Ejecución
 
 - [x] 2.1 Adaptador Scratch con un target por sprite, recursos por `ownerId`, mensajes y variables globales compartidos; corpus de equivalencia multi-sprite. (29/10/2026: design puntos 15–21; MS-017…025 en `tests/integration/scene2d-execution.test.mjs`; `tests/browser/scene2d-multi-sprite.spec.mjs`.)
-- [ ] 2.2 API v3 por objeto en generador y traductores (JS y Python), con mapa identificador → `targetId` en `runtime`.
+- [x] 2.2 API v3 por objeto en generador y traductores (JS y Python), con mapa identificador → `targetId` en `runtime`. (30/10/2026: design puntos 22–27; MS-026…034 en `tests/integration/scene2d-text.test.mjs`; MS-BROWSER-003…006 en `tests/browser/scene2d-object-views.spec.mjs`.)
 
 ## 3. Interfaz
 

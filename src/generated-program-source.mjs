@@ -1,8 +1,10 @@
 import {generateCapabilityProgramSource} from './generated-capability-source.mjs';
 import {validateProgram} from './contracts/program-contract.mjs';
+import {textProgramLimits} from './contracts/text-program.mjs';
 import {api3Identifier} from './contracts/api3-names.mjs';
 import {languageTables} from './packs/language-tables.mjs';
 import {scene2DCallForms} from './packs/scene2d-forms.mjs';
+import {validateScene2DTextOwner, scene2DObjectIdentifiers} from './contracts/scene2d-identifiers.mjs';
 export {api3Identifier};
 
 const sourceBytes = 65536;
@@ -157,14 +159,45 @@ export function generateProgramSource(ir, language,options={}) {
 // API v3 (ADR-011): readable JavaScript/Python for 2D programs. The language
 // origin translates it back to API1 before running (targets/text/api-v3.mjs);
 // variable IDs travel in the copy's metadata, never in the text.
+// scene2d-multi-sprite 2.2 (R2): `owner` is the object whose program (IR0)
+// this is, from scene2DTextOwner. Its sprite actions and sprite events use its
+// identifier (`cesta.move(10)`, `cesta.onClick`); global events stay at the top
+// level. The stage has no sprite actions and cannot clone itself. Without an
+// owner the program is hero's, exactly as before. Only `resourceView` reaches
+// the validator: the generator stays closed to IR v1.
+const heroOwner = Object.freeze({identifier: 'hero', kind: 'sprite', targetId: 'hero', others: Object.freeze({})});
 export function generateApi3ProgramSource(ir, language, options = {}) {
-  validateProgram(ir, options);
+  validateProgram(ir, {resourceView: options.resourceView});
+  const owner = options.owner === undefined ? heroOwner : validateScene2DTextOwner(options.owner);
+  return writeApi3(ir, language, {owner, taken: [owner.identifier, ...Object.keys(owner.others)]});
+}
+// Copy of a whole gg.sprites@0.3.0 project from its IR 2D v1, the one route that
+// opens the generator to the v1 (scene2d-multi-sprite 2.2): one text document,
+// variables at the top, and every event names its object (`cesta.onStart`).
+// runtime.targetIds keeps the ID of each object.
+export function generateApi3SceneSource(ir, language, {config, resourceView} = {}) {
+  validateProgram(ir, {resourceView, objects: true});
+  if (ir.version !== 1) throw new Error('Unsupported generated program');
+  const {objects, targetIds} = scene2DObjectIdentifiers(config);
+  const owners = new Map(objects.map(object => [object.id, {identifier: object.identifier, kind: object.kind}]));
+  for (const id of ir.sprites) if (!owners.has(id)) throw new Error('El programa nombra un objeto desconocido.');
+  const written = writeApi3(ir, language, {owner: null, owners, taken: Object.keys(targetIds)});
+  // One document runs under the limits of one text program.
+  if (ir.scripts.length > textProgramLimits.handlers || Object.keys(written.variableIds).length > textProgramLimits.variables)
+    throw new Error(`Una copia del proyecto admite hasta ${textProgramLimits.handlers} eventos y ${textProgramLimits.variables} variables. Crea la copia de cada objeto desde su vista de código.`);
+  return {...written, targetIds: {...targetIds}};
+}
+function writeApi3(ir, language, {owner: documentOwner, owners = null, taken: objectIdentifiers}) {
   if (!['javascript', 'python'].includes(language)) throw new Error('Unsupported generated language');
+  // The object of the script being written.
+  let owner = documentOwner, stage = owner?.kind === 'stage', prefix = owner ? owner.identifier + '.' : '';
+  const onStage = (what, node) => { throw Object.assign(new Error(`El escenario no puede usar «${what}»: es una acción de los sprites.`), {sourceBlockId: node.sourceBlockId}); };
   const python = language === 'python';
   const quote = python ? pythonString : javascriptString;
   const lines = [], sourceMap = [], audio = new Set(), costumes = new Set(['hero']);
   const line = (text, ids = [], depth = 0) => { lines.push((python ? '    ' : '  ').repeat(depth) + text); sourceMap.push([...new Set(ids.filter(Boolean))]); };
-  const taken = new Set(), names = new Map(), variableIds = {};
+  // Object identifiers are taken: a variable never shadows an object.
+  const taken = new Set(objectIdentifiers), names = new Map(), variableIds = {};
   for (const model of ir.variables ?? []) { const identifier = api3Identifier(model.name, taken); names.set(model.id, identifier); variableIds[identifier] = model.id; }
   // Pack-provided variables (e.g. gg.score) are added by the pack broker at
   // start, not declared in the IR: name them from their nodes, keep their ID
@@ -187,8 +220,9 @@ export function generateApi3ProgramSource(ir, language, options = {}) {
   const action = (node, args, ids, depth) => {
     const entry = actions.find(item => item.lower.ir === node.kind && (item.append === undefined || item.append === Boolean(node.wait)));
     if (!entry) throw Object.assign(new Error(`Unsupported generated operation: ${node.kind}`), {sourceBlockId: node.sourceBlockId});
-    const owner = entry.target === 'sprite' ? 'hero.' : '';
-    call(owner + entry.js, owner + entry.python, args, ids, depth);
+    if (stage && (entry.target === 'sprite' || ['createClone', 'deleteClone'].includes(entry.lower.ir))) onStage(entry.js, node);
+    const self = entry.target === 'sprite' ? prefix : '';
+    call(self + entry.js, self + entry.python, args, ids, depth);
   };
   function assigned(body, out = new Set()) {
     for (const node of body) {
@@ -247,8 +281,9 @@ export function generateApi3ProgramSource(ir, language, options = {}) {
           // E1 calls: forms and argument order come from the table (scene2d-forms).
           const form = scene2DCallForms.find(item => item.kind === node.kind && item.append === undefined);
           if (!form) throw Object.assign(new Error(`Unsupported generated operation: ${node.kind}`), {sourceBlockId: node.sourceBlockId});
-          const owner = form.target === 'sprite' ? 'hero.' : '';
-          call(owner + form.js, owner + form.python, form.args.map(arg => arg.type === 'expression' ? value(node[arg.field], ids) : typeof node[arg.field] === 'number' ? String(node[arg.field]) : quote(node[arg.field])), ids, depth);
+          if (stage && form.target === 'sprite') onStage(form.js, node);
+          const self = form.target === 'sprite' ? prefix : '';
+          call(self + form.js, self + form.python, form.args.map(arg => arg.type === 'expression' ? value(node[arg.field], ids) : typeof node[arg.field] === 'number' ? String(node[arg.field]) : quote(node[arg.field])), ids, depth);
         }
       }
     }
@@ -265,13 +300,17 @@ export function generateApi3ProgramSource(ir, language, options = {}) {
   const handlerNames = new Set();
   for (const script of ir.scripts) {
     line('');
+    // A project copy names the object of every event; a view is one object's.
+    if (owners) { owner = owners.get(script.targetId); stage = owner.kind === 'stage'; prefix = owner.identifier + '.'; }
+    const global = owners ? prefix : '';
     const event = {
-      start: {js: 'onStart(() => {', py: '@on_start', name: 'al_iniciar'},
-      key: {js: `onKey(${quote(script.key ?? '')}, () => {`, py: `@on_key(${quote(script.key ?? '')})`, name: 'al_pulsar'},
-      click: {js: 'hero.onClick(() => {', py: '@hero.on_click', name: 'al_hacer_clic'},
-      message: {js: `onMessage(${quote(script.message ?? '')}, () => {`, py: `@on_message(${quote(script.message ?? '')})`, name: 'al_recibir'},
-      clone: {js: 'hero.onCloneStart(() => {', py: '@hero.on_clone_start', name: 'al_empezar_clon'}
+      start: {js: `${global}onStart(() => {`, py: `@${global}on_start`, name: 'al_iniciar'},
+      key: {js: `${global}onKey(${quote(script.key ?? '')}, () => {`, py: `@${global}on_key(${quote(script.key ?? '')})`, name: 'al_pulsar'},
+      click: {js: `${prefix}onClick(() => {`, py: `@${prefix}on_click`, name: 'al_hacer_clic'},
+      message: {js: `${global}onMessage(${quote(script.message ?? '')}, () => {`, py: `@${global}on_message(${quote(script.message ?? '')})`, name: 'al_recibir'},
+      clone: {js: `${prefix}onCloneStart(() => {`, py: `@${prefix}on_clone_start`, name: 'al_empezar_clon'}
     }[script.event];
+    if (stage && script.event === 'clone') onStage('onCloneStart', script);
     if (python) {
       line(event.py, [script.sourceBlockId]);
       line(`def ${api3Identifier(event.name, handlerNames)}():`, [script.sourceBlockId]);

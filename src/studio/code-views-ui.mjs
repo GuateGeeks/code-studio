@@ -8,14 +8,18 @@ const digest=async(state,order)=>{
   const data=new TextEncoder().encode(canonicalPackData([state,order??null]));
   return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',data)),byte=>byte.toString(16).padStart(2,'0')).join('');
 };
+// objects (scene2d-multi-sprite 2.2, R2): {current():id|null, owner(id), mount(id,{scriptOrder})}.
+// Views and copies belong to the current object; no hook means hero, as before.
 export function createCodeViewsUI({state,editor,textDocuments,contexts,config,getProject,
-  onRender=()=>{},onDiagnostic=()=>{},onCopy=()=>{},onSourceChanged=()=>{},canRun=()=>true,requirePack=()=>{}}) {
+  onRender=()=>{},onDiagnostic=()=>{},onCopy=()=>{},onSourceChanged=()=>{},canRun=()=>true,requirePack=()=>{},objects=null}) {
   const source=document.querySelector('#text-source'),errorOutput=document.querySelector('#text-error');
   const service=createCodeViewService({origin:config.languageOrigin,releaseBase:config.releaseBase??'/'});
   const known=new Map(),pointSnapshots=new Map(),notice=new Set(),carets=new Map();
   let ready=false,busy=false,error=null,warning='',attempt=0,epoch=0,staging=null,selfCommit=false,lastContext=contexts.current();
   const supports=context=>context==='2d';
   const current=()=>state.get(contexts.current());
+  const ownerOption=()=>{const id=objects?.current()??null;return id===null?{}:{owner:objects.owner(id)};};
+  const generate=(snapshot,language)=>GGEditor.generateCodeViewSource(snapshot,language,ownerOption());
   const same=(a,b)=>canonicalPackData(a)===canonicalPackData(b);
   const setText=(node,text)=>{if(node.textContent!==text)node.textContent=text;};
   function availability(context,language){
@@ -77,19 +81,21 @@ export function createCodeViewsUI({state,editor,textDocuments,contexts,config,ge
     source.scrollTop=index*parseFloat(getComputedStyle(source).lineHeight);
     source.scrollIntoView({block:'nearest'});
   }
+  const ownerKey=()=>ownerOption().owner?.identifier??null;
   function trusted(context,entry){
     const baseline=known.get(context);
-    return baseline&&baseline.language===entry.language&&baseline.source===entry.source&&editor.isCodeViewCurrent(baseline.snapshot);
+    // A rename changes the identifier the text must use, not the snapshot.
+    return baseline&&baseline.language===entry.language&&baseline.source===entry.source&&baseline.owner===ownerKey()&&editor.isCodeViewCurrent(baseline.snapshot);
   }
   function hasPendingText(context,entry){
     if(entry.language==='blocks'||trusted(context,entry))return false;
     // Imported baseline metadata grants no trust. A fresh generation is safe
     // to compare because it comes from the currently validated workspace.
-    try{return entry.source!==GGEditor.generateCodeViewSource(editor.codeViewSnapshot(),entry.language).text;}
+    try{return entry.source!==generate(editor.codeViewSnapshot(),entry.language).text;}
     catch{return true;}
   }
   function remember(context,entry){
-    known.set(context,{language:entry.language,source:entry.source,snapshot:editor.codeViewSnapshot()});
+    known.set(context,{language:entry.language,source:entry.source,owner:ownerKey(),snapshot:editor.codeViewSnapshot()});
   }
   async function apply(context){
     const entry=state.get(context);
@@ -102,10 +108,10 @@ export function createCodeViewsUI({state,editor,textDocuments,contexts,config,ge
     let point=null;
     try{
       requirePack(entry.language==='python'?'python-stdlib':'javascript-quickjs');
-      const snapshot=editor.codeViewSnapshot(),generated=GGEditor.generateCodeViewSource(snapshot,entry.language);
+      const snapshot=editor.codeViewSnapshot(),generated=generate(snapshot,entry.language);
       const parsed=await service.convert({language:entry.language,source:entry.source,
         variableIds:generated.variableIds,variableNames:generated.variableNames,
-        capabilities:snapshot.capabilities,resourceView:snapshot.resourceView});
+        capabilities:snapshot.capabilities,resourceView:snapshot.resourceView,...ownerOption()});
       if(id!==attempt||projectEpoch!==epoch)return false;
       const prepared=editor.prepareCodeView(parsed,snapshot);
       const changed=!same(prepared.ir,snapshot.ir)||!same(prepared.state,snapshot.state);
@@ -160,10 +166,10 @@ export function createCodeViewsUI({state,editor,textDocuments,contexts,config,ge
       return true;
     }
     try{
-      const snapshot=editor.codeViewSnapshot(),generated=GGEditor.generateCodeViewSource(snapshot,language);
+      const snapshot=editor.codeViewSnapshot(),generated=generate(snapshot,language);
       const next={...state.get(context),language,source:generated.text,baselineSource:generated.text,scriptOrder:snapshot.scriptOrder,formatNoticeShown:true};
       if(!entry.formatNoticeShown)notice.add(context);
-      state.set(next);known.set(context,{language,source:generated.text,snapshot});
+      state.set(next);known.set(context,{language,source:generated.text,owner:ownerKey(),snapshot});
       state.activate(context);contexts.select(context);render();
       const caret=carets.get(context+':'+language);source.focus({preventScroll:true});
       if(caret){source.setSelectionRange(caret.start,caret.end,caret.direction);source.scrollTop=caret.scrollTop;source.scrollLeft=caret.scrollLeft;}
@@ -178,9 +184,12 @@ export function createCodeViewsUI({state,editor,textDocuments,contexts,config,ge
     const context=contexts.current(),entry=state.get(context);
     cancelAnalysis();
     try{
-      const snapshot=editor.codeViewSnapshot(),generated=GGEditor.generateCodeViewSource(snapshot,entry.language);
+      const snapshot=editor.codeViewSnapshot(),generated=generate(snapshot,entry.language);
+      // One object per copy: its owner travels in runtime.targetIds. The text of a
+      // sprite still called hero is the default, so those copies keep their shape.
+      const owner=ownerOption().owner,targetIds=owner&&(owner.identifier!=='hero'||owner.targetId!=='hero')?{[owner.identifier]:owner.targetId}:undefined;
       const created=textDocuments.add({language:entry.language,name:'Copia '+name(entry.language)+' del programa 2D',
-        source:entry.source,api:'api3',variableIds:generated.variableIds});
+        source:entry.source,api:'api3',variableIds:generated.variableIds,...(targetIds?{targetIds}:{})});
       onCopy(created,JSON.stringify(editor.save()));
       state.set({...state.get(context),language:'blocks',source:'',baselineSource:'',pendingRestorePoint:null});
       error=null;warning='';setText(errorOutput,'');source.removeAttribute('aria-invalid');
@@ -218,6 +227,32 @@ export function createCodeViewsUI({state,editor,textDocuments,contexts,config,ge
       document.querySelector('#program-mode input[value=blocks]').focus();
     }catch(failure){report(failure);}
   }
+  // R2: changing object with pending text applies it, like returning to Blocks.
+  // On rejection the object does not change, the text stays and its cause shows.
+  async function selectObject(id){
+    const from=objects?.current()??null;
+    if(from===null||from===id)return from===id;
+    if(!ready||busy)return false;
+    const context='2d';
+    if(!await apply(context)||objects.current()!==from)return false;
+    const language=state.get(context).language,stored=state.objectView(id),order=editor.codeViewOrder(),checkpoint=state.checkpoint();
+    error=null;warning='';setText(errorOutput,'');source.removeAttribute('aria-invalid');
+    selfCommit=true;
+    try{
+      objects.mount(id,{scriptOrder:stored.scriptOrder});
+      state.switchObject(from,id,{scriptOrder:order});
+      known.delete(context);pointSnapshots.delete(context);notice.delete(context);carets.delete(context+':'+language);
+      if(language!=='blocks'){
+        const snapshot=editor.codeViewSnapshot(),generated=generate(snapshot,language);
+        const entry={...state.get(context),source:generated.text,baselineSource:generated.text};
+        state.set(entry);known.set(context,{language,source:generated.text,owner:ownerKey(),snapshot});
+      }
+    }catch(failure){
+      try{if(objects.current()!==from)objects.mount(from,{scriptOrder:order});}finally{state.restoreDraft(checkpoint);}
+      report(failure);return false;
+    }finally{selfCommit=false;}
+    render();return true;
+  }
   function presentation(context){
     const entry=state.get(context);
     if(!supports(context)||entry.language==='blocks')return null;
@@ -227,7 +262,7 @@ export function createCodeViewsUI({state,editor,textDocuments,contexts,config,ge
     return {source:entry.source,language:entry.language,readOnly:!available.editable,
       status:baseStatus+(warning?' '+warning:''),
       destination:'Editas el mismo programa 2D. Cambiar de vista no ejecuta.',
-      help:'Usa onStart, onKey y onMessage en JavaScript; on_start, on_key y on_message en Python. Dentro de un evento: hero.move(10), wait(1), variables, repetición y comparaciones. El texto fuera del subconjunto se puede conservar como copia independiente.',
+      help:'Usa onStart, onKey y onMessage en JavaScript; on_start, on_key y on_message en Python. Dentro de un evento: '+(owner=>owner?.kind==='stage'?'':(owner?.identifier??'hero')+'.move(10), ')(ownerOption().owner)+'wait(1), variables, repetición y comparaciones. El texto fuera del subconjunto se puede conservar como copia independiente.',
       onInput:value=>{error=null;warning='';setText(errorOutput,'');source.removeAttribute('aria-invalid');
         state.editSource(context,value);cancelAnalysis();onSourceChanged();render();}};
   }
@@ -265,7 +300,7 @@ export function createCodeViewsUI({state,editor,textDocuments,contexts,config,ge
       state.set({...entry,scriptOrder:order});
     render();
   });
-  return Object.freeze({select,applyForRun:()=>apply('2d'),presentation,
+  return Object.freeze({select,selectObject,applyForRun:()=>apply('2d'),presentation,
     mode:context=>supports(context)?state.get(context).language:null,
     setReady(value){ready=!!value;render();},cancelAnalysis,
     revealBlock(id){

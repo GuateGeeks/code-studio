@@ -3,6 +3,10 @@ import {
   validateTextProgramNumber, validateTextInvocationResult
 } from '../../contracts/text-program.mjs';
 
+// Operations a stage callback may use (scene2d-multi-sprite 2.2): the same
+// statements IR v1 allows the stage; the translators already reject the rest.
+const stageOperations = new Set(['program.wait', 'program.setVariable', 'program.changeVariable', 'program.compare', 'program.broadcastAndWait',
+  'program.playSound', 'program.stopSounds', 'program.stopAll', 'program.frame']);
 const singleInput = Object.freeze({
   'program.turnRight': ['motion_turnright', 'DEGREES'], 'program.turnLeft': ['motion_turnleft', 'DEGREES'],
   'program.pointInDirection': ['motion_pointindirection', 'DIRECTION'], 'program.changeX': ['motion_changexby', 'DX'],
@@ -115,15 +119,24 @@ export function createTextProgram({getVM, getRevision, onInvocation = () => {}, 
     // touching active threads or mutable VM data.
     const program = validateTextProgram(descriptor);
     attach();
-    const hero = runtime.getSpriteTargetByName('hero');
+    // Each handler's hats go to its object; every object starts without blocks.
     const stage = runtime.getTargetForStage();
-    if (!hero?.isOriginal || !stage) fail('scene unavailable');
-    const nextBlocks = new hero.blocks.constructor(runtime);
-    const nextStageBlocks = new stage.blocks.constructor(runtime);
+    if (!stage) fail('scene unavailable');
+    const targetOf = id => {
+      const target = id === 'stage' ? stage : runtime.getSpriteTargetByName(id ?? 'hero');
+      if (!target || (target !== stage && !target.isOriginal)) fail('scene unavailable');
+      return target;
+    };
+    // Every object resolves before the VM is touched.
+    const first = targetOf(program.handlers[0]?.targetId);
+    for (const item of [...program.handlers, ...program.variables.filter(variable => variable.scope !== 'global')]) targetOf(item.targetId);
+    const originals = runtime.targets.filter(target => target === stage || target.isOriginal);
+    const replaced = new Map(originals.map(target => [target, new target.blocks.constructor(runtime)]));
     const nextHandlers = new Map();
     for (const [index, handler] of program.handlers.entries()) {
       const hatId = `ggtext-hat-${index}`; const bodyId = `ggtext-callback-${index}`;
-      const opcode = {start: 'event_whenflagclicked', key: 'event_whenkeypressed', click: 'event_whenthisspriteclicked',
+      const owner = targetOf(handler.targetId), nextBlocks = replaced.get(owner);
+      const opcode = {start: 'event_whenflagclicked', key: 'event_whenkeypressed', click: owner === stage ? 'event_whenstageclicked' : 'event_whenthisspriteclicked',
         message: 'event_whenbroadcastreceived', clone: 'control_start_as_clone'}[handler.event];
       const fields = handler.event === 'key' ? {KEY_OPTION: {name: 'KEY_OPTION', value: handler.key}} :
         handler.event === 'message' ? {BROADCAST_OPTION: {name: 'BROADCAST_OPTION', value: handler.message}} : {};
@@ -135,13 +148,11 @@ export function createTextProgram({getVM, getRevision, onInvocation = () => {}, 
     active = false;
     cancelAll('reconfigured');
     getVM().stopAll();
-    hero.blocks = nextBlocks; hero.sprite.blocks = nextBlocks;
-    stage.blocks = nextStageBlocks; stage.sprite.blocks = nextStageBlocks;
-    hero.variables = {}; stage.variables = {};
+    for (const [target, blocks] of replaced) { target.blocks = blocks; target.sprite.blocks = blocks; target.variables = {}; }
     for (const variable of program.variables) {
-      const owner = variable.scope === 'global' ? stage : hero;
-      owner.createVariable(variable.id, variable.name, '', false);
-      owner.variables[variable.id].value = variable.initialValue;
+      const holder = variable.scope === 'global' ? stage : targetOf(variable.targetId);
+      holder.createVariable(variable.id, variable.name, '', false);
+      holder.variables[variable.id].value = variable.initialValue;
     }
     for (const [index, message] of [...new Set(program.handlers.filter(handler => handler.event === 'message').map(handler => handler.message))].entries()) {
       let id = `ggtext-message-${index}`;
@@ -151,7 +162,7 @@ export function createTextProgram({getVM, getRevision, onInvocation = () => {}, 
     declarations = new Map(program.variables.map(variable => [variable.id, variable]));
     handlers = nextHandlers; targetIds = new WeakMap();
     revision = getRevision(); active = true;
-    targetId(hero);
+    targetId(first);
     getVM().greenFlag();
     return {started: true};
   }
@@ -191,6 +202,7 @@ export function createTextProgram({getVM, getRevision, onInvocation = () => {}, 
     if (method === 'program.start') return start(args[0]);
     if (method === 'program.stop') { stop(); getVM()?.stopAll(); return {stopped: true}; }
     const record = requireInvocation(args[0]);
+    if (record.target.isStage && !stageOperations.has(method)) fail(`stage cannot ${method.slice('program.'.length)}`);
     const util = {target: record.target};
     switch (method) {
       case 'program.move': {

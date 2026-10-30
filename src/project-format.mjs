@@ -133,7 +133,7 @@ function structure(document) {
   const views = document.version === 6 && plainObject(document.authoring) && Object.hasOwn(document.authoring, 'codeViews');
   object(document.authoring, document.version === 1 ? ['blockly', 'deviceSource'] : document.version === 5 ? ['blockly', 'deviceSource', 'textDocuments', 'selectedTextDocumentId', 'codeViews']
     : document.version === 6 ? ['scene2d', 'deviceSource', 'textDocuments', 'selectedTextDocumentId', ...(views ? ['codeViews'] : [])] : ['blockly', 'deviceSource', 'textDocuments', 'selectedTextDocumentId'], 'authoring');
-  if (document.version === 5) validateCodeViews(document.authoring.codeViews);
+  if (document.version === 5 && validateCodeViews(document.authoring.codeViews)?.version === 2) fail('las vistas por objeto requieren GGPROJ v6');
   if (views && !validateCodeViews(document.authoring.codeViews)) fail('vistas de código vacías');
   if (document.version >= 2) validateTextDocuments(document.authoring.textDocuments, document.authoring.selectedTextDocumentId);
   // GGPROJ v4 is v3 plus a declared text API; it is written only when needed.
@@ -144,6 +144,11 @@ function structure(document) {
   if (hasCapabilityProfile(document)) {
     if (!validateCapabilities(document.capabilities)) fail('capacidades explícitas ausentes');
     if (document.version === 6) scene2DMatchesObjects(document.authoring.scene2d, document.capabilities);
+    if (document.version === 6 && document.authoring.codeViews?.version === 2) {
+      // The views of a v6 name configured objects (file keys, checked before use).
+      const known = new Set(['stage', ...scene2DObjectsOf(document.capabilities).sprites.map(sprite => sprite.id)]);
+      if ([document.authoring.codeViews.objectId, ...Object.keys(document.authoring.codeViews.objects)].some(id => !known.has(id))) fail('las vistas de código nombran un objeto desconocido');
+    }
   } else {
     object(document.scene, Object.keys(scene), 'scene');
     if (canonical(document.scene) !== canonical(scene)) fail('estado inicial de escena no soportado');

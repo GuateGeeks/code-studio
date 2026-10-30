@@ -211,7 +211,7 @@ async function handle(command,payload={}){
       // IR 2D v1 (gg.sprites 0.3.0): the runner passes the validated objects of the
       // profile; one target per sprite. IR0 keeps the single hero exactly as before.
       const objects=payload.ir?.version===1?payload.objects:null;
-      if(payload.ir?.version===1&&(!objects||payload.textMode===true))throw new Error('Escena con objetos sin configuración válida');
+      if(payload.ir?.version===1&&!objects)throw new Error('Escena con objetos sin configuración válida');
       let project,sourceMap,assets,sceneObjects=null;
       if(payload.resources?.version===1){
         const resources=await validateResources(payload.resources),view=createResourceView(resources);

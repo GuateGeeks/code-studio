@@ -6,7 +6,7 @@ import {languageAvailability, tablesForLocks} from '../contracts/language-table.
 import {languageTables} from '../packs/language-tables.mjs';
 
 // Presentation only: neither this listing nor the log enters project authoring.
-export function createCodeConsoleUI(editor, {selectSourceLocation = () => false, selectSourceBlock = (id) => editor.selectSource(id), createTextCopy = null} = {}) {
+export function createCodeConsoleUI(editor, {selectSourceLocation = () => false, selectSourceBlock = (id) => editor.selectSource(id), createTextCopy = null, projectCopy = null} = {}) {
   const log = createDiagnosticConsole();
   const code = document.querySelector('#generated-code');
   const codeStatus = document.querySelector('#generated-status');
@@ -123,7 +123,8 @@ export function createCodeConsoleUI(editor, {selectSourceLocation = () => false,
     let generated;
     try {
       // Generate from current blocks, never from an old textarea or listing.
-      generated = generateApi3ProgramSource(editor.program(), language);
+      // A project with several objects copies them all (scene2d-multi-sprite 2.2).
+      generated = projectCopy?.(language) ?? generateApi3ProgramSource(editor.program(), language);
     } catch (error) {
       update();
       reportCopyError(error);
@@ -132,7 +133,7 @@ export function createCodeConsoleUI(editor, {selectSourceLocation = () => false,
       return;
     }
     try {
-      await createTextCopy({language, source: generated.text, api: 'api3', variableIds: generated.variableIds,
+      await createTextCopy({language, source: generated.text, api: 'api3', variableIds: generated.variableIds, ...(generated.targetIds ? {targetIds: generated.targetIds} : {}),
         name: language === 'javascript' ? 'Copia JavaScript' : 'Copia Python'});
       copyStatus.textContent = `Copia ${language === 'javascript' ? 'JavaScript' : 'Python'} creada. Editarla no cambia tus bloques.`;
     } catch (error) { reportCopyError(error); }

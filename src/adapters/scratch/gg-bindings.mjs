@@ -13,8 +13,9 @@ export function createGGBindings(getVM, getObjects = () => singleHero) {
     if (!target?.isOriginal) throw new Error('GG sprite unavailable');
     return target;
   };
-  const spriteDTO = target => ({id: 'hero', name: target.getName(), x: target.x, y: target.y});
   const objects = () => getObjects() ?? singleHero;
+  // The VM target is named by ID; the visible name is the object's, as in scene.get.
+  const spriteDTO = target => ({id: 'hero', name: objects().find(object => object.id === 'hero')?.name ?? target.getName(), x: target.x, y: target.y});
   // scene2d-multi-sprite 2.1: a scene other than the single hero lists every
   // sprite with its visible name, and each local variable names its sprite.
   // Per-object GG calls (sprite.*, locals of other sprites) arrive with API v3

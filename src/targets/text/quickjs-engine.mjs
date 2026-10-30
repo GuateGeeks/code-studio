@@ -142,6 +142,10 @@ async function initializeQuickJSEngine({rpc, onDiagnostic, onProgramReady = () =
     if (handles.length !== 1) throw new Error('GG.program.configure requiere configuración.');
     program.configure(vm.dump(handles[0])); return vm.undefined;
   });
+  install(programObject, 'object', handles => {
+    if (handles.length !== 1) throw new Error('GG.program.object requiere un objeto.');
+    program.object(vm.getString(handles[0])); return vm.undefined;
+  });
   vm.setProp(gg, 'program', programObject); programObject.dispose();
   const eventsObject = vm.getProp(gg, 'events');
   for (const [name, event, option] of [['onStart','start'],['onKey','key','key'],['onClick','click','target'],['onMessage','message','message'],['onClone','clone','target']]) {
@@ -150,7 +154,7 @@ async function initializeQuickJSEngine({rpc, onDiagnostic, onProgramReady = () =
       const options = {};
       if (option) {
         const value = vm.getString(handles[0]);
-        if (option === 'target') { if (value !== 'hero') throw new Error('Sprite desconocido.'); }
+        if (option === 'target') { if (value !== program.target()) throw new Error('Sprite desconocido.'); }
         else options[option] = value;
       }
       const callback = handles.at(-1).dup();

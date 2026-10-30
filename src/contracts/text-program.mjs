@@ -1,4 +1,5 @@
 // Studio-owned textual event/context DTOs. No engine or DOM dependencies.
+import {isScene2DSpriteId} from './scene2d-objects.mjs';
 export const textProgramLimits = Object.freeze({
   variables: 16, handlers: 16, invocations: 64, clones: 64, pendingEvents: 64,
   bytes: 16384, number: 1_000_000_000_000, id: 128, message: 64, error: 1024
@@ -32,6 +33,12 @@ function boundedJSON(value) {
   try { encoded = JSON.stringify(value); } catch { fail('not JSON serializable'); }
   if (typeof encoded !== 'string' || new TextEncoder().encode(encoded).length > textProgramLimits.bytes) fail('size limit');
 }
+// The object a handler or local variable belongs to (scene2d-multi-sprite 2.2):
+// a sprite ID or the stage; hero when absent.
+export function validateTextProgramTarget(value) {
+  if (value !== 'stage' && !isScene2DSpriteId(value)) fail('invalid target');
+  return value;
+}
 export function validateTextProgram(program) {
   object(program, ['variables', 'handlers']); boundedJSON(program);
   if (!Array.isArray(program.variables) || program.variables.length > textProgramLimits.variables) fail('variable limit');
@@ -43,17 +50,20 @@ export function validateTextProgram(program) {
   }
   const variableIds = new Set(); const handlerIds = new Set();
   const variables = program.variables.map(variable => {
-    object(variable, ['id', 'name', 'initialValue'], ['scope']);
+    object(variable, ['id', 'name', 'initialValue'], ['scope', 'targetId']);
     validateTextProgramId(variable.id); text(variable.name, 64); validateTextProgramNumber(variable.initialValue);
     if (variable.scope !== undefined && !['local', 'global'].includes(variable.scope)) fail('invalid variable scope');
+    if (Object.hasOwn(variable, 'targetId')) { validateTextProgramTarget(variable.targetId); if (variable.scope === 'global') fail('invalid variable scope'); }
     if (variableIds.has(variable.id)) fail('duplicate variable');
     variableIds.add(variable.id);
     return {...variable, scope: variable.scope ?? 'local'};
   });
   const handlers = program.handlers.map(handler => {
     const extra = handler?.event === 'key' ? ['key'] : handler?.event === 'message' ? ['message'] : [];
-    object(handler, ['id', 'event', ...extra]); validateTextProgramId(handler.id);
+    object(handler, ['id', 'event', ...extra], ['targetId']); validateTextProgramId(handler.id);
+    if (Object.hasOwn(handler, 'targetId')) validateTextProgramTarget(handler.targetId);
     if (!['start', 'key', 'click', 'message', 'clone'].includes(handler.event)) fail('invalid event');
+    if (handler.event === 'clone' && handler.targetId === 'stage') fail('stage cannot clone');
     if (handler.event === 'key' && (typeof handler.key !== 'string' || !/^(space|up arrow|down arrow|left arrow|right arrow|[a-z0-9])$/.test(handler.key))) fail('unsupported key');
     if (handler.event === 'message') text(handler.message, textProgramLimits.message);
     if (handlerIds.has(handler.id)) fail('duplicate handler');

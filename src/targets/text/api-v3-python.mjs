@@ -1,4 +1,4 @@
-import {scene2DApi3} from './api-v3-vocabulary.mjs';
+import {scene2DApi3, api3StageForbids} from './api-v3-vocabulary.mjs';
 
 // Python half of the API v3 translator (see api-v3.mjs). It runs inside the
 // Pyodide worker: the student's AST is rewritten to the API1 form and the
@@ -6,7 +6,8 @@ import {scene2DApi3} from './api-v3-vocabulary.mjs';
 const vocabulary = JSON.stringify({
   statements: Object.fromEntries(Object.values(scene2DApi3.statements).map(item => [item.python, item])),
   events: Object.fromEntries(Object.values(scene2DApi3.events).map(item => [item.python, item])),
-  shared: scene2DApi3.shared
+  shared: scene2DApi3.shared,
+  stageForbids: [...Object.values(scene2DApi3.statements), ...Object.values(scene2DApi3.events)].filter(item => api3StageForbids(item.python, {statements: {[item.python]: item}, events: {}})).map(item => item.python)
 });
 // Python spelling of the core «esperar hasta» (E1); see coreLanguageEntries.
 const waitUntilName = 'wait_until';
@@ -18,18 +19,43 @@ _GG_COMPARE = {_gg_ast.Eq: "EQ", _gg_ast.Lt: "LT", _gg_ast.Gt: "GT"}
 _GG_RESERVED = {"GG", "ctx", "hero", "shared", "wait", "on_start", "on_key", "on_message", "stop_all", "${waitUntilName}"}
 _GG_WAIT_UNTIL = "${waitUntilName}"
 
-def _gg_api3_compile(source, variable_ids_json):
+def _gg_api3_compile(source, variable_ids_json, target_ids_json="{}"):
     ast = _gg_ast
     variable_ids = _gg_json.loads(variable_ids_json)
+    # scene2d-multi-sprite 2.2: the objects of the document (see api3DocumentObjects).
+    objects = _gg_json.loads(target_ids_json) or {"hero": "hero"}
+    sole = next(iter(objects)) if len(objects) == 1 else None
+    current = [sole]  # Object of the code being read: the event's, or the only one.
     statements, events = _GG_VOCABULARY["statements"], _GG_VOCABULARY["events"]
+    stage_forbids = _GG_VOCABULARY["stageForbids"]
     lines = source.splitlines()
     def fail(message, node):
         line = getattr(node, "lineno", 1)
         raise SyntaxError(message, ("document.py", line, getattr(node, "col_offset", 0) + 1, lines[line - 1] if 0 < line <= len(lines) else ""))
+    def stage_fail(name, node):
+        fail("El escenario no se mueve, no habla ni se clona: «" + name + "» es una acción de los sprites.", node)
+    written = lambda node: ast.unparse(node)
     def dotted(node):
-        if isinstance(node, ast.Name): return node.id
-        if isinstance(node, ast.Attribute) and isinstance(node.value, ast.Name): return node.value.id + "." + node.attr
-        return None
+        name = None
+        if isinstance(node, ast.Name): name = node.id
+        elif isinstance(node, ast.Attribute) and isinstance(node.value, ast.Name): name = node.value.id + "." + node.attr
+        if name is None: return None
+        on_stage = current[0] is not None and objects[current[0]] == "stage"
+        if "." not in name:
+            if on_stage and name in stage_forbids: stage_fail(name, node)
+            return name
+        # Sprite actions are keyed under hero; the document writes them on the current object.
+        object_name, method = name.split(".", 1)
+        key = "hero." + method
+        owned = object_name == current[0] if current[0] is not None else object_name in objects
+        if key not in statements and key not in events: return key if owned else name
+        # A name the document binds itself is its own object, as in any Python.
+        if not owned and object_name in bound: return name
+        if not owned and current[0] is not None and object_name in objects: fail("«" + name + "» no va en este evento, que es de «" + current[0] + "»: cada objeto programa sus propios scripts.", node)
+        if not owned:
+            fail("«" + name + "» no es de este programa" + (", que es de «" + current[0] + "»: cada objeto programa sus propios scripts. Usa " + current[0] + "." + method if current[0] is not None else "") + ".", node)
+        if on_stage and key in stage_forbids: stage_fail(method, node)
+        return key
     def number(node):
         if isinstance(node, ast.Constant) and type(node.value) in (int, float): return node.value
         if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.USub) and isinstance(node.operand, ast.Constant) and type(node.operand.value) in (int, float): return -node.operand.value
@@ -40,8 +66,15 @@ def _gg_api3_compile(source, variable_ids_json):
         node = ast.Name(id=path[0], ctx=ast.Load())
         for part in path[1:]: node = ast.Attribute(value=node, attr=part, ctx=ast.Load())
         return node
-    variables, body = {}, []
-    for statement in source and ast.parse(source, "document.py", "exec").body or []:
+    variables, body, declarations = {}, [], {}
+    top_level = source and ast.parse(source, "document.py", "exec").body or []
+    bound = set()
+    for statement in top_level:
+        for child in ast.walk(statement):
+            if isinstance(child, ast.Name) and isinstance(child.ctx, ast.Store): bound.add(child.id)
+            elif isinstance(child, ast.arg): bound.add(child.arg)
+            elif isinstance(child, (ast.Import, ast.ImportFrom)): bound.update((item.asname or item.name).split(".")[0] for item in child.names)
+    for statement in top_level:
         if isinstance(statement, ast.Assign) and len(statement.targets) == 1 and isinstance(statement.targets[0], ast.Name):
             value, scope = statement.value, "local"
             if isinstance(value, ast.Call) and dotted(value.func) == _GG_VOCABULARY["shared"]:
@@ -50,8 +83,9 @@ def _gg_api3_compile(source, variable_ids_json):
             initial = number(value)
             if initial is not None:
                 name = statement.targets[0].id
-                if name in _GG_RESERVED: fail("«" + name + "» está reservado en Code Studio; elige otro nombre.", statement)
+                if name in _GG_RESERVED or name in objects: fail("«" + name + "» está reservado en Code Studio; elige otro nombre.", statement)
                 variables[name] = {"id": variable_ids.get(name, name), "name": name, "scope": scope, "initialValue": initial}
+                declarations[name] = statement
                 continue
             if scope == "global": fail("El valor inicial de una variable del programa debe ser un número.", statement)
         body.append(statement)
@@ -70,7 +104,7 @@ def _gg_api3_compile(source, variable_ids_json):
         for child in ast.walk(node):
             if child in allowed: continue
             if isinstance(child, ast.Name) and child.id in variables and isinstance(child.ctx, ast.Load): fail("Usa " + child.id + " directamente en una acción, en una asignación o en una comparación ==, < o >.", child)
-            if isinstance(child, ast.Call) and dotted(child.func) in statements: fail(dotted(child.func) + " se usa como instrucción propia, no dentro de una expresión.", child)
+            if isinstance(child, ast.Call) and dotted(child.func) in statements: fail(written(child.func) + " se usa como instrucción propia, no dentro de una expresión.", child)
             if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)):
                 action = has_action(child)
                 if action is not None: fail("Las acciones del programa van directamente dentro de un evento, no dentro de funciones propias.", action)
@@ -96,15 +130,15 @@ def _gg_api3_compile(source, variable_ids_json):
                 continue
             if isinstance(node, ast.Expr) and isinstance(node.value, ast.Call) and dotted(node.value.func) in statements:
                 call, action = node.value, statements[dotted(node.value.func)]
-                if len(call.args) != action["arity"] or call.keywords: fail(dotted(call.func) + " recibe " + str(action["arity"]) + (" valor." if action["arity"] == 1 else " valores."), call)
+                if len(call.args) != action["arity"] or call.keywords: fail(written(call.func) + " recibe " + str(action["arity"]) + (" valor." if action["arity"] == 1 else " valores."), call)
                 if action.get("stops"):
                     out.append(at(ast.If(test=ast.Await(value=ast.Call(func=attr("ctx", action["ctx"]), args=[], keywords=[])), body=[ast.Return(value=None)], orelse=[]), node))
                     continue
                 args = [argument(item) for item in call.args] + ([ast.Constant(action["append"])] if "append" in action else [])
                 out.append(at(ast.Expr(value=ast.Await(value=ast.Call(func=attr("ctx", action["ctx"]), args=args, keywords=[]))), node))
                 continue
-            if isinstance(node, ast.Expr) and isinstance(node.value, ast.Call) and isinstance(node.value.func, ast.Attribute) and dotted(node.value.func) and dotted(node.value.func).startswith("hero."):
-                fail("hero no tiene la acción " + node.value.func.attr + ".", node)
+            if isinstance(node, ast.Expr) and isinstance(node.value, ast.Call) and isinstance(node.value.func, ast.Attribute) and dotted(node.value.func) and isinstance(node.value.func.value, ast.Name) and node.value.func.value.id == current[0]:
+                fail(current[0] + " no tiene la acción " + node.value.func.attr + ".", node)
             if isinstance(node, ast.Assign) and len(node.targets) == 1 and is_variable(node.targets[0]):
                 out.append(at(ast.Expr(value=ast.Await(value=ast.Call(func=attr("ctx", "setVariable"), args=[ast.Constant(variables[node.targets[0].id]["id"]), argument(node.value)], keywords=[]))), node))
                 continue
@@ -140,13 +174,19 @@ def _gg_api3_compile(source, variable_ids_json):
             check(node)
             out.append(node)
         return out or [ast.Pass()]
-    module, registered = [], 0
+    module, registered, registering, users = [], 0, "hero", {}
     for statement in body:
-        event = None
+        event, named = None, None
         if isinstance(statement, ast.FunctionDef) and len(statement.decorator_list) == 1:
             decorator = statement.decorator_list[0]
-            key = dotted(decorator.func if isinstance(decorator, ast.Call) else decorator)
-            event = events.get(key)
+            head = decorator.func if isinstance(decorator, ast.Call) else decorator
+            # An event names its object (@cesta.on_key), or belongs to the only one.
+            if isinstance(head, ast.Attribute) and isinstance(head.value, ast.Name) and head.value.id in objects:
+                named = head.value.id
+                event = events.get(head.attr) or events.get("hero." + head.attr)
+            else:
+                event = events.get(dotted(head))
+                if event is not None and sole is None: fail("Este documento programa varios objetos: escribe de quién es el evento, como @" + next(iter(objects)) + "." + written(head) + ".", decorator)
         if event is None:
             action = has_action(statement)
             if action is not None: fail("Las acciones del programa van dentro de un evento, como @on_start.", action)
@@ -154,18 +194,37 @@ def _gg_api3_compile(source, variable_ids_json):
             module.append(statement); continue
         decorator = statement.decorator_list[0]
         options = decorator.args if isinstance(decorator, ast.Call) else []
-        if event.get("option") and not (len(options) == 1 and isinstance(options[0], ast.Constant) and isinstance(options[0].value, str)): fail("@" + key + " recibe un texto entre comillas.", decorator)
-        if not event.get("option") and options: fail("@" + key + " no recibe valores.", decorator)
+        if event.get("option") and not (len(options) == 1 and isinstance(options[0], ast.Constant) and isinstance(options[0].value, str)): fail("@" + written(head) + " recibe un texto entre comillas.", decorator)
+        if not event.get("option") and options: fail("@" + written(head) + " no recibe valores.", decorator)
         if statement.args.args or statement.args.posonlyargs or statement.args.kwonlyargs or statement.args.vararg or statement.args.kwarg: fail("La función del evento no recibe parámetros.", statement)
+        owner = named or sole
+        owner_target = objects[owner]
+        if owner_target == "stage" and event["register"] == "onClone": stage_fail("on_clone_start", decorator)
+        # A local belongs to the one object that uses it (as in Scratch).
+        for item in statement.body:
+            for child in ast.walk(item):
+                if isinstance(child, ast.Name) and child.id in variables: users.setdefault(child.id, set()).add(owner)
+        current[0] = owner
         handler = at(ast.AsyncFunctionDef(name=statement.name, args=ast.arguments(posonlyargs=[], args=[ast.arg(arg="ctx")], kwonlyargs=[], kw_defaults=[], defaults=[]), body=handler_body(statement.body), decorator_list=[], returns=None, type_params=[]), statement)
-        target = [ast.Constant(event["target"])] if event.get("target") else []
+        current[0] = sole
+        target = [ast.Constant(owner_target)] if event.get("target") else []
         register = at(ast.Expr(value=ast.Call(func=attr("GG", "events", event["register"]), args=list(options) + target + [ast.Name(id=statement.name, ctx=ast.Load())], keywords=[])), statement)
+        # hero is the runtime's default object: its documents keep the API1 shape.
+        if owner_target != registering:
+            module.append(at(ast.Expr(value=ast.Call(func=attr("GG", "program", "object"), args=[ast.Constant(owner_target)], keywords=[])), statement))
+            registering = owner_target
         module += [handler, register]
         registered += 1
     if not registered and len(variables) == len(external):
         return compile(source, "document.py", "exec", flags=_gg_ast.PyCF_ALLOW_TOP_LEVEL_AWAIT, dont_inherit=True), False
     configured = [item for name, item in variables.items() if name not in external]
-    first = ast.Expr(value=ast.Call(func=attr("GG", "program", "configure"), args=[ast.parse(_gg_json.dumps({"variables": configured}), mode="eval").body], keywords=[]))
+    for item in configured:
+        if item["scope"] == "global": continue
+        owners = users.get(item["name"], set())
+        if len(owners) > 1: fail("Varios objetos usan «" + item["name"] + "»: decláralo con shared(…) para compartirlo.", declarations[item["name"]])
+        target = objects[next(iter(owners))] if owners else next(iter(objects.values()))
+        if target != "hero": item["targetId"] = target
+    first = ast.Expr(value=ast.Call(func=attr("GG", "program", "configure"), args=[ast.parse(repr({"variables": configured}), mode="eval").body], keywords=[]))
     last = ast.Expr(value=ast.Await(value=ast.Call(func=attr("GG", "events", "run"), args=[], keywords=[])))
     for node, line in ((first, 1), (last, max(1, len(lines)))):
         for child in ast.walk(node): child.lineno = child.end_lineno = line; child.col_offset = child.end_col_offset = 0

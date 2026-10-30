@@ -5,8 +5,17 @@ import ast, json, tokenize, io
 def _cv_python_read(source, vocabulary_json):
     vocab = json.loads(vocabulary_json)
     lines, mapping = [], []
-    def fail(message, node):
-        raise SyntaxError(message, ("program.py", getattr(node,"lineno",1), getattr(node,"col_offset",0)+1, ""))
+    def fail(message, node, code=None):
+        error=SyntaxError(message, ("program.py", getattr(node,"lineno",1), getattr(node,"col_offset",0)+1, ""))
+        error.cv_code=code
+        raise error
+    others,stage_only,owner=vocab.get("$others",{}),set(vocab.get("$stageOnly",[])),vocab.get("$owner","hero")
+    # scene2d-multi-sprite 2.2 (R2): another object's action or, on the stage, a sprite action.
+    def foreign(name,node):
+        object_name,_,method=name.partition(".")
+        if method and object_name in others: fail(others[object_name].replace("{call}",name),node,"CV_OTHER_OBJECT")
+        if stage_only and (method if method and object_name==owner else name) in stage_only and (method=="" or object_name==owner):
+            fail(vocab["$stageMessage"].replace("{call}",method or name),node,"CV_STAGE")
     def emit(text,node):
         lines.append(text); mapping.append({"line":getattr(node,"lineno",1),"column":getattr(node,"col_offset",0)+1,
           "endLine":getattr(node,"end_lineno",getattr(node,"lineno",1)),"endColumn":getattr(node,"end_col_offset",0)+1})
@@ -44,6 +53,7 @@ def _cv_python_read(source, vocabulary_json):
             emit("waitUntil(() => "+compare(call.args[0].body)+");",node);return
         if isinstance(node,ast.Expr) and isinstance(node.value,ast.Call):
             call=node.value;name=dotted(call.func);definition=vocab.get(name)
+            if not definition: foreign(name,node)
             if not definition or definition["kind"]!="call": fail("La llamada «"+name+"» no tiene bloque instalado en esta posición.",node)
             if call.keywords: fail("Usa argumentos por posición en esta llamada.",call)
             emit(definition["js"]+"("+", ".join(expr(arg) for arg in call.args)+");",node);return
@@ -101,6 +111,7 @@ def _cv_python_read(source, vocabulary_json):
             decorator=node.decorator_list[0]
             call=isinstance(decorator,ast.Call)
             name=dotted(decorator.func if call else decorator);definition=vocab.get(name)
+            if not definition: foreign(name,decorator)
             if not definition or definition["kind"]!="event": fail("Las funciones propias necesitan un evento instalado; conserva una copia independiente.",node)
             if call and decorator.keywords: fail("El evento usa argumentos por posición.",decorator)
             args=decorator.args if call else []
@@ -122,7 +133,7 @@ def _cv_python_safe(source, vocabulary_json):
     try: return _cv_python_read(source,vocabulary_json)
     except SyntaxError as error:
         return json.dumps({"error":{"message":error.msg,"lineNumber":error.lineno or 1,"columnNumber":error.offset or 1,
-          "code":"CV_SYNTAX" if "invalid syntax" in error.msg or "expected" in error.msg or "never closed" in error.msg else "CV_UNSUPPORTED"}})
+          "code":getattr(error,"cv_code",None) or ("CV_SYNTAX" if "invalid syntax" in error.msg or "expected" in error.msg or "never closed" in error.msg else "CV_UNSUPPORTED")}})
 `;
 
 export async function parsePythonCodeView(source,options,{parseJavaScriptCodeView,pythonCodeViewVocabulary}) {

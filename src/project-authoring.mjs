@@ -11,11 +11,17 @@ export function createProjectAuthoring({editor,textDocuments,codeViews,source,ca
  // GGPROJ v6 (scene2d-multi-sprite 1.3): the single 2D editor holds the first
  // sprite's workspace; the stage and the other sprites stay serialized here
  // until the per-object editor (tarea 3.1). Null for single-workspace profiles.
+ // `mounted` is the object in the editor (2.2): the first sprite unless the
+ // saved views or mountObject name another; `primary` stays the first sprite.
  let objects=null;
- function objectsOf(model,capabilities){
+ function objectsOf(model,capabilities,views){
   const config=scene2DObjectsOf(capabilities);if(!config)return null;
-  return {primary:config.sprites[0].id,scene2d:structuredClone(model.authoring.scene2d??scene2DAuthoringFromBlockly(model.authoring.blockly,config))};
+  const primary=config.sprites[0].id,mounted=views?.version===2?views.objectId:primary;
+  if(mounted!=='stage'&&!config.sprites.some(sprite=>sprite.id===mounted))throw new Error('Las vistas de código nombran un objeto desconocido.');
+  return {primary,mounted,scene2d:structuredClone(model.authoring.scene2d??scene2DAuthoringFromBlockly(model.authoring.blockly,config))};
  }
+ const objectWorkspace=(store,id)=>id==='stage'?store.scene2d.stage:store.scene2d.sprites[id];
+ function storeWorkspace(store,id,state){if(id==='stage')store.scene2d.stage=state;else store.scene2d.sprites[id]=state;}
  function emit(){if(!muted&&!disposed)for(const callback of subscribers)callback();}
  for(const participant of capabilityEditors) {
   if(!participant||typeof participant.id!=='string'||managed.has(participant.id)||
@@ -71,8 +77,8 @@ export function createProjectAuthoring({editor,textDocuments,codeViews,source,ca
  // reading: nothing is mounted, saved or run.
  const emptyWorkspace=state=>!state?.blocks?.blocks?.length&&!state?.variables?.length;
  function sceneProgram() {
-  const primary=editor.program();
-  if(!objects)return primary;
+  const mounted=editor.program();
+  if(!objects)return mounted;
   const config=scene2DObjectsOf(projectExecution(template,'scratch-2d'));
   if(!config)throw new Error('El perfil 2D perdió sus objetos.');
   const lower=state=>{
@@ -80,13 +86,32 @@ export function createProjectAuthoring({editor,textDocuments,codeViews,source,ca
    if(typeof editor.programOf!=='function')throw new Error('Este editor no puede convertir los scripts de otros objetos.');
    return editor.programOf(structuredClone(state));
   };
-  return composeScene2DProgram(config,{stage:lower(objects.scene2d.stage),
-   sprites:Object.fromEntries(config.sprites.map(sprite=>[sprite.id,sprite.id===objects.primary?primary:lower(objects.scene2d.sprites[sprite.id])]))});
+  return composeScene2DProgram(config,{stage:objects.mounted==='stage'?mounted:lower(objects.scene2d.stage),
+   sprites:Object.fromEntries(config.sprites.map(sprite=>[sprite.id,sprite.id===objects.mounted?mounted:lower(objects.scene2d.sprites[sprite.id])]))});
+ }
+ // Puts another object in the single editor (2.2): the coordinator stores the
+ // outgoing workspace only after the incoming one validated and loaded, so a
+ // rejected object changes nothing. Nothing runs. The panel arrives with 3.1.
+ function mountObject(id,{scriptOrder=null}={}) {
+  if(!objects)throw new Error('Este proyecto tiene un solo objeto.');
+  if(id!=='stage'&&!Object.hasOwn(objects.scene2d.sprites,id))throw new Error('Objeto desconocido.');
+  if(id===objects.mounted)return;
+  const resourceView=editor.resourceView?.()??null;
+  const candidate=editor.prepare(structuredClone(objectWorkspace(objects,id)),{scriptOrder,capabilities:projectExecution(template,'scratch-2d',{allowInactive:true}),...(resourceView?{resourceView}:{})});
+  const outgoing=editor.save();
+  muted++;
+  try{editor.commit(candidate);storeWorkspace(objects,objects.mounted,outgoing);objects.mounted=id;}
+  finally{muted--;}
+  emit();
  }
  function capture() {
   const capabilities=captureCapabilities(),views=codeViews?.capture();
-  const blockly=editor.save();
-  return {blockly,...(objects?{scene2d:{stage:structuredClone(objects.scene2d.stage),sprites:{...structuredClone(objects.scene2d.sprites),[objects.primary]:structuredClone(blockly)}}}:{}),deviceSource:source.value,...(textDocuments?.capture()??{}),...(views?{codeViews:views}:{}),...(capabilities?{capabilities}:{}),...(resourceStore?{resources:resourceStore.capture()}:{})};
+  const live=editor.save();
+  // `blockly` stays the first sprite's workspace (createProject writes it there).
+  let scene2d=null;
+  if(objects){scene2d=structuredClone({stage:objects.scene2d.stage,sprites:objects.scene2d.sprites});storeWorkspace({scene2d},objects.mounted,structuredClone(live));}
+  const blockly=scene2d?structuredClone(scene2d.sprites[objects.primary]):live;
+  return {blockly,...(scene2d?{scene2d}:{}),deviceSource:source.value,...(textDocuments?.capture()??{}),...(views?{codeViews:views}:{}),...(capabilities?{capabilities}:{}),...(resourceStore?{resources:resourceStore.capture()}:{})};
  }
  function prepare(model,options={}) {
   if(!model?.authoring||typeof model.authoring.deviceSource!=='string')throw new TypeError('Invalid project authoring');
@@ -99,10 +124,10 @@ export function createProjectAuthoring({editor,textDocuments,codeViews,source,ca
   if(model.authoring.codeViews && !codeViews)throw new Error('Este lector no admite las vistas guardadas del proyecto.');
   const viewsCandidate=codeViews?.prepare(model.authoring.codeViews??null);
   if(resources)validateCapabilityReferences(capabilities,{resources,textDocuments:model.authoring.textDocuments??[]});
-  const scene2d=objectsOf(model,capabilities);
+  const scene2d=objectsOf(model,capabilities,viewsCandidate);
   const plan={
    capabilities,resourceCandidate,objects:scene2d,
-   editor:editor.prepare(scene2d?scene2d.scene2d.sprites[scene2d.primary]:model.authoring.blockly,{scriptOrder:viewsCandidate?.entries.find(entry=>entry.contextId==='2d')?.scriptOrder??null,capabilities:projectExecution(capabilities,'scratch-2d',{allowInactive:true}),...(resourceView?{resourceView}:{})}),
+   editor:editor.prepare(scene2d?objectWorkspace(scene2d,scene2d.mounted):model.authoring.blockly,{scriptOrder:viewsCandidate?.entries.find(entry=>entry.contextId==='2d')?.scriptOrder??null,capabilities:projectExecution(capabilities,'scratch-2d',{allowInactive:true}),...(resourceView?{resourceView}:{})}),
    text:textCandidate,codeViews:viewsCandidate,
    source:model.authoring.deviceSource,
    managed:[...managed].map(([id,participant])=>{const config=capabilities?.config[id]??null;const contextId=(participant.contexts??[participant.context??participant.id])[0];const view=resourceStore?.candidateView(resourceCandidate,{contextId,documentId:config?.documentId});return {id,candidate:participant.prepareConfig(config,{resources,resourceView:view,textDocuments:model.authoring.textDocuments??[]})};})
@@ -163,7 +188,7 @@ export function createProjectAuthoring({editor,textDocuments,codeViews,source,ca
   const unsubscribe=participant.subscribe(emit);if(typeof unsubscribe==='function')disposers.push(unsubscribe);
  }
  if(source.addEventListener){source.addEventListener('input',emit);disposers.push(()=>source.removeEventListener('input',emit));}
- return Object.freeze({capture,sceneProgram,captureCapabilities,capabilities:captureCapabilities,captureExecutionCapabilities,prepareCapabilities,prepare,commit,checkpoint,restoreDraft,
+ return Object.freeze({capture,sceneProgram,mountObject,mountedObject:()=>objects?.mounted??null,captureCapabilities,capabilities:captureCapabilities,captureExecutionCapabilities,prepareCapabilities,prepare,commit,checkpoint,restoreDraft,
   subscribe(callback){subscribers.add(callback);return()=>subscribers.delete(callback);},
   dispose(){disposed=true;for(const dispose of disposers)dispose();subscribers.clear();}
  });

@@ -89,7 +89,7 @@ export async function createPythonEngine({rpc, onDiagnostic, onProgramReady = ()
     });
   };
   gg.ref = id => variableReference(id);
-  gg.program = Object.freeze({configure: config => program.configure(plain(config))});
+  gg.program = Object.freeze({configure: config => program.configure(plain(config)), object: id => program.object(id)});
   const registrations = {onStart: ['start'], onKey: ['key', 'key'], onClick: ['click', 'target'], onMessage: ['message', 'message'], onClone: ['clone', 'target']};
   // Extend the previously frozen legacy namespace through a fresh owned object.
   gg.events = {...gg.events};
@@ -98,7 +98,7 @@ export async function createPythonEngine({rpc, onDiagnostic, onProgramReady = ()
     const handler = values.at(-1);
     if (typeof handler !== 'function' || typeof handler.copy !== 'function') throw new Error('Se requiere un callback Python.');
     const options = {};
-    if (option === 'target') { if (values[0] !== 'hero') throw new Error('Sprite desconocido.'); }
+    if (option === 'target') { if (values[0] !== program.target()) throw new Error('Sprite desconocido.'); }
     else if (option) options[option] = values[0];
     const retained = handler.copy();
     try { return program.register(event, options, retained); }
@@ -136,8 +136,9 @@ export async function createPythonEngine({rpc, onDiagnostic, onProgramReady = ()
         if (candidate.runtime.api === 'api3' && !profile) {
           if (!api3Ready) { pyodide.runPython(api3PythonCompiler); api3Ready = true; }
           pyodide.globals.set('__gg_variable_ids', JSON.stringify(candidate.runtime.variableIds ?? {}));
-          try { pyodide.runPython('__gg_code = _gg_api3_compile(__gg_source, __gg_variable_ids)[0]'); }
-          finally { pyodide.globals.delete('__gg_variable_ids'); }
+          pyodide.globals.set('__gg_target_ids', JSON.stringify(candidate.runtime.targetIds ?? {}));
+          try { pyodide.runPython('__gg_code = _gg_api3_compile(__gg_source, __gg_variable_ids, __gg_target_ids)[0]'); }
+          finally { pyodide.globals.delete('__gg_variable_ids'); pyodide.globals.delete('__gg_target_ids'); }
         } else if (candidate.runtime.api === 'api3') {
           if (!api3CapabilityReady) { pyodide.runPython(api3CapabilityPythonCompiler); api3CapabilityReady = true; }
           const values = {__gg_vocabulary: JSON.stringify(capabilityApi3Vocabulary(profile)), __gg_profile: JSON.stringify({contextId: profile.contextId, documentId: profile.documentId}),

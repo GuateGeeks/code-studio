@@ -1,10 +1,11 @@
 export {createCapabilityProgramSession} from './capability-session.mjs';
-import {validateTextProgram, textProgramLimits} from '../../contracts/text-program.mjs';
+import {validateTextProgram, validateTextProgramTarget, textProgramLimits} from '../../contracts/text-program.mjs';
 
 // Callback registrations and cancellation tokens are control data, never scene state.
 export function createTextProgramSession({rpc, invoke, cancel = () => {}, release = () => {}, onReady = () => {}}) {
   let variables = [];
   let handlers = [];
+  let currentObject;
   let started = false;
   let alive = true;
   let closeRun = null;
@@ -15,11 +16,17 @@ export function createTextProgramSession({rpc, invoke, cancel = () => {}, releas
     if (started || handlers.length || !config || Object.keys(config).join(',') !== 'variables') throw new Error('Configura el programa antes de registrar eventos.');
     variables = validateTextProgram({variables: config.variables, handlers: []}).variables;
   }
+  // The object of the next registrations (scene2d-multi-sprite 2.2); hero until set.
+  function object(id) {
+    ensureOpen();
+    if (started) throw new Error('Los eventos ya están activos.');
+    currentObject = validateTextProgramTarget(id);
+  }
   function register(event, options, callback) {
     ensureOpen();
     if (started) throw new Error('Los eventos ya están activos.');
     const id = 'handler-' + handlers.length;
-    const descriptor = {id, event, ...options};
+    const descriptor = {id, event, ...options, ...(currentObject === undefined || currentObject === 'hero' ? {} : {targetId: currentObject})};
     validateTextProgram({variables, handlers: [...handlers.map(item => item.descriptor), descriptor]});
     handlers.push({descriptor, callback});
     return id;
@@ -74,7 +81,8 @@ export function createTextProgramSession({rpc, invoke, cancel = () => {}, releas
     for (const handler of handlers) release(handler.callback);
     handlers = [];
   }
-  return Object.freeze({configure, register, run, call, dispatch, cancelInvocation, dispose,
+  return Object.freeze({configure, object, register, run, call, dispatch, cancelInvocation, dispose,
+    target: () => currentObject ?? 'hero',
     assertLegacyAllowed: method => { if (started && !['scene.get', 'sprite.get', 'variables.get'].includes(method)) throw new Error('Usa el contexto ctx para modificar un programa de eventos.'); },
     listening: () => alive && started && handlers.length > 0});
 }

@@ -85,7 +85,7 @@
     - `toScratchSceneProject` llama a `validateProgram(ir, {resourceView, objects: true})` de forma local.
     - `authorizeProgram(capabilities, ir, {resourceView, objects})` acepta la v1 solo con `objects === true`. Además exige que el perfil tenga objetos y que `ir.sprites` sean los configurados, en orden. Autoriza disfraces y sonidos contra el dueño de cada script (`resourceAllowed` con `ownerId`).
     - El runner (`load-program`) activa `objects` solo si el perfil validado tiene objetos (0.3.0). La escena recibe esos objetos validados en `payload.objects`, que sustituye a cualquier campo del mensaje.
-    - `browser-scene` solo construye la escena por objetos con `payload.objects`, y nunca en modo texto.
+    - `browser-scene` solo construye la escena por objetos con `payload.objects`. Hasta 2.2 tampoco en modo texto; desde 2.2 sí (punto 27).
     - Para que ningún llamador abra la v1 por accidente, `toScratchProject` y `generateCode` ya no reenvían `options` al validador: solo pasan `resourceView`. Generadores, traductores, vistas, `code-view-identity`, `workspace-from-ir`, lecciones y la copia SB3 siguen cerrados hasta 2.2. Pruebas MS-016 y MS-018.
     - **Permisos de recursos de otros objetos.** Las restricciones instaladas nombran a `hero`: `gg.assets` con `{ownerId: 'hero'}` y la lista de `gg.sprites`. Con ellas, «cambiar disfraz» y «tocar sonido» de otro objeto (escenario incluido) se rechazan por permisos. El manifiesto de `gg.assets` está congelado. Los permisos por objeto llegan con los menús por objeto (3.2): una versión nueva o una regla de `gg.sprites@0.3.0` (punto 11). MS-023.
 18. **Lock de motores sin cambios** (`ir: 0`, `adapter: 'scratch-2d-v0'`). `locks` describe el conjunto de motores de todo el archivo y se escribe en cada guardado, también en los proyectos 0.1.0/0.2.0, que siguen ejecutando IR0. La IR no se guarda en GGPROJ: su versión la decide el pack (0.3.0 → v1), que ya está fijado por hash en `capabilities.locks`. El adaptador sigue siendo el mismo para IR0. Subir `ir` haría ilegibles en versiones anteriores todos los guardados nuevos, incluso los de un solo workspace, sin ninguna ventaja. Alternativa descartada: `ir: 1` con historial.
@@ -102,6 +102,48 @@
     - Stop externo (`vm.stopAll`) con dos bucles «por siempre».
 
     Una mutación (globales en cada sprite en lugar del escenario) hace fallar el corpus. MS-022 repite la equivalencia de MS-006 por dos caminos independientes, IR0 con `toScratchProject` frente a v1 con `toScratchSceneProject`, en lugar de dos IR0 iguales. En navegador, `scene2d-multi-sprite.spec.mjs` cubre lo mismo: abrir sin ejecutar, escena inicial, mensajes, global, lectura, Stop en la VM y Detener del estudio. También compara un proyecto 0.3.0 con su copia 0.2.0.
+
+### Decisiones de E2 · texto por objeto (30/10/2026, tarea 2.2)
+
+22. **Identificadores textuales (R3).** `scene2d-identifiers.mjs`, puro.
+    - **Derivación.** Del nombre visible: NFC, sin marcas diacríticas, minúsculas, cada otro tramo de caracteres pasa a `_`, sin `_` en los extremos, hasta 48 caracteres. `Gato Rojo` → `gato_rojo`, `Ñandú` → `nandu`. Sin letras latinas ni dígitos, `objeto`. Si empieza con dígito, prefijo `objeto_`.
+    - **Reservadas.** Palabras de JS y Python, nombres globales de la API en los dos lenguajes (`wait`, `on_start`…), los internos (`GG`, `ctx`, `shared`…), los contadores que escribe el generador (`i`, `j`, `k`) y `stage`, que es siempre el escenario. Una reservada lleva `_` al final (`wait_`). `hero` no se reserva: es el identificador del sprite llamado hero.
+    - **Colisiones.** `_2`, `_3`… en orden de configuración. Mismos nombres y orden, mismos identificadores; pero borrar un sprite puede quitarle el sufijo a otro, y renombrar cambia el texto. Lo estable es el `id` interno, que es lo que viaja en `targetIds`.
+    - **Variables.** Nunca toman el identificador de un objeto: el generador los da por ocupados y el parser rechaza `let cesta = 0`.
+    - **Nombres (pendiente de T2).** `validateScene2DObjects` exige NFC y rechaza control, formato (bidi, ancho cero), separadores de línea y sustitutos sueltos. Una única grafía por nombre da un único identificador. El panel de T6 debe normalizar lo que escribe el estudiante, no rechazarlo.
+23. **Vistas sincronizadas por objeto (R2).** Cada vista trabaja sobre la IR0 del workspace montado, así que identidad, comentarios, posiciones y orden no cambian. Lo nuevo es el **dueño**, `scene2DTextOwner(config, id)`: `{identifier, kind, targetId, others}`, que acompaña a generador, parser y solicitud de conversión (validado en `validateCodeViewRequest`).
+    - **Texto.** Eventos globales en el nivel superior. Acciones y eventos de sprite sobre el identificador (`cesta.onClick`). Sin dueño, hero, con la salida byte a byte de siempre (MS-027).
+    - **Rechazos.** `CV_OTHER_OBJECT`: acción sobre otro objeto, con su nombre y línea. `CV_STAGE`: en el escenario, acciones de sprite, `createClone`, `deleteClone` y `onCloneStart`. Su único evento de sprite es `stage.onClick`. Python los da desde el lector AST, en la línea original. El dueño llega al lector en `$owner`, `$others`, `$stageOnly`, `$stageMessage`.
+    - **Escenario.** Las reglas de `stageStatements` y `stageEvents` de la IR v1 se repiten como tabla en parser, traductores y generador: cada uno rechaza con su propio mensaje antes de llegar al validador.
+    - **Cierre a la v1.** `generateApi3ProgramSource` deja de reenviar `options` al validador: solo pasa `resourceView`.
+24. **`codeViews` versión 2.** Añade `objectId` (objeto de la entrada `2d`) y `objects` (`{<id>: {scriptOrder, restorePoint}}` de los demás, hasta 8).
+    - **Por qué.** `scriptOrder` y el punto de Deshacer describen un workspace concreto. El texto no se guarda por objeto: R2 lo aplica antes de cambiar, así que solo el objeto actual puede tener texto pendiente.
+    - **Compatibilidad.** La versión 1 se lee igual y se escribe mientras no se cambie de objeto, por eso los proyectos de un objeto no cambian. `switchObject` pasa a la 2. Solo GGPROJ v6 la admite, y sus claves deben ser objetos configurados; v5 la rechaza con mensaje. Límite 1 MiB (9 puntos de 64 KiB).
+    - **Consecuencia.** Salir de 0.3.0 con vistas versión 2 falla al guardar. Ya exigía que los demás objetos estuvieran vacíos.
+25. **Cambio de objeto.** `codeViewsUI.selectObject(id)` es el contrato completo de R2 y T6 lo cablea al panel.
+    1. Aplica el texto como al volver a Bloques. Si se rechaza, devuelve `false`: selección y texto intactos, causa visible.
+    2. Monta el objeto con su orden guardado (`authoring.mountObject`).
+    3. Cambia el estado de vistas y regenera el texto si la vista no es Bloques.
+    - Si falla el paso 3, se vuelve al objeto anterior. `mountObject` guarda el workspace saliente solo tras cargar el entrante.
+    - `objects.mounted` sustituye a la suposición del primer sprite en `sceneProgram` y `capture`. **`capture().blockly` sigue siendo el primer sprite**: `createProject` lo escribe ahí, y con otro objeto montado borraría sus bloques (MS-033). Las vistas guardadas deciden qué objeto se monta al abrir.
+    - La caja de herramientas sigue siendo la del sprite también en el escenario: es de 3.1/3.2. `Consulta de código` y lecciones siguen leyendo `editor.program()`, el objeto montado: es de 3.2 y T7.
+26. **Dos formas de copia independiente.** La especificación pide que la copia de un proyecto con dos sprites ejecute lo mismo que los bloques.
+    - **Copia del proyecto (`Código › Crear copia`).** Un documento, con `runtime.targetIds` = todos los objetos, escenario incluido. Variables arriba, y **cada evento nombra su objeto**: `hero.onStart(...)`, `stage.onMessage(...)`. Una acción debe ser del objeto de su evento, igual que en una vista. `generateApi3SceneSource` es la única ruta que abre el generador a la v1. Si un proyecto tiene un solo objeto con scripts, conserva el texto de su vista, y con hero es el de siempre.
+    - **Copia de la vista (`Crear copia` en una vista).** El texto exacto del objeto seleccionado, también si no convierte; `targetIds` = ese objeto. Es lo único posible: el texto puede no ser analizable y no se puede mezclar con el de los demás. Al ejecutarse están todos los sprites en escena, pero solo ese tiene programa.
+    - **hero.** Sin `targetIds`, un documento es de hero, como todas las copias anteriores. Solo se escribe `targetIds` si identificador u objeto difieren de hero. Un hero renombrado sí lo lleva (`{heroe: 'hero'}`).
+    - **Variables.** `shared(…)` es global. `let` es local del único objeto que la usa, como en la composición de la IR; si la usan dos se rechaza en su línea. El mismo nombre local en dos objetos se escribe `pasos` y `pasos_2`.
+    - **Límites.** Un documento es un programa de texto: 16 eventos y 16 variables. Una copia de proyecto mayor falla al crearla y remite a las copias por objeto. No se suben los límites de seguridad del runtime para este caso.
+    - **Alternativa descartada: un documento por objeto.** Ejecutar uno dejaría a los demás sin programa, y el escenario de la especificación no se cumpliría.
+    - API1/API2 no cambian.
+27. **Traductores y ejecución.** `compileApi3JavaScript` y `_gg_api3_compile` reciben `runtime.targetIds`.
+    - **Lenguaje base.** `GG.program.object(id)` fija el objeto de los registros siguientes. Los manejadores y las locales llevan `targetId`, ausente en hero. Un documento de hero produce exactamente el API1 de siempre (API3-002/003 intactas).
+    - **Nombres libres.** `<nombre>.move(…)` con un nombre que el documento no declara es la acción de otro objeto, y se explica en su línea en vez de fallar en ejecución. Un objeto del propio estudiante (`const pieza = {move() {}}`) sigue siendo suyo.
+    - **Runtime.** `text-program` crea los sombreros en cada objeto. El escenario usa `event_whenstageclicked` y solo las operaciones que la IR v1 le permite. Es una barrera aparte del traductor, porque un documento API1 podría llamar a `GG.program.object('stage')`.
+    - **Escena en modo texto.** Con 0.3.0 se carga la v1 sin scripts: todos los sprites en escena, con su estado. Con solo `hero` el proyecto Scratch es idéntico al de IR0 (MS-019). Hasta 2.2 un documento de texto veía solo a hero.
+    - **`sprite.get`.** Devuelve el nombre visible, como `scene.get`, y el `sprite.*` de API1 sigue siendo solo de hero. No hace falta más: en API v3 las acciones corren en el hilo de su objeto.
+    - **Sigue pendiente (punto 17).** `gg.assets` y `gg.sprites` solo autorizan disfraces y sonidos de hero, así que `cesta.setCostume(…)` se rechaza por permisos también en texto, hasta 3.2.
+
+    Pruebas MS-026…034 (`tests/integration/scene2d-text.test.mjs`) y MS-BROWSER-003…006 (`tests/browser/scene2d-object-views.spec.mjs`).
 
 ## Risks / Trade-offs
 
