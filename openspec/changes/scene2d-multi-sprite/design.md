@@ -124,7 +124,7 @@
     1. Aplica el texto como al volver a Bloques. Si se rechaza, selección y texto quedan intactos y la causa se ve (el resultado se detalla en el punto 29).
     2. Monta el objeto con su orden guardado (`authoring.mountObject`).
     3. Cambia el estado de vistas y regenera el texto si la vista no es Bloques.
-    - Si falla el paso 3, se vuelve al objeto anterior. `mountObject` guarda el workspace saliente solo tras cargar el entrante.
+    - Si el objeto entrante está incompleto y no puede generar texto, queda seleccionado y abre Bloques con su autoría intacta (puntos 45 y 69; MS-BROWSER-028). Ese fallback no es un fallo de montaje: un fallo real al montar o confirmar la transacción revierte al objeto anterior. `mountObject` guarda el workspace saliente solo tras cargar el entrante.
     - `objects.mounted` sustituye a la suposición del primer sprite en `sceneProgram` y `capture`. **`capture().blockly` sigue siendo el primer sprite**: `createProject` lo escribe ahí, y con otro objeto montado borraría sus bloques (MS-033). Las vistas guardadas deciden qué objeto se monta al abrir.
     - La caja de herramientas del escenario quedó resuelta en 3.1 (punto 38). `Consulta de código` y lecciones se resolvieron en 3.2 (punto 47).
 26. **Dos formas de copia independiente.** La especificación pide que la copia de un proyecto con dos sprites ejecute lo mismo que los bloques.

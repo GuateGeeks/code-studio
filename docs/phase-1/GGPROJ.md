@@ -106,7 +106,7 @@ Cambio OpenSpec `pack-versioning-and-migrations`, decidido en [ADR-011](../adr/0
 - **Validación.** Las claves son exactamente los IDs de los sprites configurados y se validan antes de usarse. Cada workspace mantiene el límite de 64 KiB.
 - **Versiones anteriores.** v1–v5 no cambian. Un archivo v6 en una versión anterior de Code Studio se rechaza explicando que es de una versión más reciente.
 - **Actualizar packs.** Lleva el workspace único a `scene2d.sprites.hero` con los mismos IDs, sin ejecutar. Un v3 con 0.3.0 y un solo workspace (forma intermedia de esta etapa) se abre igual y se guarda como v6.
-- **Pérdidas.** Nunca se descartan scripts de otros objetos en silencio.
+- **Pérdidas.** El contrato exige rechazar la pérdida de scripts al salir de 0.3.0, pero queda la [limitación conocida del helper de downgrade](#precisiones-e2-del-corte-fb4215f) para workspaces no vacíos idénticos en un v6 externo válido. No se presenta ese helper como corregido.
 
 Decisión y razones en `openspec/changes/scene2d-multi-sprite/design.md` (puntos 12–14).
 
