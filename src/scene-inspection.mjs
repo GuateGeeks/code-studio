@@ -14,27 +14,48 @@ function number(value, label) {
   if (typeof value !== 'number' || !Number.isFinite(value) || Math.abs(value) > 1_000_000) fail(label);
 }
 
+// Same sprite ID syntax as gg.sprites@0.3.0 (scene2d-objects.mjs), kept local:
+// this DTO module has no pack or contract imports.
+const spriteId = value => typeof value === 'string' && /^[A-Za-z0-9:_-]{1,128}$/.test(value) && !['__proto__', 'prototype', 'constructor', 'stage'].includes(value);
+const complete = (list, copy) => !copy.some((_, index) => !Object.hasOwn(list, index)) && Object.keys(copy).length === copy.length;
+// Two shapes. The single hero (gg.sprites 0.1.0/0.2.0 and hero-only scenes):
+// exactly as before. Objects (scene2d-multi-sprite 2.1): 1–8 sprites with
+// their visible names, and every local variable names its sprite (targetId),
+// at most 16 per sprite.
 export function validateSceneSnapshot(snapshot) {
   object(snapshot, ['sprites', 'variables'], 'snapshot');
-  if (!Array.isArray(snapshot.sprites) || snapshot.sprites.length !== 1) fail('se requiere un sprite hero');
-  const sprite = snapshot.sprites[0];
-  object(sprite, ['id', 'name', 'x', 'y'], 'sprite');
-  if (sprite.id !== 'hero' || sprite.name !== 'hero') fail('sprite no admitido');
-  number(sprite.x, 'posición x'); number(sprite.y, 'posición y');
-  if (!Array.isArray(snapshot.variables) || snapshot.variables.length > 16) fail('límite de variables');
-  const ids = new Set();
+  if (!Array.isArray(snapshot.sprites) || snapshot.sprites.length < 1 || snapshot.sprites.length > 8) fail('se requiere entre 1 y 8 sprites');
+  const first = snapshot.sprites[0];
+  const legacy = snapshot.sprites.length === 1 && first?.id === 'hero' && first?.name === 'hero' && Array.isArray(snapshot.variables) &&
+    snapshot.variables.every(variable => !variable || typeof variable !== 'object' || !Object.hasOwn(variable, 'targetId'));
+  const spriteIds = new Set();
+  const sprites = snapshot.sprites.map(sprite => {
+    object(sprite, ['id', 'name', 'x', 'y'], 'sprite');
+    if (legacy ? sprite.id !== 'hero' || sprite.name !== 'hero' : !spriteId(sprite.id)) fail('sprite no admitido');
+    if (!legacy) text(sprite.name, 32, 'nombre de sprite');
+    if (spriteIds.has(sprite.id)) fail('ID de sprite duplicado');
+    spriteIds.add(sprite.id);
+    number(sprite.x, 'posición x'); number(sprite.y, 'posición y');
+    return {id: sprite.id, name: sprite.name, x: sprite.x, y: sprite.y};
+  });
+  if (!complete(snapshot.sprites, sprites)) fail('lista de sprites incompleta');
+  if (!Array.isArray(snapshot.variables) || snapshot.variables.length > 16 * sprites.length) fail('límite de variables');
+  const ids = new Set(), owned = new Map();
   const variables = snapshot.variables.map(variable => {
-    object(variable, ['id', 'name', 'value'], 'variable');
+    object(variable, legacy ? ['id', 'name', 'value'] : ['id', 'name', 'value', 'targetId'], 'variable');
     text(variable.id, 128, 'ID de variable'); text(variable.name, 64, 'nombre de variable');
     number(variable.value, 'valor de variable');
     if (ids.has(variable.id)) fail('ID de variable duplicado');
     ids.add(variable.id);
-    return {id: variable.id, name: variable.name, value: variable.value};
+    if (legacy) return {id: variable.id, name: variable.name, value: variable.value};
+    if (!spriteIds.has(variable.targetId)) fail('variable de un sprite desconocido');
+    owned.set(variable.targetId, (owned.get(variable.targetId) ?? 0) + 1);
+    if (owned.get(variable.targetId) > 16) fail('límite de variables');
+    return {id: variable.id, name: variable.name, value: variable.value, targetId: variable.targetId};
   });
   // map skips array holes; a wire DTO must contain actual variable records.
-  if (variables.some((_, index) => !Object.hasOwn(snapshot.variables, index)) ||
-      Object.keys(variables).length !== variables.length) fail('lista de variables incompleta');
-  return {sprites: [{id: 'hero', name: 'hero', x: sprite.x, y: sprite.y}], variables};
+  if (!complete(snapshot.variables, variables)) fail('lista de variables incompleta');
+  return {sprites, variables};
 }
 
 export function createSceneInspection({readScene, getScope, onChange = () => {}}) {

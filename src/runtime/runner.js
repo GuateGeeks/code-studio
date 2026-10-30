@@ -162,9 +162,14 @@ async function handle(command, payload) {
       const capabilities = payload.capabilities == null ? null : validateCapabilities(payload.capabilities);
       const resources=payload.resources?.version===1?await validateResources(payload.resources):null;
       const resourceView=resources?createResourceView(resources):null;
-      const ir = authorizeProgram(capabilities, payload.ir,{resourceView});
+      // gg.sprites 0.3.0 scenes run IR 2D v1: the boundary opts in explicitly only
+      // for a profile with objects, and the scene receives those validated objects
+      // (never a payload field). Earlier profiles stay IR0-only.
+      const spritesConfig = capabilities?.config?.['gg.sprites'];
+      const objects = spritesConfig && Object.hasOwn(spritesConfig, 'sprites') ? spritesConfig : null;
+      const ir = authorizeProgram(capabilities, payload.ir,{resourceView,objects:objects!==null});
       discardCompatibility();
-      const result = await scene.handle(command, {...payload, ir});
+      const result = await scene.handle(command, {...payload, ir, objects: ir.version === 1 ? structuredClone(objects) : null});
       projectCapabilities = capabilities;projectResourceView=resourceView; projectVariables = structuredClone(ir.variables ?? []);
       return result;
     }

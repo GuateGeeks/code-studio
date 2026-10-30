@@ -289,7 +289,7 @@ function receive(message, boundSession) {
       }
       activeAuthoring = null;
       if (request.command === 'load-program') {
-        try { if (JSON.stringify(editor.program()) === JSON.stringify(request.ir)) activeAuthoring = JSON.stringify(request.ir); } catch { /* Authoring can become invalid while loading. */ }
+        try { if (JSON.stringify(authoring.sceneProgram()) === JSON.stringify(request.ir)) activeAuthoring = JSON.stringify(request.ir); } catch { /* Authoring can become invalid while loading. */ }
       }
       consoleUI.invalidateSources();
       refreshGG();
@@ -389,7 +389,8 @@ async function runEditable() {
   if(syncedViews&&!await syncedViews.applyForRun())return null;
   requirePreparedPack('scratch-2d');
   language.cancelPreparation();
-  const ir = editor.program();
+  // gg.sprites 0.3.0: the whole scene as IR 2D v1; earlier profiles: the editor's IR0.
+  const ir = authoring.sceneProgram();
   const key = authoringKey();
   const capabilities = authoring.captureExecutionCapabilities('scratch-2d');
   status.textContent = 'Cargando bloques…';
@@ -407,7 +408,7 @@ async function runEditable() {
 }
 async function runDeviceTogether(input) {
   // Both targets are validated, and PXT preflight completes, before replacing the live runner.
-  let ir;try{ir=editor.program();}catch(error){error.diagnosticOrigin='generation';error.code='SCENE_PREFLIGHT_INVALID';throw error;}
+  let ir;try{ir=authoring.sceneProgram();}catch(error){error.diagnosticOrigin='generation';error.code='SCENE_PREFLIGHT_INVALID';throw error;}
   const key=authoringKey();
   if(device.state().revision!==input.deviceRevision)throw new Error('Device revision replaced');
   let operatingGeneration=null;

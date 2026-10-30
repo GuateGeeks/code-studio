@@ -27,7 +27,11 @@ export function createSceneInspectorUI({readScene, getScope, initialScene}) {
     visibleState = next;
     const sceneSelected = object.value === 'scene';
     const snapshot = next.snapshot;
-    const hero = snapshot?.sprites[0];
+    // scene2d-multi-sprite 2.1: the scene lists every sprite; the object view
+    // stays on hero (or the first sprite) until per-object inspection (3.2).
+    // A single-hero reading renders exactly as before.
+    const hero = snapshot?.sprites.find(sprite => sprite.id === 'hero') ?? snapshot?.sprites[0];
+    const owned = snapshot?.variables.filter(variable => !variable.targetId || variable.targetId === hero.id) ?? [];
     // These authoring values stay distinct from the latest runtime reading.
     fields(initial, sceneSelected
       ? [['Sprites de autoría', 1], ['Sprite', authored.spriteId], ['Disfraz inicial', authored.costume]]
@@ -35,15 +39,15 @@ export function createSceneInspectorUI({readScene, getScope, initialScene}) {
         ['Dirección inicial', authored.direction], ['Tamaño inicial (%)', authored.size], ['Disfraz inicial', authored.costume]]);
     fields(runtime, snapshot
       ? sceneSelected
-        ? [['Sprites consultados', snapshot.sprites.length], ['Sprite', hero.name], ['x de hero', hero.x], ['y de hero', hero.y],
-          ['Variables locales de hero', snapshot.variables.length]]
+        ? [['Sprites consultados', snapshot.sprites.length], ...snapshot.sprites.flatMap(sprite => [['Sprite', sprite.name], [`x de ${sprite.name}`, sprite.x], [`y de ${sprite.name}`, sprite.y]]),
+          [snapshot.sprites.length === 1 ? `Variables locales de ${hero.name}` : 'Variables locales de los sprites', snapshot.variables.length]]
         : [['Sprite', hero.name], ['x', hero.x], ['y', hero.y]]
       : [['Lectura de ejecución', 'Sin lectura disponible']]);
     const items = [];
     if (!sceneSelected && snapshot) {
-      for (const variable of snapshot.variables) {
+      for (const variable of owned) {
         const item = document.createElement('li');
-        item.textContent = `${variable.name}: ${variable.value} · local de hero · ID ${variable.id}`;
+        item.textContent = `${variable.name}: ${variable.value} · local de ${hero.name} · ID ${variable.id}`;
         items.push(item);
       }
     }

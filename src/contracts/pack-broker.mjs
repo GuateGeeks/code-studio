@@ -36,13 +36,16 @@ function permittedVariable(pack, id, variables) {
   if (restriction === 'declared') return true;
   return restriction && id === pack.config[restriction.config] && (declaration.scope ?? 'local') === restriction.scope;
 }
-function resourceAllowed(restriction,id,kind,resourceView) {
- const descriptor=resourceView?(kind==='costumes'?getResourceCostume(resourceView,id,'hero'):getResourceSound(resourceView,id,'hero')):null;
+// ownerId: the object whose script uses the resource (IR v1), hero for IR0 and
+// text programs. A pack restriction names its owner; until per-object resource
+// menus (scene2d-multi-sprite 3.2) no installed pack grants another object's.
+function resourceAllowed(restriction,id,kind,resourceView,ownerId='hero') {
+ const descriptor=resourceView?(kind==='costumes'?getResourceCostume(resourceView,id,ownerId):getResourceSound(resourceView,id,ownerId)):null;
  if(resourceView&&!descriptor)return false;
- if(Array.isArray(restriction))return restriction.includes(id);
- return !!resourceView&&restriction?.resource===kind&&restriction.ownerId==='hero'&&!!descriptor;
+ if(Array.isArray(restriction))return ownerId==='hero'&&restriction.includes(id);
+ return !!resourceView&&restriction?.resource===kind&&restriction.ownerId===ownerId&&!!descriptor;
 }
-function authorize(plan, method, args, variables, principal = null,resourceView=null) {
+function authorize(plan, method, args, variables, principal = null,resourceView=null,ownerId='hero') {
   const packs = principal === null ? plan.packs : plan.packs.filter(pack => pack.manifest.id === principal);
   if (!packs.length) fail('cliente de pack desconocido');
   const variableIds = [];
@@ -57,8 +60,8 @@ function authorize(plan, method, args, variables, principal = null,resourceView=
     const permissions = pack.manifest.permissions;
     if (!permissions.operations.includes(method) || variableIds.some(id => !permittedVariable(pack, id, variables))) return false;
     if (method.startsWith('sprite.') && !permissions.sprites.includes(args[0])) return false;
-    if (method === 'program.playSound' && !resourceAllowed(permissions.sounds,args[1],'sounds',resourceView)) return false;
-    if (method === 'program.setCostume' && !resourceAllowed(permissions.costumes,args[1],'costumes',resourceView)) return false;
+    if (method === 'program.playSound' && !resourceAllowed(permissions.sounds,args[1],'sounds',resourceView,ownerId)) return false;
+    if (method === 'program.setCostume' && !resourceAllowed(permissions.costumes,args[1],'costumes',resourceView,ownerId)) return false;
     return true;
   });
   if (!allowed) fail('operación o recurso no declarado: ' + method);
@@ -76,18 +79,27 @@ export function authorizeProjectOperation(capabilities, method, args, {variables
   authorize(plan, request.method, request.args, variables,null,resourceView);
   return request;
 }
-export function authorizeProgram(capabilities, ir,{resourceView}={}) {
+// IR 2D v1 is accepted only with an explicit `objects: true` from a caller that
+// runs every object (the simulator boundary for 0.3.0 scenes); the program
+// must name exactly the configured objects, in order. IR0 stays accepted.
+export function authorizeProgram(capabilities, ir,{resourceView,objects=false}={}) {
   if(resourceView)resourceView=validateResourceView(resourceView);
   const plan = resolveCapabilities(capabilities);
   const result = structuredClone(ir);
   if (plan.variables.length || Object.hasOwn(result, 'variables')) result.variables = defaults(result.variables, plan);
-  validateProgram(result,{resourceView});
+  validateProgram(result,{resourceView,objects:objects===true});
+  if (result.version === 1) {
+    const configured = plan.packs.find(pack => pack.manifest.id === 'gg.sprites')?.config?.sprites;
+    if (!Array.isArray(configured) || configured.length !== result.sprites.length || configured.some((sprite, index) => sprite.id !== result.sprites[index]))
+      fail('los objetos del programa no coinciden con los objetos del proyecto');
+  }
   const variables = result.variables ?? [];
   authorize(plan, 'program.start', [], variables,null,resourceView);
   function valueReference(value) {
     if (value?.kind === 'variable') authorize(plan, 'variables.get', [value.variableId], variables,null,resourceView);
     if (value?.kind === 'compare') { valueReference(value.left); valueReference(value.right); }
   }
+  let owner = 'hero';
   function statements(body) {
     for (const node of body) {
       if (node.kind === 'repeat' || node.kind === 'forever') { statements(node.body); continue; }
@@ -103,11 +115,11 @@ export function authorizeProgram(capabilities, ir,{resourceView}={}) {
       else if (node.kind === 'setCostume') args.push(node.costume);
       else if (node.kind === 'glide') args.push(node.seconds, node.x, node.y);
       else if (Object.hasOwn(expressionFields, node.kind)) args.push(...expressionFields[node.kind].map(field => node[field]));
-      authorize(plan, method, args, variables,null,resourceView);
+      authorize(plan, method, args, variables,null,resourceView,owner);
       valueReference(node.value); for (const field of expressionFields[node.kind] ?? []) valueReference(node[field]);
     }
   }
-  for (const script of result.scripts) statements(script.body);
+  for (const script of result.scripts) { owner = script.targetId ?? 'hero'; statements(script.body); }
   return result;
 }
 // The client principal is captured by trusted host code. No imported request

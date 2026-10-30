@@ -1,5 +1,6 @@
 import {validateCapabilities,resolveResourcePolicy,selectCapabilityLocksForContext,validateCapabilityReferences} from './contracts/packs.mjs';
 import {scene2DObjectsOf,scene2DAuthoringFromBlockly} from './project-format.mjs';
+import {composeScene2DProgram} from './contracts/program-contract.mjs';
 
 // Injected participants own live drafts. This coordinator owns profile metadata
 // and transaction capabilities, never a second mutable workspace.
@@ -61,6 +62,26 @@ export function createProjectAuthoring({editor,textDocuments,codeViews,source,ca
    if(participant.hasAuthoring?.()!==false)throw new Error('Retirar el pack descartaría autoría. Conserva una copia o reemplaza el proyecto explícitamente.');
   }
   return next;
+ }
+ // Program the 2D scene runs (scene2d-multi-sprite 2.1). Single-workspace
+ // profiles (gg.sprites 0.1.0/0.2.0): the editor's IR0, unchanged. 0.3.0: IR
+ // 2D v1 composed from the mounted workspace (the first sprite's, the one
+ // resolveCapabilities().initialScene describes) and the stored stage and
+ // sprites, each lowered headless with the same profile and resources. Pure
+ // reading: nothing is mounted, saved or run.
+ const emptyWorkspace=state=>!state?.blocks?.blocks?.length&&!state?.variables?.length;
+ function sceneProgram() {
+  const primary=editor.program();
+  if(!objects)return primary;
+  const config=scene2DObjectsOf(projectExecution(template,'scratch-2d'));
+  if(!config)throw new Error('El perfil 2D perdió sus objetos.');
+  const lower=state=>{
+   if(emptyWorkspace(state))return {version:0,scripts:[]};
+   if(typeof editor.programOf!=='function')throw new Error('Este editor no puede convertir los scripts de otros objetos.');
+   return editor.programOf(structuredClone(state));
+  };
+  return composeScene2DProgram(config,{stage:lower(objects.scene2d.stage),
+   sprites:Object.fromEntries(config.sprites.map(sprite=>[sprite.id,sprite.id===objects.primary?primary:lower(objects.scene2d.sprites[sprite.id])]))});
  }
  function capture() {
   const capabilities=captureCapabilities(),views=codeViews?.capture();
@@ -142,7 +163,7 @@ export function createProjectAuthoring({editor,textDocuments,codeViews,source,ca
   const unsubscribe=participant.subscribe(emit);if(typeof unsubscribe==='function')disposers.push(unsubscribe);
  }
  if(source.addEventListener){source.addEventListener('input',emit);disposers.push(()=>source.removeEventListener('input',emit));}
- return Object.freeze({capture,captureCapabilities,capabilities:captureCapabilities,captureExecutionCapabilities,prepareCapabilities,prepare,commit,checkpoint,restoreDraft,
+ return Object.freeze({capture,sceneProgram,captureCapabilities,capabilities:captureCapabilities,captureExecutionCapabilities,prepareCapabilities,prepare,commit,checkpoint,restoreDraft,
   subscribe(callback){subscribers.add(callback);return()=>subscribers.delete(callback);},
   dispose(){disposed=true;for(const dispose of disposers)dispose();subscribers.clear();}
  });

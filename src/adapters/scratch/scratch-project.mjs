@@ -1,5 +1,7 @@
 import {validateProgram} from '../../contracts/program-contract.mjs';
 import {isScene2DLoweringOpcode} from '../../contracts/scene2d-opcodes.mjs';
+import {validateScene2DObjects} from '../../contracts/scene2d-objects.mjs';
+import {validateResourceView} from '../../contracts/resources.mjs';
 
 // E1 vocabulary: IR kind → reviewed opcode and its numeric/variable inputs.
 const simple = Object.freeze({
@@ -11,16 +13,20 @@ const simple = Object.freeze({
 });
 const speech = Object.freeze({say: 'looks_say', think: 'looks_think', sayFor: 'looks_sayforsecs', thinkFor: 'looks_thinkforsecs'});
 
-export function toScratchProject(ir, options = {}) {
-  validateProgram(ir, options);
-  const blocks = {};
+// Lowers validated scripts into per-object block maps. Block IDs are unique in
+// the whole program (sourceMap is shared); messages and variables are shared
+// by name/ID like Scratch's stage-level broadcasts and globals.
+function lowerScripts(ir, {targetOf = () => 'hero', stageId = null} = {}) {
+  const blocksByTarget = new Map();
+  const all = {};
   const sourceMap = {};
   const broadcasts = {};
   const variables = Object.fromEntries((ir.variables ?? []).map(model => [model.id, [model.name, model.initialValue]]));
-  const scopedVariables = scope => Object.fromEntries((ir.variables ?? []).filter(model => (model.scope ?? 'local') === scope).map(model => [model.id, variables[model.id]]));
+  let blocks = null;
   const messageId = name => { const id = `gg-message:${name}`; broadcasts[id] = name; return id; };
   const reserve = (id, block) => {
-    if (Object.hasOwn(blocks, id)) throw new Error(`Duplicate source block ID: ${id}`);
+    if (Object.hasOwn(all, id)) throw new Error(`Duplicate source block ID: ${id}`);
+    all[id] = block;
     blocks[id] = block;
     sourceMap[id] = id;
     return id;
@@ -148,25 +154,89 @@ export function toScratchProject(ir, options = {}) {
     return first;
   }
   for (const script of ir.scripts) {
-    const opcode = {start: 'event_whenflagclicked', key: 'event_whenkeypressed', click: 'event_whenthisspriteclicked', message: 'event_whenbroadcastreceived', clone: 'control_start_as_clone'}[script.event];
+    const owner = targetOf(script);
+    if (!blocksByTarget.has(owner)) blocksByTarget.set(owner, {});
+    blocks = blocksByTarget.get(owner);
+    const click = owner === stageId ? 'event_whenstageclicked' : 'event_whenthisspriteclicked';
+    const opcode = {start: 'event_whenflagclicked', key: 'event_whenkeypressed', click, message: 'event_whenbroadcastreceived', clone: 'control_start_as_clone'}[script.event];
     if (!opcode) throw new Error(`Unsupported event: ${script.event}`);
     const id = script.sourceBlockId;
     const fields = script.event === 'key' ? {KEY_OPTION: [script.key, null]} : script.event === 'message' ? {BROADCAST_OPTION: [script.message, messageId(script.message)]} : {};
     reserve(id, {opcode, next: null, parent: null, inputs: {}, fields, shadow: false, topLevel: true, x: 20, y: 20});
     blocks[id].next = stack(script.body, id);
   }
-  for (const [id, block] of Object.entries(blocks)) if (!isScene2DLoweringOpcode(block.opcode)) throw new Error(`Unreviewed opcode ${block.opcode} at ${id}`);
-  // The headless fixture has no renderer; SB3 still requires a costume descriptor.
-  const costume = {assetId: 'cd21514d0531fdffb22204e0ec5ed84a', name: 'blank', md5ext: 'cd21514d0531fdffb22204e0ec5ed84a.svg', dataFormat: 'svg', rotationCenterX: 0, rotationCenterY: 0};
-  const common = {variables: {}, lists: {}, broadcasts: {}, comments: {}, currentCostume: 0, costumes: [costume], sounds: [], volume: 100};
+  for (const [id, block] of Object.entries(all)) if (!isScene2DLoweringOpcode(block.opcode)) throw new Error(`Unreviewed opcode ${block.opcode} at ${id}`);
+  return {blocksOf: owner => blocksByTarget.get(owner) ?? {}, sourceMap, broadcasts, variables};
+}
+
+// The headless fixture has no renderer; SB3 still requires a costume descriptor.
+const blankCostume = () => ({assetId: 'cd21514d0531fdffb22204e0ec5ed84a', name: 'blank', md5ext: 'cd21514d0531fdffb22204e0ec5ed84a.svg', dataFormat: 'svg', rotationCenterX: 0, rotationCenterY: 0});
+const common = () => ({variables: {}, lists: {}, broadcasts: {}, comments: {}, currentCostume: 0, costumes: [blankCostume()], sounds: [], volume: 100});
+const stageTarget = (variables, broadcasts) => ({...common(), variables, broadcasts, isStage: true, name: 'Stage', blocks: {}, layerOrder: 0, tempo: 60, videoTransparency: 50, videoState: 'off', textToSpeechLanguage: null});
+const spriteTarget = ({name, variables, blocks, layerOrder, visible = true, x = 0, y = 0, size = 100, direction = 90}) =>
+  ({...common(), variables, isStage: false, name, blocks, layerOrder, visible, x, y, size, direction, draggable: false, rotationStyle: 'all around'});
+const meta = () => ({semver: '3.0.0', vm: '12.3.1', agent: 'GuateGeeks phase-0'});
+
+// IR0 (gg.sprites 0.1.0/0.2.0, text documents): the stage and one hero. IR v1
+// is never accepted here, whatever the caller forwards: only the resource
+// view is passed to the validator (explicit option filtering).
+export function toScratchProject(ir, {resourceView} = {}) {
+  validateProgram(ir, {resourceView});
+  const {blocksOf, sourceMap, broadcasts, variables} = lowerScripts(ir);
+  const scoped = scope => Object.fromEntries((ir.variables ?? []).filter(model => (model.scope ?? 'local') === scope).map(model => [model.id, variables[model.id]]));
   return {
     sourceMap,
     project: {
-      targets: [
-        {...structuredClone(common), variables: scopedVariables('global'), broadcasts, isStage: true, name: 'Stage', blocks: {}, layerOrder: 0, tempo: 60, videoTransparency: 50, videoState: 'off', textToSpeechLanguage: null},
-        {...structuredClone(common), variables: scopedVariables('local'), isStage: false, name: 'hero', blocks, layerOrder: 1, visible: true, x: 0, y: 0, size: 100, direction: 90, draggable: false, rotationStyle: 'all around'}
-      ],
-      monitors: [], extensions: [], meta: {semver: '3.0.0', vm: '12.3.1', agent: 'GuateGeeks phase-0'}
+      targets: [stageTarget(scoped('global'), broadcasts), spriteTarget({name: 'hero', variables: scoped('local'), blocks: blocksOf('hero'), layerOrder: 1})],
+      monitors: [], extensions: [], meta: meta()
     }
+  };
+}
+
+// SB3 descriptors of one owner's costumes and sounds in a portable resource
+// view, in view order. The runner places them on IR0 targets (stage, hero)
+// and the scene adapter on every object.
+export function ownerResources(resourceView, ownerId) {
+  const view = validateResourceView(resourceView);
+  const formats = new Map(view.assets.map(asset => [asset.id, asset.format]));
+  return {
+    costumes: view.costumes.filter(item => item.ownerId === ownerId).map(item => ({name: item.id, assetId: item.assetId, md5ext: item.assetId + '.' + formats.get(item.assetId),
+      dataFormat: formats.get(item.assetId), rotationCenterX: item.centerX, rotationCenterY: item.centerY, bitmapResolution: item.bitmapResolution})),
+    sounds: view.sounds.filter(item => item.ownerId === ownerId).map(item => ({name: item.id, assetId: item.assetId, md5ext: item.assetId + '.wav', dataFormat: 'wav'}))
+  };
+}
+
+// IR 2D v1 (gg.sprites 0.3.0, scene2d-multi-sprite 2.1): one VM target per
+// configured sprite, named by its stable ID (the visible name travels in
+// `objects`), with its initial state, costumes and sounds (ownerId), plus the
+// stage with its backdrops. Messages and global variables live on the stage,
+// locals on their sprite. The validator opt-in is explicit and local to this
+// function. `ownerAssets(ownerId)` may supply SB3 costume/sound descriptors
+// (the runner's built-in fixture); otherwise they come from the resource
+// view, or the blank costume when headless. A configured costume or backdrop
+// missing from the owner's costumes falls back to the first, as the IR0
+// adapter always started on costume 0.
+export function toScratchSceneProject(ir, {scene, resourceView, ownerAssets} = {}) {
+  if (ir?.version !== 1) throw new Error('Invalid GG program: the scene adapter runs IR 2D v1 only');
+  validateProgram(ir, {resourceView, objects: true});
+  const config = validateScene2DObjects(structuredClone(scene));
+  const ids = config.sprites.map(sprite => sprite.id);
+  if (ir.sprites.length !== ids.length || ir.sprites.some((id, index) => id !== ids[index])) throw new Error('Invalid GG program: los objetos del programa no coinciden con los de la escena');
+  const assetsOf = ownerAssets ?? (resourceView ? owner => ownerResources(resourceView, owner) : () => ({costumes: [blankCostume()], sounds: []}));
+  const place = (target, owner, costume) => {
+    const own = assetsOf(owner);
+    target.costumes = structuredClone(own.costumes); target.sounds = structuredClone(own.sounds);
+    target.currentCostume = Math.max(0, target.costumes.findIndex(item => item.name === costume));
+    return target;
+  };
+  const {blocksOf, sourceMap, broadcasts, variables} = lowerScripts(ir, {targetOf: script => script.targetId, stageId: 'stage'});
+  const ownedBy = owner => Object.fromEntries((ir.variables ?? []).filter(model => owner === 'stage' ? model.scope === 'global' : model.scope !== 'global' && model.targetId === owner).map(model => [model.id, variables[model.id]]));
+  const stage = place({...stageTarget(ownedBy('stage'), broadcasts), blocks: blocksOf('stage')}, 'stage', config.stage.backdrop);
+  const targets = config.sprites.map((sprite, index) => place(spriteTarget({name: sprite.id, variables: ownedBy(sprite.id), blocks: blocksOf(sprite.id), layerOrder: index + 1,
+    visible: sprite.visible, x: sprite.x, y: sprite.y, size: sprite.size, direction: sprite.direction}), sprite.id, sprite.costume));
+  return {
+    sourceMap,
+    objects: config.sprites.map(sprite => ({id: sprite.id, name: sprite.name})),
+    project: {targets: [stage, ...targets], monitors: [], extensions: [], meta: meta()}
   };
 }

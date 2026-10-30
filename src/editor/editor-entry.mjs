@@ -131,6 +131,13 @@ export function createEditor(container, example) {
     },
     selectedSource: () => Blockly.common.getSelected()?.id ?? null,
     program: () => structuredClone(validateProgram(workspaceToIR(workspace, {capabilities,resourceView,scriptOrder}),{resourceView})),
+    // IR0 of a stored (not mounted) workspace with the mounted profile and
+    // resources: the stage and other sprites of a 0.3.0 scene (2.1).
+    programOf: state => {
+      if (new TextEncoder().encode(JSON.stringify(state)).length > 65536) throw new Error('Workspace exceeds size limit');
+      const stored = loadWorkspace(structuredClone(state), {capabilities, resourceView});
+      try { return structuredClone(validateProgram(workspaceToIR(stored, {capabilities, resourceView}), {resourceView})); } finally { stored.dispose(); }
+    },
     resourceView: () => resourceView == null ? null : structuredClone(resourceView),
     captureCapabilities: () => capabilities == null ? null : structuredClone(capabilities),
     restore: () => load(example),

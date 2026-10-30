@@ -6,8 +6,10 @@ export const generatedCodeLimits = Object.freeze({bytes: 65536});
 const quoted = value => JSON.stringify(value).replaceAll('\u2028', '\\u2028').replaceAll('\u2029', '\\u2029');
 const variable = node => `${quoted(node.name)} [${quoted(node.variableId)}]`;
 
-export function generateCode(ir,options={}) {
-  validateProgram(ir,options);
+// IR0 only: just the resource view reaches the validator, so a forwarded
+// `objects` option can never open it to IR 2D v1 (2.2 adds per-object listings).
+export function generateCode(ir,{resourceView}={}) {
+  validateProgram(ir,{resourceView});
   const lines = [];
   const sourceMap = [];
   function line(text, ids = [], depth = 0) {

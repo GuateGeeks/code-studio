@@ -174,3 +174,37 @@ export function programObjectsFromIR0(ir, {spriteId = 'hero'} = {}) {
   const variables = Array.isArray(ir.variables) ? {variables: ir.variables.map(({scope, ...model}) => ({...structuredClone(model), ...(scope === 'global' ? {scope} : {targetId: spriteId})}))} : {};
   return {version: 1, sprites: [spriteId], ...variables, scripts: Array.isArray(ir.scripts) ? ir.scripts.map(script => ({targetId: spriteId, ...structuredClone(script)})) : ir.scripts};
 }
+
+// Scene program of a gg.sprites@0.3.0 project (scene2d-multi-sprite 2.1): one
+// IR0 per object (each workspace is lowered on its own) becomes one IR v1.
+// Scripts keep their nodes and IDs: the stage's first, then each sprite in the
+// configuration order. Variables follow Scratch: those of the stage and those
+// declared global by any object are global (shared on the stage); the rest
+// belong to the one sprite that uses them. A variable ID shared as a local by
+// two objects, or with two names, is rejected instead of guessed. A missing
+// object counts as empty. Returns a new object; validate it with the caller's
+// resource view and `objects: true`.
+export function composeScene2DProgram(config, {stage = null, sprites = {}} = {}) {
+  if (!config || !Array.isArray(config.sprites) || !config.sprites.length || config.sprites.some(sprite => !isScene2DSpriteId(sprite?.id))) fail('objetos 2D inválidos');
+  const ids = config.sprites.map(sprite => sprite.id);
+  if (!sprites || typeof sprites !== 'object' || Array.isArray(sprites)) fail('programas de objetos inválidos');
+  for (const id of Object.keys(sprites)) if (!ids.includes(id)) fail(`programa de un objeto desconocido ${String(id).slice(0, 128)}`);
+  const empty = {version: 0, scripts: []};
+  const variables = new Map(), scripts = [];
+  for (const [targetId, input] of [['stage', stage ?? empty], ...ids.map(id => [id, Object.hasOwn(sprites, id) ? sprites[id] : empty])]) {
+    if (!input || typeof input !== 'object' || input.version !== 0 || !Array.isArray(input.scripts)) fail(`cada objeto aporta una IR0 (${targetId})`);
+    if (input.variables !== undefined && !Array.isArray(input.variables)) fail('variable limit');
+    for (const {scope, targetId: ignored, ...model} of input.variables ?? []) {
+      const isGlobal = targetId === 'stage' || scope === 'global';
+      const known = variables.get(model.id);
+      if (!known) { variables.set(model.id, {model: structuredClone(model), owner: isGlobal ? null : targetId}); continue; }
+      if (known.model.name !== model.name) fail(`la variable ${String(model.id).slice(0, 128)} tiene nombres distintos en dos objetos`);
+      if (isGlobal) known.owner = null;
+      else if (known.owner !== null && known.owner !== targetId) fail(`la variable ${String(model.name).slice(0, 64)} es local de varios objetos; decláralo para todos los objetos`);
+    }
+    for (const script of input.scripts) scripts.push({targetId, ...structuredClone(script)});
+  }
+  const list = [...variables.values()].map(({model, owner}) => owner === null ? {...model, scope: 'global'} : {...model, targetId: owner})
+    .sort((a, b) => String(a.id).localeCompare(String(b.id)));
+  return {version: 1, sprites: ids, ...(list.length ? {variables: list} : {}), scripts};
+}

@@ -3,7 +3,10 @@ function finite(value, max) {
   if (typeof value !== 'number' || !Number.isFinite(value) || Math.abs(value) > max) throw new Error('Invalid GG numeric argument');
 }
 const arities = Object.freeze({'scene.get': 0, 'sprite.get': 1, 'sprite.move': 2, 'sprite.setPosition': 2, 'variables.get': 1, 'variables.set': 2, 'events.emit': 1});
-export function createGGBindings(getVM) {
+// getObjects: the scene's sprites [{id, name}] in configuration order (VM
+// targets are named by ID). Without it the scene is the single hero.
+const singleHero = Object.freeze([Object.freeze({id: 'hero', name: 'hero'})]);
+export function createGGBindings(getVM, getObjects = () => singleHero) {
   const hero = id => {
     if (id !== 'hero') throw new Error('Unknown GG sprite');
     const target = getVM().runtime.getSpriteTargetByName('hero');
@@ -11,9 +14,27 @@ export function createGGBindings(getVM) {
     return target;
   };
   const spriteDTO = target => ({id: 'hero', name: target.getName(), x: target.x, y: target.y});
+  const objects = () => getObjects() ?? singleHero;
+  // scene2d-multi-sprite 2.1: a scene other than the single hero lists every
+  // sprite with its visible name, and each local variable names its sprite.
+  // Per-object GG calls (sprite.*, locals of other sprites) arrive with API v3
+  // per object (2.2).
+  function scene() {
+    const list = objects();
+    if (list.length === 1 && list[0].id === 'hero' && list[0].name === 'hero')
+      return {sprites: [spriteDTO(hero('hero'))], variables: Object.entries(hero('hero').variables).filter(([, model]) => model.type === '').map(([id, model]) => variableDTO(id, model))};
+    const targets = list.map(object => {
+      const target = getVM().runtime.getSpriteTargetByName(object.id);
+      if (!target?.isOriginal) throw new Error('GG sprite unavailable');
+      return [object, target];
+    });
+    return {sprites: targets.map(([object, target]) => ({id: object.id, name: object.name, x: target.x, y: target.y})),
+      variables: targets.flatMap(([object, target]) => Object.entries(target.variables).filter(([, model]) => model.type === '').map(([id, model]) => ({...variableDTO(id, model), targetId: object.id})))};
+  }
   const variable = id => {
     if (typeof id !== 'string' || !id.trim() || ['__proto__', 'prototype', 'constructor'].includes(id)) throw new Error('Unknown GG numeric variable');
-    const owners = [hero('hero'), getVM().runtime.getTargetForStage()];
+    const heroTarget = getVM().runtime.getSpriteTargetByName('hero');
+    const owners = [heroTarget?.isOriginal ? heroTarget : null, getVM().runtime.getTargetForStage()];
     const matches = owners.filter(owner => owner && Object.hasOwn(owner.variables, id));
     if (matches.length > 1) throw new Error('Ambiguous GG numeric variable');
     const model = matches[0]?.variables[id];
@@ -30,7 +51,7 @@ export function createGGBindings(getVM) {
     if (!Array.isArray(args)) throw new Error('Invalid GG argument list');
     if (typeof method !== 'string' || !Object.hasOwn(arities, method) || args.length !== arities[method]) throw new Error('Unsupported GG operation or arity');
     switch (method) {
-      case 'scene.get': return {sprites: [spriteDTO(hero('hero'))], variables: Object.entries(hero('hero').variables).filter(([, model]) => model.type === '').map(([id, model]) => variableDTO(id, model))};
+      case 'scene.get': return scene();
       case 'sprite.get': return spriteDTO(hero(args[0]));
       case 'sprite.move': {
         finite(args[1], 480); const target = hero(args[0]);

@@ -1,4 +1,4 @@
-import {toScratchProject} from './scratch-project.mjs';
+import {toScratchProject,toScratchSceneProject,ownerResources} from './scratch-project.mjs';
 import {createGGBindings} from './gg-bindings.mjs';
 import {measureScenePerformance} from './performance-probe.mjs';
 import {createTextProgram} from './text-program.mjs';
@@ -23,7 +23,7 @@ let preparationEpoch=0;
 const prepared=new WeakMap(),preparations=new Set();
 const textProgram=createTextProgram({getVM:()=>vm,getRevision,onInvocation:onTextInvocation,onCancel:onTextCancel,
   onError:(code,message)=>diagnostic('error',code,message)});
-const ggCall=createGGBindings(()=>vm);
+const ggCall=createGGBindings(()=>vm,()=>currentFixture?.objects);
 function diagnostic(level,code,message,sourceBlockId,revision=getRevision()){onDiagnostic(level,code,message,sourceBlockId,revision);}
 function audioSnapshot(){
   if(!audioEngine)return {available:false};
@@ -51,10 +51,14 @@ function snapshot(){
     id:target.id,name:target.getName(),x:target.x,y:target.y,isOriginal:target.isOriginal,visible:target.visible,size:target.size,direction:target.direction,
     costume:{index:target.currentCostume,name:target.getCostumes()[target.currentCostume]?.name??null},effects:{...target.effects},variables:variablesOf(target)}));
   // E1: the one-sprite state the 2D vocabulary changes (position, direction, size, visibility, costume and speech bubble).
-  const bubble=hero?.getCustomState('Scratch.looks');
-  const sprite=hero?{x:hero.x,y:hero.y,direction:hero.direction,size:Math.round(hero.size*1000)/1000,visible:hero.visible,costume:hero.getCostumes()[hero.currentCostume]?.name??null,
-    bubble:bubble?.text?{type:bubble.type,text:bubble.text}:null}:null;
-  return {x:hero?.x??null,hero:sprite,pixels:{count,centerX:count?sumX/count:null,minX,maxX},origin:location.origin,bluePixels:blueCount,
+  const state=target=>{const bubble=target.getCustomState('Scratch.looks');
+    return {x:target.x,y:target.y,direction:target.direction,size:Math.round(target.size*1000)/1000,visible:target.visible,costume:target.getCostumes()[target.currentCostume]?.name??null,
+      bubble:bubble?.text?{type:bubble.type,text:bubble.text}:null};};
+  const sprite=hero?state(hero):null;
+  // scene2d-multi-sprite 2.1: every configured sprite (VM targets are named by ID), in configuration order.
+  const sprites=(currentFixture?.objects??[{id:'hero',name:'hero'}]).flatMap(object=>{const target=vm.runtime.getSpriteTargetByName(object.id);
+    return target?.isOriginal?[{id:object.id,name:object.name,...state(target),variables:variablesOf(target)}]:[];});
+  return {x:hero?.x??null,hero:sprite,sprites,pixels:{count,centerX:count?sumX/count:null,minX,maxX},origin:location.origin,bluePixels:blueCount,
     costume:hero?{index:hero.currentCostume,name:hero.getCostumes()[hero.currentCostume]?.name??null}:null,
     globalVariables:variablesOf(vm.runtime.getTargetForStage()),targets,revision:getRevision(),threads:vm.runtime.threads.length,moves:[...moves],sourceMap:currentFixture?.sourceMap,
     variables:variablesOf(hero),authoringVariables:structuredClone(currentFixture?.project.targets.find(target=>!target.isStage)?.variables??{}),
@@ -204,28 +208,41 @@ async function handle(command,payload={}){
     case 'text-invocation-result':if(!textMode||compatibilityMode||loadingScene||payload.revision!==getRevision())return {accepted:false};return textProgram.complete(payload);
     case 'load-program':{
       if(payload.textMode!==undefined&&typeof payload.textMode!=='boolean')throw new Error('Invalid text mode');
-      let project,sourceMap,assets;
+      // IR 2D v1 (gg.sprites 0.3.0): the runner passes the validated objects of the
+      // profile; one target per sprite. IR0 keeps the single hero exactly as before.
+      const objects=payload.ir?.version===1?payload.objects:null;
+      if(payload.ir?.version===1&&(!objects||payload.textMode===true))throw new Error('Escena con objetos sin configuración válida');
+      let project,sourceMap,assets,sceneObjects=null;
       if(payload.resources?.version===1){
         const resources=await validateResources(payload.resources),view=createResourceView(resources);
-        ({project,sourceMap}=toScratchProject(payload.ir,{resourceView:view}));
-        for(const [index,target]of project.targets.entries()){
-          const ownerId=index===0?'stage':'hero';
-          target.costumes=view.costumes.filter(item=>item.ownerId===ownerId).map(item=>{
-            const asset=resources.assets[item.assetId];return {name:item.id,assetId:item.assetId,md5ext:item.assetId+'.'+asset.format,dataFormat:asset.format,
-              rotationCenterX:item.centerX,rotationCenterY:item.centerY,bitmapResolution:item.bitmapResolution};
-          });
-          target.sounds=view.sounds.filter(item=>item.ownerId===ownerId).map(item=>({name:item.id,assetId:item.assetId,md5ext:item.assetId+'.wav',dataFormat:'wav'}));
-        }assets=resources.assets;
+        if(objects)({project,sourceMap,objects:sceneObjects}=toScratchSceneProject(payload.ir,{scene:objects,resourceView:view}));
+        else{
+          ({project,sourceMap}=toScratchProject(payload.ir,{resourceView:view}));
+          project.targets.forEach((target,index)=>Object.assign(target,ownerResources(view,index===0?'stage':'hero')));
+        }
+        assets=resources.assets;
       }else{
-        ({project,sourceMap}=toScratchProject(payload.ir));
         const resources=await fetch('/program-resources.json').then(response=>response.json());
-        project.targets.forEach((target,index)=>{target.costumes=structuredClone(resources.costumes[index]);});
         const usesAudio=nodes=>nodes.some(node=>node.kind==='playSound'||usesAudio(node.body??[])||usesAudio(node.elseBody??[]));
-        if(payload.textMode===true||payload.ir.scripts.some(script=>usesAudio(script.body)))project.targets[1].sounds=structuredClone(resources.sounds);
+        const audio=payload.textMode===true||payload.ir.scripts.some(script=>usesAudio(script.body));
+        if(objects){
+          // Built-in resources exist only for the stage and hero, as in IR0.
+          const builtIn=owner=>{
+            if(owner==='stage')return {costumes:resources.costumes[0],sounds:[]};
+            if(owner==='hero')return {costumes:resources.costumes[1],sounds:audio?resources.sounds:[]};
+            const name=objects.sprites.find(sprite=>sprite.id===owner)?.name??owner;
+            throw new Error('«'+name+'» no tiene disfraces. Añade sus recursos al proyecto antes de ejecutar.');
+          };
+          ({project,sourceMap,objects:sceneObjects}=toScratchSceneProject(payload.ir,{scene:objects,ownerAssets:builtIn}));
+        }else{
+          ({project,sourceMap}=toScratchProject(payload.ir));
+          project.targets.forEach((target,index)=>{target.costumes=structuredClone(resources.costumes[index]);});
+          if(audio)project.targets[1].sounds=structuredClone(resources.sounds);
+        }
         assets=resources.assets;
       }
       project.projectVersion=3;loadingScene=true;
-      try{await loadScene({project,sourceMap,ir:payload.ir,assets});textMode=payload.textMode===true;activeBundle.input?.setMode(textMode?'text':'native');audioButton.textContent=textMode?'Activar audio':'Reproducir sonido';}
+      try{await loadScene({project,sourceMap,ir:payload.ir,assets,...(sceneObjects?{objects:sceneObjects}:{})});textMode=payload.textMode===true;activeBundle.input?.setMode(textMode?'text':'native');audioButton.textContent=textMode?'Activar audio':'Reproducir sonido';}
       finally{loadingScene=false;activeBundle?.input?.refresh();}return snapshot();
     }
     case 'load-corpus':{

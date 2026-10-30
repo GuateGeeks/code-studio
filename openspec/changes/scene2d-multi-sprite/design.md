@@ -63,9 +63,45 @@
     - **Errores.** Llevan `sourceBlockId` y, en v1, `targetId`.
     - **Activación explícita (ronda de corrección 1, 29/10/2026).** `validateProgram` solo acepta la v1 con `{objects: true}`. Por defecto sigue aceptando solo `version: 0`, así que los consumidores que solo entienden IR0 la rechazan: el adaptador Scratch y con él la frontera del simulador (`browser-scene` → `toScratchProject`), el broker, los generadores, `code-view-identity` y el export SB3. Sin esto, `toScratchProject` metía en `hero`, sin aviso, los scripts del escenario y de otros sprites. T4/T5 activarán la v1 donde la soporten. Prueba MS-016.
     - **IR0.** Queda intacta para 0.1.0/0.2.0 y para el adaptador actual. `programObjectsFromIR0` la eleva a v1 con todo en `hero`, sin cambiar nodos, IDs ni orden.
-    - **Lock.** El de motores (`ir: 0`) no cambia: la IR no se guarda en GGPROJ. Subirlo (con el adaptador) queda para T4, cuando el adaptador consuma v1.
+    - **Lock.** El de motores (`ir: 0`) no cambia: la IR no se guarda en GGPROJ. Decidido en 2.1 (punto 18): sigue sin cambiar.
 
     Pruebas MS-013…015.
+
+### Decisiones de E2 · ejecución (29/10/2026, tarea 2.1)
+
+15. **Adaptador con un target por sprite.** `toScratchSceneProject(ir, {scene, resourceView, ownerAssets})` (`scratch-project.mjs`), separado de `toScratchProject`, que sigue siendo solo IR0.
+    - **Targets.** El escenario y un target por sprite de `config['gg.sprites'].sprites`, en el orden de la configuración (`layerOrder` 1…n). Se crean también los sprites sin scripts, porque se ven en el escenario. `ir.sprites` debe coincidir con los IDs configurados, en el mismo orden; si no, falla.
+    - **Nombres.** El target VM se llama como el **ID** del sprite: estable al renombrar, único y con sintaxis segura. El nombre visible viaja aparte en `objects: [{id, name}]`, para lecturas e inspector.
+    - **Escena inicial.** Posición, dirección, tamaño, visibilidad y disfraz salen de la configuración. El disfraz se busca por ID entre los del dueño. Si falta (un estudiante puede borrar un disfraz), se usa el primero, como el adaptador IR0, que siempre empezaba en el disfraz 0. El fondo del escenario sigue la misma regla.
+    - **Recursos por `ownerId`.** `ownerResources(view, ownerId)` da los disfraces y sonidos de cada dueño. La frontera del simulador usa la misma función para los targets IR0, así que su salida no cambió. Sin vista de recursos (Node), el disfraz en blanco de siempre. Con los recursos integrados del runner (`/program-resources.json`), solo el escenario y `hero` tienen disfraces. Otro sprite falla con «"Cesta" no tiene disfraces», en vez de ejecutarse invisible.
+    - **Semántica Scratch.** Mensajes (`gg-message:<nombre>`) y variables globales en el escenario. Variables locales en su sprite. IDs de bloque únicos en todo el programa y `sourceMap` común. «Al hacer clic» en el escenario es `event_whenstageclicked`. Stop es `vm.stopAll()` (todos los hilos). «Detener todo» es `control_stop all`, y el Detener del estudio reinicia la sesión.
+    - **Proyecto con solo `hero`.** Con la configuración por defecto y el escenario vacío, el proyecto Scratch es idéntico al de IR0, con vista de recursos portable, con vista heredada y sin vista (MS-019). Por eso los proyectos nuevos ejecutan igual que antes.
+16. **Cómo produce IR v1 un proyecto 0.3.0.**
+    - **Programa de escena.** `authoring.sceneProgram()` (`project-authoring`). Con 0.1.0/0.2.0 devuelve `editor.program()` (IR0) sin cambios. Con 0.3.0 compone la v1 con `composeScene2DProgram(config, {stage, sprites})` (`program-contract`, pura).
+    - **Una IR0 por objeto.** El workspace montado (`sprites[0]`) da `editor.program()`. El escenario y los demás sprites se bajan sin montar, con `editor.programOf(state)`, con el mismo perfil y la misma vista de recursos. Un workspace vacío no pasa por Blockly.
+    - **Orden y variables.** Primero los scripts del escenario, luego cada sprite en el orden de la configuración, con los mismos nodos e IDs. Variables como en Scratch: las del escenario y las que algún objeto declara globales son globales; el resto es local del único sprite que las usa. Un ID local compartido por dos objetos, o con dos nombres, se rechaza en vez de adivinarse.
+    - **Quién la usa.** «Ejecutar» y «Ejecutar con micro:bit» (`shell.js`) envían `sceneProgram()`. `activeAuthoring` compara contra ella. Los consumidores IR0 siguen con `editor.program()`: lecciones, código derivado, vistas, copia SB3 y la IR0 vacía de los documentos de texto, que siguen en `hero` hasta 2.2.
+17. **Activación explícita de la v1.** Solo en las rutas que ejecutan todos los objetos:
+    - `toScratchSceneProject` llama a `validateProgram(ir, {resourceView, objects: true})` de forma local.
+    - `authorizeProgram(capabilities, ir, {resourceView, objects})` acepta la v1 solo con `objects === true`. Además exige que el perfil tenga objetos y que `ir.sprites` sean los configurados, en orden. Autoriza disfraces y sonidos contra el dueño de cada script (`resourceAllowed` con `ownerId`).
+    - El runner (`load-program`) activa `objects` solo si el perfil validado tiene objetos (0.3.0). La escena recibe esos objetos validados en `payload.objects`, que sustituye a cualquier campo del mensaje.
+    - `browser-scene` solo construye la escena por objetos con `payload.objects`, y nunca en modo texto.
+    - Para que ningún llamador abra la v1 por accidente, `toScratchProject` y `generateCode` ya no reenvían `options` al validador: solo pasan `resourceView`. Generadores, traductores, vistas, `code-view-identity`, `workspace-from-ir`, lecciones y la copia SB3 siguen cerrados hasta 2.2. Pruebas MS-016 y MS-018.
+    - **Permisos de recursos de otros objetos.** Las restricciones instaladas nombran a `hero`: `gg.assets` con `{ownerId: 'hero'}` y la lista de `gg.sprites`. Con ellas, «cambiar disfraz» y «tocar sonido» de otro objeto (escenario incluido) se rechazan por permisos. El manifiesto de `gg.assets` está congelado. Los permisos por objeto llegan con los menús por objeto (3.2): una versión nueva o una regla de `gg.sprites@0.3.0` (punto 11). MS-023.
+18. **Lock de motores sin cambios** (`ir: 0`, `adapter: 'scratch-2d-v0'`). `locks` describe el conjunto de motores de todo el archivo y se escribe en cada guardado, también en los proyectos 0.1.0/0.2.0, que siguen ejecutando IR0. La IR no se guarda en GGPROJ: su versión la decide el pack (0.3.0 → v1), que ya está fijado por hash en `capabilities.locks`. El adaptador sigue siendo el mismo para IR0. Subir `ir` haría ilegibles en versiones anteriores todos los guardados nuevos, incluso los de un solo workspace, sin ninguna ventaja. Alternativa descartada: `ir: 1` con historial.
+19. **`initialSceneOfObjects` describe `sprites[0]` aunque no sea `hero`.** Es la vista de un solo sprite para los lectores que no conocen objetos. Coincide con el sprite cuyo workspace monta el editor único, al que `sceneProgram()` asigna `editor.program()`. Elegir `hero` cuando no es el primero describiría un sprite distinto del que se edita (MS-025). El adaptador ya no lee `initialScene`: crea todos los sprites desde la configuración.
+20. **Lecturas de escena.**
+    - **`scene.get` y `validateSceneSnapshot`.** Con un solo sprite `hero` llamado `hero`, el DTO de siempre. Si no, todos los sprites `{id, name, x, y}` en orden de configuración (1–8, IDs únicos con la sintaxis de objeto, nombre ≤ 32). Cada variable local lleva `targetId`, con un máximo de 16 por sprite.
+    - **Snapshot del runner.** Añade `sprites`: estado completo de cada sprite configurado, con sus variables. Conserva `hero` y `x`.
+    - **Inspector.** La vista «escena» lista todos los sprites. La vista de objeto sigue en `hero` (o en el primero) hasta 3.2. Una lectura de solo `hero` se muestra igual.
+    - **Llamadas GG por objeto.** `sprite.*` y las locales de otros sprites llegan con 2.2.
+21. **Corpus de equivalencia** (`tests/integration/scene2d-execution.test.mjs`, MS-017…025). Los programas IR v1 se ejecutan en la VM local contra **proyectos Scratch nativos escritos a mano** (no por el adaptador) con la misma semántica:
+    - «Diálogo»: hero envía «saluda» y espera; Cesta y el escenario responden; global `turnos` = 111.
+    - Locales con el mismo nombre en dos sprites, sin mezclarse.
+    - Stop por «detener todo» desde el escenario.
+    - Stop externo (`vm.stopAll`) con dos bucles «por siempre».
+
+    Una mutación (globales en cada sprite en lugar del escenario) hace fallar el corpus. MS-022 repite la equivalencia de MS-006 por dos caminos independientes, IR0 con `toScratchProject` frente a v1 con `toScratchSceneProject`, en lugar de dos IR0 iguales. En navegador, `scene2d-multi-sprite.spec.mjs` cubre lo mismo: abrir sin ejecutar, escena inicial, mensajes, global, lectura, Stop en la VM y Detener del estudio. También compara un proyecto 0.3.0 con su copia 0.2.0.
 
 ## Risks / Trade-offs
 
