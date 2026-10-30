@@ -10,6 +10,9 @@ import {createProjectAuthoring} from '../../src/project-authoring.mjs';
 import {emptyCodeView} from '../../src/code-views-state.mjs';
 import {validateProgram, programLimits, scene2DProgramLimits, programObjectsFromIR0} from '../../src/contracts/program-contract.mjs';
 import {loadWorkspace, workspaceToIR} from '../../src/editor/block-program.mjs';
+import {toScratchProject} from '../../src/adapters/scratch/scratch-project.mjs';
+import {authorizeProgram} from '../../src/contracts/pack-broker.mjs';
+import {createResourceView} from '../../src/contracts/resources.mjs';
 import {buildProjectCatalog} from '../../tools/f1/build-project-catalog.mjs';
 import {createTone} from '../../tools/f0/tone.mjs';
 import {editableExample} from '../fixtures/corpus.blocks.mjs';
@@ -212,6 +215,7 @@ test('MS-012: the authoring coordinator edits the first sprite and keeps the oth
 
 // --- 2D IR v1 -------------------------------------------------------------
 const ir0 = irOf(heroPresents.blockly, sprites('0.3.0'));
+const legacyView = createResourceView(catalog.resources, {catalog});
 const say1 = (id, message = 'Hola') => ({kind: 'say', message, sourceBlockId: id});
 const script = (targetId, id, body = [], extra = {}) => ({targetId, event: 'start', sourceBlockId: id, body, ...extra});
 const program = (scripts, extra = {}) => ({version: 1, sprites: ['hero', 'cesta'], scripts, ...extra});
@@ -224,7 +228,7 @@ test('MS-013: IR v1 lifts IR0 to the hero sprite unchanged and IR0 stays valid a
   assert.deepEqual(lifted.sprites, ['hero']);
   assert.deepEqual(lifted.scripts.map(({targetId, ...rest}) => rest), ir0.scripts, 'same scripts, nodes and source IDs');
   assert.ok(lifted.scripts.every(item => item.targetId === 'hero'));
-  assert.deepEqual(validateProgram(lifted), lifted);
+  assert.deepEqual(validateProgram(lifted, {objects: true}), lifted);
   const withVariables = {version: 0, variables: [{id: 'v-local', name: 'vidas', initialValue: 3}, {id: 'v-global', name: 'puntos', initialValue: 0, scope: 'global'}],
     scripts: [{event: 'start', sourceBlockId: 's', body: [{kind: 'setVariable', variableId: 'v-local', name: 'vidas', value: 1, sourceBlockId: 'set'}]}]};
   assert.deepEqual(programObjectsFromIR0(withVariables).variables, [{id: 'v-local', name: 'vidas', initialValue: 3, targetId: 'hero'}, {id: 'v-global', name: 'puntos', initialValue: 0, scope: 'global'}]);
@@ -242,16 +246,16 @@ test('MS-014: IR v1 validates targets, stage rules, per-object limits and variab
     {targetId: 'stage', event: 'click', sourceBlockId: 'stage-click', body: []},
     {targetId: 'cesta', event: 'clone', sourceBlockId: 'cesta-clone', body: [{kind: 'deleteClone', sourceBlockId: 'cesta-delete'}]}
   ], {variables: [{id: 'g', name: 'puntos', initialValue: 0, scope: 'global'}, {id: 'c', name: 'vidas', initialValue: 3, targetId: 'cesta'}]});
-  assert.deepEqual(validateProgram(valid), valid);
+  assert.deepEqual(validateProgram(valid, {objects: true}), valid);
   // Per object, not per program: 16 scripts and 300 nodes each.
   const many = id => Array.from({length: programLimits.scripts}, (_, index) => script(id, `${id}-${index}`));
-  assert.doesNotThrow(() => validateProgram(program([...many('hero'), ...many('cesta')])));
+  assert.doesNotThrow(() => validateProgram(program([...many('hero'), ...many('cesta')]), {objects: true}));
   const nodes = (id, count) => script(id, id + '-hat', Array.from({length: count}, (_, index) => ({kind: 'show', sourceBlockId: `${id}-n${index}`})));
-  assert.doesNotThrow(() => validateProgram(program([nodes('hero', programLimits.nodes - 1), nodes('cesta', programLimits.nodes - 1)])));
+  assert.doesNotThrow(() => validateProgram(program([nodes('hero', programLimits.nodes - 1), nodes('cesta', programLimits.nodes - 1)]), {objects: true}));
   const nine = Array.from({length: 9}, (_, index) => 'sprite-' + index);
   const failing = (ir, pattern, label, sourceBlockId, targetId) => {
     let caught;
-    try { validateProgram(ir); } catch (error) { caught = error; }
+    try { validateProgram(ir, {objects: true}); } catch (error) { caught = error; }
     assert.ok(caught, label);
     assert.match(caught.message, pattern, label);
     if (sourceBlockId) assert.equal(caught.sourceBlockId, sourceBlockId, label);
@@ -271,7 +275,7 @@ test('MS-014: IR v1 validates targets, stage rules, per-object limits and variab
   failing(program([script('hero', 'a', [say1('dup')]), script('cesta', 'b', [say1('dup')])]), /duplicate source ID dup/, 'IDs únicos en todo el programa', 'dup', 'cesta');
   const setLocal = (targetId, id) => script(targetId, id, [{kind: 'setVariable', variableId: 'c', name: 'vidas', value: 1, sourceBlockId: id + '-set'}]);
   const locals = {variables: [{id: 'c', name: 'vidas', initialValue: 3, targetId: 'cesta'}]};
-  assert.doesNotThrow(() => validateProgram(program([setLocal('cesta', 'own')], locals)));
+  assert.doesNotThrow(() => validateProgram(program([setLocal('cesta', 'own')], locals), {objects: true}));
   failing(program([setLocal('hero', 'other')], locals), /variable of another object/, 'variable local de otro objeto', 'other-set', 'hero');
   failing(program([setLocal('stage', 'stage')], locals), /variable of another object/, 'el escenario no lee locales', 'stage-set', 'stage');
   failing(program([], {variables: [{id: 'x', name: 'x', initialValue: 0}]}), /variable owner/, 'local sin dueño');
@@ -279,7 +283,7 @@ test('MS-014: IR v1 validates targets, stage rules, per-object limits and variab
   failing(program([], {variables: [{id: 'x', name: 'x', initialValue: 0, scope: 'global', targetId: 'hero'}]}), /variable owner/, 'global con dueño');
   failing(program([], {variables: [{id: 'x', name: 'x', initialValue: 0, targetId: 'ghost'}]}), /variable owner/, 'dueño desconocido');
   const sixteen = id => Array.from({length: programLimits.variables}, (_, index) => ({id: `${id}-v${index}`, name: `${id}${index}`, initialValue: 0, targetId: id}));
-  assert.doesNotThrow(() => validateProgram(program([], {variables: [...sixteen('hero'), ...sixteen('cesta')]})));
+  assert.doesNotThrow(() => validateProgram(program([], {variables: [...sixteen('hero'), ...sixteen('cesta')]}), {objects: true}));
   failing(program([], {variables: [...sixteen('hero'), {id: 'over', name: 'over', initialValue: 0, targetId: 'hero'}]}), /variable limit/, '17 variables de un objeto');
   failing({version: 2, scripts: []}, /unsupported version/, 'versión futura');
   failing({...program([]), objects: []}, /unexpected property objects/, 'propiedad extra');
@@ -287,19 +291,38 @@ test('MS-014: IR v1 validates targets, stage rules, per-object limits and variab
 
 test('MS-015: IR v1 checks costumes and sounds against the owner of each script', () => {
   // Without a resource view only the built-in hero costumes and tone exist, for hero.
-  assert.doesNotThrow(() => validateProgram(program([script('hero', 'h', [{kind: 'setCostume', costume: 'hero-alt', sourceBlockId: 'h-costume'}])])));
-  assert.throws(() => validateProgram(program([script('cesta', 'c', [{kind: 'setCostume', costume: 'hero-alt', sourceBlockId: 'c-costume'}])])), /unsupported costume/);
-  assert.throws(() => validateProgram(program([script('stage', 's', [{kind: 'setCostume', costume: 'hero', sourceBlockId: 's-costume'}])])), /stage cannot setCostume/);
+  assert.doesNotThrow(() => validateProgram(program([script('hero', 'h', [{kind: 'setCostume', costume: 'hero-alt', sourceBlockId: 'h-costume'}])]), {objects: true}));
+  assert.throws(() => validateProgram(program([script('cesta', 'c', [{kind: 'setCostume', costume: 'hero-alt', sourceBlockId: 'c-costume'}])]), {objects: true}), /unsupported costume/);
+  assert.throws(() => validateProgram(program([script('stage', 's', [{kind: 'setCostume', costume: 'hero', sourceBlockId: 's-costume'}])]), {objects: true}), /stage cannot setCostume/);
   // With a resource view the owner is the script's targetId, the stage included.
   const image = 'a'.repeat(32), sound = 'b'.repeat(32);
   const view = {version: 1, assets: [{id: image, type: 'Image', format: 'svg', bytes: 10}, {id: sound, type: 'Sound', format: 'wav', bytes: 10}],
     costumes: [{id: 'cesta-llena', ownerId: 'cesta', name: 'llena', assetId: image, centerX: 0, centerY: 0, bitmapResolution: 1}],
     sounds: [{id: 'pop', ownerId: 'cesta', name: 'pop', assetId: sound}, {id: 'tambor', ownerId: 'stage', name: 'tambor', assetId: sound}]};
   const step = (targetId, node) => program([script(targetId, targetId + '-start', [{...node, sourceBlockId: targetId + '-node'}])]);
-  assert.doesNotThrow(() => validateProgram(step('cesta', {kind: 'setCostume', costume: 'cesta-llena'}), {resourceView: view}));
-  assert.doesNotThrow(() => validateProgram(step('cesta', {kind: 'playSound', sound: 'pop', wait: false}), {resourceView: view}));
-  assert.doesNotThrow(() => validateProgram(step('stage', {kind: 'playSound', sound: 'tambor', wait: true}), {resourceView: view}));
-  assert.throws(() => validateProgram(step('hero', {kind: 'setCostume', costume: 'cesta-llena'}), {resourceView: view}), /unsupported costume/);
-  assert.throws(() => validateProgram(step('hero', {kind: 'playSound', sound: 'pop', wait: false}), {resourceView: view}), /unsupported sound/);
-  assert.throws(() => validateProgram(step('cesta', {kind: 'playSound', sound: 'tambor', wait: false}), {resourceView: view}), /unsupported sound/);
+  assert.doesNotThrow(() => validateProgram(step('cesta', {kind: 'setCostume', costume: 'cesta-llena'}), {resourceView: view, objects: true}));
+  assert.doesNotThrow(() => validateProgram(step('cesta', {kind: 'playSound', sound: 'pop', wait: false}), {resourceView: view, objects: true}));
+  assert.doesNotThrow(() => validateProgram(step('stage', {kind: 'playSound', sound: 'tambor', wait: true}), {resourceView: view, objects: true}));
+  assert.throws(() => validateProgram(step('hero', {kind: 'setCostume', costume: 'cesta-llena'}), {resourceView: view, objects: true}), /unsupported costume/);
+  assert.throws(() => validateProgram(step('hero', {kind: 'playSound', sound: 'pop', wait: false}), {resourceView: view, objects: true}), /unsupported sound/);
+  assert.throws(() => validateProgram(step('cesta', {kind: 'playSound', sound: 'tambor', wait: false}), {resourceView: view, objects: true}), /unsupported sound/);
+});
+
+test('MS-016: IR v1 is opt-in; every IR0 consumer rejects it by default until it gains multi-object support', () => {
+  // Stage and cesta scripts must never be folded silently into hero.
+  const multi = program([script('stage', 'stage-start', [{kind: 'wait', seconds: 1, sourceBlockId: 'stage-wait'}]), script('cesta', 'cesta-start', [{kind: 'move', steps: 10, sourceBlockId: 'cesta-move'}])]);
+  const lifted = programObjectsFromIR0(ir0);
+  for (const ir of [multi, lifted]) {
+    assert.throws(() => validateProgram(ir), /unsupported version/, 'validator default');
+    // Simulator boundary (browser-scene load-program): both branches go through toScratchProject.
+    assert.throws(() => toScratchProject(ir), /unsupported version/, 'Scratch adapter');
+    assert.throws(() => toScratchProject(ir, {resourceView: legacyView}), /unsupported version/, 'Scratch adapter with portable resources');
+    assert.throws(() => authorizeProgram(sprites('0.3.0'), ir), /unsupported version/, 'pack broker');
+    assert.deepEqual(validateProgram(ir, {objects: true}), ir, 'opted in');
+  }
+  // IR0 keeps working everywhere, with or without the opt-in.
+  assert.deepEqual(validateProgram(ir0), ir0);
+  assert.deepEqual(validateProgram(ir0, {objects: true}), ir0);
+  assert.doesNotThrow(() => toScratchProject(ir0));
+  assert.doesNotThrow(() => authorizeProgram(sprites('0.3.0'), ir0));
 });

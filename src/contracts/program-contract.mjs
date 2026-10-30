@@ -23,11 +23,16 @@ function text(value, limit = 128) {
 function number(value, maximum = 1_000_000) {
   if (typeof value !== 'number' || !Number.isFinite(value) || Math.abs(value) > maximum) fail('invalid numeric value');
 }
-export function validateProgram(ir,{resourceView,resourceOwnerId='hero'}={}) {
+// IR v1 is opt-in (`objects: true`): every consumer that only knows IR0 (the
+// Scratch adapter and the simulator boundary, the broker, generators, the SB3
+// export) keeps rejecting it by default instead of folding every object into
+// hero. Multi-object consumers opt in as they gain support (T4/T5).
+export function validateProgram(ir,{resourceView,resourceOwnerId='hero',objects:acceptObjects=false}={}) {
   if(resourceView)resourceView=validateResourceView(resourceView);
   // currentTargetId stays null for IR0, whose scripts all belong to resourceOwnerId.
   let currentSourceBlockId = null, currentTargetId = null;
   try {
+  if (ir?.version === 1 && !acceptObjects) fail('unsupported version');
   const objects = ir?.version === 1;
   let encoded;
   try { encoded = JSON.stringify(ir); } catch { fail('not JSON serializable'); }
@@ -162,7 +167,7 @@ export function validateProgram(ir,{resourceView,resourceOwnerId='hero'}={}) {
 // IR0 (gg.sprites 0.1.0/0.2.0 and single-workspace projects) as IR v1: every
 // script and local variable belongs to one sprite (hero); nodes, source IDs
 // and order are unchanged. Returns a new object; validate it with the caller's
-// resource view.
+// resource view and `objects: true`.
 export function programObjectsFromIR0(ir, {spriteId = 'hero'} = {}) {
   if (!ir || typeof ir !== 'object' || ir.version !== 0) fail('only IR version 0 can be lifted to objects');
   if (!isScene2DSpriteId(spriteId)) fail('invalid sprite ID');

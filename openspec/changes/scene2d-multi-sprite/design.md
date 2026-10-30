@@ -61,6 +61,7 @@
     - **Recursos.** Disfraces y sonidos se comprueban contra el dueño de cada script. Sin vista de recursos, solo `hero` tiene los integrados.
     - **IDs de bloque.** `sourceBlockId` es único en todo el programa, no por objeto. Es la opción más estricta y se puede relajar más tarde sin romper nada. Duplicar un sprite (3.1) deberá generar IDs nuevos, como Scratch.
     - **Errores.** Llevan `sourceBlockId` y, en v1, `targetId`.
+    - **Activación explícita (ronda de corrección 1, 29/10/2026).** `validateProgram` solo acepta la v1 con `{objects: true}`. Por defecto sigue aceptando solo `version: 0`, así que los consumidores que solo entienden IR0 la rechazan: el adaptador Scratch y con él la frontera del simulador (`browser-scene` → `toScratchProject`), el broker, los generadores, `code-view-identity` y el export SB3. Sin esto, `toScratchProject` metía en `hero`, sin aviso, los scripts del escenario y de otros sprites. T4/T5 activarán la v1 donde la soporten. Prueba MS-016.
     - **IR0.** Queda intacta para 0.1.0/0.2.0 y para el adaptador actual. `programObjectsFromIR0` la eleva a v1 con todo en `hero`, sin cambiar nodos, IDs ni orden.
     - **Lock.** El de motores (`ir: 0`) no cambia: la IR no se guarda en GGPROJ. Subirlo (con el adaptador) queda para T4, cuando el adaptador consuma v1.
 
