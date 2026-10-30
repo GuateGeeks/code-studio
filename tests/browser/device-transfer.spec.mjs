@@ -1,3 +1,4 @@
+import {origins} from './origins.mjs';
 import {clickVisible} from './workspace-controls.mjs';
 import {test, expect} from '@playwright/test';
 import {artifactPath} from './artifacts.mjs';
@@ -51,8 +52,8 @@ test('dedicated transfer popup verifies firmware, keeps USB opt-in and preserves
   expect(policy['permissions-policy']).toContain('usb=(self)');
   expect(policy['content-security-policy']).not.toContain('unsafe-eval');
   expect(policy['content-security-policy']).toContain("frame-ancestors 'none'");
-  for (const origin of [4173, 4174, 4175, 4176]) {
-    const headers = (await page.request.get('http://127.0.0.1:' + origin + '/')).headers();
+  for (const origin of [origins.shellOrigin, origins.runnerOrigin, origins.simulatorOrigin, origins.languageOrigin]) {
+    const headers = (await page.request.get(origin + '/')).headers();
     expect(headers['permissions-policy']).toContain('usb=()');
   }
   const descriptor = await (await page.request.get('/latest-release.json')).json();

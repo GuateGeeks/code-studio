@@ -36,7 +36,7 @@ El primer valor entregable es **un piloto 2D en aula, con docente y estudiantes 
 
 ## Criterio de estable por etapa
 
-- quick → affected de todos los archivos cambiados → **full al cerrar la etapa**, con acta.
+- Por tarea: pruebas nuevas + `test:affected` de los archivos cambiados en verde. La **full se sugiere por impacto** (selección `full`, cambios de runner/servidor/build/configuración, antes del piloto) y decide el usuario; la etapa se cierra con acta, y la full que se haya ejecutado se cita en ella. Criterio en [TESTING](../engineering/TESTING.md#criterio-de-hecho-y-full-sugerida).
 - Proyecto canónico como fixture E2E: crear, ejecutar, detener, guardar, reabrir y llevar a un perfil nuevo.
 - Lectores GGPROJ v1–v5 y copias API1/API2 intactos, sin pérdida de IDs.
 - Nada se ejecuta al abrir, cambiar de vista o recuperar. Un único Detener. Funciona sin red.

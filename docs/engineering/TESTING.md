@@ -2,7 +2,7 @@
 
 **22 de octubre de 2026 · Flujo de desarrollo de GuateGeeks Code Studio.**
 
-Durante la edición se busca feedback corto del área modificada. Al consolidar un cambio se conserva una puerta completa. Los perfiles rápidos informan su alcance y no sustituyen esa puerta. La [entrega F1](../phase-1/RESULTS.md) conserva su corrida histórica de 44 Node y 33 E2E; sus tiempos no se presentan como mediciones de estas herramientas nuevas.
+Durante la edición se busca feedback corto del área modificada. Cada tarea se da por hecha con sus pruebas nuevas y la selección affected en verde; la puerta completa se sugiere por impacto ([criterio](#criterio-de-hecho-y-full-sugerida)). Los perfiles rápidos informan su alcance y no sustituyen esa puerta. La [entrega F1](../phase-1/RESULTS.md) conserva su corrida histórica de 44 Node y 33 E2E; sus tiempos no se presentan como mediciones de estas herramientas nuevas.
 
 ## Comandos
 
@@ -20,7 +20,7 @@ npm run test:full
 |---|---|---|
 | `test:quick` | Node, pruebas de herramientas, build incremental y tres smoke Chromium | Feedback general breve durante edición |
 | `test:affected` | Plan por impacto; Node/herramientas para código y E2E del área | Verificación del cambio concreto |
-| `test:full` | Node/herramientas, build incremental, tres smoke previos y después la regresión funcional completa del inventario tests/browser (incluye inspector y lenguajes), OpenSpec y preservación upstream | Puerta completa antes de cerrar |
+| `test:full` | Node/herramientas, build incremental, tres smoke previos y después la regresión funcional completa del inventario tests/browser (incluye inspector y lenguajes), OpenSpec y preservación upstream | Puerta completa, sugerida por impacto |
 | Affected solo documental | Validación OpenSpec, sin build ni Chromium | Prosa y especificaciones |
 | Affected sin cambios detectados | Plan vacío explicado, sin ejecutar pruebas | Confirmar que sigue vigente la referencia completa |
 
@@ -58,7 +58,7 @@ Sin `--files`, affected compara contenido contra `artifacts/test-runs/baseline.j
 
 Solo full puede avanzar esa referencia, después de que todas sus comprobaciones finalizan con éxito. Quick/affected y un full fallido la conservan. Si el contenido cambia durante la corrida, no se certifican esas modificaciones posteriores mediante una referencia nueva. La herramienta vuelve a detectar el cambio pendiente. El inventario excluye dependencias generales, reportes, cachés y productos generados, pero incluye explícitamente los artefactos consumidos relevantes: bundles y recursos PXT, renderer, Scratch Storage con sus chunks y fuentes instaladas de audio/SVG, además de los locks. Un cambio de esos recursos instalados amplía la selección a full.
 
-Esto permite trabajar con el checkout actual todavía sin commits. Git sigue siendo útil para revisión y versionado, pero no es una condición para que la selección detecte cambios reales. Una lista explícita `--files` es una ayuda de desarrollo; al cerrar se usa full para cubrir el conjunto.
+Esto permite trabajar con el checkout actual todavía sin commits. Git sigue siendo útil para revisión y versionado, pero no es una condición para que la selección detecte cambios reales. Una lista explícita `--files` es una ayuda de desarrollo; no certifica el conjunto, que lo cubre una full cuando el criterio la sugiere.
 
 ## Build incremental
 
@@ -96,7 +96,7 @@ El corte de código/consola amplía full a 42 casos E2E en dos reportes: tres sm
 1. Consultar el plan affected cuando el alcance no sea obvio.
 2. Durante una corrección, ejecutar primero la prueba que la reproduce y el grupo afectado.
 3. Al cambiar HTML/CSS, verificar controles reales y móvil además de la apariencia.
-4. Ejecutar full una vez al consolidar fuentes estables. Si falla, reproducir el caso concreto y el grupo afectado antes de repetir full.
+4. Ejecutar full cuando el [criterio](#criterio-de-hecho-y-full-sugerida) la sugiere, con fuentes estables. Si falla, reproducir el caso concreto y el grupo afectado antes de repetir full.
 5. Después de una puerta aprobada, repetir suites amplias solo por cambios nuevos, fallos o inquietudes concretas pendientes. La prosa posterior requiere validación de especificaciones.
 
 Las mediciones de rendimiento y ciclos prolongados permanecen separadas de otras suites simultáneas. El flujo no aumenta workers por defecto para audio ni cambia expectativas, timeouts o reintentos para obtener un aprobado. No promete una aceleración numérica hasta medir no-op, cambios representativos y perfiles completos en el entorno registrado.
@@ -114,7 +114,7 @@ La segunda visita fría también importa/decodifica un SB3 con PNG mediante el w
 
 ## F3: prueba offline con cierre real
 
-La regresión incluye packs/lecciones y una prueba offline con perfil Chromium persistente y servidor propio en4177–4180. No ocupa los puertos normales4173–4176, manuales4183–4186 ni rendimiento4193–4196. La prueba cierra todos los procesos que ella crea, reinicia Chromium y verifica que los cuatro servidores estén apagados antes de la segunda visita. Los snapshots y copias de build de prueba quedan en artifacts; no modifica fuentes para fabricar la actualización.
+La regresión incluye packs/lecciones y una prueba offline con perfil Chromium persistente y servidor propio. Desde el 29/10/2026 sus seis puertos se derivan de la base configurada (+50 sobre el puerto del shell; con la base 4173, 4223–4226 y 4231–4232), no son 4177–4180 fijos como en esta entrega. No ocupa los puertos normales ni los manuales o de rendimiento. La prueba cierra todos los procesos que ella crea, reinicia Chromium y verifica que los cuatro servidores estén apagados antes de la segunda visita. Los snapshots y copias de build de prueba quedan en artifacts; no modifica fuentes para fabricar la actualización.
 
 ## Pruebas F7 de zoom y distribución
 
@@ -126,16 +126,27 @@ La medida local F7 usa npx playwright test --config=playwright.release-performan
 
 La reproducción manual usa node tools/release/reproduce.mjs [NUEVA_CARPETA]. Restaura dos árboles de fuente y reutiliza las dependencias instaladas mediante hardlinks en directorios distintos, recompila SVG/render y el producto y compara payload/cohort con iguales orígenes. Rechaza destinos existentes y rutas locales emitidas. No demuestra instalación desconectada de dependencias ni recompilación nativa C++/WASM.
 
+## Criterio de hecho y full sugerida
+
+Rige desde el 29/10/2026 y sustituye a «full al cerrar cada tarea».
+
+- **Hecho, por tarea:** las pruebas nuevas específicas de la tarea y la selección de `test:affected` en verde. Nada más es obligatorio.
+- **La full se sugiere, no se exige.** Se propone al usuario cuando `test:affected --list` da `selection: full`, cuando cambian runner, servidor, build o configuración, y antes de entregar el piloto a un docente. Decide el usuario.
+- **Particiones:** la full reparte por defecto en 2 con memoria y carga suficientes (`--partitions auto`); en otro caso corre en serie.
+- **Cualquier agente puede ejecutar su selección affected completa en su propio worktree**, con su propia base de puertos separada de las demás en 100 (fijando las seis variables `GG_*_PORT`, p. ej. `GG_SHELL_PORT=5800 GG_RUNNER_PORT=5801 GG_SIMULATOR_PORT=5802 GG_LANGUAGE_PORT=5803 GG_SCENE3D_PORT=5808 GG_WEBAPP_PORT=5809`, y sus informes en una ruta propia con `GG_TEST_OUTPUT_DIR` y `GG_BROWSER_REPORT`). Las pruebas no fijan puertos, así que ya no compiten por 4173, salvo `standalone-contexts` (exclusiva, véase abajo).
+- **Carga:** no ejecutes suites mientras corre una full. Como máximo 2–3 corridas de navegador simultáneas, según `uptime` (la política medida está en las particiones, abajo).
+- **Suites exclusivas:** nunca ejecutes una `exclusiveSuite` (`standalone-contexts`) en dos corridas a la vez, p. ej. en dos worktrees.
+
 ## Particiones paralelas (test-gate-scaling, 24/10/2026)
 
-`npm run test:full -- --partitions N` (o `GG_TEST_PARTITIONS=N`) reparte la puerta de navegador en N procesos de Playwright aislados. Sin la opción, la puerta sigue en serie.
+`npm run test:full -- --partitions N` (o `GG_TEST_PARTITIONS=N`) reparte la puerta de navegador en N procesos de Playwright aislados. Sin la opción, la full usa `--partitions auto` (véase abajo); `--partitions 1` la fuerza en serie.
 
-- **Partición 0** conserva los puertos por defecto (4173–4182) y agrupa las suites de `defaultPortSuites` (`tools/test/partitions.mjs`): las que fijan orígenes en el código o levantan sus propios servidores (offline, standalone).
-- **Partición *i* ≥ 1** usa 4400 + 100·*i* para los seis orígenes. Tiene además su propio `GG_RELEASE_ROOT`, carpeta de resultados, informe JSON (`artifacts/test-runs/partitions/p<i>-browser.json`) y evidencia.
+- **Partición 0** conserva los puertos por defecto (base 4173). Ninguna suite depende ya de ellos: `defaultPortSuites` (`tools/test/partitions.mjs`) está vacío y las suites leen sus orígenes de `tests/browser/origins.mjs`. Lo único que fija la partición 0 son las `exclusiveSuites` (hoy `standalone-contexts`, cuyos 4211–4213 fija el formato de exportación).
+- **Partición *i* ≥ 1** usa 4400 + 100·*i* como base de los seis orígenes; los servidores propios de las suites se derivan de esa base (offline +50, pilot +60, standalone +70), dentro de su centena. Tiene además su propio `GG_RELEASE_ROOT`, carpeta de resultados, informe JSON (`artifacts/test-runs/partitions/p<i>-browser.json`) y evidencia.
 - **Reparto:** el resto de suites se reparte por duración histórica, tomada del informe canónico `artifacts/browser-results.json` o, si falta, de los últimos informes de particiones (LPT).
-- **Cobertura:** una puerta completa particionada incluye siempre todos los `tests/browser/*.spec.mjs` del disco. `test:tools` falla si un archivo no está en `normalBrowserFiles` o si una suite fuera de la partición 0 empieza a fijar orígenes por defecto.
+- **Cobertura:** una puerta completa particionada incluye siempre todos los `tests/browser/*.spec.mjs` del disco. `test:tools` falla si un archivo no está en `normalBrowserFiles` o si un spec o helper de `tests/browser` o `tests/quick` contiene un literal de puerto (salvo los de `standalone-contexts`).
 - **Referencia de impacto:** avanza solo si todas las particiones aprueban y las fuentes no cambian durante la corrida.
-- **`--partitions auto`** usa 2 particiones si hay al menos 6 GB de `MemAvailable` y la carga es menor que 8; si no, ejecuta en serie. Es la política medida en esta máquina compartida: con 3 particiones la memoria disponible bajó a 0,7 GB, la carga llegó a 36 y fallaron cuatro pruebas con presupuesto de tiempo.
+- **`--partitions auto`** (valor por defecto de la full; también `GG_TEST_PARTITIONS=auto|N`) usa 2 particiones si hay al menos 6 GB de `MemAvailable` y la carga es menor que 8; si no, ejecuta en serie. Es la política medida en esta máquina compartida: con 3 particiones la memoria disponible bajó a 0,7 GB, la carga llegó a 36 y fallaron cuatro pruebas con presupuesto de tiempo.
 - **No ejecutes `playwright test --list` sin `--reporter=list`:** usa el reporter JSON de la configuración y sobrescribe el informe canónico de duraciones.
 
 ### Impacto por contexto
@@ -186,6 +197,10 @@ Registro iniciado el 29/10/2026 para no perder lo aprendido entre sesiones. Una 
 
 [TEST-GATE-SCALING-RESULTS](TEST-GATE-SCALING-RESULTS.md) (24/10) registró 4 de 6 fulls fallidas por un solo caso (`GG-OFFLINE`, `GG-SB3-005`, `GG-ASSET-003` con otra sesión al 480 % de CPU) y la aprobación solo con las demás sesiones en pausa. La fase API3 terminó 199/200 por `GG-COPY-002 audioStop` (6/6 al repetir). De ahí la regla de iniciar la full con carga media de cinco minutos menor de 6 y no ejecutar suites simultáneas.
 
+### Arranque lento del servidor propio de `offline-recovery` bajo carga
+
+Con carga ≈16 (29/10/2026, comprobación de dos bases a la vez) `offline-recovery` falló una vez: su servidor propio tiene un presupuesto de arranque de 20 s y no llegó a tiempo. Se registra sin cambiar presupuestos ni reintentos. Manejo: repetir la suite aislada con la carga bajo control (`uptime`) y respetar el límite de corridas simultáneas del [criterio](#criterio-de-hecho-y-full-sugerida).
+
 ### Puertos ocupados por otros proyectos
 
-El 29/10/2026, 4173–4175 los ocupaban servidores `node` de Windows del proyecto `arduino-3d` lanzados desde Codex. Con red WSL en espejo, `ss` dentro de WSL no los muestra: `curl` responde y `Get-NetTCPConnection` desde `powershell.exe` identifica el PID y su línea de comandos. El smoke (`tests/quick/studio.spec.mjs`) y las suites de la partición 0 asumen esos orígenes, así que no pueden correr en puertos alternativos. Se detuvieron solo con autorización del usuario.
+El 29/10/2026, 4173–4175 los ocupaban servidores `node` de Windows del proyecto `arduino-3d` lanzados desde Codex. Con red WSL en espejo, `ss` dentro de WSL no los muestra: `curl` responde y `Get-NetTCPConnection` desde `powershell.exe` identifica el PID y su línea de comandos. Hasta ese día el smoke (`tests/quick/studio.spec.mjs`) y las suites de la partición 0 asumían esos orígenes y no podían correr en otros puertos; desde la independencia del puerto sí pueden (`GG_SHELL_PORT` y demás). Se detuvieron solo con autorización del usuario.

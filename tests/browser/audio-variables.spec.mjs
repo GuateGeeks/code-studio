@@ -1,3 +1,4 @@
+import {origins} from './origins.mjs';
 import {selectContext,clickVisible,revealPanel} from './workspace-controls.mjs';
 import {revealAdvanced} from './advanced-controls.mjs';
 import {artifactPath} from './artifacts.mjs';
@@ -96,7 +97,7 @@ test('GG-SCRATCH-009: stop-sounds block silences a nonwaiting sound and script c
 
 test('GG-SCRATCH-010: Stop silences pending audio, prevents continuation and permits a fresh gesture', async ({page}) => {
   await load(page, 'audio');
-  const oldFrame = page.frames().find(frame => frame.url().startsWith('http://127.0.0.1:4174/'));
+  const oldFrame = page.frames().find(frame => frame.url().startsWith(origins.runnerOrigin + '/'));
   const cdp = await page.context().newCDPSession(oldFrame);
   const contexts = [];
   const destroyed = [];

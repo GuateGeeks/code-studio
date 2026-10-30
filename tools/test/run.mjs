@@ -25,7 +25,10 @@ export function historicalDurations(root = projectRoot) {
   for (let index = 0; index <= 8; index++) Object.assign(merged, readDurations(resolve(root, `artifacts/test-runs/partitions/p${index}-browser.json`)));
   return merged;
 }
-export function buildCommands(plan, {root = projectRoot, forceBuild = false, partitions = 1, durations} = {}) {
+// The full gate defaults to «auto» (two partitions with headroom, else serial);
+// `resources` ({free, load}) overrides the measured memory and load.
+export function buildCommands(plan, {root = projectRoot, forceBuild = false, partitions: requested = plan.profile === 'full' ? 'auto' : 1, resources = {}, durations} = {}) {
+  const partitions = resolvePartitionCount(requested, resources);
   const commands = [];
   const add = (name, args, extra = {}) => commands.push({name, executable: process.execPath, args, ...extra});
   if (plan.node) add('integration', ['--test', ...testFiles(root, 'tests/integration')], {logFile: `artifacts/test-runs/${plan.profile}-integration.tap`});
@@ -121,7 +124,9 @@ export async function run(argv, {root = projectRoot, executeCommand = execute} =
     }
   }
   const plan = createPlan(options.profile, {files, source, baselineStatus});
-  const requested = options.partitions ?? (process.env.GG_TEST_PARTITIONS === 'auto' ? 'auto' : Number(process.env.GG_TEST_PARTITIONS) || 1);
+  // --partitions wins, then GG_TEST_PARTITIONS, then the profile default (auto for full, serial otherwise).
+  const fromEnv = process.env.GG_TEST_PARTITIONS ? (process.env.GG_TEST_PARTITIONS === 'auto' ? 'auto' : Number(process.env.GG_TEST_PARTITIONS) || 1) : undefined;
+  const requested = (argv.includes('--partitions') ? options.partitions : fromEnv ?? options.partitions) ?? 1;
   const partitions = resolvePartitionCount(requested);
   if (requested === 'auto') console.log(`[test] --partitions auto → ${partitions} (memoria disponible ${(availableMemory() / 1024 ** 3).toFixed(1)} GB, carga ${loadavg()[0].toFixed(1)})`);
   const commands = buildCommands(plan, {root, forceBuild: options.forceBuild, partitions});

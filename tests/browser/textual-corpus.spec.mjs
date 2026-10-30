@@ -1,3 +1,4 @@
+import {origins} from './origins.mjs';
 import {selectContext,clickVisible,clickStagePoint,revealPanel,settled} from './workspace-controls.mjs';
 import {test, expect} from '@playwright/test';
 import {writeFile} from 'node:fs/promises';
@@ -73,7 +74,7 @@ async function startBackend(page, backend, name, {copy = true} = {}) {
   } catch (error) { await observations.stop(); throw error; }
 }
 async function stopBackend(page, backend) {
-  const oldFrame = page.frames().find(frame => frame.url().startsWith('http://127.0.0.1:4174/'));
+  const oldFrame = page.frames().find(frame => frame.url().startsWith(origins.runnerOrigin + '/'));
   await selectContext(page,backend==='blocks'?'2d':'text');
   await clickVisible(page.getByRole('button', {name: backend === 'blocks' ? 'Detener' : 'Detener', exact: true}));
   await expect(page.locator('#run-editor')).toBeEnabled();

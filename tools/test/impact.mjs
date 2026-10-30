@@ -117,6 +117,8 @@ export function parseArguments(argv) {
       options.explicit = true;
     } else throw new Error(`Argumento no reconocido: ${arg}`);
   }
+  // The full gate partitions itself when the machine has headroom; --partitions 1 keeps it serial.
+  if (profile === 'full' && options.partitions === undefined) options.partitions = 'auto';
   return options;
 }
 

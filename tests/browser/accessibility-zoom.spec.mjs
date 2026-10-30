@@ -1,3 +1,4 @@
+import {origins} from './origins.mjs';
 import {selectContext,clickVisible,revealPanel} from './workspace-controls.mjs';
 import {test,expect,chromium} from '@playwright/test';
 import {mkdtemp,rm,writeFile} from 'node:fs/promises';
@@ -6,7 +7,7 @@ import {resolve,dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 const extensionPath=resolve(dirname(fileURLToPath(import.meta.url)),'../fixtures/browser-zoom');
-const origin='http://127.0.0.1:4173';
+const origin=origins.shellOrigin;
 async function dimensions(page){
  return page.evaluate(()=>({innerWidth,innerHeight,outerWidth,outerHeight,scrollWidth:document.documentElement.scrollWidth,devicePixelRatio,cssZoom:getComputedStyle(document.documentElement).zoom,bodyZoom:getComputedStyle(document.body).zoom}));
 }

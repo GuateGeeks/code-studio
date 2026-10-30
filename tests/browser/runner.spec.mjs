@@ -1,3 +1,4 @@
+import {origins} from './origins.mjs';
 import {clickVisible} from './workspace-controls.mjs';
 import {revealAdvanced} from './advanced-controls.mjs';
 import {artifactPath} from './artifacts.mjs';
@@ -17,7 +18,7 @@ test('GG-SCRATCH-004: actual sprite pixels move in a cross-origin runner', async
   await clickVisible(page.getByRole('button', {name: 'Ejecutar ejemplo', exact: true}));
   await expect(page.locator('#position')).toHaveText('x = 15');
   const after = await page.evaluate(() => studioProbe.request('snapshot'));
-  expect(after.origin).toBe('http://127.0.0.1:4174');
+  expect(after.origin).toBe(origins.runnerOrigin);
   expect(after.x).toBe(15);
   expect(after.pixels.centerX - before.pixels.centerX).toBeCloseTo(15, 0);
   expect(after.pixels.count).toBe(before.pixels.count);
