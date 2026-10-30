@@ -33,11 +33,11 @@ async function defaultLoad(){
 export function createStarterLibraryUI({pick,onAdd,onAddObject=async()=>null,onRestore,onPreview,load=defaultLoad}){
  const details=pick('starter-library'),list=pick('starter-library-items'),status=pick('starter-library-status'),filter=pick('starter-library-filter');
  const document=details.ownerDocument,urls=new Map(),sounds=new Map(),cards=new Map();
- let library=null,loading=null,failed=false,kind='costume',state={ready:false,view:null,initialBackdrop:null,target:null},previewing=null;
+ let library=null,loading=null,failed=false,kind='costume',state={ready:false,view:null,initialBackdrop:null,target:null,backdrop:null},previewing=null;
  const owner=()=>state.target?.id??starterOwners.sprite,onStage=()=>state.target?.id==='stage';
  const ofOwner=()=>onStage()?'del escenario':'de '+(state.target?.name??starterOwners.sprite);
  function scope(){
-  if(kind==='backdrop')return 'El fondo elegido se ve detrás de tus objetos al ejecutar. Por ahora cada proyecto tiene un fondo.';
+  if(kind==='backdrop')return state.target?'El fondo elegido es con el que empieza la escena. Los demás siguen en tu proyecto: cámbialos con el bloque «cambiar fondo a» de Apariencia.':'El fondo elegido se ve detrás de tus objetos al ejecutar. Por ahora cada proyecto tiene un fondo.';
   if(kind==='sound')return 'Se añaden como sonidos '+ofOwner()+'. Úsalos con «iniciar sonido» o «sonido … y esperar».';
   if(!state.target)return 'Se añaden como disfraces '+ofOwner()+'. Elígelos en el bloque «disfraz» de Recursos locales.';
   if(onStage())return '«Nuevo objeto» crea un objeto con ese dibujo. El escenario no lleva disfraces: elige un objeto para añadírselos.';
@@ -75,7 +75,7 @@ export function createStarterLibraryUI({pick,onAdd,onAddObject=async()=>null,onR
  }
  function present(entry){
   const view=state.view;if(!view)return false;
-  if(entry.kind==='backdrop')return stageBackdropAssetId(view)===entry.sha256;
+  if(entry.kind==='backdrop')return stageBackdropAssetId(view,state.backdrop)===entry.sha256;
   return (entry.kind==='sound'?view.sounds:view.costumes).some(item=>item.ownerId===owner()&&item.assetId===entry.sha256);
  }
  // Updates in place: the focused control survives every authoring change.
@@ -84,12 +84,14 @@ export function createStarterLibraryUI({pick,onAdd,onAddObject=async()=>null,onR
   pick('starter-library-scope').textContent=scope();
   for(const {item,note,entry,adding,creating} of cards.values()){
    const inProject=present(entry);
-   if(inProject)item.dataset.state=entry.kind==='backdrop'?'current':'added';else delete item.dataset.state;
-   note.textContent=inProject?copy[entry.kind].state:'';
+   // With objects a backdrop stays in the project after another one is chosen.
+   const listed=!inProject&&entry.kind==='backdrop'&&Boolean(state.target&&state.view?.costumes.some(item=>item.ownerId===starterOwners.stage&&item.assetId===entry.sha256));
+   if(inProject)item.dataset.state=entry.kind==='backdrop'?'current':'added';else if(listed)item.dataset.state='added';else delete item.dataset.state;
+   note.textContent=inProject?copy[entry.kind].state:listed?'En tu proyecto':'';
    for(const control of item.querySelectorAll('button'))control.disabled=!state.ready;
    if(creating){creating.hidden=!state.target;adding.hidden=onStage();}
   }
-  const backdrop=stageBackdropAssetId(state.view);
+  const backdrop=stageBackdropAssetId(state.view,state.backdrop);
   const restore=pick('restore-backdrop');restore.hidden=!library||kind!=='backdrop'||!state.initialBackdrop?.length||!backdrop||state.initialBackdrop.includes(backdrop);restore.disabled=!state.ready;
  }
  async function ensure(){

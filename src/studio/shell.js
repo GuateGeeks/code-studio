@@ -110,6 +110,8 @@ const capabilityUI=createCapabilityContextsUI({contexts,getCapabilities:()=>auth
   onDiagnostic:record=>consoleUI.local(record)});
 const authoring = createProjectAuthoring({editor,textDocuments,codeViews:codeViewsState,source,resourceStore,capabilityEditors:[device.participant,resourcesUI.participant,...capabilityUI.participants]});
 sceneScope.connect(authoring);
+const renderGuide=()=>{document.querySelector('#creation-guide').textContent=sceneScope.guide();};
+editor.subscribe(renderGuide);authoring.subscribe(renderGuide);renderGuide();
 const capabilityExecution=createCapabilityExecution({config,getAuthoring:contextId=>({contextConfig:capabilityUI.capture(contextId),resources:resourceStore.capture(),capabilities:authoring.captureExecutionCapabilities(contextId),textDocuments:textDocuments.capture()?.textDocuments??[]}),slot,beforeCommit:()=>reset({preserveContext:true}),requirePack:requirePreparedPack,
   onDiagnostic:record=>consoleUI.local(record),onStatus:message=>{status.textContent=message;document.querySelector('.gg-controls').disabled=Boolean(capabilityExecution.state().contextId);const id=capabilityExecution.state().contextId??contexts.current();const entry=capabilityUI.get(id);if(entry)entry.status.textContent=message;}});
 syncedViews=createCodeViewsUI({state:codeViewsState,editor,textDocuments,contexts,config,getProject:()=>projectForCodeViews,

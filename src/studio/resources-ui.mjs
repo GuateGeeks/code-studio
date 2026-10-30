@@ -5,7 +5,8 @@ import {inspectWavPcm16} from '../contracts/media-wav.mjs';
 import {createAssetProcessor} from '../import/asset-processor.mjs';
 import {scratchOpcodeLabel} from './presentation-text.mjs';
 import {createStarterLibraryUI} from './starter-library-ui.mjs';
-import {scene2DStageName} from '../contracts/scene2d-objects.mjs';
+import {scene2DBackdrops,scene2DStageName} from '../contracts/scene2d-objects.mjs';
+import {chooseSceneBackdrop} from '../contracts/scene2d-object-edits.mjs';
 import {applyStarterLibraryEntry,restoreInitialBackdrop,decodeStarterLibraryEntry,starterLibraryMedia,stageBackdropAssetId} from '../contracts/starter-library.mjs';
 export function createResourcesUI({store,contexts,getAuthoring,getProject,editor,runCompatibility,stop,exportSb3,getObjects=()=>null,onDiagnostic=()=>{}}) {
   const pick=id=>document.querySelector('#'+id),processor=createAssetProcessor(),listeners=new Set(),checkpoints=new WeakMap();
@@ -22,7 +23,7 @@ export function createResourcesUI({store,contexts,getAuthoring,getProject,editor
     const authoring=getAuthoring(),id=authoring.mountedObject(),objects=scene2DObjectsOf(authoring.captureCapabilities());
     if(!objects||id===null)return null;
     const names=new Map([['stage',scene2DStageName],...objects.sprites.map(sprite=>[sprite.id,sprite.name])]);
-    return {id,name:names.get(id),names};
+    return {id,name:names.get(id),names,backdrop:objects.stage.backdrop};
   }
   function selection(){const value=pick('resource-list').value;const [kind,...rest]=value.split('|');return {kind,id:rest.join('|')};}
   function selected(){const {kind,id}=selection();return (store.view()[kind]??[]).find(item=>item.id===id);}
@@ -74,9 +75,12 @@ export function createResourcesUI({store,contexts,getAuthoring,getProject,editor
     const view=store.view(),select=pick('resource-list'),previous=select.value,scene=sceneObjects();
     // Other objects' resources stay out; an imported original's (frozen) are not an object's.
     const listed=item=>!scene||item.ownerId===scene.id||!scene.names.has(item.ownerId);
+    // A backdrop reads as in its menu: the built-in one is not called «stage».
+    const backdrops=new Map(scene?scene2DBackdrops(view).map(item=>[item.id,item.label]):[]),title=(kind,item)=>(kind==='costumes'&&backdrops.get(item.id))||item.name;
     select.replaceChildren(...['costumes','sounds'].flatMap(kind=>view[kind].filter(listed).map(item=>{
-      const option=document.createElement('option');option.value=kind+'|'+item.id;option.textContent=item.name+' · '+(scene?.names.get(item.ownerId)??item.ownerId);return option;
+      const option=document.createElement('option');option.value=kind+'|'+item.id;option.textContent=title(kind,item)+' · '+(scene?.names.get(item.ownerId)??item.ownerId);return option;
     })));
+    pick('import-media-label').textContent=scene?.id==='stage'?'Subir una imagen como fondo, o un sonido':'Subir tu propia imagen o sonido';
     if([...select.options].some(option=>option.value===previous))select.value=previous;
     select.disabled=busy||!ready||!select.options.length;
     for(const id of ['import-sb3','import-media','export-sb3'])pick(id).disabled=!ready||busy;
@@ -128,21 +132,23 @@ export function createResourcesUI({store,contexts,getAuthoring,getProject,editor
   // the live authoring and returns the parts it replaces. resources: null keeps
   // the project's, profile included. Same path as any resource change: the
   // runner restarts on the initial scene and nothing runs.
-  function editObjects(edit) {
-    return working(async isCurrent=>{
-      const base=await baseResources(),project=getProject();let result=null;
-      await project.replaceAuthoring(async()=>{
-        const metadata=(await project.capture()).project,captured=getAuthoring().capture(),previous=captured.capabilities;
-        result=await edit({capabilities:previous,config:previous.config['gg.sprites'],scene2d:captured.scene2d,codeViews:captured.codeViews??null,resources:base,mounted:getAuthoring().mountedObject()});
-        const resources=result.resources?await store.mergeContext(await validateResources(result.resources)):captured.resources;
-        const ids=[...new Set([...previous.locks.map(lock=>lock.id),...(result.resources?['gg.assets']:[])])];
-        const {codeViews:ignored,...kept}=captured;
-        return createProject({...metadata,...kept,blockly:undefined,scene2d:result.scene2d,...(result.codeViews?{codeViews:result.codeViews}:{}),resources,catalog:project.catalog(),
-          capabilities:createCapabilities(ids,{config:{...previous.config,'gg.sprites':result.config},versions:{...lockedPackVersions(previous),...(resources.version===2?{'gg.assets':'0.2.0'}:{})}})});
-      },{isCurrent,notice:''});
-      return result;
-    });
+  async function objectsTransaction(edit,isCurrent) {
+    const base=await baseResources(),project=getProject();let result=null;
+    await project.replaceAuthoring(async()=>{
+      const metadata=(await project.capture()).project,captured=getAuthoring().capture(),previous=captured.capabilities;
+      result=await edit({capabilities:previous,config:previous.config['gg.sprites'],scene2d:captured.scene2d,codeViews:captured.codeViews??null,resources:base,mounted:getAuthoring().mountedObject()});
+      const resources=result.resources?await store.mergeContext(await validateResources(result.resources)):captured.resources;
+      const ids=[...new Set([...previous.locks.map(lock=>lock.id),...(result.resources?['gg.assets']:[])])];
+      const {codeViews:ignored,...kept}=captured;
+      return createProject({...metadata,...kept,blockly:undefined,scene2d:result.scene2d,...(result.codeViews?{codeViews:result.codeViews}:{}),resources,catalog:project.catalog(),
+        capabilities:createCapabilities(ids,{config:{...previous.config,'gg.sprites':result.config},versions:{...lockedPackVersions(previous),...(resources.version===2?{'gg.assets':'0.2.0'}:{})}})});
+    },{isCurrent,notice:''});
+    return result;
   }
+  function editObjects(edit){return working(isCurrent=>objectsTransaction(edit,isCurrent));}
+  // A backdrop in the stage's list becomes the one the project starts with
+  // (scene2d-multi-sprite 4.1). `resources` holds it if it is new.
+  function startWithBackdrop(backdrop,resources,isCurrent){return objectsTransaction(state=>chooseSceneBackdrop(state,{resources,backdrop}),isCurrent);}
   async function refreshReport() {
     const sourceAssetId=reference();if(!sourceAssetId){report=null;render();return;}
     const expected=epoch;
@@ -159,16 +165,18 @@ export function createResourcesUI({store,contexts,getAuthoring,getProject,editor
   async function importMedia(file,{replaceId=null}={}) {return working(async isCurrent=>{
     if(file.size>2097152)throw new Error('El medio excede2MiB.');
     const format=file.name.split('.').pop().toLowerCase(),type=format==='wav'?'Sound':'Image',ownerId=sceneObjects()?.id??'hero';
-    if(ownerId==='stage'&&type==='Image'&&!replaceId)throw new Error('El escenario no lleva disfraces. Elige un objeto para añadirle este dibujo, o cambia el fondo desde la biblioteca.');
     const prepared=await processor.process('prepare-media',{bytes:new Uint8Array(await file.arrayBuffer()),type,format});
     let resources=await baseResources();resources=await applyResourceEdit(resources,{type:'put-asset',prepared:{id:prepared.id,asset:prepared.asset,integrity:prepared.integrity}});
     const kind=type==='Sound'?'sounds':'costumes',current=replaceId?resources[kind].find(item=>item.id===replaceId):null;
     if(replaceId&&!current)throw new Error('El recurso seleccionado cambió.');
+    // On the stage an image is a new backdrop, named as the file so that it reads well in its menu.
+    const backdrop=ownerId==='stage'&&type==='Image'&&!current;
     const descriptor=current?{...current,assetId:prepared.id}:{
-      id:'GGasset:'+crypto.randomUUID(),ownerId,name:file.name.slice(0,80),assetId:prepared.id,
+      id:'GGasset:'+crypto.randomUUID(),ownerId,name:(backdrop&&file.name.replace(/\.[^.]+$/,'').trim()||file.name).slice(0,80),assetId:prepared.id,
       ...(type==='Image'?{centerX:prepared.width/2,centerY:prepared.height/2,bitmapResolution:1}:{})};
     if(current)resources[kind]=resources[kind].map(item=>item.id===current.id?descriptor:item);else resources[kind].push(descriptor);
-    await replace(resources,{isCurrent});pick('resource-list').value=kind+'|'+descriptor.id;preview();
+    if(backdrop)await startWithBackdrop(descriptor.id,resources,isCurrent);else await replace(resources,{isCurrent});
+    pick('resource-list').value=kind+'|'+descriptor.id;preview();
   });}
   pick('import-media').addEventListener('change',async event=>{const file=event.target.files?.[0];if(file)try{await importMedia(file);}catch(failure){error(failure);}event.target.value='';});
   pick('replace-resource').addEventListener('change',async event=>{const file=event.target.files?.[0],item=selected();if(file&&item)try{
@@ -223,7 +231,7 @@ export function createResourcesUI({store,contexts,getAuthoring,getProject,editor
         const catalog=getProject().catalog();
         initialBackdrop=[stageBackdropAssetId(createResourceView(resources)),stageBackdropAssetId(createResourceView(catalog.resources,{catalog}))].filter(Boolean);renderLibrary();}).catch(()=>{}).finally(()=>{initialBackdropPending=null;});
     const scene=sceneObjects();
-    library.render({ready,view:store.view(),initialBackdrop,target:scene&&{id:scene.id,name:scene.name}});
+    library.render({ready,view:store.view(),initialBackdrop,target:scene&&{id:scene.id,name:scene.name},backdrop:scene?.backdrop??null});
   }
   async function prepareLibraryMedia(entry){return processor.process('prepare-media',{bytes:await decodeStarterLibraryEntry(entry),...starterLibraryMedia(entry)});}
   async function addFromLibrary(entry){
@@ -231,6 +239,13 @@ export function createResourcesUI({store,contexts,getAuthoring,getProject,editor
       const prepared=await prepareLibraryMedia(entry),target=sceneObjects()?.id??undefined;
       if(!isCurrent())throw new Error('El proyecto cambió durante la preparación. Inténtalo de nuevo.');
       if(target==='stage'&&entry.kind==='costume')throw new Error('El escenario no lleva disfraces. Elige un objeto.');
+      // With objects the stage keeps its backdrops: blocks can name any of them.
+      if(target&&entry.kind==='backdrop'){
+        const applied=await applyStarterLibraryEntry(await baseResources(),entry,prepared,{keepBackdrops:true});
+        if(applied.descriptorId===sceneObjects().backdrop)return applied;
+        await startWithBackdrop(applied.descriptorId,applied.status==='present'?null:applied.resources,isCurrent);
+        return {...applied,status:'backdrop'};
+      }
       const applied=await applyStarterLibraryEntry(await baseResources(),entry,prepared,entry.kind==='backdrop'||!target?{}:{ownerId:target});
       if(applied.status!=='present')await replace(applied.resources,{isCurrent});
       return applied;
@@ -242,8 +257,9 @@ export function createResourcesUI({store,contexts,getAuthoring,getProject,editor
   }
   async function restoreBackdrop(){
     const result=await working(async isCurrent=>{
-      const restored=await restoreInitialBackdrop(await baseResources(),await promoteLegacyResources(getProject().catalog()));
-      if(restored.status!=='present')await replace(restored.resources,{isCurrent});
+      const scene=sceneObjects(),restored=await restoreInitialBackdrop(await baseResources(),await promoteLegacyResources(getProject().catalog()),{keepBackdrops:Boolean(scene)});
+      if(scene&&restored.descriptorId!==scene.backdrop){await startWithBackdrop(restored.descriptorId,restored.status==='present'?null:restored.resources,isCurrent);return {...restored,status:'restored'};}
+      if(!scene&&restored.status!=='present')await replace(restored.resources,{isCurrent});
       return restored;
     });
     if(result.status==='present')pick('resources-status').textContent='Sin cambios de recursos';

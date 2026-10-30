@@ -53,7 +53,7 @@
 <output id="objects-status" aria-live="polite"></output>
 </section>
 <div id="inactive-2d" hidden><p>Este proyecto no incluye una escena 2D.</p><button id="enable-2d">Añadir escena 2D</button></div>
-<div id="scene-blockly-surface"><div id="code-view-undo-home" class="controls" hidden><button id="code-view-undo" type="button" disabled>Deshacer conversión</button></div><p id="creation-guide">Cambia un bloque <strong>Mover</strong>, cuéntale a tu docente qué esperas y compara con el escenario.</p><div id="blockly-editor" aria-label="Editor Blockly" aria-describedby="blockly-keyboard-help"></div>
+<div id="scene-blockly-surface"><div id="code-view-undo-home" class="controls" hidden><button id="code-view-undo" type="button" disabled>Deshacer conversión</button></div><p id="creation-guide">Cambia un bloque, cuéntale a tu docente qué esperas y compara con el escenario.</p><div id="blockly-editor" aria-label="Editor Blockly" aria-describedby="blockly-keyboard-help"></div>
 <output id="editor-error" role="alert"></output>
 </div>
 <section id="device-authoring" aria-labelledby="device-heading" hidden>
@@ -86,7 +86,7 @@
 <label for="text-source">Código del documento seleccionado</label><textarea id="text-source" spellcheck="false" autocapitalize="off" autocomplete="off" wrap="off" disabled aria-describedby="text-api-help"></textarea>
 <nav id="text-context-actions" class="workspace-navigation" aria-label="Ejecutar el documento en su contexto" hidden><a id="text-context-run" href="#scene3d-run">Ir a Ejecutar contexto</a><a id="text-context-stop" href="#stop-result">Ir a Detener</a></nav>
 <div class="controls"><output id="text-run-status" aria-live="polite">Sin ejecutar</output></div><output id="text-run-document" aria-live="polite"></output>
-<details class="text-help"><summary>Lenguajes y operaciones disponibles</summary><p>JavaScript con QuickJS · Python con Pyodide. Los documentos se guardan con el proyecto. Selecciona un documento del lenguaje elegido y ejecuta con los controles de su contexto.</p><p id="text-api-help">Programa: onStart, onKey y onMessage en JavaScript; on_start, on_key y on_message en Python. Dentro de un evento usa hero.move(10), wait(1), variables, repeticiones, mensajes, clones, disfraces y sonido. Las copias independientes conservan su propio texto y su API.</p></details>
+<details class="text-help"><summary>Lenguajes y operaciones disponibles</summary><p>JavaScript con QuickJS · Python con Pyodide. Los documentos se guardan con el proyecto. Selecciona un documento del lenguaje elegido y ejecuta con los controles de su contexto.</p><p id="text-api-help">Programa: onStart, onKey y onMessage en JavaScript; on_start, on_key y on_message en Python. Dentro de un evento usa las acciones del objeto, wait(1), variables, repeticiones, mensajes, clones, disfraces y sonido. Las copias independientes conservan su propio texto y su API.</p></details>
 </section>
 </section>
 <section class="scene" aria-labelledby="scene-heading">
@@ -116,10 +116,10 @@
 <div role="tabpanel" id="dock-inspector" aria-labelledby="tab-inspector" hidden>
 <section class="scene-inspector" aria-labelledby="inspector-heading">
 <div class="bar"><h2 id="inspector-heading" tabindex="-1">Propiedades de la escena 2D</h2><output id="inspector-status" aria-live="polite">Sin lectura</output></div>
-<div class="inspection-actions"><div><label for="inspector-object">Objeto a inspeccionar</label><select id="inspector-object"><option value="hero">hero · Sprite</option><option value="scene">Escena 2D</option></select></div><button id="refresh-inspector">Actualizar lectura</button></div>
+<div class="inspection-actions"><div><label for="inspector-object">Objeto a inspeccionar</label><select id="inspector-object"><option value="hero">Objeto seleccionado</option><option value="scene">Escena 2D</option></select></div><button id="refresh-inspector">Actualizar lectura</button></div>
 <details><summary>Estado inicial del proyecto</summary><dl id="inspector-initial"></dl></details>
 <h3>Última lectura de ejecución</h3><dl id="inspector-runtime"></dl>
-<h3 id="inspector-variables-heading">Variables locales de hero</h3><ul id="inspector-variables"></ul>
+<h3 id="inspector-variables-heading">Variables locales</h3><ul id="inspector-variables"></ul>
 <p>La lectura no cambia tu proyecto. Actualiza para consultar los valores después de un evento.</p>
 </section>
 </div>
@@ -196,7 +196,7 @@
 <output id="starter-library-status" aria-live="polite"></output>
 <div class="controls"><button type="button" id="restore-backdrop" hidden>Volver al fondo inicial</button><button type="button" id="retry-starter-library" hidden>Reintentar</button></div>
 <ul id="starter-library-items" class="library-grid" aria-label="Disfraces de la biblioteca" aria-busy="false"></ul></details>
-<div class="resource-grid"><div><label for="import-media">Subir tu propia imagen o sonido</label><input id="import-media" type="file" accept=".svg,.png,.wav" disabled>
+<div class="resource-grid"><div><label id="import-media-label" for="import-media">Subir tu propia imagen o sonido</label><input id="import-media" type="file" accept=".svg,.png,.wav" disabled>
 <label for="resource-list">Recurso y propietario</label><select id="resource-list" disabled></select>
 <label for="resource-name">Nombre</label><input id="resource-name" maxlength="80"><button id="rename-resource">Guardar nombre</button>
 <label for="replace-resource">Reemplazar el medio seleccionado</label><input id="replace-resource" type="file" accept=".svg,.png,.wav"></div>

@@ -1,4 +1,5 @@
 import {createSceneInspection} from '../scene-inspection.mjs';
+import {scene2DBackdrops} from '../contracts/scene2d-objects.mjs';
 
 // Presentation of detached GG readings; never writes scene or project authoring.
 export function createSceneInspectorUI({readScene, getScope, initialScene, objects = () => null, selected = () => null, resources = () => null}) {
@@ -19,7 +20,10 @@ export function createSceneInspectorUI({readScene, getScope, initialScene, objec
   function inspected() {
     const config = objects(), id = selected();
     if (!config) return {count: 1, id: 'hero', name: fallback.spriteId, authored: fallback};
-    if (id === 'stage') return {count: config.sprites.length, id, name: 'Escenario', stage: true, backdrop: costumeName('stage', config.stage.backdrop)};
+    if (id === 'stage') {
+      const backdrops = scene2DBackdrops(resources());
+      return {count: config.sprites.length, id, name: 'Escenario', stage: true, backdrop: (backdrops.find(item => item.id === config.stage.backdrop) ?? backdrops[0])?.label ?? 'Sin fondo'};
+    }
     const sprite = config.sprites.find(item => item.id === id) ?? config.sprites[0];
     return {count: config.sprites.length, id: sprite.id, name: sprite.name,
       authored: {spriteId: sprite.name, x: sprite.x, y: sprite.y, direction: sprite.direction, size: sprite.size, costume: costumeName(sprite.id, sprite.costume)}};

@@ -13,6 +13,21 @@ const snapshot=page=>page.evaluate(()=>studioProbe.request('snapshot'));
 // Expected keys may name nested snapshot fields with dots (`hero.size`).
 const read=(value,key)=>key.split('.').reduce((item,part)=>item?.[part],value);
 
+// Version 1: one workspace, opened like an activity. Version 2 (objects): its
+// resources are copies of the catalog's, so it depends on no bytes of the build.
+function openProject(page,project){
+  if(project.version===1)return page.evaluate(starter=>studioProbe.project.loadStarter(starter),{name:project.name,packIds:project.packIds,blockly:project.blockly});
+  return page.evaluate(async project=>{
+    const app=path=>import(new URL('./app/'+path,location.href).href);
+    const [{createProject},{createCapabilities},{promoteLegacyResources,validateResources}]=await Promise.all([app('project-format.mjs'),app('contracts/packs.mjs'),app('contracts/resources.mjs')]);
+    const catalog=studioProbe.project.catalog(),capabilities=createCapabilities([...new Set([...project.packIds,'gg.assets'])]);
+    capabilities.config['gg.sprites']=project.objects;
+    const base=await promoteLegacyResources(catalog),first=owner=>base.costumes.find(item=>item.ownerId===owner);
+    const resources=await validateResources({...structuredClone(base),costumes:[...base.costumes,...project.resources.map(({from,...item})=>({...first(from),...item}))]});
+    await studioProbe.project.open(JSON.stringify(await createProject({name:project.name,scene2d:project.scene2d,deviceSource:'',catalog,capabilities,resources})));
+  },project);
+}
+
 test('CANONICAL: the fixture folder declares at least one project per supported context',()=>{
   for(const context of Object.keys(contexts))expect(fixtures.some(item=>item.id.startsWith(context+'/')),context).toBe(true);
 });
@@ -20,10 +35,10 @@ test('CANONICAL: the fixture folder declares at least one project per supported 
 for(const fixture of fixtures)test('CANONICAL: '+fixture.id+' opens without running, reaches its final state and stops',async({page})=>{
   const project=JSON.parse(readFileSync(resolve(fixture.dir,'project.json'),'utf8'));
   const expected=JSON.parse(readFileSync(resolve(fixture.dir,'expect.json'),'utf8'));
-  expect(project.format).toBe('gg-canonical-fixture');expect(project.version).toBe(1);
+  expect(project.format).toBe('gg-canonical-fixture');expect([1,2]).toContain(project.version);
   const context=contexts[project.context];expect(context,'contexto sin ejecutor: '+project.context).toBeTruthy();
   await page.goto('/');await expect(page.locator('#run-editor')).toBeEnabled();await page.evaluate(()=>studioProbe.project.ready());
-  await page.evaluate(starter=>studioProbe.project.loadStarter(starter),{name:project.name,packIds:project.packIds,blockly:project.blockly});
+  await openProject(page,project);
   for(const [key,value] of Object.entries(expected.initial))expect(read(await settled(snapshot,page),key),'abrir no ejecuta: '+key).toEqual(value);
   await selectContext(page,context.select);
   await clickVisible(page.locator(context.run));await expect(page.locator('#status')).toHaveText(context.ran);

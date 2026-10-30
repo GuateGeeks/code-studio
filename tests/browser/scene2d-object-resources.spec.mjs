@@ -348,8 +348,8 @@ test('MS-BROWSER-021: inspector and derived code follow the selected object',asy
   await expect(page.locator('#inspector-runtime')).toContainText('12');
   await pick(page,'Escenario');
   await expect(page.locator('#inspector-object option[value=hero]')).toHaveText('Escenario · Fondo');
-  await expect(initial).toContainText('Fondo inicial');
-  await expect(initial).toContainText('stage');
+  // A backdrop reads as in its menu: «Fondo inicial» is the label and the name of the catalog's.
+  await expect(initial).toHaveText('Sprites de autoría2Fondo inicialFondo inicial');
   await expect(page.locator('#inspector-runtime')).toContainText('no tiene posición');
   await stop(page);
   // Derived code: the selected object's, with its identifier.
@@ -685,7 +685,7 @@ test('MS-BROWSER-032: a block of a pack the project lacks cannot come back by pa
   await stop(page);
 });
 
-test('MS-BROWSER-013-LIMIT: the nine tiles of a full project leave Blockly at least 300 px at 1280×720',async({page})=>{
+test('MS-BROWSER-013-LIMIT: the nine tiles of a full project leave at least 300 px of Blockly in sight at 1280×720',async({page})=>{
   await page.setViewportSize({width:1280,height:720});
   await open(page);
   if(await page.locator('#entry-panel').evaluate(node=>node.open))await page.locator('#entry-toggle').click();
@@ -698,7 +698,12 @@ test('MS-BROWSER-013-LIMIT: the nine tiles of a full project leave Blockly at le
   await page.screenshot({path:artifactPath('objects-nine-laptop.png')});
   await writeFile(artifactPath('objects-nine-laptop.json'),JSON.stringify(box,null,2));
   expect(box.scroll).toBeLessThanOrEqual(box.viewport);
-  expect(box.editor,JSON.stringify(box)).toBeGreaterThanOrEqual(300);
+  // In sight, not the element: min-height keeps the element at 300 px whatever is left.
+  expect(box.visibleEditor,JSON.stringify(box)).toBeGreaterThanOrEqual(300);
+  // One row of tiles that scrolls: the selected object stays in it.
+  const row=await page.evaluate(()=>{const list=document.querySelector('#objects-list').getBoundingClientRect(),selected=document.querySelector('#objects-list [aria-selected=true]').getBoundingClientRect(),tops=new Set([...document.querySelectorAll('#objects-list [role=option]')].map(node=>Math.round(node.getBoundingClientRect().top)));return {rows:tops.size,left:selected.left-list.left,right:list.right-selected.right,scrolls:document.querySelector('#objects-list').scrollWidth>document.querySelector('#objects-list').clientWidth};});
+  expect(row.rows).toBe(1);expect(row.scrolls).toBe(true);
+  expect(row.left,JSON.stringify(row)).toBeGreaterThanOrEqual(-1);expect(row.right,JSON.stringify(row)).toBeGreaterThanOrEqual(-1);
 });
 
 const views=[['desktop',1440,900],['laptop',1280,720],['narrow',390,844],['zoom',320,568]];

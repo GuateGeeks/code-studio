@@ -193,9 +193,12 @@ main { padding: var(--gg-space-2) 16px; }
 /* Objects: stage and sprites in one row, the actions beside them. */
 #objects-panel { min-width: 0; padding-block: var(--gg-space-2) var(--gg-space-1); border-bottom: 1px solid var(--gg-divider); }
 .objects-bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--gg-space-2); min-width: 0; }
-#objects-list { display: flex; flex: 1 1 280px; flex-wrap: wrap; gap: var(--gg-space-1); min-width: 0; }
-.object-option { display: inline-flex; align-items: center; gap: var(--gg-space-1); min-width: 0; max-width: 10rem; min-height: var(--gg-target); padding: 2px 10px 2px 6px; border: 1px solid var(--gg-border); border-radius: var(--gg-radius); background: var(--gg-surface); font-size: var(--gg-text-label); font-weight: 600; cursor: pointer; }
+/* One row that scrolls: with nine tiles, wrapping took the height of the blocks. */
+#objects-list { display: flex; flex: 1 1 100%; gap: var(--gg-space-1); min-width: 0; padding: 2px; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: thin; }
+.object-option { display: inline-flex; flex: 0 0 auto; align-items: center; gap: var(--gg-space-1); min-width: 0; max-width: 10rem; min-height: var(--gg-target); padding: 2px 10px 2px 6px; border: 1px solid var(--gg-border); border-radius: var(--gg-radius); background: var(--gg-surface); font-size: var(--gg-text-label); font-weight: 600; cursor: pointer; }
 .object-option:hover { background: var(--gg-toolbar); }
+/* The row clips what leaves it, so the ring goes inside the tile. */
+.object-option:focus-visible { outline-offset: -3px; }
 .object-option[aria-selected=true] { border-color: var(--gg-action); background: var(--gg-action); color: var(--gg-on-action); }
 .object-option img { flex: 0 0 auto; width: 28px; height: 28px; padding: 1px; border-radius: 4px; background: var(--gg-surface); object-fit: contain; }
 .object-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -211,6 +214,7 @@ main { padding: var(--gg-space-2) 16px; }
 #object-name-error { margin: 0 0 var(--gg-space-1); color: var(--gg-error); font-size: var(--gg-text-label); }
 #objects-status { margin-top: var(--gg-space-1); font-size: var(--gg-text-label); color: var(--gg-muted); }
 #objects-status[data-tone=error] { color: var(--gg-error); }
+#object-delete-unopened { margin-top: var(--gg-space-1); border-color: var(--gg-error); color: var(--gg-error); }
 
 /* Transport sits beside the result it controls. */
 .transport-bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--gg-space-2); padding: var(--gg-space-2) var(--gg-space-3); background: var(--gg-toolbar); }
@@ -516,6 +520,11 @@ body:is([data-workspace-context="scene3d"], [data-workspace-context="webapp"]) .
   .result-bar { flex-wrap: wrap; }
   .entry-actions button { flex: 1 1 160px; text-align: left; }
   .menu-panel { position: fixed; top: auto; left: 8px; right: 8px; width: auto; margin-top: 6px; }
+}
+/* The toolbox takes half of the editor here: its controls would cover the blocks.
+   Ctrl + / − still zoom, and dragging to the toolbox still deletes. */
+@media (max-width: 420px) {
+  #blockly-editor :is(.blocklyZoom, .blocklyTrash) { display: none; }
 }
 @media (max-width: 360px) {
   main, .release-footer { padding-inline: var(--gg-space-1); }

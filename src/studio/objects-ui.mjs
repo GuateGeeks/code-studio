@@ -23,7 +23,7 @@ export function createObjectsUI({authoring,codeViews,contexts,resources,editObje
   let busy=false,formMode=null,formScope=null,opener=null,lastKey=null,unopened=null;
   const config=()=>{try{return scene2DObjectsOf(authoring.captureCapabilities());}catch{return null;}};
   const mounted=()=>authoring.mountedObject();
-  const entries=objects=>[{id:'stage',name:scene2DStageName,ownerId:'stage'},...objects.sprites.map(sprite=>({id:sprite.id,name:sprite.name,ownerId:sprite.id,costume:sprite.costume}))];
+  const entries=objects=>[{id:'stage',name:scene2DStageName,ownerId:'stage',costume:objects.stage.backdrop},...objects.sprites.map(sprite=>({id:sprite.id,name:sprite.name,ownerId:sprite.id,costume:sprite.costume}))];
   const nameOf=id=>entries(config()).find(item=>item.id===id)?.name??'';
   const optionOf=id=>list.querySelector('[data-object="'+CSS.escape(id)+'"]');
   const options=()=>[...list.querySelectorAll('[role=option]')];
@@ -51,6 +51,9 @@ export function createObjectsUI({authoring,codeViews,contexts,resources,editObje
       node.append(label);return node;
     }));
     if(focused)(optionOf(focused)??optionOf(selected))?.focus({preventScroll:true});
+    // The row scrolls by itself, never the page: the selected object stays in sight.
+    const shown=optionOf(selected)?.getBoundingClientRect(),row=list.getBoundingClientRect();
+    if(shown&&shown.left<row.left)list.scrollLeft-=row.left-shown.left;else if(shown&&shown.right>row.right)list.scrollLeft+=shown.right-row.right;
   }
   // aria-disabled, not disabled: the control stays reachable and pressing it says why.
   function blocked(action,objects,selected){
@@ -71,7 +74,7 @@ export function createObjectsUI({authoring,codeViews,contexts,resources,editObje
     if(unopened===selected||!objects.sprites.some(sprite=>sprite.id===unopened))unopened=null;
     removeUnopened.hidden=unopened===null;
     if(unopened!==null)removeUnopened.textContent='Borrar «'+nameOf(unopened)+'»';
-    const key=JSON.stringify([objects.sprites.map(sprite=>[sprite.id,sprite.name,sprite.costume]),selected,view.costumes.map(item=>[item.ownerId,item.id,item.assetId])]);
+    const key=JSON.stringify([objects.stage.backdrop,objects.sprites.map(sprite=>[sprite.id,sprite.name,sprite.costume]),selected,view.costumes.map(item=>[item.ownerId,item.id,item.assetId])]);
     if(key!==lastKey){
       lastKey=key;build(objects,selected);
       for(const [action,button]of Object.entries(buttons))button.setAttribute('aria-disabled',String(Boolean(blocked(action,objects,selected))));

@@ -1,6 +1,8 @@
 import {scene2DObjectsOf} from '../project-format.mjs';
 import {scene2DTextOwner} from '../contracts/scene2d-identifiers.mjs';
 import {scene2DStageName} from '../contracts/scene2d-objects.mjs';
+import {eachWorkspaceBlock} from '../contracts/scene2d-object-edits.mjs';
+import {creationGuide} from './presentation-text.mjs';
 
 // What the consultation surfaces read about the scene (scene2d-multi-sprite 3.2):
 // the object on screen and its name. The surfaces are built before the authoring
@@ -28,6 +30,12 @@ export function createSceneScope(editor) {
       if (!objects) return null;
       const id = selected(), sprite = objects.sprites.find(item => item.id === id) ?? objects.sprites[0];
       return scene2DTextOwner(objects, sprite.id);
+    },
+    // The guide above the blocks, for the object on screen as it is now.
+    guide() {
+      const owner = selected(), blocks = [];
+      eachWorkspaceBlock(editor.save(), block => blocks.push(block.type));
+      return creationGuide({owner, name: nameOf(owner), blocks});
     },
     // Identity of the program: the whole scene, so choosing an object changes nothing.
     blocksKey: () => authoring?.blocksKey() ?? JSON.stringify(editor.save())

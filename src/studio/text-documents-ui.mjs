@@ -28,7 +28,7 @@ export function createTextDocumentsUI({onError = () => {},canRun = () => true,on
   let codeView = null;
   // The sprite the text speaks of: the document's, or the object a new one would write for.
   const speaker = () => Object.keys(current()?.runtime?.targetIds ?? {}).find(identifier => identifier !== 'stage') ?? documentOwner()?.identifier ?? 'hero';
-  const api3Help = () => 'El programa usa eventos onStart, onKey y onMessage en JavaScript, o on_start, on_key y on_message en Python. Dentro de un evento puedes usar '+speaker()+'.move(10), wait(1), variables, repeticiones, mensajes, disfraces, clones y sonido. Las copias independientes conservan su propio texto.';
+  const api3Help = () => 'El programa usa eventos onStart, onKey y onMessage en JavaScript, o on_start, on_key y on_message en Python. Dentro de un evento puedes usar '+speaker()+'.move(10), wait(1), variables, repeticiones, mensajes, disfraces, fondos, clones y sonido. Las copias independientes conservan su propio texto.';
   const legacyHelp = 'Este documento conserva la API anterior: GG.scene.get(), GG.sprite.get/move/setPosition(), GG.variables.get/set(), GG.events.emit() y GG.wait(segundos), con await. Las copias anteriores con eventos usan su contexto ctx.';
   const helpText = () => codeView?.help ?? (current()?.runtime?.api === 'api3' || !current() ? api3Help() : legacyHelp);
 

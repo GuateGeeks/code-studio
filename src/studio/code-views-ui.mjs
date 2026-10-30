@@ -299,7 +299,7 @@ export function createCodeViewsUI({state,editor,textDocuments,contexts,config,ge
     return {source:entry.source,language:entry.language,readOnly:!available.editable,
       status:baseStatus+(warning?' '+warning:''),
       destination:'Editas el mismo programa 2D. Cambiar de vista no ejecuta.',
-      help:'Usa onStart, onKey y onMessage en JavaScript; on_start, on_key y on_message en Python. Dentro de un evento: '+(owner=>owner?.kind==='stage'?'':(owner?.identifier??'hero')+'.move(10), ')(ownerOption().owner)+'wait(1), variables, repetición y comparaciones. El texto fuera del subconjunto se puede conservar como copia independiente.',
+      help:'Usa onStart, onKey y onMessage en JavaScript; on_start, on_key y on_message en Python. Dentro de un evento: '+(owner=>owner?.kind==='stage'?'':(owner?.identifier??'hero')+'.move(10), ')(ownerOption().owner)+'wait(1), setBackdrop("Noche"), variables, repetición y comparaciones. El texto fuera del subconjunto se puede conservar como copia independiente.',
       onInput:value=>{error=null;warning='';setText(errorOutput,'');source.removeAttribute('aria-invalid');
         state.editSource(context,value);cancelAnalysis();onSourceChanged();render();}};
   }
