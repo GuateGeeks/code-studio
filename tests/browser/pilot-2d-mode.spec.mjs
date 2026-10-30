@@ -6,12 +6,11 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {clickVisible,settled} from './workspace-controls.mjs';
 import {artifactPath} from './artifacts.mjs';
+import {auxiliaryServer} from './origins.mjs';
 
-// Own server with the pilot profile, outside the default (4173–4182),
-// offline (4177–4189) and partition (4400+) ranges.
+// Own server with the pilot profile, in a block derived from the configured base (offset +60).
 test.setTimeout(180000);
-const origin='http://127.0.0.1:4300';
-const ports={GG_SHELL_PORT:'4300',GG_RUNNER_PORT:'4301',GG_SIMULATOR_PORT:'4302',GG_LANGUAGE_PORT:'4303',GG_SCENE3D_PORT:'4308',GG_WEBAPP_PORT:'4309'};
+const {env:ports,origin}=auxiliaryServer('pilot');
 let server=null,releaseRoot=null;
 test.beforeAll(async()=>{
   releaseRoot=await mkdtemp(join(tmpdir(),'gg-pilot-releases-'));

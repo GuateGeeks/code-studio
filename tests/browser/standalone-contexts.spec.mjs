@@ -7,9 +7,13 @@ import {mkdtemp,readFile,writeFile,mkdir} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {resolve,dirname,relative,sep} from 'node:path';
 import {readStoredPackage} from '../../src/export/stored-package.mjs';
+import {auxiliaryServer} from './origins.mjs';
 const sourceNames=['index.html','source.tar.gz','source-manifest.json','LICENSE','THIRD_PARTY_NOTICES.txt','SBOM.json'];
 const digest=bytes=>createHash('sha256').update(bytes).digest('hex');
-const ports={GG_SHELL_PORT:'4231',GG_LANGUAGE_PORT:'4232',GG_SCENE3D_PORT:'4233',GG_WEBAPP_PORT:'4234',GG_RUNNER_PORT:'4235',GG_SIMULATOR_PORT:'4236'};
+// Studio server in a block derived from the configured base (offset +70).
+// The exported packages' own servers (serve.mjs) listen on 4211–4216, ports fixed by the
+// package format itself (deployment.json), so they are not derived from the base.
+const {env:ports,origin:studioOrigin}=auxiliaryServer('standalone');
 async function server(command,args,options,origin){
  const child=spawn(command,args,{...options,stdio:['ignore','pipe','pipe']});let log='';
  child.stdout.on('data',data=>{log+=data;});child.stderr.on('data',data=>{log+=data;});
@@ -22,9 +26,9 @@ test('GG-EXPORT-001: four packages run from an external folder with Studio stopp
  const folder=await mkdtemp(resolve(tmpdir(),'gg-standalone-browser-')),packages=[],evidence={folder,packages:[]};
  let studio,standalone,context;
  try{
-  studio=await server(process.execPath,['tools/f0/serve-browser.mjs'],{env:{...process.env,...ports,GG_RELEASE_ROOT:resolve(folder,'releases')}},'http://127.0.0.1:4231/health');
+  studio=await server(process.execPath,['tools/f0/serve-browser.mjs'],{env:{...process.env,...ports,GG_RELEASE_ROOT:resolve(folder,'releases')}},studioOrigin+'/health');
   for(const contextId of ['scene3d','webapp'])for(const language of ['javascript','python']){
-   context=await browser.newContext();const page=await context.newPage();await page.goto('http://127.0.0.1:4231/');
+   context=await browser.newContext();const page=await context.newPage();await page.goto(studioOrigin+'/');
    await page.waitForFunction(()=>window.studioProbe?.project.state().ready);
    await page.locator('#authoring-context').selectOption(contextId);
    const surface=page.locator('#'+contextId+'-authoring'),title=contextId==='scene3d'?'escena 3D':'aplicación web';

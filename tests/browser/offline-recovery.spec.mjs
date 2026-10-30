@@ -6,12 +6,13 @@ import {once} from 'node:events';
 import {mkdtemp, cp, readFile, writeFile, mkdir} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import {artifactPath} from './artifacts.mjs';
+import {auxiliaryServer} from './origins.mjs';
 
 // Cohort update/rollback polls allow 240 s: on the shared machine a loaded
 // gate exceeded 120 s while the same test passes alone (24/10/2026).
 test.setTimeout(600000);
-const origin='http://127.0.0.1:4177';
-const ports={GG_SHELL_PORT:'4177',GG_RUNNER_PORT:'4178',GG_SIMULATOR_PORT:'4179',GG_LANGUAGE_PORT:'4180',GG_SCENE3D_PORT:'4188',GG_WEBAPP_PORT:'4189'};
+// Own server block derived from the configured base (offset +50).
+const {env:ports,origin}=auxiliaryServer('offline');
 const snapshot=page=>page.evaluate(()=>studioProbe.request('snapshot'));
 async function serve(browserRoot, releaseRoot) {
   const child=spawn(process.execPath,['tools/f0/serve-browser.mjs'],{env:{...process.env,...ports,GG_BROWSER_ROOT:browserRoot,GG_RELEASE_ROOT:releaseRoot},stdio:['ignore','pipe','pipe']});
