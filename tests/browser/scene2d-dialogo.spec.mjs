@@ -333,6 +333,7 @@ test('MS-BROWSER-037: «Diálogo» does the same as blocks, as a JavaScript copy
     expect(source).toContain(language==='javascript'?'cesta.goToObject(hero);':'cesta.go_to_object(hero)');
     expect(source).toContain(language==='javascript'?'setBackdrop("Noche");':'set_backdrop("Noche")');
     await selectContext(page,'text');await clickVisible(page,page.getByRole('button',{name:'Ejecutar documento 2D',exact:true}));
+    await expect(page.locator('#text-run-status')).toHaveText('Documento activo · eventos disponibles');
     await expect.poll(async()=>final(await settled(snapshot,page)),{timeout:60000}).toEqual(goal);
     evidence[language]=source;
     await selectContext(page,'text');await clickVisible(page,page.getByRole('button',{name:'Detener',exact:true}));
