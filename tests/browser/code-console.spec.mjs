@@ -1,3 +1,4 @@
+import {origins} from './origins.mjs';
 import {selectContext,clickVisible,consult,revealPanel,settled} from './workspace-controls.mjs';
 import {test, expect} from '@playwright/test';
 import {readFile, writeFile} from 'node:fs/promises';
@@ -159,7 +160,7 @@ test('GG-CODE/CONSOLE: invalid generation/import preserve live scene and source 
 test('GG-CONSOLE: authenticated channel rejects stale revision/session/sequence, unsafe metadata and bounds flood', async ({page}) => {
   await instrumentRunner(page);
   await open(page); await run(page, 12);
-  const frame = page.frames().find(frame => frame.url().includes(':4174/'));
+  const frame = page.frames().find(frame => frame.url().includes(new URL(origins.runnerOrigin).host + '/'));
   const original = await page.evaluate(() => studioProbe.state());
   await clickVisible(page.getByRole('button', {name: 'Limpiar consola', includeHidden: true}));
   await frame.evaluate(() => {
@@ -203,7 +204,7 @@ test('GG-CONSOLE: authenticated channel rejects stale revision/session/sequence,
   await selectContext(page,'2d');
   await clickVisible(page.getByRole('button', {name:'Detener',exact:true}));
   await expect(page.locator('#run-editor')).toBeEnabled();
-  const newFrame = page.frames().find(frame => frame.url().includes(':4174/'));
+  const newFrame = page.frames().find(frame => frame.url().includes(new URL(origins.runnerOrigin).host + '/'));
   await newFrame.evaluate(old => runnerTest.send({type: 'diagnostic', sessionId: old.sessionId, revision: old.revision, diagnostic: {level: 'error', code: 'AFTER_STOP', origin: 'runner', message: 'REJECT old session'}}), original);
   await expect(page.locator('#console-summary')).toHaveText('Sin mensajes');
   await run(page, 21);
@@ -213,7 +214,7 @@ test('GG-CONSOLE: authenticated channel rejects stale revision/session/sequence,
 test('GG-CONSOLE: asynchronous errors retain their starting revision and cannot leak device output', async ({page}) => {
   await instrumentRunner(page);
   await open(page); await run(page, 12);
-  const frame = page.frames().find(frame => frame.url().includes(':4174/'));
+  const frame = page.frames().find(frame => frame.url().includes(new URL(origins.runnerOrigin).host + '/'));
   await frame.evaluate(() => runnerTest.delayCompiler());
   await page.evaluate(() => {
     window.delayedCompilation = studioProbe.compile('basic.showNumber(1)', false).then(() => 'resolved', error => error.message);
@@ -232,7 +233,7 @@ test('GG-RUN/CONSOLE: Stop supersedes Run during delayed runner preparation', as
   let release;
   let entered = false;
   const held = new Promise(resolve => { release = resolve; });
-  await page.route('http://127.0.0.1:4174/**', async route => {
+  await page.route(origins.runnerOrigin + '/**', async route => {
     if (route.request().isNavigationRequest() && !entered) {
       entered = true;
       await held;

@@ -1,3 +1,4 @@
+import {origins} from './origins.mjs';
 import {selectContext,clickVisible,revealPanel,settled} from './workspace-controls.mjs';
 import {revealAdvanced} from './advanced-controls.mjs';
 import {artifactPath} from './artifacts.mjs';
@@ -117,7 +118,7 @@ test('GG-PROJECT-001/002/003/005/010: downloaded ZIP reopens in a clean browser 
   const id = manifest.project.id;
   await page.close();
 
-  const fresh = await browser.newContext({baseURL: 'http://127.0.0.1:4173', viewport: {width: 390, height: 844}});
+  const fresh = await browser.newContext({baseURL: origins.shellOrigin, viewport: {width: 390, height: 844}});
   try {
     const reopened = await fresh.newPage();
     await open(reopened);
@@ -324,7 +325,7 @@ test('GG-PROJECT-007/009: Stop and reopening preserve audio authoring without re
   await selectContext(page,'2d');
   await clickVisible(page.getByRole('button', {name: 'Ejecutar bloques', exact: true}));
   await expect(page.locator('#status')).toHaveText('Bloques ejecutados');
-  const oldFrame = page.frames().find(frame => frame.url().startsWith('http://127.0.0.1:4174/'));
+  const oldFrame = page.frames().find(frame => frame.url().startsWith(origins.runnerOrigin + '/'));
   const play = () => page.frameLocator('#runner-slot iframe').getByRole('button', {name: 'Reproducir sonido', exact: true});
   await clickVisible(play());
   await expect.poll(async () => (await settled(snapshot, page)).audio.rms).toBeGreaterThan(0.01);
@@ -393,7 +394,7 @@ test('GG-PROJECT-006/007/009: flush during recovery and an import superseded by 
 
   // The first runner navigation is intentionally still loading when Stop replaces it.
   const runnerUrl = new URL(await page.locator('#runner-slot > iframe').getAttribute('src'), page.url());
-  expect(runnerUrl.origin).toBe('http://127.0.0.1:4174');
+  expect(runnerUrl.origin).toBe(origins.runnerOrigin);
   const isRunnerNavigation = url => url.origin === runnerUrl.origin && url.pathname === runnerUrl.pathname && url.searchParams.has('session');
   await page.route(isRunnerNavigation, async route => {
     await new Promise(resolve => setTimeout(resolve, 300));

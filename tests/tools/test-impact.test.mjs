@@ -78,7 +78,7 @@ test('TEST-IMPACT: CLI rejects ambiguous or unsupported options rather than sile
 });
 
 test('TEST-IMPACT: full fails fast through smoke before canonical browser coverage and partial runs isolate reports', () => {
-  const full = buildCommands(createPlan('full'), {forceBuild: true});
+  const full = buildCommands(createPlan('full'), {forceBuild: true, partitions: 1});
   assert.ok(full.findIndex(command => command.name === 'smoke') < full.findIndex(command => command.name === 'browser'));
   assert.ok(full.find(command => command.name === 'build').args.includes('--force'));
   assert.equal(full.find(command => command.name === 'browser').env, undefined);

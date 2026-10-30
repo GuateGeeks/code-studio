@@ -1,3 +1,4 @@
+import {origins} from './origins.mjs';
 import {selectContext,clickVisible,revealPanel} from './workspace-controls.mjs';
 import {artifactPath} from './artifacts.mjs';
 import {test, expect} from '@playwright/test';
@@ -23,7 +24,7 @@ test('GG-PXT-004: browser worker compiles simulator JS, native HEX and source di
   await expect(page.locator('#compile')).toBeEnabled();
   const ready = await page.evaluate(() => studioProbe.request('prepare-compiler'));
   expect(ready.worker).toBe(true);
-  expect(ready.origin).toBe('http://127.0.0.1:4174');
+  expect(ready.origin).toBe(origins.runnerOrigin);
   const simulated = await page.evaluate(source => studioProbe.compile(source, false), source);
   expect(simulated.success).toBe(true);
   expect(simulated.environment.worker).toBe(true);
@@ -48,7 +49,7 @@ test('GG-PXT-004: browser worker compiles simulator JS, native HEX and source di
   const invalid = await page.evaluate(() => studioProbe.compile('basic.noSuchFunction()', false));
   expect(invalid.success).toBe(false);
   expect(invalid.diagnostics.some(item => item.fileName === 'main.ts')).toBe(true);
-  expect(requests.every(item => item.method === 'GET' && ['http://127.0.0.1:4173', 'http://127.0.0.1:4174'].includes(new URL(item.url).origin))).toBe(true);
+  expect(requests.every(item => item.method === 'GET' && [origins.shellOrigin, origins.runnerOrigin].includes(new URL(item.url).origin))).toBe(true);
   await writeFile(artifactPath('browser-pxt-evidence.json'), JSON.stringify({simulated: {...simulated, outfiles: Object.keys(simulated.outfiles)}, native: {...native, outfiles: Object.keys(native.outfiles)}, invalid, requests}, null, 2));
   await writeFile(artifactPath('browser-heart.hex'), native.outfiles['binary.hex']);
 });
