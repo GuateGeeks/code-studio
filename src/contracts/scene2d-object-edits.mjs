@@ -122,7 +122,8 @@ export async function addSceneObject({config, scene2d, codeViews, resources}, {i
     .sort((a, b) => Number(b.id === sprite.costume) - Number(a.id === sprite.costume)));
   const costume = candidates[0] ?? fail('No hay ningún disfraz que copiar para el objeto nuevo.');
   requireResourceRoom(resources, 1, 0);
-  const copy = {...structuredClone(costume), id: id + ':c0', ownerId: id};
+  // Its costume is named after it: a menu of Cesta should not read «hero».
+  const copy = {...structuredClone(costume), id: id + ':c0', ownerId: id, name: normalized};
   return withNewObject({config, scene2d, codeViews}, {id, name: normalized, costumeId: copy.id, rules,
     resources: {...structuredClone(resources), costumes: [...structuredClone(resources.costumes), copy]}});
 }

@@ -158,7 +158,7 @@ export function createCodeConsoleUI(editor, {selectSourceLocation = () => false,
       const owner = listingOwner();
       listing = generatedView(editor.program(), owner?.textOwner);
       code.value = listing.text;
-      codeStatus.textContent = owner ? `Código de «${owner.name}» · actualizado desde tus bloques` : 'Actualizado desde tus bloques';
+      codeStatus.textContent = owner?.name ? `Código de «${owner.name}» · actualizado desde tus bloques` : 'Actualizado desde tus bloques';
       lastFailure = null;
     } catch (error) {
       listing = null;

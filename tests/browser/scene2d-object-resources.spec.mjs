@@ -201,12 +201,12 @@ test('MS-BROWSER-018: menus, toolbox, the resource list and uploads follow the s
   await expect(card(page,'gato')).toHaveAttribute('data-state','added');
   // Cesta's menus: its costumes and no sound of hero's.
   await page.evaluate(state=>studioProbe.editor.load(state),onStart('c-start',{type:'gg_assets_set_costume',id:'c-costume',fields:{COSTUME:'gato'}},{type:'gg_assets_play_sound',id:'c-sound',fields:{SOUND:'__gg_missing_resource__'}}));
-  expect(await menu(page,'c-costume','Gato')).toEqual(['hero','Gato']);
+  expect(await menu(page,'c-costume','Gato')).toEqual(['Cesta','Gato']);
   expect(await menu(page,'c-sound','Sin recursos')).toEqual(['Sin recursos disponibles']);
   expect(await flyout(page,'Apariencia')).not.toContain('cambiar disfraz a');
   expect(await flyout(page,'Recursos locales')).toContain('disfraz');
   await revealPanel(page,page.locator('#resource-list'));
-  expect(await resourceList(page)).toEqual(['hero · Cesta','Gato · Cesta']);
+  expect(await resourceList(page)).toEqual(['Cesta · Cesta','Gato · Cesta']);
   // Another object: its own again, and the library says so.
   // Cesta has no sounds yet: the block stays, it can come back to it, and Run says so.
   await pick(page,'hero');
@@ -338,7 +338,6 @@ test('MS-BROWSER-021: inspector and derived code follow the selected object',asy
   await expect(page.locator('#inspector-variables-heading')).toHaveText('Variables locales de Cesta');
   await expect(initial).toContainText('Cesta');
   await expect(initial).toContainText('Disfraz inicial');
-  await expect(initial).toContainText('hero');
   await expect(initial).not.toContainText('sprite-');
   await expect(initial).not.toContainText(id);
   await run(page);

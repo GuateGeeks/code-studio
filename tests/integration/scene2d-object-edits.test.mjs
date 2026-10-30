@@ -101,6 +101,7 @@ test('MS-038: a new object has its own ID and costume, an empty program and the 
   const owned = after.resources.costumes.filter(item => item.ownerId === 'sprite-1');
   assert.deepEqual(owned.map(item => item.id), [added.costume]);
   assert.equal(owned[0].assetId, resources.costumes.find(item => item.id === 'hero').assetId);
+  assert.equal(owned[0].name, 'Cesta', 'a menu of the new object reads its name');
   assert.equal(after.resources.sounds.filter(item => item.ownerId === 'sprite-1').length, 0);
   assert.equal(Object.keys(after.resources.assets).length, Object.keys(resources.assets).length);
   await validateResources(after.resources);
