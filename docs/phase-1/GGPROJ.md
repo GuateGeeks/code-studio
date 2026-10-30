@@ -1,4 +1,11 @@
-# GGPROJ v1 y recuperación local
+# Formato GGPROJ y recuperación local
+
+**Actualización E2, 30/10/2026:** gg.sprites 0.3.0 guarda v6 con un workspace
+por objeto y vistas por objeto; los lectores v1–v5 se conservan. Una instalación
+antigua sin E2 puede rechazar v6. Las secciones F1 siguientes son históricas;
+Objetos 2D al final describe el formato actual. Abrir no promueve el perfil.
+
+## Corte histórico F1: GGPROJ v1
 
 Este corte guarda la autoría del editor: bloques e IDs, fuente micro:bit, nombre/identidad del proyecto, estado inicial, recursos y versiones. Los valores modificados por la ejecución o por GG permanecen en la VM y no sustituyen esa autoría. Abrir o recuperar no ejecuta bloques ni compila la fuente automáticamente.
 
@@ -47,7 +54,7 @@ Al iniciar se restaura la revisión actual válida, o la anterior con aviso si l
 
 Un fallo por cuota, denegación o transacción deja intacta la última copia confirmada y muestra que no se guardó. Se puede editar, ejecutar y descargar; una edición o nuevo intento de guardado puede recuperarse del error sin reiniciar la cola. La base pertenece al origen del navegador: cambiar de puerto/perfil/equipo no transporta esas copias; para eso sirve el archivo GGPROJ. No existe todavía catálogo de proyectos, sincronización de cuentas ni fusión entre pestañas.
 
-## Reproducción
+## Reproducción histórica de F1
 
 Desde Ubuntu/WSL en el producto, después de preparar las dependencias:
 
@@ -102,3 +109,33 @@ Cambio OpenSpec `pack-versioning-and-migrations`, decidido en [ADR-011](../adr/0
 - **Pérdidas.** Nunca se descartan scripts de otros objetos en silencio.
 
 Decisión y razones en `openspec/changes/scene2d-multi-sprite/design.md` (puntos 12–14).
+
+
+### Precisiones E2 del corte fb4215f
+
+Los locks de motores se conservan; la IR 2D v1 por objeto se deriva del perfil
+y no es program-ir1 de capacidades. Consola, estado mutable e historial/cámara
+en memoria no son autoría persistida. Trabajo incompleto de objetos puede
+guardarse y reabrirse; la validación de bloques ofrecidos recorre los objetos
+antes de abrir/guardar/transaccionar y Ejecutar exige completar el programa.
+
+La apertura explícita limpia historial vivo y sesiones incluso con mismo UUID;
+una transacción del mismo proyecto los conserva y un commit fallido los restaura.
+La actualización legada es explícita y activar score no cambia su versión de
+sprites. Revertir compara nombre, configuración y contenido durable completo,
+más texto pendiente, antes de preparar y al commit. Renombrar desde el panel
+ya invalida la oferta; no era el trigger de pérdida atribuido por la revisión
+inicial. El cambio de nombre de proyecto sí lo era y fue reparado.
+
+La conversión prueba herencia global desde escenario/otros objetos durables;
+no acepta quitar la única asignación shared del dueño. API1 puede recibir como
+no disponible un grupo local de hero que excede 16, entero y sin truncarlo:
+un documento sin variables ejecuta y un acceso no disponible falla. Estructura,
+tipos e identidades siguen validándose; native Run permanece estricto.
+Las revisiones acotadas atienden estos bloqueantes; no sustituyen la puerta
+amplia del HEAD ni la aceptación humana.
+
+Deuda menor retenida: el guard del helper de downgrade compara igualdad
+canónica y puede aceptar workspaces no vacíos idénticos. Duplicar normalmente
+regenera IDs, pero eso no prueba la garantía para documentos válidos fabricados
+externamente. No afirmar que esta documentación corrige ese helper.

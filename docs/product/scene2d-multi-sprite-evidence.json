@@ -1,0 +1,823 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-10-30",
+  "increment": "E2 scene2d-multi-sprite",
+  "draft": false,
+  "documentationSourceHead": "e51b2d39bab871c693b2dabae0e7ac300d638fea",
+  "verificationHead": "e51b2d39bab871c693b2dabae0e7ac300d638fea",
+  "status": "Task8 approved named affected232/232; documentation review and local integration pending",
+  "provenance": {
+    "kind": "current selected-spec productcaptures and finalnativezoom; historicalcuts separately retained",
+    "sourceReport": "artifacts/stabilization-2d/e2-multisprite/final-record/task-8-report.md",
+    "measurementCommits": {
+      "selectedSpecCaptures": "fb4215f06e5d22e06cb9977324079f2de4758f08",
+      "nativeZoom": "e51b2d39bab871c693b2dabae0e7ac300d638fea"
+    },
+    "selectedSpecProductIdenticalAtFinalHead": true,
+    "historicalMeasuredHead": "7dfe56c6b5b2f47dc900821bd9e813c31aef2f6e",
+    "olderUnversionedCommit": null,
+    "newBrowserRunByTask9": false,
+    "agentVisualInspection": [
+      "coordinator",
+      "Task8verifier"
+    ],
+    "humanAcceptancePerformed": false
+  },
+  "states": [
+    {
+      "state": "nine-object project, selectedVolcán, intentionally scrolling row",
+      "productHead": "fb4215f06e5d22e06cb9977324079f2de4758f08",
+      "sameProductAtFinalHead": true,
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "objectCount": 9,
+      "allNineSimultaneouslyVisible": false,
+      "geometry": {
+        "path": "artifacts/stabilization-2d/e2-multisprite/final-verification/fb4215f/remainder-a-evidence/objects-nine-laptop.json",
+        "sha256": "c67e03e068a3148216b4e7a32c98ff17f61d1a68d41d2f4675684c50dea1e052",
+        "bytes": 132,
+        "measurements": {
+          "scroll": 1280,
+          "viewport": 1280,
+          "editor": 340.328125,
+          "visibleEditor": 340.328125,
+          "panel": 137.140625,
+          "list": 48
+        }
+      },
+      "capture": {
+        "path": "artifacts/stabilization-2d/e2-multisprite/final-verification/fb4215f/remainder-a-evidence/objects-nine-laptop.png",
+        "sha256": "8a05096a181eb240c4b9fa3c222be3a003b74ad9aab8e364139e9431d179aa7d",
+        "bytes": 129401,
+        "width": 1280,
+        "height": 720,
+        "kind": "valid rendered layout",
+        "agentInspection": "Root/verifier inspected; selectedVolcán and visibleBlockly340.328125px, no horizontal page overflow."
+      }
+    },
+    {
+      "state": "resource menu narrow",
+      "productHead": "fb4215f06e5d22e06cb9977324079f2de4758f08",
+      "sameProductAtFinalHead": true,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "objectCount": 3,
+      "fixture": "MS027:stage+hero+Cesta",
+      "capture": {
+        "path": "artifacts/stabilization-2d/e2-multisprite/final-verification/fb4215f/remainder-a-evidence/resource-menu-narrow.png",
+        "sha256": "37a270bd176a3a78d02bc8c85fc33889688e5cf9897b214784050c1daf920a09",
+        "bytes": 44045,
+        "width": 390,
+        "height": 844,
+        "kind": "valid rendered layout",
+        "agentInspection": "Root inspected hero costume dropdown and stacked/scrolling layout. This is not the nine-object fixture."
+      },
+      "boxMeasurementJson": null,
+      "geometryEvidence": "Case assertions only; no standalone measured boxes emitted."
+    },
+    {
+      "state": "object panel narrow",
+      "productHead": "fb4215f06e5d22e06cb9977324079f2de4758f08",
+      "sameProductAtFinalHead": true,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "objectCount": 5,
+      "selected": "Robot",
+      "capture": {
+        "path": "artifacts/stabilization-2d/e2-multisprite/final-verification/fb4215f/remainder-b-evidence/objects-panel-narrow.png",
+        "sha256": "684bfed0d1b12bcd4df40474dd12259118f33cbfcd9d17664b03e4610057b479",
+        "bytes": 71042,
+        "width": 390,
+        "height": 844,
+        "kind": "valid rendered layout",
+        "agentInspection": "Root/verifier inspected selectedRobot contained in scrolling row, wrapped actions and editor belowfold."
+      },
+      "boxMeasurementJson": null,
+      "geometryEvidence": "Case assertions only; no standalone measured boxes emitted."
+    },
+    {
+      "state": "native Chrome zoom200/400% with nine objects",
+      "head": "e51b2d39bab871c693b2dabae0e7ac300d638fea",
+      "method": "native tab zoom; raw CDP DIP bounds; no CSS or pixel substitution",
+      "metadata": {
+        "path": "artifacts/stabilization-2d/e2-multisprite/final-verification/e51b2d3/zoom-dip-supplement/capture-metadata.json",
+        "sha256": "9a6760aca1c10b8204c8c948b54032bfa62e7d2374f2b350682b9df7b9f5d4bc",
+        "bytes": 4166,
+        "measurements": {
+          "head": "e51b2d39bab871c693b2dabae0e7ac300d638fea",
+          "startedAt": "2026-10-30T22:55:59.898Z",
+          "method": "native Chrome tab zoom; additional CDP capture using protocol DIP contentSize; no CSS/pixel changes",
+          "states": [
+            {
+              "factor": 2,
+              "innerWidth": 640,
+              "innerHeight": 316,
+              "devicePixelRatio": 2,
+              "scrollX": 0,
+              "scrollY": 284,
+              "scrollWidth": 640,
+              "visualViewport": {
+                "width": 640,
+                "height": 316.5,
+                "pageTop": 284,
+                "pageLeft": 0,
+                "scale": 1
+              },
+              "panel": {
+                "x": 29,
+                "y": 89.5859375,
+                "width": 582,
+                "height": 137.1484375
+              },
+              "list": {
+                "x": 29,
+                "y": 97.5859375,
+                "width": 582,
+                "height": 48
+              },
+              "editor": {
+                "x": 29,
+                "y": 283.03125,
+                "width": 582,
+                "height": 440
+              },
+              "metrics": {
+                "layoutViewport": {
+                  "pageX": 0,
+                  "pageY": 568,
+                  "clientWidth": 1280,
+                  "clientHeight": 633
+                },
+                "visualViewport": {
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "pageX": 0,
+                  "pageY": 284,
+                  "clientWidth": 1280,
+                  "clientHeight": 633,
+                  "scale": 1,
+                  "zoom": 2
+                },
+                "contentSize": {
+                  "x": 0,
+                  "y": 0,
+                  "width": 1280,
+                  "height": 4203
+                },
+                "cssLayoutViewport": {
+                  "pageX": 0,
+                  "pageY": 284,
+                  "clientWidth": 640,
+                  "clientHeight": 316
+                },
+                "cssVisualViewport": {
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "pageX": 0,
+                  "pageY": 284,
+                  "clientWidth": 640,
+                  "clientHeight": 316.5,
+                  "scale": 1,
+                  "zoom": 2
+                },
+                "cssContentSize": {
+                  "x": 0,
+                  "y": 0,
+                  "width": 640,
+                  "height": 2101
+                }
+              },
+              "files": {
+                "viewport": "zoom-200-viewport.png",
+                "fullPage": "zoom-200-full-page.png",
+                "cdpView": "zoom-200-cdp-view.png",
+                "cdpSurface": "zoom-200-cdp-surface.png"
+              }
+            },
+            {
+              "factor": 4,
+              "innerWidth": 320,
+              "innerHeight": 158,
+              "devicePixelRatio": 4,
+              "scrollX": 0,
+              "scrollY": 653.25,
+              "scrollWidth": 320,
+              "visualViewport": {
+                "width": 320,
+                "height": 158.25,
+                "pageTop": 653.25,
+                "pageLeft": 0,
+                "scale": 1
+              },
+              "panel": {
+                "x": 11,
+                "y": -23.61328125,
+                "width": 298,
+                "height": 205.296875
+              },
+              "list": {
+                "x": 11,
+                "y": -15.61328125,
+                "width": 298,
+                "height": 48
+              },
+              "editor": {
+                "x": 11,
+                "y": 258.12890625,
+                "width": 298,
+                "height": 400
+              },
+              "metrics": {
+                "layoutViewport": {
+                  "pageX": 0,
+                  "pageY": 2613,
+                  "clientWidth": 1280,
+                  "clientHeight": 633
+                },
+                "visualViewport": {
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "pageX": 0,
+                  "pageY": 653.25,
+                  "clientWidth": 1280,
+                  "clientHeight": 633,
+                  "scale": 1,
+                  "zoom": 4
+                },
+                "contentSize": {
+                  "x": 0,
+                  "y": 0,
+                  "width": 1280,
+                  "height": 9702
+                },
+                "cssLayoutViewport": {
+                  "pageX": 0,
+                  "pageY": 654,
+                  "clientWidth": 320,
+                  "clientHeight": 157
+                },
+                "cssVisualViewport": {
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "pageX": 0,
+                  "pageY": 653.25,
+                  "clientWidth": 320,
+                  "clientHeight": 158.25,
+                  "scale": 1,
+                  "zoom": 4
+                },
+                "cssContentSize": {
+                  "x": 0,
+                  "y": 0,
+                  "width": 320,
+                  "height": 2425
+                }
+              },
+              "files": {
+                "viewport": "zoom-400-viewport.png",
+                "fullPage": "zoom-400-full-page.png",
+                "cdpView": "zoom-400-cdp-view.png",
+                "cdpSurface": "zoom-400-cdp-surface.png"
+              }
+            }
+          ],
+          "pageErrors": [],
+          "completedAt": "2026-10-30T22:56:10.678Z"
+        }
+      },
+      "captures": [
+        {
+          "path": "artifacts/stabilization-2d/e2-multisprite/final-verification/e51b2d3/zoom-dip-supplement/zoom-200-cdp-surface.png",
+          "sha256": "1553431750eabce7110f0b6c0a4bd75cd135afda9f8079cd0f3a2a25513df1e3",
+          "bytes": 340514,
+          "width": 1280,
+          "height": 4203,
+          "kind": "valid full-width page layout",
+          "agentInspection": "Root/verifier inspected selectedVolcán, row, actions and editor; no claim every offscreen WebGL canvas is painted."
+        },
+        {
+          "path": "artifacts/stabilization-2d/e2-multisprite/final-verification/e51b2d3/zoom-dip-supplement/zoom-400-cdp-surface.png",
+          "sha256": "36052580819dfe41a07d8ce0e48304b8ede6e035d913bed91db939e3a001537e",
+          "bytes": 680836,
+          "width": 1280,
+          "height": 9702,
+          "kind": "valid full-width page layout",
+          "agentInspection": "Root/verifier inspected two-column action reflow, scrolling page and selectedVolcán; no human acceptance."
+        }
+      ],
+      "innerWidth": [
+        640,
+        320
+      ],
+      "devicePixelRatio": [
+        2,
+        4
+      ],
+      "scrollWidth": [
+        640,
+        320
+      ],
+      "horizontalPageOverflow": [
+        false,
+        false
+      ],
+      "appearanceLimits": "Full-page layout only; viewport details vertically cropped. Does not prove offscreenWebGL painting or classroom accessibility."
+    }
+  ],
+  "pending": {
+    "finalCodeBlockingReview": false,
+    "finalBroadVerification": false,
+    "newNativeZoomAppearanceCaptures": false,
+    "task9ApplicationAfterExplicitRelease": false,
+    "finalDocumentationReview": true,
+    "localIntegrationCommitAndFrozenHash": true,
+    "libraryLayout1280x720": true,
+    "sevenReviewedSb3Opcodes": true,
+    "userAuthorizedFull": true,
+    "humanObservation": true
+  },
+  "limitations": [
+    "232/232 named29 plus smoke3 is approved affected coverage, not full or baseline advancement.",
+    "Original remainderA95pass/2fail exit1 remains; final union separately adds exactMS037 andMS032 focal positives.",
+    "MS037 adds default15s readiness assertion; original60s goal/test/retry settings unchanged, total timing is not identical.",
+    "MS032 original Runner timeout:load-program remains unexplained despite unchanged isolatedpass; not confirmed load or eliminated flake.",
+    "Historical GG-LIB004 of148a7cb remains unexplained; later readiness synchronization is a different event.",
+    "Final product images atfb4215f remain product-identical toe51b2d3 by source audit; raw captures retain their originalhead labels.",
+    "Narrow resource3-object and panel5-object fixtures emit no boxmeasurementJSON; none invented.",
+    "Native DIP full-page captures prove layout, not painting of every offscreenWebGL canvas or humanclassroom accessibility.",
+    "Ordinary blank/clipped viewport and CSS-sized variants remain inconclusive and preserved.",
+    "No student/teacher/screenreaderhuman acceptance, classroom performance or physicalhardware observation.",
+    "Raw artifact paths may be absent in another clone; measured values and SHA256 are durable here.",
+    "Local integration, previews and frozen release hash follow final documentation review; not claimed complete here."
+  ],
+  "historicalStates": [
+    {
+      "state": "nine objects: stage plus eight sprites",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "source": {
+        "path": "artifacts/stabilization-2d/e2-multisprite/task-8/objects-nine-laptop.json",
+        "sha256": "c67e03e068a3148216b4e7a32c98ff17f61d1a68d41d2f4675684c50dea1e052",
+        "measurements": {
+          "scroll": 1280,
+          "viewport": 1280,
+          "editor": 340.328125,
+          "visibleEditor": 340.328125,
+          "panel": 137.140625,
+          "list": 48
+        }
+      },
+      "screenshot": "artifacts/stabilization-2d/e2-multisprite/task-8/objects-nine-laptop.png",
+      "horizontalOverflow": false,
+      "visibleEditorHeight": 340.328125,
+      "provenance": "historical implementer artifact; exact commit unknown"
+    },
+    {
+      "state": "real page zoom 200% and400%",
+      "source": {
+        "path": "artifacts/stabilization-2d/e2-multisprite/task-8/objects-real-zoom.json",
+        "sha256": "81f6234e7f9276065feea03e5d3bbdb7751a09b38b52a088b6804334778a39c3",
+        "measurements": [
+          {
+            "factor": 2,
+            "scroll": 640,
+            "viewport": 640,
+            "editor": {
+              "x": 29,
+              "y": 283.03125,
+              "width": 582,
+              "height": 440
+            }
+          },
+          {
+            "factor": 4,
+            "scroll": 320,
+            "viewport": 320,
+            "editor": {
+              "x": 11,
+              "y": 271.62890625,
+              "width": 298,
+              "height": 400
+            }
+          }
+        ]
+      },
+      "screenshots": [
+        "artifacts/stabilization-2d/e2-multisprite/task-8/objects-zoom-200.png",
+        "artifacts/stabilization-2d/e2-multisprite/task-8/objects-zoom-400.png"
+      ],
+      "horizontalOverflow": [
+        false,
+        false
+      ],
+      "zoomProvenance": "Task8 tests/report and source factors2,4; T6/T7 viewport equivalents alone were not page zoom.",
+      "provenance": "historical implementer artifact; exact commit unknown",
+      "nativeWindow": {
+        "width": 1280,
+        "height": 720
+      },
+      "appearanceEvidence": "inconclusive",
+      "captureLimitation": "400% is a single-color320×158 PNG,538bytes;200% is mostly blank/clipped. Preserve originals; do not claim appearance."
+    }
+  ],
+  "documentationReconciliationHead": "e51b2d39bab871c693b2dabae0e7ac300d638fea",
+  "repairCuts": [
+    {
+      "head": "a66ae47b6705a30534eed15dc6750b1b27ed46fa",
+      "kind": "first stable final-repair cut, no broad verification executed",
+      "originalFindingsAddressedInScopedReview": 10,
+      "originalResidual": "finding3 rollback incomplete",
+      "openImportant": [
+        "R1 durable name/configuration missing from rollback guard",
+        "R2 global declaration scope can be lost after conversion",
+        "R3 unrelated17locals blocks independent text"
+      ],
+      "specVerdict": "FAIL",
+      "qualityVerdict": "FAIL",
+      "focusedEvidence": {
+        "node": "23/23 plus overlapping2/2 scopes, do not sum",
+        "classifierAndPartitions": "26/26",
+        "browserFirstAttempt": "5pass/7fail of12;GG-LIB omitted by pattern",
+        "browserSecondAttempt": "8/8 (7corrected cases plus omittedGG-LIB)",
+        "proposedPriorityUnion": 13,
+        "unchangedInspector": "1/1 at13.4s,45s deadline retained",
+        "reuseCredit": "subject to final source/case/cohort audit and residual changes"
+      },
+      "report": "artifacts/stabilization-2d/e2-multisprite/final-record/final-fix-report.md",
+      "scopedReview": "artifacts/stabilization-2d/e2-multisprite/final-record/final-fix-rereview.md",
+      "broadChecksLaunched": false,
+      "appearanceCapturesForThisHead": "not performed;7dfe56c images must not be relabeled"
+    }
+  ],
+  "durableReportRoot": "artifacts/stabilization-2d/e2-multisprite/final-record/",
+  "sourceReviewChain": [
+    {
+      "head": "a66ae47b6705a30534eed15dc6750b1b27ed46fa",
+      "verdict": "FAIL:10 original findings addressed;R1/R2/R3 open",
+      "report": "artifacts/stabilization-2d/e2-multisprite/final-record/final-fix-rereview.md"
+    },
+    {
+      "head": "1b745665bb28bad8bd01fd0e2a890b51324cce57",
+      "verdict": "FAIL:R1/R2 addressed;R3ownerbudget open",
+      "report": "artifacts/stabilization-2d/e2-multisprite/final-record/final-residual-rereview.md",
+      "correction": "UI sprite rename already invalidated rollback; project-name loss was real; direct authoring config exercises separate guard path."
+    },
+    {
+      "head": "fb4215f06e5d22e06cb9977324079f2de4758f08",
+      "verdict": "PASS scoped:R3ownerbudget addressed;no newblocking finding",
+      "report": "artifacts/stabilization-2d/e2-multisprite/final-record/final-r3-rereview.md"
+    },
+    {
+      "head": "e51b2d39bab871c693b2dabae0e7ac300d638fea",
+      "verdict": "PASS scoped MS037 synchronization;Minor15s readiness deadline before unchanged60s goalpoll",
+      "report": "artifacts/stabilization-2d/e2-multisprite/final-record/ms037-rereview.md"
+    }
+  ],
+  "finalHeadVerification": {
+    "head": "e51b2d39bab871c693b2dabae0e7ac300d638fea",
+    "productBuildHead": "fb4215f06e5d22e06cb9977324079f2de4758f08",
+    "status": "approved named affected29,notfull",
+    "caseUnion": {
+      "passed": 232,
+      "expected": 232,
+      "namedSpecs": 29,
+      "missing": [],
+      "extra": [],
+      "duplicates": [],
+      "groups": {
+        "owner8": 8,
+        "fresh-priority": 27,
+        "inspector": 1,
+        "remainder-a": 95,
+        "remainder-b": 99,
+        "ms037-focused": 1,
+        "ms032-isolated": 1
+      }
+    },
+    "smoke": {
+      "startTime": "2026-10-30T22:19:14.360Z",
+      "duration": 23101.953,
+      "expected": 3,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "node": {
+      "tests": 624,
+      "pass": 624,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0
+    },
+    "tools": {
+      "tests": 89,
+      "pass": 89,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0
+    },
+    "spec": {
+      "passed": 38,
+      "exit": 0
+    },
+    "preservation": {
+      "upstreams": 3,
+      "exit": 0,
+      "initialMissingInputExit": 1,
+      "baselineSHA256": "0ce8f02f7753e5177faab0e2c3f5514599ebe4ba825dd0549c9caa23244a3224",
+      "regeneratedOrAdvanced": false
+    },
+    "build": {
+      "exit": 0,
+      "durationSeconds": 27.341
+    },
+    "servedCohort": "d0ead8b08c72c59e33ec7e3701b4a14c7926a92b01a0b7509c752f3c16e521a7",
+    "sourceAudit": {
+      "path": "artifacts/stabilization-2d/e2-multisprite/final-verification/e51b2d3/final-source-audit.json",
+      "sha256": "c1fafda71a5499e5822477f8c604a69601a8ad87c1a8477edcdb597a9243a2d5",
+      "bytes": 544
+    },
+    "verificationSummary": {
+      "path": "artifacts/stabilization-2d/e2-multisprite/final-verification/e51b2d3/verification-summary.json",
+      "sha256": "1317f07185d10556479ecc002fe44fa10c78d368a6457955cb19231d285a150f",
+      "bytes": 22518
+    },
+    "browserStats": {
+      "fresh-priority": {
+        "startTime": "2026-10-30T22:21:09.019Z",
+        "duration": 268196.326,
+        "expected": 27,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "inspector": {
+        "startTime": "2026-10-30T22:20:18.355Z",
+        "duration": 14365.105,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "remainder-a": {
+        "startTime": "2026-10-30T22:27:05.642Z",
+        "duration": 1297807.429,
+        "expected": 95,
+        "skipped": 0,
+        "unexpected": 2,
+        "flaky": 0
+      },
+      "remainder-b": {
+        "startTime": "2026-10-30T22:27:03.971Z",
+        "duration": 1473079.849,
+        "expected": 99,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "ms037-focused": {
+        "startTime": "2026-10-30T22:52:47.522Z",
+        "duration": 19011.29,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "ms032-isolated": {
+        "startTime": "2026-10-30T22:54:13.208Z",
+        "duration": 14472.268,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      }
+    },
+    "historicalOriginalAttempts": {
+      "fresh-priority": {
+        "exit": 0,
+        "failures": [],
+        "json": "/home/adawolfs/projects/makecode/gcs-e2-multisprite/artifacts/stabilization-2d/e2-multisprite/final-verification/fb4215f/fresh-priority.json"
+      },
+      "inspector": {
+        "exit": 0,
+        "failures": [],
+        "json": "/home/adawolfs/projects/makecode/gcs-e2-multisprite/artifacts/stabilization-2d/e2-multisprite/final-verification/fb4215f/inspector.json"
+      },
+      "remainder-a": {
+        "exit": 1,
+        "failures": [
+          {
+            "case": [
+              "scene2d-dialogo.spec.mjs",
+              "MS-BROWSER-037: «Diálogo» does the same as blocks, as a JavaScript copy and as a Python copy"
+            ],
+            "status": "unexpected",
+            "results": [
+              "failed"
+            ]
+          },
+          {
+            "case": [
+              "scene2d-object-resources.spec.mjs",
+              "MS-BROWSER-032: a block of a pack the project lacks cannot come back by paste or undo; the history stays usable and the project keeps saving"
+            ],
+            "status": "unexpected",
+            "results": [
+              "failed"
+            ]
+          }
+        ],
+        "json": "/home/adawolfs/projects/makecode/gcs-e2-multisprite/artifacts/stabilization-2d/e2-multisprite/final-verification/fb4215f/remainder-a.json"
+      },
+      "remainder-b": {
+        "exit": 0,
+        "failures": [],
+        "json": "/home/adawolfs/projects/makecode/gcs-e2-multisprite/artifacts/stabilization-2d/e2-multisprite/final-verification/fb4215f/remainder-b.json"
+      }
+    },
+    "timingCaveat": "MS037 adds an existing-status readiness assertion with default15s expect deadline; original60s goalpoll and test timeout/retries remain unchanged. Total assertion timing is not identical.",
+    "ms032Caveat": "Original Runner timeout: load-program is retained, cause unexplained despite unchanged isolated pass; not classified as confirmed load or flake.",
+    "cleanup": {
+      "ownedServerPID": 1308184,
+      "ownershipChecked": true,
+      "serverWrapperExit": 0,
+      "cleanupExit": 0,
+      "log": "/home/adawolfs/projects/makecode/gcs-e2-multisprite/artifacts/stabilization-2d/e2-multisprite/final-verification/e51b2d3/server-cleanup.log",
+      "portsReleased": "5700–5709,5750–5759,5760–5769",
+      "foreignProcessesSignalled": false,
+      "trackedCleanAfterVerification": true
+    },
+    "rootTask9Release": true,
+    "fullExecuted": false
+  },
+  "historicalBroadVerification7dfe56c": {
+    "head": "7dfe56c6b5b2f47dc900821bd9e813c31aef2f6e",
+    "summary": "artifacts/stabilization-2d/e2-multisprite/task-8/resume/post-7dfe56c/verification-summary.json",
+    "summarySha256": "ea0d778335b934f97933fad3b231fda92694e8a5e731e5da1f1ea5e4d913a672",
+    "namedSpecs": 26,
+    "cases": 187,
+    "passed": 184,
+    "failed": 3,
+    "smokePassed": 3,
+    "nodePassed": 602,
+    "toolsPassed": 88,
+    "specsValidated": 38,
+    "buildExit": 0,
+    "fullExecuted": false,
+    "failedCases": [
+      "MS-BROWSER-028 help lowers unfinished workspace",
+      "GG-LIB combined case: scene-readiness race atline153",
+      "GG-INSPECT-003 original45s deadline after correct rendered state"
+    ],
+    "reportRoot": "artifacts/stabilization-2d/e2-multisprite/task-8/resume/artifacts/stabilization-2d/e2-multisprite/task-8/resume/post-7dfe56c/",
+    "logsAndGeometryRoot": "artifacts/stabilization-2d/e2-multisprite/task-8/resume/post-7dfe56c/"
+  },
+  "preFinalProductStates7dfe56c": [
+    {
+      "state": "nine objects, scrolling row; Volcán selected",
+      "head": "7dfe56c6b5b2f47dc900821bd9e813c31aef2f6e",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "source": {
+        "path": "artifacts/stabilization-2d/e2-multisprite/task-8/resume/post-7dfe56c/batch-a-evidence/objects-nine-laptop.json",
+        "sha256": "c67e03e068a3148216b4e7a32c98ff17f61d1a68d41d2f4675684c50dea1e052",
+        "measurements": {
+          "scroll": 1280,
+          "viewport": 1280,
+          "editor": 340.328125,
+          "visibleEditor": 340.328125,
+          "panel": 137.140625,
+          "list": 48
+        }
+      },
+      "capture": {
+        "path": "artifacts/stabilization-2d/e2-multisprite/task-8/resume/post-7dfe56c/batch-a-evidence/objects-nine-laptop.png",
+        "sha256": "ae4c11c6c8085098bbd62ef5f0f18c26e76dc834ba166031ab4c214b788d43b1",
+        "bytes": 129282,
+        "width": 1280,
+        "height": 720,
+        "appearanceEvidence": true,
+        "reason": "Verifier and coordinator inspected valid rendered controls/editor; earlier tiles are offscreen by intentional row scrolling."
+      },
+      "horizontalOverflow": false,
+      "visibleEditorHeight": 340.328125,
+      "allNineSimultaneouslyVisible": false,
+      "inspectionKind": "agent visual review, not human classroom acceptance"
+    },
+    {
+      "state": "desktop object panel",
+      "head": "7dfe56c6b5b2f47dc900821bd9e813c31aef2f6e",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "capture": {
+        "path": "artifacts/stabilization-2d/e2-multisprite/task-8/resume/post-7dfe56c/batch-a-evidence/objects-panel-desktop.png",
+        "sha256": "5a33b1bec89ee092c8e12f45ec8bb55121f52ff6f5824aa66f04010a4de6b53c",
+        "bytes": 133161,
+        "width": 1440,
+        "height": 900,
+        "appearanceEvidence": true,
+        "reason": "Coordinator inspected valid rendered desktop capture; no new inspection by Task9."
+      },
+      "inspectionKind": "coordinator visual review"
+    },
+    {
+      "state": "narrow object panel",
+      "head": "7dfe56c6b5b2f47dc900821bd9e813c31aef2f6e",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "capture": {
+        "path": "artifacts/stabilization-2d/e2-multisprite/task-8/resume/post-7dfe56c/batch-a-evidence/objects-panel-narrow.png",
+        "sha256": "684bfed0d1b12bcd4df40474dd12259118f33cbfcd9d17664b03e4610057b479",
+        "bytes": 71042,
+        "width": 390,
+        "height": 844,
+        "appearanceEvidence": true,
+        "reason": "Coordinator inspected valid rendered narrow capture; no new inspection by Task9."
+      },
+      "inspectionKind": "coordinator visual review"
+    },
+    {
+      "state": "native page zoom200/400%; functional evidence",
+      "head": "7dfe56c6b5b2f47dc900821bd9e813c31aef2f6e",
+      "nativeWindow": {
+        "width": 1280,
+        "height": 720
+      },
+      "source": {
+        "path": "artifacts/stabilization-2d/e2-multisprite/task-8/resume/post-7dfe56c/batch-a-evidence/objects-real-zoom.json",
+        "sha256": "81f6234e7f9276065feea03e5d3bbdb7751a09b38b52a088b6804334778a39c3",
+        "measurements": [
+          {
+            "factor": 2,
+            "scroll": 640,
+            "viewport": 640,
+            "editor": {
+              "x": 29,
+              "y": 283.03125,
+              "width": 582,
+              "height": 440
+            }
+          },
+          {
+            "factor": 4,
+            "scroll": 320,
+            "viewport": 320,
+            "editor": {
+              "x": 11,
+              "y": 271.62890625,
+              "width": 298,
+              "height": 400
+            }
+          }
+        ]
+      },
+      "horizontalOverflow": [
+        false,
+        false
+      ],
+      "keyboardAndGeometryTest": "MS-BROWSER-041 passed; part of11 passing Dialogo cases",
+      "captures": [
+        {
+          "path": "artifacts/stabilization-2d/e2-multisprite/task-8/resume/post-7dfe56c/batch-a-evidence/objects-zoom-200.png",
+          "sha256": "966f68a2f2d18ec4d1b52ee0ef2cfdeecfbac2c5b51604af2708fb0b84c497bb",
+          "bytes": 1996,
+          "width": 640,
+          "height": 316,
+          "appearanceEvidence": false,
+          "reason": "Mostly blank/clipped640×316; inconclusive appearance."
+        },
+        {
+          "path": "artifacts/stabilization-2d/e2-multisprite/task-8/resume/post-7dfe56c/batch-a-evidence/objects-zoom-400.png",
+          "sha256": "ebadee58566c0b8bdecea19f3582f1e29d5cc36631655cf1a4924670d5b040ae",
+          "bytes": 538,
+          "width": 320,
+          "height": 158,
+          "appearanceEvidence": false,
+          "reason": "Single background color320×158,538bytes; inconclusive appearance."
+        }
+      ],
+      "appearanceEvidence": "inconclusive; DOM/keyboard pass does not validate PNG appearance"
+    }
+  ],
+  "retainedInconclusiveNativeVariants": {
+    "firstFinalSet": "artifacts/stabilization-2d/e2-multisprite/final-verification/e51b2d3/zoom-supplement/",
+    "ordinaryViewport400": "320×158,single-background538bytes",
+    "ordinaryViewport200": "640×316,clipped/mostlyblank",
+    "cssSizedFullPageAndSurface": "horizontallycropped;retained",
+    "older7dfe56cVariants": "retained separately, exact sourcehead where known; never reclassified as valid appearance"
+  }
+}

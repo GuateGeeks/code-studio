@@ -10,14 +10,24 @@
 ## 2. Ejecución
 
 - [x] 2.1 Adaptador Scratch con un target por sprite, recursos por `ownerId`, mensajes y variables globales compartidos; corpus de equivalencia multi-sprite. (29/10/2026: design puntos 15–21; MS-017…025 en `tests/integration/scene2d-execution.test.mjs`; `tests/browser/scene2d-multi-sprite.spec.mjs`.)
-- [x] 2.2 API v3 por objeto en generador y traductores (JS y Python), con mapa identificador → `targetId` en `runtime`. (30/10/2026: design puntos 22–27; MS-026…034 en `tests/integration/scene2d-text.test.mjs`; MS-BROWSER-003…006 en `tests/browser/scene2d-object-views.spec.mjs`.)
+- [x] 2.2 API v3 por objeto en generador y traductores (JS y Python), con mapa identificador → `targetId` en `runtime`. (30/10/2026: design puntos 22–27; MS-026…035 en `tests/integration/scene2d-text.test.mjs`; MS-BROWSER-003…006 en `tests/browser/scene2d-object-views.spec.mjs`.)
 
 ## 3. Interfaz
 
 - [x] 3.1 Panel de objetos (añadir, renombrar, duplicar, borrar, seleccionar) con teclado; editor montado para el objeto seleccionado sin perder borradores. (30/10/2026: design puntos 28–40; MS-036…047 en `tests/integration/scene2d-object-edits.test.mjs`; MS-BROWSER-007…015 en `tests/browser/scene2d-objects-panel.spec.mjs`; capturas en `artifacts/stabilization-2d/e2-multisprite/task-6/`.)
-- [x] 3.2 Menús de recursos, inspector y código derivado por objeto; biblioteca inicial (R4) y actividades con `targetId`. (30/10/2026: design puntos 41–52; MS-048…055 en `tests/integration/scene2d-object-resources.test.mjs`; MS-BROWSER-016…028 en `tests/browser/scene2d-object-resources.spec.mjs`; evidencia en `artifacts/stabilization-2d/e2-multisprite/task-7/`.)
+- [x] 3.2 Menús de recursos, inspector y código derivado por objeto; biblioteca inicial (R4) y actividades con `targetId`. (30/10/2026: design puntos 41–52; MS-048…057 en `tests/integration/scene2d-object-resources.test.mjs`; MS-BROWSER-016…032 en `tests/browser/scene2d-object-resources.spec.mjs`; evidencia en `artifacts/stabilization-2d/e2-multisprite/task-7/`.)
 
 ## 4. Verificación
 
 - [x] 4.1 Proyecto canónico «Diálogo» en `tests/fixtures/canonical/scene2d/`; E2E de añadir/ejecutar/Detener/guardar/reabrir; actualización de un proyecto 0.1.0. (30/10/2026: design puntos 53–61; MS-058…069 en `tests/integration/scene2d-dialogo.test.mjs`; MS-BROWSER-033…041 en `tests/browser/scene2d-dialogo.spec.mjs`; evidencia en `artifacts/stabilization-2d/e2-multisprite/task-8/`.)
 - [ ] 4.2 `test:affected` y una puerta completa; acta con límites.
+
+Documentación parcial de 4.2 (30/10/2026): acta
+docs/engineering/SCENE2D-MULTI-SPRITE-RESULTS.md, guía docente, guion E2 sin
+observación realizada y JSON durable. La cadena de revisión atiende los
+bloqueantes; Task 8 se cierra en e51b2d3
+con 232/232 casos únicos de 29 specs, smoke 3, Node 624/tools 89/specs 38,
+build/preservación aprobados y fallos anteriores preservados. La selección
+automática full
+no equivale a ejecutar full. 4.2 permanece sin marcar hasta la puerta completa
+aprobada por el usuario; esta documentación no la autoriza ni la sustituye.

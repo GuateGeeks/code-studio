@@ -30,7 +30,7 @@ La preparación ocupa almacenamiento de ese perfil. Borrar datos del sitio, usar
 
 ## Durante la actividad
 
-Los bloques son la autoría de su documento. Su fuente generada es de solo lectura. «Crear copia» produce un documento JavaScript/Python independiente; editar esa copia no modifica los bloques. Elegir el contexto correspondiente al ejecutar: escena 2D, dispositivo, escena 3D o aplicación web.
+En Escena 2D las vistas editan el mismo programa del objeto elegido; Código es de solo lectura. «Crear copia» produce un documento JavaScript/Python independiente y editarlo no modifica bloques. Elegir el contexto correspondiente al ejecutar: escena 2D, dispositivo, escena 3D o aplicación web.
 
 Usar los enlaces iniciales de salto y la ayuda «Usar bloques con el teclado». El escenario tiene selección y activación de objetos, incluidos clones. Tab y Escape permiten salir; Stop conserva la autoría. Los errores de consola enlazan al bloque o a la línea cuando existe una referencia válida. Un mensaje de una ejecución anterior no se utiliza para seleccionar autoría nueva.
 
@@ -67,30 +67,66 @@ La primera escena del alumno conserva su historia propia.
 ![Escenario real tras ejecutar la semilla de 21 pasos](../product/scene2d-continuity-images/result-21.png)
 
 
-## Vistas del mismo programa 2D (working tree del 26/10/2026)
+## Objetos y vistas del mismo programa 2D (E2, 30/10/2026)
 
-En Escena 2D, Bloques, JavaScript y Python muestran el mismo programa. Pedir
-primero una predicción; abrir JavaScript, cambiar un número de hero.move y
-volver a Bloques. Ese paso comprueba el texto y modifica la autoría; no ejecuta
-ni borra el resultado anterior. Ejecutar usa el programa validado desde cualquiera
-de las vistas. Python prepara su analizador bajo demanda y puede tardar más.
+Los proyectos nuevos usan gg.sprites 0.3.0: un escenario y entre uno y ocho
+sprites. Los archivos anteriores conservan su versión hasta «Actualizar packs»;
+abrirlos o activar puntuación no los actualiza. La actualización conserva
+autoría y no ejecuta. Si hubo cambios posteriores, volver a la versión anterior
+puede dejar de ofrecerse o rechazarse para conservarlos.
 
-Si se rechaza el texto, leer la línea y la causa con el estudiante. Seguir
-editando vuelve al código; recuperar bloques pide confirmación antes de
-descartar texto; Crear copia independiente conserva exactamente el borrador
-como otro documento. Deshacer conversión recupera el programa previo sin
-reiniciar el resultado. No se ofrecen while, forever ni funciones propias
-como bloques 2D en este corte.
+El panel permite seleccionar, añadir, renombrar, duplicar y borrar sprites;
+no permite borrar el escenario ni el último sprite. Flechas, Inicio y Fin
+mueven el foco; Enter o Espacio elige. Pedir señalar el nombre de «Editando»
+antes de cambiar un programa y predecir qué hará.
 
-La vista activa y el texto pendiente viajan en GGPROJ v5 y autosave; esperar
-confirmación local o comprobar la copia descargada antes de cerrar. Los
-archivos anteriores siguen legibles. Texto 2D conserva las copias anteriores;
-los documentos nuevos usan API3 con eventos y acciones legibles, sin empezar
-por GG/await. La consulta Código sigue siendo una lectura derivada.
+Bloques, JavaScript y Python editan el programa del objeto seleccionado.
+Para escribir acciones de otro, elegirlo primero. Cambiar de objeto aplica el
+texto pendiente: si se rechaza, conserva texto y selección y muestra causa/línea.
+Se puede corregir, recuperar bloques con confirmación o crear copia independiente.
+Seleccionar o cambiar de vista no ejecuta ni detiene. Editar objetos/recursos
+sí reinicia el ejecutor y detiene lo que estaba corriendo.
 
-Micro:bit y 3D/web conservan sus documentos independientes; sus vistas
-sincronizadas quedan para después del piloto 2D (decisión del 29/10/2026).
-No interpretar este corte como validación con estudiantes.
+**El resultado en reposo refleja la escena del proyecto solo tras Ejecutar.**
+Un objeto añadido puede no verse aún y uno borrado puede seguir en el resultado
+previo. Comparar panel y resultado, ejecutar y contrastar la predicción.
+Un único Detener conserva el trabajo. «Ir a objeto» y posición aleatoria son
+bloques distintos; si se borra el destino, su bloque pide elegir otro al ejecutar.
+
+GGPROJ v6 conserva programas, selección, vistas y borradores por objeto.
+Esperar guardado confirmado o comprobar la copia descargada antes de cerrar.
+V1–v5 siguen legibles; una instalación antigua sin E2 puede no abrir v6.
+Undo/cámara son de sesión y no viajan en el archivo.
+
+## Biblioteca y fondos
+
+«Nuevo objeto» añade un dibujo de la biblioteca como sprite vacío; «Añadir»
+lo incorpora como disfraz del seleccionado. Los sonidos también pertenecen a
+su objeto; añadir uno antes de usarlo en un objeto nuevo. Duplicar copia programa
+y recursos con identidades nuevas y conserva variables compartidas. Biblioteca
+local con contenido/licencia CC0-1.0 sin cambios.
+
+Con el escenario seleccionado, elegir o subir fondo lo añade y deja como inicial;
+los otros fondos siguen disponibles para los bloques. No hay borrado de recursos
+en este corte. El texto usa nombres visibles para fondos; disfraces aún pueden
+mostrar IDs técnicos. Conviene usar su menú y consultar el código generado.
+
+## Copias, documentos y límites
+
+Código es consulta de solo lectura del seleccionado. Copia de vista conserva su
+texto exacto; «Código › Crear copia» reúne la escena en un documento independiente,
+hasta **16 eventos y 16 variables**. Una escena mayor puede rechazarse: copias
+por objeto no ejecutan conjuntamente los programas de los demás. Editar una copia
+no modifica bloques. Un documento nuevo toma el sprite seleccionado, o el primero
+si está elegido el escenario. Todos los documentos 0.3.0 usan la escena configurada,
+pero ejecutan sus propios scripts.
+
+«Por siempre» y controles E1 están disponibles con sus packs; una expresión libre
+sin bloque puede rechazarse. Sensores/operadores E3, más de ocho sprites, capas,
+cámara y copia editable multi-sprite SB3 quedan fuera. Antecedente del 26/10:
+la guía de vistas usaba hero y GGPROJ v5; esas afirmaciones son históricas.
+Micro:bit y 3D/web mantienen documentos independientes. No hay aceptación
+docente/estudiantil de E2 realizada; software y comprensión se comprueban aparte.
 
 ## «De bloques a tu propio código», revisión 2 (29/10/2026)
 
