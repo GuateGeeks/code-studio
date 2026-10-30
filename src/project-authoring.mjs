@@ -65,9 +65,22 @@ export function createProjectAuthoring({editor,textDocuments,codeViews,source,ca
   return validateCapabilities(result);
  }
  function captureExecutionCapabilities(context){return projectExecution(template,context);}
+ // A profile change may not leave a block without its pack, on any object. The
+ // reason is the student's: that block has to go first. Nothing changes.
+ function keepsBlocks(next){
+  if(!objects||typeof editor.validateBlocks!=='function')return;
+  const execution=projectExecution(next,'scratch-2d',{allowInactive:true});
+  if(!execution)return;
+  const config=sceneConfig(),live=editor.save();
+  for(const id of ['stage',...config.sprites.map(sprite=>sprite.id)]){
+   try{editor.validateBlocks(id===objects.mounted?live:objectWorkspace(objects,id),{capabilities:execution});}
+   catch{throw new Error('No se cambió nada: «'+(config.sprites.find(sprite=>sprite.id===id)?.name??scene2DStageName)+'» aún usa bloques de lo que quieres quitar. Bórralos y vuelve a intentarlo.');}
+  }
+ }
  function prepareCapabilities(value,{allowRemoval=false}={}) {
   const next=validateCapabilities(value);
   if(!allowRemoval&&[1,2].includes(resourceStore?.capture().version)&&(!resolveResourcePolicy(next)||resourceStore.capture().version===2&&resolveResourcePolicy(next)!=='gg-resources-v2'))throw new Error('Retirar la política descartaría recursos; reemplaza el proyecto explícitamente.');
+  if(!allowRemoval)keepsBlocks(next);
   if(!allowRemoval&&template)for(const lock of template.locks)if(managed.has(lock.id)&&!next?.locks.some(item=>item.id===lock.id)) {
    const participant=managed.get(lock.id);
    if(participant.hasAuthoring?.()!==false)throw new Error('Retirar el pack descartaría autoría. Conserva una copia o reemplaza el proyecto explícitamente.');
@@ -154,15 +167,6 @@ export function createProjectAuthoring({editor,textDocuments,codeViews,source,ca
   const blockly=scene2d?structuredClone(scene2d.sprites[objects.primary]):live;
   return {blockly,...(scene2d?{scene2d}:{}),deviceSource:source.value,...(textDocuments?.capture()??{}),...(views?{codeViews:views}:{}),...(capabilities?{capabilities}:{}),...(resourceStore?{resources:resourceStore.capture()}:{})};
  }
- // The import path's guard for projects with objects, on every object: `prepare`
- // does not lower them, because unfinished work must save, change and reopen.
- function validateImport(model){
-  const capabilities=validateCapabilities(model.capabilities??null),config=scene2DObjectsOf(capabilities);
-  if(!config||typeof editor.validateBlocks!=='function')return;
-  const scene=model.authoring.scene2d??scene2DAuthoringFromBlockly(model.authoring.blockly,config);
-  const execution=projectExecution(capabilities,'scratch-2d',{allowInactive:true});
-  for(const state of [scene.stage,...Object.values(scene.sprites)])editor.validateBlocks(state,{capabilities:execution});
- }
  function prepare(model,options={}) {
   if(!model?.authoring||typeof model.authoring.deviceSource!=='string')throw new TypeError('Invalid project authoring');
   const capabilities=prepareCapabilities(model.capabilities??null,options);
@@ -175,6 +179,13 @@ export function createProjectAuthoring({editor,textDocuments,codeViews,source,ca
   const viewsCandidate=codeViews?.prepare(model.authoring.codeViews??null);
   if(resources)validateCapabilityReferences(capabilities,{resources,textDocuments:model.authoring.textDocuments??[]});
   const scene2d=objectsOf(model,capabilities,viewsCandidate);
+  // Projects with objects are not lowered, because unfinished work must save and
+  // reopen. Their blocks must still be the profile's, on every object: `prepare`
+  // is on every path, so saving, opening and transactions agree.
+  if(scene2d&&typeof editor.validateBlocks==='function'){
+   const execution=projectExecution(capabilities,'scratch-2d',{allowInactive:true});
+   for(const state of [scene2d.scene2d.stage,...Object.values(scene2d.scene2d.sprites)])editor.validateBlocks(state,{capabilities:execution});
+  }
   const plan={
    projectId:model.project?.id??null,capabilities,resourceCandidate,objects:scene2d,
    editor:editor.prepare(scene2d?objectWorkspace(scene2d,scene2d.mounted):model.authoring.blockly,{scriptOrder:viewsCandidate?.entries.find(entry=>entry.contextId==='2d')?.scriptOrder??null,ownerId:scene2d?.mounted??null,...(scene2d?{lower:false}:{}),capabilities:projectExecution(capabilities,'scratch-2d',{allowInactive:true}),...(resourceView?{resourceView}:{})}),
@@ -239,7 +250,7 @@ export function createProjectAuthoring({editor,textDocuments,codeViews,source,ca
   const unsubscribe=participant.subscribe(emit);if(typeof unsubscribe==='function')disposers.push(unsubscribe);
  }
  if(source.addEventListener){source.addEventListener('input',emit);disposers.push(()=>source.removeEventListener('input',emit));}
- return Object.freeze({capture,sceneProgram,exportProgram,blocksKey,objectOfBlock,validateImport,mountObject,mountedObject:()=>objects?.mounted??null,captureCapabilities,capabilities:captureCapabilities,captureExecutionCapabilities,prepareCapabilities,prepare,commit,checkpoint,restoreDraft,
+ return Object.freeze({capture,sceneProgram,exportProgram,blocksKey,objectOfBlock,mountObject,mountedObject:()=>objects?.mounted??null,captureCapabilities,capabilities:captureCapabilities,captureExecutionCapabilities,prepareCapabilities,prepare,commit,checkpoint,restoreDraft,
   subscribe(callback){subscribers.add(callback);return()=>subscribers.delete(callback);},
   dispose(){disposed=true;for(const dispose of disposers)dispose();subscribers.clear();}
  });

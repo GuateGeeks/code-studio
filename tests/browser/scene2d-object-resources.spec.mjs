@@ -583,6 +583,87 @@ test('MS-BROWSER-030: unfinished work reopens as it was, from the browser and fr
   expect((await capture(page)).scene2d.sprites.hero).toEqual(before.scene2d.sprites.hero);
 });
 
+const packs=page=>page.locator('#packs-list li').allTextContents();
+async function openPacks(page){
+  await revealPanel(page,page.locator('#capabilities-panel'));
+  if(!await page.locator('#capabilities-panel').evaluate(node=>node.open))await clickVisible(page,page.locator('#capabilities-panel > summary'));
+}
+async function enableScore(page){
+  await openPacks(page);
+  await clickVisible(page,page.locator('#enable-score'));
+  await expect.poll(async()=>(await packs(page)).some(item=>item.startsWith('gg.score'))).toBe(true);
+  await expect(page.locator('#run-editor')).toBeEnabled();
+}
+const scoreBlock=id=>({type:'gg_score_set',id,inputs:{VALUE:{shadow:{type:'math_number',id:id+'-n',fields:{NUM:1}}}}});
+const saves=page=>page.evaluate(()=>studioProbe.project.flush().then(()=>true,()=>false));
+test('MS-BROWSER-031: a pack rollback that would strand blocks is refused with its reason, and the project keeps saving and editing',async({page})=>{
+  await open(page);
+  await add(page,'Cesta');
+  await pick(page,'hero');
+  await enableScore(page);
+  await page.evaluate(state=>studioProbe.editor.load(state),onStart('h-start',scoreBlock('h-score')));
+  await openPacks(page);
+  const rollback=page.locator('#rollback-packs'),reason=page.locator('#packs-error');
+  await clickVisible(page,rollback);
+  await expect(reason).toContainText('«hero» aún usa bloques');
+  await expect(reason).not.toContainText('Unsupported');
+  expect((await packs(page)).some(item=>item.startsWith('gg.score'))).toBe(true);
+  expect(await saves(page)).toBe(true);
+  // With the object out of the editor it is the same.
+  await pick(page,'Cesta');
+  await openPacks(page);
+  await page.locator('#packs-error').evaluate(node=>{node.textContent='';});
+  await clickVisible(page,rollback);
+  await expect(reason).toContainText('«hero» aún usa bloques');
+  expect((await packs(page)).some(item=>item.startsWith('gg.score'))).toBe(true);
+  expect(await saves(page)).toBe(true);
+  await expect(page.locator('#project-status')).toHaveText('Guardado en este navegador');
+  // A panel edit, a run of the same project and a reload all still work.
+  await add(page,'Caja');
+  await expect(status(page)).toContainText('«Caja» se añadió');
+  await pick(page,'hero');
+  await run(page);
+  await stop(page);
+  expect(await saves(page)).toBe(true);
+  await open(page);
+  expect(JSON.stringify((await capture(page)).scene2d.sprites.hero)).toContain('h-score');
+  await expect(option(page,'Caja')).toBeVisible();
+});
+
+test('MS-BROWSER-032: a block of a pack the project lacks cannot come back by paste or undo, and the project keeps saving',async({page})=>{
+  await open(page);
+  await enableScore(page);
+  await page.evaluate(state=>studioProbe.editor.load(state),onStart('h-start',scoreBlock('h-score'),move('h-move',5)));
+  // Undo: the block is deleted, the pack goes, and Ctrl+Z brings it back to a profile without it.
+  await page.evaluate(()=>studioProbe.editor.selectSource('h-score'));
+  await page.keyboard.press('Control+C');
+  await page.keyboard.press('Delete');
+  await expect.poll(async()=>JSON.stringify(await page.evaluate(()=>studioProbe.editor.save()))).not.toContain('h-score');
+  await openPacks(page);
+  await clickVisible(page,page.locator('#rollback-packs'));
+  await expect.poll(async()=>(await packs(page)).some(item=>item.startsWith('gg.score'))).toBe(false);
+  await expect(page.locator('#packs-error')).toHaveText('');
+  await expect(page.locator('#run-editor')).toBeEnabled();
+  const present=async()=>JSON.stringify(await page.evaluate(()=>studioProbe.editor.save())).includes('gg_score_set');
+  await page.evaluate(()=>studioProbe.editor.selectSource('h-move'));
+  await page.keyboard.press('Control+Z');
+  await expect(blockErrors(page)).toContainText('no está disponible en este proyecto');
+  await expect.poll(present).toBe(false);
+  expect(await saves(page)).toBe(true);
+  // Paste, from the clipboard filled while the pack was there.
+  await page.evaluate(()=>{document.querySelector('#editor-error').textContent='';studioProbe.editor.selectSource('h-move');});
+  await page.keyboard.press('Control+V');
+  await expect(blockErrors(page)).toContainText('no está disponible en este proyecto');
+  await expect.poll(present).toBe(false);
+  expect(await saves(page)).toBe(true);
+  await expect(page.locator('#project-status')).toHaveText('Guardado en este navegador');
+  await add(page,'Cesta');
+  await expect(status(page)).toContainText('«Cesta» se añadió');
+  await pick(page,'hero');
+  await run(page);
+  await stop(page);
+});
+
 test('MS-BROWSER-013-LIMIT: the nine tiles of a full project leave Blockly at least 300 px at 1280×720',async({page})=>{
   await page.setViewportSize({width:1280,height:720});
   await open(page);

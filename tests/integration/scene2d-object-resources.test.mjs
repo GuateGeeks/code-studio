@@ -315,10 +315,32 @@ test('MS-056: object profiles do not lower on project transactions; legacy ones 
   assert.throws(() => check(of({type: 'gg_when_start', id: 's', inputs: {DO: {block: {type: 'gg_score_set', id: 'nested'}}}}), two), /gg_score_set/);
   assert.throws(() => check(of({type: 'gg_forever', id: 'f'}), createCapabilities(['gg.sprites'], {versions: {'gg.sprites': '0.1.0'}})), /gg_forever/, 'a core structure only where a pack offers it');
   assert.doesNotThrow(() => check(of({type: 'gg_forever', id: 'f'}), two));
-  // The import reads every object, not the one on screen.
-  assert.equal(typeof scene.validateImport, 'function');
+  // Saving, opening and changing share the rule: every object, not the one on screen.
   const foreign = await createProject({name: 'F', scene2d: {stage: of({type: 'gg_score_set', id: 'x'}), sprites: {hero}}, deviceSource: '', catalog, capabilities: objects});
-  assert.throws(() => scene.validateImport(foreign), /gg_score_set/);
+  assert.throws(() => scene.prepare(foreign), /gg_score_set/);
   const clean = await createProject({name: 'C', scene2d: {stage: {}, sprites: {hero}}, deviceSource: '', catalog, capabilities: objects});
-  assert.doesNotThrow(() => scene.validateImport(clean));
+  assert.doesNotThrow(() => scene.prepare(clean));
+});
+
+test('MS-057: a profile change that leaves blocks without a pack is refused, naming the object; what the profile keeps passes', async () => {
+  const withScore = createCapabilities(['gg.sprites', 'gg.assets', 'gg.score']);
+  withScore.config['gg.sprites'] = config(heroSprite, cestaSprite);
+  const live = {saved: {blocks: {languageVersion: 0, blocks: [{type: 'gg_when_start', id: 'h'}]}}};
+  const editor = {save: () => live.saved, prepare: (state, options) => ({state, ...options}), commit() {}, subscribe: () => () => {}, captureCapabilities: () => withScore,
+    program: () => ({version: 0, scripts: []}), validateBlocks: (state, options) => blockProgram.validateWorkspaceBlocks(state, options)};
+  const authoring = createProjectAuthoring({editor, source: {value: ''}, initialCapabilities: withScore});
+  const score = {blocks: {languageVersion: 0, blocks: [{type: 'gg_score_set', id: 'score'}]}};
+  authoring.commit(authoring.prepare(await createProject({name: 'P', scene2d: {stage: {}, sprites: {hero: live.saved, cesta: score}}, deviceSource: '', catalog, capabilities: withScore})));
+  // A non-mounted object, by its visible name.
+  assert.throws(() => authoring.prepareCapabilities(two), error => /«Cesta»/.test(error.message) && !/gg_score_set|Unsupported/.test(error.message));
+  assert.doesNotThrow(() => authoring.prepareCapabilities(withScore));
+  // The mounted object is read live, not from what is stored.
+  const scoreless = createProjectAuthoring({editor, source: {value: ''}, initialCapabilities: withScore});
+  scoreless.commit(scoreless.prepare(await createProject({name: 'Q', scene2d: {stage: {}, sprites: {hero: live.saved, cesta: {}}}, deviceSource: '', catalog, capabilities: withScore})));
+  assert.doesNotThrow(() => scoreless.prepareCapabilities(two));
+  live.saved = score;
+  assert.throws(() => scoreless.prepareCapabilities(two), /«hero»/);
+  // A whole-project transaction (allowRemoval) is not a profile change.
+  assert.doesNotThrow(() => scoreless.prepareCapabilities(two, {allowRemoval: true}));
+  assert.equal(typeof blockProgram.isOfferedBlock, 'function');
 });

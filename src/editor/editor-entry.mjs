@@ -1,6 +1,6 @@
 import * as Blockly from 'blockly';
 import * as Es from 'blockly/msg/es';
-import {workspaceToIR, orderedRoots, saveWorkspace, loadWorkspace, validateWorkspaceBlocks, validateWorkspaceResources} from './block-program.mjs';
+import {workspaceToIR, isOfferedBlock, orderedRoots, saveWorkspace, loadWorkspace, validateWorkspaceBlocks, validateWorkspaceResources} from './block-program.mjs';
 import {validateProgram, scene2DStageOffers} from '../contracts/program-contract.mjs';
 import {validateCapabilities} from '../contracts/packs.mjs';
 import {createContributions, registerContributions} from './contributions.mjs';
@@ -131,6 +131,18 @@ export function createEditor(container, example) {
   load(example);
   const observer = new ResizeObserver(() => Blockly.svgResize(workspace));
   observer.observe(container);
+  // Blockly's clipboard and undo history outlive a project and a profile: a block
+  // of a pack this project does not lock could come back through them and leave
+  // a project that cannot save. It goes right away, in the same undo step.
+  workspace.addChangeListener(event => {
+    if (event.type !== Blockly.Events.BLOCK_CREATE || resourceOwner === null) return;
+    const foreign = event.ids.map(id => workspace.getBlockById(id)).filter(block => block && !isOfferedBlock(contributions, block.type));
+    if (!foreign.length) return;
+    const group = Blockly.Events.getGroup();
+    Blockly.Events.setGroup(event.group);
+    try { for (const block of foreign) if (!block.isDeadOrDying()) block.dispose(true); } finally { Blockly.Events.setGroup(group); }
+    document.querySelector('#editor-error').textContent = 'Ese bloque no está disponible en este proyecto, así que se quitó.';
+  });
   workspace.addChangeListener(event => {
     if (!event.isUiEvent && scriptOrder !== null) {
       const visualOrder = workspace.getTopBlocks(true).map(block => block.id);

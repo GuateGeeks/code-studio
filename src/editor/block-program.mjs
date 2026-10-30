@@ -26,15 +26,17 @@ function numericInput(block, name) {
 
 const coreStructures = Object.freeze({gg_forever: 'forever', gg_repeat_until: 'repeatUntil', gg_wait_until: 'waitUntil', gg_stop_script: 'stopScript'});
 const coreBlocks = new Set(['math_number', 'variables_get', 'variables_set', 'math_change', 'controls_repeat_ext', 'controls_if', 'logic_compare']);
-// What a file may bring: blocks its packs offer, finished or not. A project with
-// objects opens unfinished work, so this is what stays of the import's guard (the
-// lowering): Run still lowers and validates what it executes.
+export function isOfferedBlock(contributions, type) {
+  return coreBlocks.has(type) || offeredCoreStructures(contributions.plan.packs).has(coreStructures[type]) || ['hats', 'statements', 'expressions'].some(kind => contributions[kind].has(type));
+}
+// The one rule to save, open and change a project with objects: its blocks are
+// the ones its packs offer, finished or not. Those projects are not lowered until
+// Run (unfinished work must save), so this is what stays of that check.
 export function validateWorkspaceBlocks(state, {capabilities = null} = {}) {
-  const contributions = createContributions(capabilities), offered = offeredCoreStructures(contributions.plan.packs);
-  const known = type => coreBlocks.has(type) || offered.has(coreStructures[type]) || ['hats', 'statements', 'expressions'].some(kind => contributions[kind].has(type));
+  const contributions = createContributions(capabilities);
   function visit(value) {
     if (!value || typeof value !== 'object') return;
-    if (typeof value.type === 'string' && !known(value.type)) throw blockError(`Unsupported block ${value.type} (${value.id})`, value);
+    if (typeof value.type === 'string' && !isOfferedBlock(contributions, value.type)) throw blockError(`Unsupported block ${value.type} (${value.id})`, value);
     for (const child of Object.values(value)) visit(child);
   }
   visit(state?.blocks);
