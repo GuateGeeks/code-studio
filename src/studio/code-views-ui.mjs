@@ -22,6 +22,7 @@ export function createCodeViewsUI({state,editor,textDocuments,contexts,config,ge
   const supports=context=>context==='2d';
   const current=()=>state.get(contexts.current());
   const ownerOption=()=>{const id=objects?.current()??null;return id===null?{}:{owner:objects.owner(id)};};
+  const captureSnapshot=()=>editor.codeViewSnapshot({inheritedGlobalIds:objects?.inheritedGlobalIds?.()??[]});
   const generate=(snapshot,language)=>GGEditor.generateCodeViewSource(snapshot,language,ownerOption());
   const same=(a,b)=>canonicalPackData(a)===canonicalPackData(b);
   const setText=(node,text)=>{if(node.textContent!==text)node.textContent=text;};
@@ -110,11 +111,11 @@ export function createCodeViewsUI({state,editor,textDocuments,contexts,config,ge
     if(entry.language==='blocks'||trusted(context,entry))return false;
     // Imported baseline metadata grants no trust. A fresh generation is safe
     // to compare because it comes from the currently validated workspace.
-    try{return entry.source!==generate(editor.codeViewSnapshot(),entry.language).text;}
+    try{return entry.source!==generate(captureSnapshot(),entry.language).text;}
     catch{return true;}
   }
   function remember(context,entry){
-    known.set(context,{language:entry.language,source:entry.source,owner:ownerKey(),snapshot:editor.codeViewSnapshot()});
+    known.set(context,{language:entry.language,source:entry.source,owner:ownerKey(),snapshot:captureSnapshot()});
   }
   async function apply(context){
     const entry=state.get(context);
@@ -128,9 +129,9 @@ export function createCodeViewsUI({state,editor,textDocuments,contexts,config,ge
     let point=null;
     try{
       requirePack(entry.language==='python'?'python-stdlib':'javascript-quickjs');
-      const snapshot=editor.codeViewSnapshot(),generated=generate(snapshot,entry.language);
+      const snapshot=captureSnapshot(),generated=generate(snapshot,entry.language);
       const parsed=await service.convert({language:entry.language,source:entry.source,
-        variableIds:generated.variableIds,variableNames:generated.variableNames,globalIds:snapshot.ir.variables?.filter(model=>model.scope==='global').map(model=>model.id)??[],
+        variableIds:generated.variableIds,variableNames:generated.variableNames,globalIds:snapshot.inheritedGlobalIds??[],
         capabilities:snapshot.capabilities,resourceView:snapshot.resourceView,...ownerOption()});
       if(id!==attempt||projectEpoch!==epoch)return false;
       const targetId=ownerOption().owner?.targetId,prepared=editor.prepareCodeView(parsed,snapshot,targetId?{targetId}:{});
@@ -155,7 +156,7 @@ export function createCodeViewsUI({state,editor,textDocuments,contexts,config,ge
           editor.restoreDraft(checkpoint);state.set({...before,pendingRestorePoint:null});throw failure;
         }finally{selfCommit=false;}
         staging=null;notice.delete(context);
-        const applied=editor.codeViewSnapshot();
+        const applied=captureSnapshot();
         pointSnapshots.set(context,{id:point.id,snapshot:applied});
         void digest(applied.state,applied.scriptOrder).then(actual=>{
           if(projectEpoch!==epoch)return;
@@ -188,7 +189,7 @@ export function createCodeViewsUI({state,editor,textDocuments,contexts,config,ge
       return true;
     }
     try{
-      const snapshot=editor.codeViewSnapshot(),generated=generate(snapshot,language);
+      const snapshot=captureSnapshot(),generated=generate(snapshot,language);
       const next={...state.get(context),language,source:generated.text,baselineSource:generated.text,scriptOrder:snapshot.scriptOrder,formatNoticeShown:true};
       if(!entry.formatNoticeShown)notice.add(context);
       state.set(next);known.set(context,{language,source:generated.text,owner:ownerKey(),snapshot});
@@ -206,7 +207,7 @@ export function createCodeViewsUI({state,editor,textDocuments,contexts,config,ge
     const context=contexts.current(),entry=state.get(context);
     cancelAnalysis();
     try{
-      const snapshot=editor.codeViewSnapshot(),generated=generate(snapshot,entry.language);
+      const snapshot=captureSnapshot(),generated=generate(snapshot,entry.language);
       // One object per copy: its owner travels in runtime.targetIds. The text of a
       // sprite still called hero is the default, so those copies keep their shape.
       const owner=ownerOption().owner,targetIds=owner&&(owner.identifier!=='hero'||owner.targetId!=='hero')?{[owner.identifier]:owner.targetId}:undefined;
@@ -232,7 +233,7 @@ export function createCodeViewsUI({state,editor,textDocuments,contexts,config,ge
     if(hasPendingText(context,entry)&&!confirm('¿Descartar el texto pendiente y deshacer la última conversión? Puedes conservarlo primero como copia independiente.'))return;
     cancelAnalysis();error=null;
     try{
-      const snapshot=editor.codeViewSnapshot(),local=pointSnapshots.get(context);
+      const snapshot=captureSnapshot(),local=pointSnapshots.get(context);
       if(!(local?.id===point.id&&editor.isCodeViewCurrent(local.snapshot))){
         const hash=await digest(snapshot.state,snapshot.scriptOrder);
         if(!editor.isCodeViewCurrent(snapshot))throw new Error('La autoría cambió; vuelve a intentar Deshacer.');
@@ -279,7 +280,7 @@ export function createCodeViewsUI({state,editor,textDocuments,contexts,config,ge
       if(language!=='blocks'){
         // Unfinished blocks have no text yet: that object opens in Blocks.
         try{
-          const snapshot=editor.codeViewSnapshot(),generated=generate(snapshot,language);
+          const snapshot=captureSnapshot(),generated=generate(snapshot,language);
           const entry={...state.get(context),source:generated.text,baselineSource:generated.text};
           state.set(entry);known.set(context,{language,source:generated.text,owner:ownerKey(),snapshot});
         }catch{state.set({...state.get(context),language:'blocks',source:'',baselineSource:''});}
@@ -287,7 +288,7 @@ export function createCodeViewsUI({state,editor,textDocuments,contexts,config,ge
     }catch(failure){
       try{if(objects.current()!==from)objects.mount(from,{scriptOrder:order});}finally{state.restoreDraft(checkpoint);}
       // The object and its text are back: the baseline holds again.
-      if(previous)known.set(context,{...previous,snapshot:editor.codeViewSnapshot()});
+      if(previous)known.set(context,{...previous,snapshot:captureSnapshot()});
       // The text was not the cause: the panel says what failed, and it is logged.
       onDiagnostic({level:'error',code:'CODE_VIEW_OBJECT',origin:'shell',message:failure.message});
       render();return {ok:false,reason:'failed',step:'mount',message:failure.message};
@@ -301,7 +302,7 @@ export function createCodeViewsUI({state,editor,textDocuments,contexts,config,ge
     const context='2d',entry=state.get(context);
     if(objects?.current()==null||entry.language==='blocks'||entry.source!==entry.baselineSource)return;
     try{
-      const snapshot=editor.codeViewSnapshot(),generated=generate(snapshot,entry.language);
+      const snapshot=captureSnapshot(),generated=generate(snapshot,entry.language);
       state.set({...entry,source:generated.text,baselineSource:generated.text});
       known.set(context,{language:entry.language,source:generated.text,owner:ownerKey(),snapshot});
       render();

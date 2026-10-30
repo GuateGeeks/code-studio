@@ -216,8 +216,8 @@ export function createEditor(container, example) {
       return candidate;
     },
     codeViewOrder: () => structuredClone(scriptOrder),
-    codeViewSnapshot: () => {
-      const captured = captureCodeViewSnapshot(saveWorkspace(workspace), {capabilities, resourceView, scriptOrder, ownerId: resourceOwner, globalIds: sceneGlobals});
+    codeViewSnapshot: ({inheritedGlobalIds = []} = {}) => {
+      const captured = captureCodeViewSnapshot(saveWorkspace(workspace), {capabilities, resourceView, scriptOrder, ownerId: resourceOwner, globalIds: sceneGlobals, inheritedGlobalIds});
       const snapshot = structuredClone(captured);
       codeViewSnapshots.set(snapshot, {captured, key: codeViewKey()});
       return snapshot;

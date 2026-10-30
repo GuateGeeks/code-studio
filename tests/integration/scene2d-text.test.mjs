@@ -557,7 +557,7 @@ for (const localCount of [1, 16]) test('MS-078: object Blockly and JS/Python con
   const globals = Array.from({length: 16}, (_, i) => ({id: 'global-' + i, name: 'global' + i, type: ''}));
   const locals = Array.from({length: localCount}, (_, i) => ({id: 'local-' + i, name: 'local' + i, type: ''}));
   const state = {variables: [...globals, ...locals], blocks: {languageVersion: 0, blocks: [{type: 'gg_when_start', id: 'budget-start', x: 20, y: 20, inputs: {DO: {block: {type: 'math_change', id: 'budget-change', fields: {VAR: {id: 'local-0'}}, inputs: {DELTA: {shadow: {type: 'math_number', id: 'budget-num', fields: {NUM: 7}}}}}}}}]}};
-  const snapshot = captureCodeViewSnapshot(state, {capabilities, ownerId: 'hero', globalIds: globals.map(model => model.id)});
+  const snapshot = captureCodeViewSnapshot(state, {capabilities, ownerId: 'hero', globalIds: globals.map(model => model.id), inheritedGlobalIds: globals.map(model => model.id)});
   assert.equal(snapshot.ir.variables.filter(model => model.scope === 'global').length, 16);
   assert.throws(() => parseJavaScriptCodeView(Array.from({length:17},(_,i)=>'let v'+i+' = 0;').join('\n')+'\nonStart(() => {});', {capabilities,owner:heroOwner}), /variable limit|límite/);
   assert.match(generateCode(snapshot.ir, {objectWorkspace: true}).text, /local0/);
@@ -582,4 +582,18 @@ for (const localCount of [1, 16]) test('MS-078: object Blockly and JS/Python con
     assert.throws(() => parseJavaScriptCodeView('let puntos = shared(0);\nonStart(() => {});', {capabilities:legacy,variableIds:{puntos:'legacy-g'},globalIds:['legacy-g']}), /asignación global/);
   }
   assert.throws(() => validateTextProgram({variables: [...globals, ...locals].map(({type, ...model}) => ({...model, initialValue: 0})), handlers: []}), /variable limit/);
+});
+
+for (const language of ['javascript', 'python']) test('MS-RESIDUAL-R2: ' + language + ' cannot lose its only durable global declaration', () => {
+  const state = {variables: [{id:'puntos',name:'puntos',type:''}],blocks:{languageVersion:0,blocks:[{type:'gg_when_start',id:'shared-start',inputs:{DO:{block:{type:'gg_set_global',id:'shared-set',fields:{VAR:{id:'puntos'}},inputs:{VALUE:{shadow:{type:'math_number',id:'shared-num',fields:{NUM:1}}}}}}}}]}};
+  const snapshot = captureCodeViewSnapshot(state,{capabilities,ownerId:'hero'});
+  assert.equal(snapshot.ir.variables[0].scope,'global');
+  const source = language === 'javascript' ? 'let puntos = shared(0);\nonStart(() => {});' : 'puntos = shared(0)\n@on_start\ndef go():\n    pass';
+  const request = {language,source,capabilities,owner:heroOwner,variableIds:{puntos:'puntos'},globalIds:['puntos']};
+  const translated = language === 'javascript' ? source : runPython([source],pythonCodeViewVocabulary(request))[0].source;
+  const parsed = parseJavaScriptCodeView(translated,request);
+  assert.throws(()=>prepareCodeViewCandidate(snapshot,parsed),/roundtrip|ámbito|global/,'candidate scope is not proof of a durable declaration');
+  const inherited = captureCodeViewSnapshot(state,{capabilities,ownerId:'hero',globalIds:['puntos'],inheritedGlobalIds:['puntos']});
+  const candidate = prepareCodeViewCandidate(inherited,parsed);
+  assert.equal(candidate.ir.variables[0].scope,'global','a real stage declaration can survive assignment removal');
 });

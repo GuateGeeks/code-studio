@@ -356,3 +356,18 @@ test('MS-079: independent variable capture ignores unfinished scripts and keeps 
   authoring.mountObject('cesta');
   assert.deepEqual(authoring.variables(), expected);
 });
+
+test('MS-RESIDUAL-R3: independent owner variables ignore another object draft budget',async()=>{
+  const profile=sprites('0.3.0',[hero,cesta]),local={id:'hero-local',name:'pasos',type:''};
+  const states={stage:{},sprites:{hero:{variables:[local]},cesta:{variables:Array.from({length:17},(_,i)=>({id:'cesta-'+i,name:'draft'+i,type:''}))}}};
+  let live={};
+  const editor={save:()=>live,captureCapabilities:()=>profile,prepare:state=>({state}),commit:candidate=>{live=candidate.state;}};
+  const authoring=createProjectAuthoring({editor,source:{value:''},initialCapabilities:profile});
+  const project=await createProject({name:'Draft budgets',scene2d:states,deviceSource:'',catalog,capabilities:profile});
+  authoring.commit(authoring.prepare(project));
+  const expected=[{id:'hero-local',name:'pasos',initialValue:0,targetId:'hero'}];
+  assert.deepEqual(authoring.variables({targetIds:['hero'],localsOnly:true}),expected);
+  authoring.mountObject('cesta');
+  assert.deepEqual(authoring.variables({targetIds:['hero'],localsOnly:true}),expected);
+  assert.throws(()=>authoring.variables(),/variable limit/,'full scene validation still enforces 17 locals');
+});

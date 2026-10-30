@@ -110,19 +110,30 @@ export function createProjectAuthoring({editor,textDocuments,codeViews,source,ca
   try{return editor.programOf(structuredClone(state),{ownerId:id,globalIds});}
   catch(error){error.targetId=id;error.message='«'+(config.sprites.find(sprite=>sprite.id===id)?.name??scene2DStageName)+'»: '+error.message;throw error;}
  }
- function variables() {
+ // Only declarations outside the mounted sprite prove inheritance. Its own
+ // gg_set_global block must survive conversion unless the stage/another owner
+ // already carries the declaration durably.
+ function inheritedGlobalIds() {
+  if(!objects)return [];
+  const scene=capture().scene2d;
+  if(objects.mounted!=='stage')delete scene.sprites[objects.mounted];
+  return scene2DGlobalVariableIds(scene,captureCapabilities());
+ }
+ function variables({targetIds=null,localsOnly=false}={}) {
   const capabilities=captureCapabilities(),rules=scene2DObjectRules(capabilities).globals;
+  const inherited=new Set(objects?scene2DGlobalVariableIds(capture().scene2d,capabilities):[]);
   function models(state) {
    const globalIds=new Set();
    eachWorkspaceBlock(state,block=>{const field=rules.get(block.type);if(field){const value=block.fields?.[field];globalIds.add(value?.id??value);}});
-   return (state.variables??[]).map(model=>{
+   return (state.variables??[]).filter(model=>!localsOnly||!globalIds.has(model.id)&&!inherited.has(model.id)).map(model=>{
     if(model.type!==''&&model.type!==undefined)throw new Error('Only numeric scalar variables are supported');
-    return {id:model.id,name:model.name,initialValue:0,...(globalIds.has(model.id)?{scope:'global'}:{})};
+    return {id:model.id,name:model.name,initialValue:0,...(globalIds.has(model.id)||inherited.has(model.id)?{scope:'global'}:{})};
    });
   }
   const live=editor.save();
   if(!objects)return validateProgram({version:0,variables:models(live),scripts:[]}).variables;
-  const program=id=>({version:0,variables:models(id===objects.mounted?live:objectWorkspace(objects,id)),scripts:[]});
+  const selected=new Set(targetIds??['stage',...sceneConfig().sprites.map(sprite=>sprite.id)]);
+  const program=id=>({version:0,variables:selected.has(id)?models(id===objects.mounted?live:objectWorkspace(objects,id)):[],scripts:[]});
   return validateProgram(composeScene2DProgram(sceneConfig(),{stage:program('stage'),sprites:Object.fromEntries(sceneConfig().sprites.map(sprite=>[sprite.id,program(sprite.id)]))}),{objects:true}).variables??[];
  }
  function sceneProgram() {
@@ -267,7 +278,7 @@ export function createProjectAuthoring({editor,textDocuments,codeViews,source,ca
   const unsubscribe=participant.subscribe(emit);if(typeof unsubscribe==='function')disposers.push(unsubscribe);
  }
  if(source.addEventListener){source.addEventListener('input',emit);disposers.push(()=>source.removeEventListener('input',emit));}
- return Object.freeze({capture,variables,sceneProgram,exportProgram,blocksKey,objectOfBlock,mountObject,mountedObject:()=>objects?.mounted??null,captureCapabilities,capabilities:captureCapabilities,captureExecutionCapabilities,prepareCapabilities,prepare,commit,checkpoint,restoreDraft,
+ return Object.freeze({capture,variables,inheritedGlobalIds,sceneProgram,exportProgram,blocksKey,objectOfBlock,mountObject,mountedObject:()=>objects?.mounted??null,captureCapabilities,capabilities:captureCapabilities,captureExecutionCapabilities,prepareCapabilities,prepare,commit,checkpoint,restoreDraft,
   subscribe(callback){subscribers.add(callback);return()=>subscribers.delete(callback);},
   dispose(){disposed=true;for(const dispose of disposers)dispose();subscribers.clear();}
  });

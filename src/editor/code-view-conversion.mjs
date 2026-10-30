@@ -18,10 +18,10 @@ function blocks(state) {
   for (const block of state.blocks?.blocks ?? []) visit(block);
   return result;
 }
-export function captureCodeViewSnapshot(state, {capabilities = null, resourceView = null, scriptOrder = null, ownerId = null, globalIds = []} = {}) {
+export function captureCodeViewSnapshot(state, {capabilities = null, resourceView = null, scriptOrder = null, ownerId = null, globalIds = [], inheritedGlobalIds = []} = {}) {
   const workspace = loadWorkspace(structuredClone(state), {capabilities, resourceView, ownerId});
   try {
-    return {state: saveWorkspace(workspace), ir: workspaceToIR(workspace, {capabilities, resourceView, scriptOrder, ownerId, globalIds}), scriptOrder: structuredClone(scriptOrder), ownerId, globalIds:[...globalIds],
+    return {state: saveWorkspace(workspace), ir: workspaceToIR(workspace, {capabilities, resourceView, scriptOrder, ownerId, globalIds}), scriptOrder: structuredClone(scriptOrder), ownerId, globalIds:[...globalIds], inheritedGlobalIds:[...inheritedGlobalIds],
       numericInputIdentity: captureNumericInputIdentity(workspace),
       layout: workspace.getTopBlocks(true).map(block => ({sourceBlockId: block.id, ...block.getRelativeToSurfaceXY()})),
       capabilities: structuredClone(capabilities), resourceView: structuredClone(resourceView)};
@@ -85,7 +85,7 @@ export function prepareCodeViewCandidate(snapshot, parsed, {targetId = 'hero'} =
   const candidate = authorizeProgram(snapshot.capabilities, parsed.ir, {resourceView: snapshot.resourceView, ownerId});
   validateMetadata(parsed);
   const result = reconcileCodeViewIdentity(snapshot.ir, candidate, {...snapshot, resourceView: snapshot.resourceView, idPrefix: targetId === 'hero' ? '' : targetId.slice(0, 96) + '-'});
-  const state = workspaceFromIR(result.ir, {...result, capabilities: snapshot.capabilities, resourceView: snapshot.resourceView, ownerId});
+  const state = workspaceFromIR(result.ir, {...result, capabilities: snapshot.capabilities, resourceView: snapshot.resourceView, ownerId, globalIds:snapshot.inheritedGlobalIds??[]});
   const old = blocks(snapshot.state), next = blocks(state);
   for (const [id, block] of next) {
     const original = old.get(id);
@@ -118,7 +118,7 @@ export function prepareCodeViewCandidate(snapshot, parsed, {targetId = 'hero'} =
   try {
     return {state: saveWorkspace(workspace), capabilities: structuredClone(snapshot.capabilities),
       resourceView: structuredClone(snapshot.resourceView), ownerId, globalIds:[...(snapshot.globalIds??[])], ir: workspaceToIR(workspace,
-        {capabilities: snapshot.capabilities, resourceView: snapshot.resourceView, scriptOrder: result.scriptOrder, ownerId, globalIds: candidate.variables?.filter(model=>model.scope==='global').map(model=>model.id)??[]}),
+        {capabilities: snapshot.capabilities, resourceView: snapshot.resourceView, scriptOrder: result.scriptOrder, ownerId, globalIds: snapshot.inheritedGlobalIds??[]}),
       scriptOrder: result.scriptOrder, sourceLocations: locations, identityMatches: result.matches};
   } finally { workspace.dispose(); }
 }

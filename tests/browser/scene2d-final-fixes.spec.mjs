@@ -185,3 +185,116 @@ test('MS-FINAL-COPY: an actual saved project copy follows the old target ID afte
   await selectContext(page,'text');await clickVisible(page,page.locator('#run-document'));await expect(page.locator('#status')).toHaveText('Documento activo · eventos disponibles');
   await expect.poll(async()=>(await settled(snapshot,page)).sprites.find(sprite=>sprite.id==='hero').x).toBe(100);
 });
+for(const change of ['project name','sprite configuration'])test('MS-RESIDUAL-R1: '+change+' survives blocked pack rollback and save/reopen',async({page})=>{
+  await open(page);await legacy(page,1);await packs(page);await clickVisible(page,page.locator('#update-packs'));
+  await expect(page.locator('#packs-list')).toContainText('gg.sprites · 0.3.0');
+  if(change==='project name'){
+    await page.locator('#project-name').fill('Mi historia nueva');
+    await page.locator('#project-name').press('Tab');
+  }else{
+    // The version list renders during publication; rollback is offered only
+    // once the update handler has stored its snapshot and comparison baseline.
+    await expect(page.locator('#rollback-packs')).toBeVisible();
+    await page.evaluate(async()=>{
+      const model=await studioProbe.project.capture();
+      Object.assign(model.capabilities.config['gg.sprites'].sprites[0],{name:'Protagonista',x:73});
+      studioProbe.authoring.commit(studioProbe.authoring.prepare(model));
+    });
+  }
+  const before=await page.evaluate(()=>studioProbe.project.capture());
+  if(change==='sprite configuration'){
+    expect(before.capabilities.config['gg.sprites'].sprites[0]).toMatchObject({name:'Protagonista',x:73});
+  }
+  await page.evaluate(()=>studioProbe.project.flush());
+  await packs(page);await clickVisible(page,page.locator('#rollback-packs'));
+  await expect(page.locator('#packs-error')).toContainText('cambios');
+  await expect(page.locator('#packs-list')).toContainText('gg.sprites · 0.3.0');
+  await page.evaluate(()=>studioProbe.project.flush());
+  const saved=JSON.parse(await page.evaluate(()=>studioProbe.project.export()));
+  expect(saved.project.name).toBe(before.project.name);
+  expect(saved.capabilities.config['gg.sprites']).toEqual(before.capabilities.config['gg.sprites']);
+  await page.evaluate(model=>studioProbe.project.open(JSON.stringify(model)),saved);
+  expect((await page.evaluate(()=>studioProbe.project.capture())).capabilities).toEqual(saved.capabilities);
+  await expect(page.locator('#project-name')).toHaveValue(saved.project.name);
+  expect((await settled(snapshot,page)).threads).toBe(0);
+});
+
+for(const language of ['javascript','python'])for(const origin of ['live owned','reopened owned','inherited stage'])test('MS-RESIDUAL-R2: '+language+' '+origin+' global scope survives conversion and save/reopen',async({page})=>{
+  await open(page);await scene(page);
+  await page.evaluate(async origin=>{
+    const model=JSON.parse(await studioProbe.project.export());
+    model.capabilities.config['gg.sprites'].sprites=model.capabilities.config['gg.sprites'].sprites.slice(0,1);
+    delete model.authoring.scene2d.sprites.cesta;
+    for(const kind of ['costumes','sounds'])model.resources[kind]=model.resources[kind].filter(item=>item.ownerId!=='cesta');
+    model.authoring.scene2d.sprites.hero={};
+    if(origin==='inherited stage')model.authoring.scene2d.stage={variables:[{id:'puntos',name:'puntos',type:''}]};
+    await studioProbe.project.open(JSON.stringify(model));
+    const state={variables:[{id:'puntos',name:'puntos',type:''}],blocks:{languageVersion:0,blocks:[{type:'gg_when_start',id:'owned-start',x:20,y:20,inputs:{DO:{block:{type:'gg_set_global',id:'owned-set',fields:{VAR:{id:'puntos'}},inputs:{VALUE:{shadow:{type:'math_number',id:'owned-num',fields:{NUM:1}}}}}}}}]}};
+    studioProbe.editor.commit(studioProbe.editor.prepare(state,{capabilities:studioProbe.editor.captureCapabilities(),resourceView:studioProbe.editor.resourceView(),ownerId:'hero',globalIds:origin==='inherited stage'?['puntos']:[],lower:false}));
+    if(origin==='reopened owned')await studioProbe.project.open(await studioProbe.project.export());
+  },origin);
+  expect((await page.evaluate(()=>studioProbe.authoring.sceneProgram())).variables.find(model=>model.id==='puntos').scope).toBe('global');
+  await mode(page,language);
+  await expect(page.locator('#text-source')).toHaveValue(/shared\(0\)/);
+  await page.locator('#text-source').fill(language==='javascript'?'let puntos = shared(0);\nonStart(() => {});\n':'puntos = shared(0)\n@on_start\ndef go():\n    pass\n');
+  await clickVisible(page,page.locator('#program-mode input[value=blocks]'));
+  if(origin==='inherited stage'){
+    await expect(page.locator('#program-mode input[value=blocks]')).toBeChecked();
+    await expect(page.locator('#text-error')).toHaveText('');
+  }else{
+    await expect(page.locator('#text-error')).toContainText('asignación global');
+    await expect(page.locator('#program-mode input[value='+language+']')).toBeChecked();
+    expect(JSON.stringify((await capture(page)).scene2d.sprites.hero)).toContain('gg_set_global');
+  }
+  await page.evaluate(()=>studioProbe.project.flush());
+  const saved=await page.evaluate(()=>studioProbe.project.export());
+  await page.evaluate(text=>studioProbe.project.open(text),saved);
+  const ir=await page.evaluate(()=>studioProbe.authoring.sceneProgram());
+  expect(ir.variables.find(model=>model.id==='puntos').scope).toBe('global');
+  expect((await settled(snapshot,page)).threads).toBe(0);
+});
+
+for(const api of ['api1','api3','api1 owner local'])for(const selected of ['Ana','Cesta'])test('MS-RESIDUAL-R3: '+api+' runs independently of 17 draft locals, selected '+selected,async({page})=>{
+  await open(page);await scene(page,{locals:1});
+  await page.evaluate(async api=>{
+    const model=JSON.parse(await studioProbe.project.export());
+    model.authoring.scene2d.sprites.cesta={variables:Array.from({length:17},(_,i)=>({id:'draft-'+i,name:'draft'+i,type:''}))};
+    await studioProbe.project.open(JSON.stringify(model));
+    studioProbe.textDocuments.add({language:'javascript',name:'Independiente',...(api==='api3'?{api:'api3',targetIds:{ana:'hero'}}:{}),
+      source:api==='api3'?'onStart(() => { ana.move(1); });':(api==='api1 owner local'?'await GG.variables.set("hero-local-0",42);\n':'')+'await GG.sprite.move("hero",1);'});
+  },api);
+  await pick(page,selected);expect((await settled(snapshot,page)).threads).toBe(0);
+  await selectContext(page,'text');await clickVisible(page,page.locator('#run-document'));
+  await expect(page.locator('#status')).toHaveText(api==='api3'?'Documento activo · eventos disponibles':'Documento terminado');
+  await expect.poll(async()=>(await settled(snapshot,page)).sprites.find(sprite=>sprite.id==='hero').x).toBe(1);
+  if(api==='api1 owner local')expect((await settled(snapshot,page)).sprites.find(sprite=>sprite.id==='hero').variables['hero-local-0'].value).toBe(42);
+  await clickVisible(page,page.locator('#stop-result'));await selectContext(page,'2d');
+  await clickVisible(page,page.locator('#run-editor'));
+  await expect(page.locator('#editor-error')).toContainText('variable limit');
+  expect((await capture(page)).scene2d.sprites.cesta.variables).toHaveLength(17);
+});
+
+test('MS-RESIDUAL-R1: autosave bookkeeping alone permits immediate pack rollback',async({page})=>{
+  await open(page);await legacy(page,1);await packs(page);await clickVisible(page,page.locator('#update-packs'));
+  await expect(page.locator('#packs-list')).toContainText('gg.sprites · 0.3.0');
+  await page.evaluate(async()=>{await studioProbe.project.flush();await studioProbe.project.flush();});
+  await clickVisible(page,page.locator('#rollback-packs'));
+  await expect(page.locator('#packs-list')).toContainText('gg.sprites · 0.1.0');
+  await expect(page.locator('#packs-error')).toHaveText('');
+  expect((await settled(snapshot,page)).threads).toBe(0);
+});
+
+test('MS-RESIDUAL-R1: UI sprite rename invalidates rollback and stays saved after reopen',async({page})=>{
+  await open(page);await legacy(page,1);await packs(page);await clickVisible(page,page.locator('#update-packs'));
+  await expect(page.locator('#packs-list')).toContainText('gg.sprites · 0.3.0');
+  await selectContext(page,'2d');await clickVisible(page,page.locator('#object-rename'));
+  await page.locator('#object-name').fill('Protagonista');await page.locator('#object-name').press('Enter');
+  await expect(page.getByRole('option',{name:'Protagonista',exact:true})).toHaveAttribute('aria-selected','true');
+  await packs(page);await expect(page.locator('#rollback-packs')).toBeHidden();
+  await page.evaluate(()=>studioProbe.project.flush());
+  const saved=await page.evaluate(()=>studioProbe.project.export());
+  expect(JSON.parse(saved).capabilities.config['gg.sprites'].sprites[0].name).toBe('Protagonista');
+  await page.evaluate(text=>studioProbe.project.open(text),saved);
+  expect((await capture(page)).capabilities.config['gg.sprites'].sprites[0].name).toBe('Protagonista');
+  expect((await settled(snapshot,page)).threads).toBe(0);
+});

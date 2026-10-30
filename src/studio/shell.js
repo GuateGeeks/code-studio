@@ -22,7 +22,7 @@ import {projectInitialScene, scene2DObjectsOf} from '../project-format.mjs';
 import {createSceneScope} from './scene-scope.mjs';
 import {scene2DTextOwner} from '../contracts/scene2d-identifiers.mjs';
 import {generateApi3ProgramSource, generateApi3SceneSource} from '../generated-program-source.mjs';
-import {createCapabilities, resolveCapabilities, lockedPackVersions} from '../contracts/packs.mjs';
+import {createCapabilities, resolveCapabilities, lockedPackVersions, canonicalPackData} from '../contracts/packs.mjs';
 import {availablePackUpdates, migrateProject, describeMigrationSummary} from '../project-migration.mjs';
 import {createLessonsUI} from './lessons-ui.mjs';
 import {createOfflineController} from '../offline/controller.mjs';
@@ -117,7 +117,7 @@ const capabilityExecution=createCapabilityExecution({config,getAuthoring:context
 syncedViews=createCodeViewsUI({state:codeViewsState,editor,textDocuments,contexts,config,getProject:()=>projectForCodeViews,
   onRender:()=>workspace?.render(),onDiagnostic:record=>consoleUI.local(record),onSourceChanged:()=>{consoleUI.invalidateSources();lessons?.invalidate();workspace?.authoringChanged();},
   requirePack:requirePreparedPack,
-  objects:{current:()=>scene2DObjectsOf(editor.captureCapabilities())?authoring.mountedObject():null,owner:id=>scene2DTextOwner(scene2DObjectsOf(editor.captureCapabilities()),id),mount:(id,options)=>authoring.mountObject(id,options),ownerOf:id=>authoring.objectOfBlock(id)},
+  objects:{current:()=>scene2DObjectsOf(editor.captureCapabilities())?authoring.mountedObject():null,owner:id=>scene2DTextOwner(scene2DObjectsOf(editor.captureCapabilities()),id),mount:(id,options)=>authoring.mountObject(id,options),ownerOf:id=>authoring.objectOfBlock(id),inheritedGlobalIds:()=>authoring.inheritedGlobalIds()},
   onCopy:document=>copyFacts.set(document.id,{documentId:document.id,language:document.language,blocklyHashAtCopy:sceneScope.blocksKey(),projectId:projectForCodeViews.state().id}),
   canRun:()=>scene2DEnabled&&Boolean(sessionId)&&activeRevision!==null});
 const objectsUI=createObjectsUI({authoring,codeViews:syncedViews,contexts,resources:resourceStore,editObjects:edit=>resourcesUI.editObjects(edit),projectId:()=>projectForCodeViews?.state().id??null,
@@ -470,7 +470,7 @@ async function runTextDocument() {
   // Legacy top-level GG documents may use the project's numeric locals.
   // Copied event programs configure their own declarations; invalid blocks
   // must not prevent an independent textual program from running.
-  const variables = authoring.variables().filter(variable => !variable.scope || variable.scope === 'local');
+  const variables = document.runtime?.api === 'api3' ? [] : authoring.variables({targetIds:['hero'],localsOnly:true});
   const key = authoringKey();
   const capabilities = authoring.captureExecutionCapabilities('scratch-2d');
   // gg.sprites 0.3.0: the document runs in the scene of the project, with every
@@ -594,6 +594,12 @@ function contextAuthoringKey(id) {
 function authoringKey() {
   return JSON.stringify({resources:resourceStore.capture(),...sceneAuthoring(),pendingCode:syncedViews?.pendingSource('2d')??null,documents:textDocuments.capture(),deviceSource:source.value,device:device.config(),scene3d:capabilityUI.capture('scene3d'),webapp:capabilityUI.capture('webapp'),scratchSource:resourcesUI.reference()});
 }
+// Rollback restores a full portable snapshot, so compare every durable input
+// to that snapshot. Autosave revision/timestamps are bookkeeping, not edits.
+function packRollbackKey() {
+  const {id,name}=project.state();
+  return canonicalPackData({project:{id,name:name.trim()},authoring:authoring.capture(),pendingCode:syncedViews?.pendingSource('2d')??null});
+}
 function lessonIdentity() {
   const selected = textDocuments.selected();
   const executed = executionLessonIdentity;
@@ -668,14 +674,14 @@ document.querySelector('#update-packs').addEventListener('click', async () => {
     previousProjectSnapshot = before;
     previousCapabilities = null;
     renderPacks();
-    previousProjectKey = JSON.stringify([project.state().id,authoringKey()]);
+    previousProjectKey = packRollbackKey();
     lessons?.invalidate();
   } catch (error) { errorOutput.textContent = error.message; }
 });
 document.querySelector('#rollback-packs').addEventListener('click', async () => {
   if (previousProjectSnapshot) {
     const snapshot = previousProjectSnapshot;
-    const unchanged=()=>previousProjectKey===JSON.stringify([project.state().id,authoringKey()]);
+    const unchanged=()=>previousProjectKey===packRollbackKey();
     try {
       if(!unchanged())throw new Error('Hay cambios posteriores a la actualización. Se conservó tu trabajo. Guarda una copia antes de volver a una versión anterior.');
       await project.replaceAuthoring(async () => snapshot, {isCurrent:unchanged,notice: 'Se restauraron las versiones anteriores de los packs. No se ejecutó nada.'});

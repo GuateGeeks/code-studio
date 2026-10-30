@@ -23,7 +23,7 @@ export function captureNumericInputIdentity(workspace) {
 
 // Inverts only installed declarative rules. The real forward translator below
 // is the final check: no newly invented initialization, event or coercion.
-export function workspaceFromIR(input, {capabilities = null, resourceView = null, layout, numericInputIdentity, scriptOrder = null, ownerId = null} = {}) {
+export function workspaceFromIR(input, {capabilities = null, resourceView = null, layout, numericInputIdentity, scriptOrder = null, ownerId = null, globalIds = []} = {}) {
   const ir = authorizeProgram(capabilities, input, {resourceView, ownerId});
   const contributions = createContributions(capabilities);
   const declarations = new Map((ir.variables ?? []).map(variable => [variable.id, variable]));
@@ -194,7 +194,7 @@ export function workspaceFromIR(input, {capabilities = null, resourceView = null
   const state = {blocks: {languageVersion: 0, blocks}, ...(variables.length ? {variables} : {})};
   const workspace = loadWorkspace(state, {capabilities, resourceView, ownerId});
   try {
-    const restored = workspaceToIR(workspace, {capabilities, resourceView, scriptOrder, ownerId, globalIds: ir.variables?.filter(model=>model.scope==='global').map(model=>model.id)??[]});
+    const restored = workspaceToIR(workspace, {capabilities, resourceView, scriptOrder, ownerId, globalIds});
     const normalize = value => {
       const result = structuredClone(value);
       if (result.variables?.length) result.variables = result.variables.map(variable => ({...variable, scope: variable.scope ?? 'local'})).sort((a, b) => a.id.localeCompare(b.id));
