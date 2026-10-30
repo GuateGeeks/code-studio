@@ -8,6 +8,8 @@ const digest=async(state,order)=>{
   const data=new TextEncoder().encode(canonicalPackData([state,order??null]));
   return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',data)),byte=>byte.toString(16).padStart(2,'0')).join('');
 };
+// An error of the student's text, not of the tools that read it.
+const textError=failure=>/^CV_/.test(failure.code??'')&&!['CV_PARSE','CV_LANGUAGE_UNAVAILABLE','CV_TABLE','CV_METADATA','CV_REQUEST'].includes(failure.code);
 // objects (scene2d-multi-sprite 2.2, R2): {current():id|null, owner(id), mount(id,{scriptOrder})}.
 // Views and copies belong to the current object; no hook means hero, as before.
 export function createCodeViewsUI({state,editor,textDocuments,contexts,config,getProject,
@@ -15,7 +17,7 @@ export function createCodeViewsUI({state,editor,textDocuments,contexts,config,ge
   const source=document.querySelector('#text-source'),errorOutput=document.querySelector('#text-error');
   const service=createCodeViewService({origin:config.languageOrigin,releaseBase:config.releaseBase??'/'});
   const known=new Map(),pointSnapshots=new Map(),notice=new Set(),carets=new Map();
-  let ready=false,busy=false,error=null,warning='',attempt=0,epoch=0,staging=null,selfCommit=false,lastContext=contexts.current(),applyFailure='cancelled';
+  let ready=false,busy=false,error=null,warning='',attempt=0,epoch=0,staging=null,selfCommit=false,lastContext=contexts.current(),applyFailure={reason:'cancelled'};
   const supports=context=>context==='2d';
   const current=()=>state.get(contexts.current());
   const ownerOption=()=>{const id=objects?.current()??null;return id===null?{}:{owner:objects.owner(id)};};
@@ -102,9 +104,8 @@ export function createCodeViewsUI({state,editor,textDocuments,contexts,config,ge
     if(entry.language==='blocks')return true;
     if(trusted(context,entry))return true;
     const available=availability(context,entry.language);
-    applyFailure='rejected';
-    if(!available.editable){report(new Error(available.reason));focusSource();return false;}
-    applyFailure='cancelled';
+    if(!available.editable){applyFailure={reason:'failed',message:available.reason};report(new Error(available.reason));focusSource();return false;}
+    applyFailure={reason:'cancelled'};
     cancelAnalysis();const id=attempt,projectEpoch=epoch;
     busy=true;error=null;warning='';source.removeAttribute('aria-invalid');setText(errorOutput,'');render();
     let point=null;
@@ -151,7 +152,8 @@ export function createCodeViewsUI({state,editor,textDocuments,contexts,config,ge
       return true;
     }catch(failure){
       clearPending(point);
-      if(id===attempt&&projectEpoch===epoch){applyFailure='rejected';report(failure);focusSource(failure.lineNumber,failure.columnNumber);}
+      // Only the text's own errors say so: a missing pack is not one.
+      if(id===attempt&&projectEpoch===epoch){applyFailure=textError(failure)?{reason:'rejected'}:{reason:'failed',message:failure.message};report(failure);focusSource(failure.lineNumber,failure.columnNumber);}
       return false;
     }finally{if(id===attempt){busy=false;render();}}
   }
@@ -193,7 +195,7 @@ export function createCodeViewsUI({state,editor,textDocuments,contexts,config,ge
       const owner=ownerOption().owner,targetIds=owner&&(owner.identifier!=='hero'||owner.targetId!=='hero')?{[owner.identifier]:owner.targetId}:undefined;
       const created=textDocuments.add({language:entry.language,name:'Copia '+name(entry.language)+' del programa 2D',
         source:entry.source,api:'api3',variableIds:generated.variableIds,...(targetIds?{targetIds}:{})});
-      onCopy(created,JSON.stringify(editor.save()));
+      onCopy(created);
       state.set({...state.get(context),language:'blocks',source:'',baselineSource:'',pendingRestorePoint:null});
       error=null;warning='';setText(errorOutput,'');source.removeAttribute('aria-invalid');
       contexts.select('text');render();source.focus();
@@ -239,7 +241,7 @@ export function createCodeViewsUI({state,editor,textDocuments,contexts,config,ge
   async function settleText(){
     if(!ready||busy)return {ok:false,reason:'busy'};
     if(await apply('2d'))return {ok:true};
-    return {ok:false,reason:applyFailure};
+    return {ok:false,...applyFailure};
   }
   async function selectObject(id){
     const from=objects?.current()??null;
@@ -257,9 +259,12 @@ export function createCodeViewsUI({state,editor,textDocuments,contexts,config,ge
       state.switchObject(from,id,{scriptOrder:order});
       known.delete(context);pointSnapshots.delete(context);notice.delete(context);carets.delete(context+':'+language);
       if(language!=='blocks'){
-        const snapshot=editor.codeViewSnapshot(),generated=generate(snapshot,language);
-        const entry={...state.get(context),source:generated.text,baselineSource:generated.text};
-        state.set(entry);known.set(context,{language,source:generated.text,owner:ownerKey(),snapshot});
+        // Unfinished blocks have no text yet: that object opens in Blocks.
+        try{
+          const snapshot=editor.codeViewSnapshot(),generated=generate(snapshot,language);
+          const entry={...state.get(context),source:generated.text,baselineSource:generated.text};
+          state.set(entry);known.set(context,{language,source:generated.text,owner:ownerKey(),snapshot});
+        }catch{state.set({...state.get(context),language:'blocks',source:'',baselineSource:''});}
       }
     }catch(failure){
       try{if(objects.current()!==from)objects.mount(from,{scriptOrder:order});}finally{state.restoreDraft(checkpoint);}
@@ -272,10 +277,11 @@ export function createCodeViewsUI({state,editor,textDocuments,contexts,config,ge
     render();return {ok:true};
   }
   // The live text after the objects changed (a rename, a delete): the identifiers
-  // are others, the program is the same. The panel applied pending text first.
+  // are others, the program is the same. The panel applied pending text first;
+  // what was typed during the runner's restart is the student's, and stays.
   function refreshObjectText(){
     const context='2d',entry=state.get(context);
-    if(objects?.current()==null||entry.language==='blocks')return;
+    if(objects?.current()==null||entry.language==='blocks'||entry.source!==entry.baselineSource)return;
     try{
       const snapshot=editor.codeViewSnapshot(),generated=generate(snapshot,entry.language);
       state.set({...entry,source:generated.text,baselineSource:generated.text});
@@ -333,7 +339,14 @@ export function createCodeViewsUI({state,editor,textDocuments,contexts,config,ge
   return Object.freeze({select,selectObject,settleText,refreshObjectText,applyForRun:()=>apply('2d'),presentation,
     mode:context=>supports(context)?state.get(context).language:null,
     setReady(value){ready=!!value;render();},cancelAnalysis,
-    revealBlock(id){
+    // A block of another object: that object is selected first, as with any other
+    // change of object. If it cannot be, the reply says why.
+    async revealBlock(id){
+      const owner=objects?.ownerOf?.(id)??null;
+      if(owner!==null&&owner!==objects.current()){
+        const moved=await selectObject(owner);
+        if(!moved.ok)return {ok:false,message:moved.reason==='rejected'?'Ese bloque es de otro objeto. Arregla el error del texto para ir a él.':'Ese bloque es de otro objeto y no se pudo abrir.'+(moved.message?' '+moved.message:'')};
+      }
       const entry=state.get('2d');if(entry.language!=='blocks'&&!trusted('2d',entry))return false;
       if(entry.language!=='blocks')state.set({...entry,language:'blocks',source:'',baselineSource:''});contexts.select('2d');render();return editor.selectSource(id);
     },

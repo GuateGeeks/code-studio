@@ -1,7 +1,7 @@
 import {createTextDocument, textDocumentLimits, validateTextDocuments} from '../text-documents.mjs';
 
 // Text authoring stays independent of Blockly and of interpreter state.
-export function createTextDocumentsUI({onError = () => {},canRun = () => true,onReveal = () => {}} = {}) {
+export function createTextDocumentsUI({onError = () => {},canRun = () => true,onReveal = () => {},documentOwner = () => null} = {}) {
   const picker = document.querySelector('#text-document');
   const name = document.querySelector('#text-name');
   const source = document.querySelector('#text-source');
@@ -15,8 +15,8 @@ export function createTextDocumentsUI({onError = () => {},canRun = () => true,on
   // copies cannot use this path to skip normal authoring validation.
   const checkpoints = new WeakMap();
   const starters = {
-    javascript: "onStart(() => {\n  hero.move(10);\n});\n",
-    python: "@on_start\ndef al_iniciar():\n    hero.move(10)\n"
+    javascript: identifier => `onStart(() => {\n  ${identifier}.move(10);\n});\n`,
+    python: identifier => `@on_start\ndef al_iniciar():\n    ${identifier}.move(10)\n`
   };
   let documents = null;
   let selectedId = null;
@@ -26,9 +26,11 @@ export function createTextDocumentsUI({onError = () => {},canRun = () => true,on
   let languageFilter = null;
   let presentationId;
   let codeView = null;
-  const api3Help = 'El programa usa eventos onStart, onKey y onMessage en JavaScript, o on_start, on_key y on_message en Python. Dentro de un evento puedes usar hero.move(10), wait(1), variables, repeticiones, mensajes, disfraces, clones y sonido. Las copias independientes conservan su propio texto.';
+  // The sprite the text speaks of: the document's, or the object a new one would write for.
+  const speaker = () => Object.keys(current()?.runtime?.targetIds ?? {}).find(identifier => identifier !== 'stage') ?? documentOwner()?.identifier ?? 'hero';
+  const api3Help = () => 'El programa usa eventos onStart, onKey y onMessage en JavaScript, o on_start, on_key y on_message en Python. Dentro de un evento puedes usar '+speaker()+'.move(10), wait(1), variables, repeticiones, mensajes, disfraces, clones y sonido. Las copias independientes conservan su propio texto.';
   const legacyHelp = 'Este documento conserva la API anterior: GG.scene.get(), GG.sprite.get/move/setPosition(), GG.variables.get/set(), GG.events.emit() y GG.wait(segundos), con await. Las copias anteriores con eventos usan su contexto ctx.';
-  const helpText = () => codeView?.help ?? (current()?.runtime?.api === 'api3' || !current() ? api3Help : legacyHelp);
+  const helpText = () => codeView?.help ?? (current()?.runtime?.api === 'api3' || !current() ? api3Help() : legacyHelp);
 
 
   name.maxLength = textDocumentLimits.name;
@@ -153,7 +155,12 @@ export function createTextDocumentsUI({onError = () => {},canRun = () => true,on
   }
   function create(language) {
     if (!ready || (documents?.length ?? 0) >= textDocumentLimits.documents) return;
-    try { onReveal(); add({language, source: starters[language], api: 'api3'}); }
+    try {
+      onReveal();
+      // A new document writes for the selected sprite; hero's keep their shape.
+      const owner = documentOwner(), own = owner && (owner.identifier !== 'hero' || owner.targetId !== 'hero');
+      add({language, source: starters[language](owner?.identifier ?? 'hero'), api: 'api3', ...(own ? {targetIds: {[owner.identifier]: owner.targetId}} : {})});
+    }
     catch (error) { report(error); }
   }
   function edit(field, value) {

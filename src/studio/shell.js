@@ -19,6 +19,7 @@ import {createLanguageController} from './language-controller.mjs';
 import {createSceneInspectorUI} from './scene-inspector-ui.mjs';
 import {createObjectsUI} from './objects-ui.mjs';
 import {projectInitialScene, scene2DObjectsOf} from '../project-format.mjs';
+import {createSceneScope} from './scene-scope.mjs';
 import {scene2DTextOwner} from '../contracts/scene2d-identifiers.mjs';
 import {generateApi3ProgramSource, generateApi3SceneSource} from '../generated-program-source.mjs';
 import {createCapabilities, resolveCapabilities} from '../contracts/packs.mjs';
@@ -57,10 +58,11 @@ const copyFacts = new Map();
 let lessons = null;
 let workspace = null, syncedViews = null, projectForCodeViews = null, inspector = null;
 const codeViewsState=createCodeViewsState();
+const sceneScope=createSceneScope(editor);
 let executionLessonIdentity = null;
-const textDocuments = createTextDocumentsUI({onReveal:id=>workspace?.revealText(id),canRun:()=>scene2DEnabled,onError: record => consoleUI.local(record)});
-const consoleUI = createCodeConsoleUI(editor, {selectSourceBlock:(id,record)=>['scene3d','webapp'].includes(record.origin)?capabilityUI.selectSource(id,record.origin):record.origin==='device'?(device.setContext('microbit'),deviceEditor.selectSource(id)):(device.setContext('2d'),syncedViews?syncedViews.revealBlock(id):editor.selectSource(id)),selectSourceLocation: location => textDocuments.selectSourceLocation(location), createTextCopy: document => {
-  const blocklyHashAtCopy = JSON.stringify(editor.save());
+const textDocuments = createTextDocumentsUI({onReveal:id=>workspace?.revealText(id),canRun:()=>scene2DEnabled,documentOwner:()=>sceneScope.documentOwner(),onError: record => consoleUI.local(record)});
+const consoleUI = createCodeConsoleUI(editor, {listingOwner:()=>sceneScope.listingOwner(),authoringKey:()=>sceneScope.blocksKey(),selectSourceBlock:(id,record)=>['scene3d','webapp'].includes(record.origin)?capabilityUI.selectSource(id,record.origin):record.origin==='device'?(device.setContext('microbit'),deviceEditor.selectSource(id)):(device.setContext('2d'),syncedViews?syncedViews.revealBlock(id):editor.selectSource(id)),selectSourceLocation: location => textDocuments.selectSourceLocation(location), createTextCopy: document => {
+  const blocklyHashAtCopy = sceneScope.blocksKey();
   contexts.select('text');
   const created = textDocuments.add(document);
   copyFacts.set(created.id, {documentId: created.id, language: created.language, blocklyHashAtCopy, projectId: project.state().id});
@@ -102,20 +104,22 @@ const device = createDeviceUI({contexts,
 contexts.register({id:'text',label:'Texto 2D',title:'Programa textual · 2D',setVisible:()=>{}});
 contexts.register({id:'microbit',label:'micro:bit y escena',title:'Programa micro:bit',setVisible:()=>device.refresh()});
 const resourcesUI=createResourcesUI({store:resourceStore,contexts,getAuthoring:()=>authoring,getProject:()=>project,editor,stop:reset,runCompatibility,
-  exportSb3:payload=>request('export-sb3',payload),onDiagnostic:record=>consoleUI.local(record)});
+  exportSb3:payload=>request('export-sb3',payload),getObjects:()=>objectsUI,onDiagnostic:record=>consoleUI.local(record)});
 const capabilityUI=createCapabilityContextsUI({contexts,getCapabilities:()=>authoring.captureCapabilities(),activate:capabilities=>project.useCapabilities(capabilities),textDocuments,
   onRun:async id=>{const result=await capabilityExecution.run(id);const mode=capabilityUI.capture(id)?.mode;workspace.result((id==='scene3d'?'escena 3D':'aplicación web')+(mode&&mode!=='blocks'?' · documento '+(mode==='javascript'?'JavaScript':'Python'):' · bloques')+' · activo',{context:id,running:true});return result;},onStop:reset,onExport:id=>exportContext(id),onImportModel:importModel,
   onDiagnostic:record=>consoleUI.local(record)});
 const authoring = createProjectAuthoring({editor,textDocuments,codeViews:codeViewsState,source,resourceStore,capabilityEditors:[device.participant,resourcesUI.participant,...capabilityUI.participants]});
+sceneScope.connect(authoring);
 const capabilityExecution=createCapabilityExecution({config,getAuthoring:contextId=>({contextConfig:capabilityUI.capture(contextId),resources:resourceStore.capture(),capabilities:authoring.captureExecutionCapabilities(contextId),textDocuments:textDocuments.capture()?.textDocuments??[]}),slot,beforeCommit:()=>reset({preserveContext:true}),requirePack:requirePreparedPack,
   onDiagnostic:record=>consoleUI.local(record),onStatus:message=>{status.textContent=message;document.querySelector('.gg-controls').disabled=Boolean(capabilityExecution.state().contextId);const id=capabilityExecution.state().contextId??contexts.current();const entry=capabilityUI.get(id);if(entry)entry.status.textContent=message;}});
 syncedViews=createCodeViewsUI({state:codeViewsState,editor,textDocuments,contexts,config,getProject:()=>projectForCodeViews,
   onRender:()=>workspace?.render(),onDiagnostic:record=>consoleUI.local(record),onSourceChanged:()=>{consoleUI.invalidateSources();lessons?.invalidate();workspace?.authoringChanged();},
   requirePack:requirePreparedPack,
-  objects:{current:()=>scene2DObjectsOf(editor.captureCapabilities())?authoring.mountedObject():null,owner:id=>scene2DTextOwner(scene2DObjectsOf(editor.captureCapabilities()),id),mount:(id,options)=>authoring.mountObject(id,options)},
-  onCopy:(document,blocklyHashAtCopy)=>copyFacts.set(document.id,{documentId:document.id,language:document.language,blocklyHashAtCopy,projectId:projectForCodeViews.state().id}),
+  objects:{current:()=>scene2DObjectsOf(editor.captureCapabilities())?authoring.mountedObject():null,owner:id=>scene2DTextOwner(scene2DObjectsOf(editor.captureCapabilities()),id),mount:(id,options)=>authoring.mountObject(id,options),ownerOf:id=>authoring.objectOfBlock(id)},
+  onCopy:document=>copyFacts.set(document.id,{documentId:document.id,language:document.language,blocklyHashAtCopy:sceneScope.blocksKey(),projectId:projectForCodeViews.state().id}),
   canRun:()=>scene2DEnabled&&Boolean(sessionId)&&activeRevision!==null});
-const objectsUI=createObjectsUI({authoring,codeViews:syncedViews,contexts,resources:resourceStore,editObjects:edit=>resourcesUI.editObjects(edit),onChanged:()=>{workspace?.render();inspector?.objectsChanged();}});
+const objectsUI=createObjectsUI({authoring,codeViews:syncedViews,contexts,resources:resourceStore,editObjects:edit=>resourcesUI.editObjects(edit),projectId:()=>projectForCodeViews?.state().id??null,
+  onChanged:()=>{workspace?.render();inspector?.objectsChanged();resourcesUI.render();renderGGMove();}});
 workspace=createContextualWorkspace({contexts,textDocuments,capabilityUI,device,codeViews:syncedViews,is2DEnabled:()=>scene2DEnabled,selectedObject:()=>objectsUI.selectedName(),canRestoreExample:()=>objectsUI.isSingleSprite(),stopResult:()=>reset().then(()=>{document.querySelector('#position').textContent='x = 0';}),getAuthoringKey:contextAuthoringKey,getTextContext:id=>{const state=capabilityExecution.state();return state.sourceDocument===id?state.contextId:null;},onError:showError});
 for(const entry of ['scene3d','webapp'].map(id=>capabilityUI.get(id)))entry.participant.subscribe(()=>consoleUI.invalidateSources(entry.contextId));
 authoring.subscribe(()=>{resourcesUI.authoringChanged();workspace?.authoringChanged();renderHiddenAuthoring();});
@@ -157,8 +161,10 @@ function updateTextExecutionIdentity() {
     (selected?.id !== textExecution.document.id ? '. El documento seleccionado aún no se ejecutó.'
       : selected.source !== textExecution.document.source ? ' · versión anterior a tus cambios.' : '');
 }
-editor.subscribe(() => { activeAuthoring = null; lessons?.invalidate(); workspace?.authoringChanged(); });
-inspector = createSceneInspectorUI({readScene: () => window.GG.scene.get(), getScope: () => ({sessionId, revision: activeRevision}), initialScene: projectInitialScene, objects: () => scene2DObjectsOf(authoring.captureCapabilities())});
+// Choosing an object edits nothing: what ran is still current.
+function sameAsRun() { try { return JSON.stringify(authoring.sceneProgram()) === activeAuthoring; } catch { return false; } }
+editor.subscribe(() => { if (activeAuthoring !== null && !sameAsRun()) activeAuthoring = null; lessons?.invalidate(); workspace?.authoringChanged(); });
+inspector = createSceneInspectorUI({readScene: () => window.GG.scene.get(), getScope: () => ({sessionId, revision: activeRevision}), initialScene: projectInitialScene, objects: () => sceneScope.config(), selected: () => sceneScope.selected(), resources: () => resourceStore.view()});
 
 const language = createLanguageController({
   origin: config.languageOrigin, releaseBase: config.releaseBase ?? '/',
@@ -463,16 +469,16 @@ async function runTextDocument() {
   // Copied event programs configure their own declarations; invalid blocks
   // must not prevent an independent textual program from running.
   let variables = [];
-  try { variables = (editor.program().variables ?? []).filter(variable => !variable.scope || variable.scope === 'local'); } catch {}
+  try { variables = (authoring.sceneProgram().variables ?? []).filter(variable => !variable.scope || variable.scope === 'local'); } catch {}
   const key = authoringKey();
   const capabilities = authoring.captureExecutionCapabilities('scratch-2d');
   // gg.sprites 0.3.0: the document runs in the scene of the project, with every
   // sprite on stage and no block scripts (scene2d-multi-sprite 2.2).
-  const sceneObjects = scene2DObjectsOf(capabilities), mounted = authoring.mountedObject();
+  const sceneObjects = scene2DObjectsOf(capabilities);
   // A copy keeps the objects it was written for; the project may have deleted one.
   const gone = !sceneObjects || document.runtime?.api !== 'api3' ? null : Object.entries(document.runtime.targetIds ?? {hero: 'hero'}).find(([, id]) => id !== 'stage' && !sceneObjects.sprites.some(sprite => sprite.id === id));
   if (gone) throw new Error(`Este documento escribe para «${gone[0]}», que ya no está en el proyecto. Crea una copia nueva o cambia su texto.`);
-  const ir = sceneObjects ? {version: 1, sprites: sceneObjects.sprites.map(sprite => sprite.id), ...(mounted && mounted !== 'stage' && variables.length ? {variables: variables.map(({scope, ...variable}) => ({...variable, targetId: mounted}))} : {}), scripts: []}
+  const ir = sceneObjects ? {version: 1, sprites: sceneObjects.sprites.map(sprite => sprite.id), ...(variables.length ? {variables} : {}), scripts: []}
     : {version: 0, variables, scripts: []};
   status.textContent = 'Preparando ' + (document.language === 'javascript' ? 'JavaScript…' : 'Python…');
   window.document.querySelector('#text-run-status').textContent = status.textContent;
@@ -510,7 +516,10 @@ async function ggAction(action) {
   catch (error) { output.textContent = error.message; }
   finally { inspector.refresh(); }
 }
-document.querySelector('#gg-move').addEventListener('click', () => ggAction(() => GG.sprite.move('hero', 10)));
+// This control moves hero, the sprite the GG client can reach (design 27).
+function heroName() { const config = sceneScope.config(); return config ? config.sprites.find(sprite => sprite.id === 'hero')?.name ?? null : 'hero'; }
+function renderGGMove() { const name = heroName(), several = sceneScope.config()?.sprites.length > 1; document.querySelector('#gg-move').textContent = name && several ? `Mover ${name} +10` : 'Mover +10'; }
+document.querySelector('#gg-move').addEventListener('click', () => ggAction(() => { if (!heroName()) throw new Error('Este control mueve a hero, y este proyecto ya no lo tiene.'); return GG.sprite.move('hero', 10); }));
 document.querySelector('#gg-set').addEventListener('click', () => ggAction(() => GG.variables.set(editor.captureCapabilities()?.config['gg.score']?.variableId ?? 'gg-score', Number(document.querySelector('#gg-score').value))));
 document.querySelector('#gg-emit').addEventListener('click', () => ggAction(() => GG.events.emit('boost')));
 document.querySelector('#gg-read').addEventListener('click', () => ggAction(() => GG.scene.get()));
@@ -597,7 +606,7 @@ lessons = createLessonsUI({
   loadStarter: (starter, options) => project.loadStarter(starter, options),
   readScene: identity => request('gg-call', {method: 'scene.get', args: [], revision: identity.revision}, identity),
   readVariable: (id, identity) => request('gg-call', {method: 'variables.get', args: [id], revision: identity.revision}, identity),
-  getIdentity: lessonIdentity, getAuthoring: () => ({ir: editor.program(), blocklyHash: JSON.stringify(editor.save()), editedInText: codeViewsState.get('2d').editedInText}),
+  getIdentity: lessonIdentity, getAuthoring: () => ({ir: authoring.sceneProgram(), resourceView: editor.resourceView(), blocklyHash: sceneScope.blocksKey(), editedInText: codeViewsState.get('2d').editedInText}),
   getCopyFacts: () => [...copyFacts.values()], onError: record => consoleUI.local(record)
 });
 source.addEventListener('input', () => { lessons?.invalidate();workspace?.authoringChanged();compileAttempt++;if(document.querySelector('#compile-result').textContent==='Compilando…')document.querySelector('#compile-result').textContent='Fuente modificada · compilación anterior descartada'; });
@@ -606,6 +615,7 @@ let previousCapabilities = null;
 // capabilities-only rollback unsafe, so update rollback restores the project.
 let previousProjectSnapshot = null;
 function renderPacks() {
+  renderGGMove();
   const capabilities = authoring.captureCapabilities();
   const profile = resolveCapabilities(capabilities);
   scene2DEnabled=profile.packs.some(pack=>pack.id==='gg.sprites');textDocuments.refresh();

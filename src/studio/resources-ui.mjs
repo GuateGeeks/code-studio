@@ -1,18 +1,29 @@
 import {createCapabilities, lockedPackVersions} from '../contracts/packs.mjs';
-import {createProject} from '../project-format.mjs';
+import {createProject,scene2DObjectsOf} from '../project-format.mjs';
 import {promoteLegacyResources,validateResources,createResourceView,applyResourceEdit,copyResourceOwner,decodeResourceAsset} from '../contracts/resources.mjs';
 import {inspectWavPcm16} from '../contracts/media-wav.mjs';
 import {createAssetProcessor} from '../import/asset-processor.mjs';
 import {scratchOpcodeLabel} from './presentation-text.mjs';
 import {createStarterLibraryUI} from './starter-library-ui.mjs';
+import {scene2DStageName} from '../contracts/scene2d-objects.mjs';
 import {applyStarterLibraryEntry,restoreInitialBackdrop,decodeStarterLibraryEntry,starterLibraryMedia,stageBackdropAssetId} from '../contracts/starter-library.mjs';
-export function createResourcesUI({store,contexts,getAuthoring,getProject,editor,runCompatibility,stop,exportSb3,onDiagnostic=()=>{}}) {
+export function createResourcesUI({store,contexts,getAuthoring,getProject,editor,runCompatibility,stop,exportSb3,getObjects=()=>null,onDiagnostic=()=>{}}) {
   const pick=id=>document.querySelector('#'+id),processor=createAssetProcessor(),listeners=new Set(),checkpoints=new WeakMap();
   let config=null,report=null,busy=false,ready=false,runnerReady=false,epoch=0,previewURL=null,previewAudio=null,previewIdentity=null,initialBackdrop=null,initialBackdropPending=null;
   function stopPreview(){previewAudio?.close().catch(()=>{});previewAudio=null;pick('resource-audio').textContent='Escuchar vista previa';}
   const notify=()=>{for(const listener of listeners)listener();};
   function error(failure){if(failure.name==='AbortError')return;pick('resources-status').textContent='No se completó la acción. Revisa el mensaje e inténtalo de nuevo.';pick('resources-error').textContent=failure.message;onDiagnostic({level:'error',code:'RESOURCE_ERROR',origin:'shell',message:failure.message});}
   function reference(){return config?.sourceAssetId??'';}
+  // The scene's objects and the selected one (scene2d-multi-sprite 3.2): resources
+  // are listed and added per object. Null in a single-workspace profile, whose
+  // resources are hero's. Only readable once the project is ready.
+  function sceneObjects(){
+    if(!ready)return null;
+    const authoring=getAuthoring(),id=authoring.mountedObject(),objects=scene2DObjectsOf(authoring.captureCapabilities());
+    if(!objects||id===null)return null;
+    const names=new Map([['stage',scene2DStageName],...objects.sprites.map(sprite=>[sprite.id,sprite.name])]);
+    return {id,name:names.get(id),names};
+  }
   function selection(){const value=pick('resource-list').value;const [kind,...rest]=value.split('|');return {kind,id:rest.join('|')};}
   function selected(){const {kind,id}=selection();return (store.view()[kind]??[]).find(item=>item.id===id);}
   function preview() {
@@ -60,9 +71,11 @@ export function createResourcesUI({store,contexts,getAuthoring,getProject,editor
   }
   function render() {
     const focused=document.activeElement;
-    const view=store.view(),select=pick('resource-list'),previous=select.value;
-    select.replaceChildren(...['costumes','sounds'].flatMap(kind=>view[kind].map(item=>{
-      const option=document.createElement('option');option.value=kind+'|'+item.id;option.textContent=item.name+' · '+item.ownerId;return option;
+    const view=store.view(),select=pick('resource-list'),previous=select.value,scene=sceneObjects();
+    // Other objects' resources stay out; an imported original's (frozen) are not an object's.
+    const listed=item=>!scene||item.ownerId===scene.id||!scene.names.has(item.ownerId);
+    select.replaceChildren(...['costumes','sounds'].flatMap(kind=>view[kind].filter(listed).map(item=>{
+      const option=document.createElement('option');option.value=kind+'|'+item.id;option.textContent=item.name+' · '+(scene?.names.get(item.ownerId)??item.ownerId);return option;
     })));
     if([...select.options].some(option=>option.value===previous))select.value=previous;
     select.disabled=busy||!ready||!select.options.length;
@@ -145,13 +158,14 @@ export function createResourcesUI({store,contexts,getAuthoring,getProject,editor
   pick('import-sb3').addEventListener('change',async event=>{const file=event.target.files?.[0];if(!file)return;try{if(file.size>262144)throw new Error('El archivo Scratch excede256KiB.');await importSb3(null,{read:async()=>new Uint8Array(await file.arrayBuffer())});}catch(failure){error(failure);}finally{event.target.value='';}});
   async function importMedia(file,{replaceId=null}={}) {return working(async isCurrent=>{
     if(file.size>2097152)throw new Error('El medio excede2MiB.');
-    const format=file.name.split('.').pop().toLowerCase(),type=format==='wav'?'Sound':'Image';
+    const format=file.name.split('.').pop().toLowerCase(),type=format==='wav'?'Sound':'Image',ownerId=sceneObjects()?.id??'hero';
+    if(ownerId==='stage'&&type==='Image'&&!replaceId)throw new Error('El escenario no lleva disfraces. Elige un objeto para añadirle este dibujo, o cambia el fondo desde la biblioteca.');
     const prepared=await processor.process('prepare-media',{bytes:new Uint8Array(await file.arrayBuffer()),type,format});
     let resources=await baseResources();resources=await applyResourceEdit(resources,{type:'put-asset',prepared:{id:prepared.id,asset:prepared.asset,integrity:prepared.integrity}});
     const kind=type==='Sound'?'sounds':'costumes',current=replaceId?resources[kind].find(item=>item.id===replaceId):null;
     if(replaceId&&!current)throw new Error('El recurso seleccionado cambió.');
     const descriptor=current?{...current,assetId:prepared.id}:{
-      id:'GGasset:'+crypto.randomUUID(),ownerId:'hero',name:file.name.slice(0,80),assetId:prepared.id,
+      id:'GGasset:'+crypto.randomUUID(),ownerId,name:file.name.slice(0,80),assetId:prepared.id,
       ...(type==='Image'?{centerX:prepared.width/2,centerY:prepared.height/2,bitmapResolution:1}:{})};
     if(current)resources[kind]=resources[kind].map(item=>item.id===current.id?descriptor:item);else resources[kind].push(descriptor);
     await replace(resources,{isCurrent});pick('resource-list').value=kind+'|'+descriptor.id;preview();
@@ -199,7 +213,7 @@ export function createResourcesUI({store,contexts,getAuthoring,getProject,editor
     const blockly=GGEditor.workspaceFromIR(ir,{capabilities,resourceView:createResourceView(copied.resources),layout:native.layout});
     await replace(copied.resources,{blockly,isCurrent});contexts.select('2d');
   }).catch(error));
-  pick('export-sb3').addEventListener('click',async()=>{try{const bytes=await exportSb3({ir:editor.program(),resources:await baseResources()});download(bytes,'programa-gg.sb3','application/zip');}catch(failure){error(failure);}});
+  pick('export-sb3').addEventListener('click',async()=>{try{const bytes=await exportSb3({ir:getAuthoring().exportProgram(),resources:await baseResources()});download(bytes,'programa-gg.sb3','application/zip');}catch(failure){error(failure);}});
   // Starter library: same worker normalization, contracts and transaction as an
   // uploaded medium; the prepared ID must equal the entry's declared SHA-256.
   function renderLibrary(){
@@ -208,13 +222,16 @@ export function createResourcesUI({store,contexts,getAuthoring,getProject,editor
         // A project still on the legacy catalog view names the same backdrop by its MD5 ID.
         const catalog=getProject().catalog();
         initialBackdrop=[stageBackdropAssetId(createResourceView(resources)),stageBackdropAssetId(createResourceView(catalog.resources,{catalog}))].filter(Boolean);renderLibrary();}).catch(()=>{}).finally(()=>{initialBackdropPending=null;});
-    library.render({ready,view:store.view(),initialBackdrop});
+    const scene=sceneObjects();
+    library.render({ready,view:store.view(),initialBackdrop,target:scene&&{id:scene.id,name:scene.name}});
   }
+  async function prepareLibraryMedia(entry){return processor.process('prepare-media',{bytes:await decodeStarterLibraryEntry(entry),...starterLibraryMedia(entry)});}
   async function addFromLibrary(entry){
     const result=await working(async isCurrent=>{
-      const prepared=await processor.process('prepare-media',{bytes:await decodeStarterLibraryEntry(entry),...starterLibraryMedia(entry)});
+      const prepared=await prepareLibraryMedia(entry),target=sceneObjects()?.id??undefined;
       if(!isCurrent())throw new Error('El proyecto cambió durante la preparación. Inténtalo de nuevo.');
-      const applied=await applyStarterLibraryEntry(await baseResources(),entry,prepared);
+      if(target==='stage'&&entry.kind==='costume')throw new Error('El escenario no lleva disfraces. Elige un objeto.');
+      const applied=await applyStarterLibraryEntry(await baseResources(),entry,prepared,entry.kind==='backdrop'||!target?{}:{ownerId:target});
       if(applied.status!=='present')await replace(applied.resources,{isCurrent});
       return applied;
     });
@@ -242,6 +259,7 @@ export function createResourcesUI({store,contexts,getAuthoring,getProject,editor
     }catch(failure){stop();throw failure;}
   }
   const library=createStarterLibraryUI({pick,onAdd:entry=>addFromLibrary(entry).catch(failure=>{error(failure);throw failure;}),
+    onAddObject:entry=>getObjects().addFromLibrary(entry,prepareLibraryMedia).catch(failure=>{error(failure);throw failure;}),
     onRestore:()=>restoreBackdrop().catch(failure=>{error(failure);throw failure;}),onPreview:previewLibrarySound});
   contexts.register({id:'sb3',label:'Scratch importado',title:'Proyecto Scratch',setVisible:value=>{pick('sb3-authoring').hidden=!value;if(value&&reference()&&!report&&!busy)void refreshReport();}});
   const participant={

@@ -6,9 +6,9 @@ import {validateStarterLibrary,decodeStarterLibraryEntry,starterOwners,stageBack
 // startup, and lives in the Studio origin (offline studio-core pack).
 export const starterLibraryURL=new URL('../../starter-library.json',import.meta.url);
 const copy={
- costume:{label:'Disfraces de la biblioteca',scope:'Se añaden como disfraces de hero. Elígelos en el bloque «disfraz» de Recursos locales.',action:'Añadir',hidden:' a los disfraces',state:'En tu proyecto'},
- backdrop:{label:'Fondos de la biblioteca',scope:'El fondo elegido se ve detrás de tus objetos al ejecutar. Por ahora cada proyecto tiene un fondo.',action:'Usar de fondo',hidden:'',state:'Fondo actual'},
- sound:{label:'Sonidos de la biblioteca',scope:'Se añaden como sonidos de hero. Úsalos con «iniciar sonido» o «sonido … y esperar».',action:'Añadir',hidden:' a los sonidos',state:'En tu proyecto'}
+ costume:{label:'Disfraces de la biblioteca',action:'Añadir',hidden:' a los disfraces',state:'En tu proyecto'},
+ backdrop:{label:'Fondos de la biblioteca',action:'Usar de fondo',hidden:'',state:'Fondo actual'},
+ sound:{label:'Sonidos de la biblioteca',action:'Añadir',hidden:' a los sonidos',state:'En tu proyecto'}
 };
 // Envelope of the PCM16 samples: a picture of each sound, drawn from its own bytes.
 function waveform(document,bytes){
@@ -27,10 +27,22 @@ async function defaultLoad(){
  if(!response.ok)throw new Error('respuesta '+response.status);
  return response.json();
 }
-export function createStarterLibraryUI({pick,onAdd,onRestore,onPreview,load=defaultLoad}){
+// target: the object selected in the panel ({id,name}), null in a single-workspace
+// profile, where costumes and sounds are hero's. With objects a drawing can
+// also become a new object (R4), through onAddObject.
+export function createStarterLibraryUI({pick,onAdd,onAddObject=async()=>null,onRestore,onPreview,load=defaultLoad}){
  const details=pick('starter-library'),list=pick('starter-library-items'),status=pick('starter-library-status'),filter=pick('starter-library-filter');
  const document=details.ownerDocument,urls=new Map(),sounds=new Map(),cards=new Map();
- let library=null,loading=null,failed=false,kind='costume',state={ready:false,view:null,initialBackdrop:null},previewing=null;
+ let library=null,loading=null,failed=false,kind='costume',state={ready:false,view:null,initialBackdrop:null,target:null},previewing=null;
+ const owner=()=>state.target?.id??starterOwners.sprite,onStage=()=>state.target?.id==='stage';
+ const ofOwner=()=>onStage()?'del escenario':'de '+(state.target?.name??starterOwners.sprite);
+ function scope(){
+  if(kind==='backdrop')return 'El fondo elegido se ve detrás de tus objetos al ejecutar. Por ahora cada proyecto tiene un fondo.';
+  if(kind==='sound')return 'Se añaden como sonidos '+ofOwner()+'. Úsalos con «iniciar sonido» o «sonido … y esperar».';
+  if(!state.target)return 'Se añaden como disfraces '+ofOwner()+'. Elígelos en el bloque «disfraz» de Recursos locales.';
+  if(onStage())return '«Nuevo objeto» crea un objeto con ese dibujo. El escenario no lleva disfraces: elige un objeto para añadírselos.';
+  return '«Añadir» da un disfraz más a '+state.target.name+'. «Nuevo objeto» crea un objeto con ese dibujo.';
+ }
  function say(text,tone='info'){status.textContent=text;status.dataset.tone=tone;}
  function button(text,hidden,handler){
   const element=document.createElement('button');element.type='button';element.append(text);
@@ -51,27 +63,31 @@ export function createStarterLibraryUI({pick,onAdd,onRestore,onPreview,load=defa
    thumb.append(image);item.append(thumb,name);
   }
   const words=copy[entry.kind],label=entry.kind==='backdrop'?' «'+entry.name+'» del escenario':' «'+entry.name+'»'+words.hidden;
-  actions.append(button(words.action,label,()=>add(entry)));
-  item.append(note,actions);cards.set(entry.id,{item,note,entry});return item;
+  const adding=button(words.action,label,()=>add(entry));actions.append(adding);
+  const creating=entry.kind==='costume'?button('Nuevo objeto',' con «'+entry.name+'»',()=>addObject(entry)):null;
+  if(creating)actions.append(creating);
+  item.append(note,actions);cards.set(entry.id,{item,note,entry,adding,creating});return item;
  }
  function build(){
   stopPreview();cards.clear();
-  list.dataset.kind=kind;list.setAttribute('aria-label',copy[kind].label);pick('starter-library-scope').textContent=copy[kind].scope;
+  list.dataset.kind=kind;list.setAttribute('aria-label',copy[kind].label);
   list.replaceChildren(...(library?.entries??[]).filter(entry=>entry.kind===kind).map(card));update();
  }
  function present(entry){
   const view=state.view;if(!view)return false;
   if(entry.kind==='backdrop')return stageBackdropAssetId(view)===entry.sha256;
-  return (entry.kind==='sound'?view.sounds:view.costumes).some(item=>item.ownerId===starterOwners.sprite&&item.assetId===entry.sha256);
+  return (entry.kind==='sound'?view.sounds:view.costumes).some(item=>item.ownerId===owner()&&item.assetId===entry.sha256);
  }
  // Updates in place: the focused control survives every authoring change.
  function update(){
   filter.disabled=!library;
-  for(const {item,note,entry} of cards.values()){
+  pick('starter-library-scope').textContent=scope();
+  for(const {item,note,entry,adding,creating} of cards.values()){
    const inProject=present(entry);
    if(inProject)item.dataset.state=entry.kind==='backdrop'?'current':'added';else delete item.dataset.state;
    note.textContent=inProject?copy[entry.kind].state:'';
    for(const control of item.querySelectorAll('button'))control.disabled=!state.ready;
+   if(creating){creating.hidden=!state.target;adding.hidden=onStage();}
   }
   const backdrop=stageBackdropAssetId(state.view);
   const restore=pick('restore-backdrop');restore.hidden=!library||kind!=='backdrop'||!state.initialBackdrop?.length||!backdrop||state.initialBackdrop.includes(backdrop);restore.disabled=!state.ready;
@@ -96,7 +112,13 @@ export function createStarterLibraryUI({pick,onAdd,onRestore,onPreview,load=defa
   try{
    const result=await onAdd(entry);
    say(result.status==='present'?'«'+entry.name+'» ya está en tu proyecto.':entry.kind==='backdrop'?'«'+entry.name+'» es ahora el fondo del escenario. Se verá al ejecutar.':
-    entry.kind==='sound'?'«'+entry.name+'» se añadió a los sonidos de hero. Úsalo con «iniciar sonido».':'«'+entry.name+'» se añadió a los disfraces de hero. Elígelo en el bloque «disfraz».');
+    entry.kind==='sound'?'«'+entry.name+'» se añadió a los sonidos '+ofOwner()+'. Úsalo con «iniciar sonido».':'«'+entry.name+'» se añadió a los disfraces '+ofOwner()+'. Elígelo en el bloque «disfraz».');
+  }catch(error){if(error.name!=='AbortError')say('No se pudo añadir «'+entry.name+'». '+error.message,'error');}
+ }
+ async function addObject(entry){
+  try{
+   const name=await onAddObject(entry);
+   say(name?'«'+name+'» es un objeto nuevo. Aparecerá en el escenario al ejecutar.':'No se añadió. El motivo está junto a la lista de objetos.');
   }catch(error){if(error.name!=='AbortError')say('No se pudo añadir «'+entry.name+'». '+error.message,'error');}
  }
  function stopPreview(){previewing?.stop();previewing=null;for(const {item,entry} of cards.values())if(entry.kind==='sound')item.querySelector('button').firstChild.textContent='Escuchar';}

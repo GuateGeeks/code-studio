@@ -1,5 +1,5 @@
 import {scene2DObjectsOf} from '../project-format.mjs';
-import {addSceneObject,deleteSceneObject,duplicateSceneObject,newScene2DObjectId,renameSceneObject,scene2DObjectRules,uniqueScene2DSpriteName} from '../contracts/scene2d-object-edits.mjs';
+import {addLibrarySceneObject,addSceneObject,deleteSceneObject,duplicateSceneObject,newScene2DObjectId,renameSceneObject,scene2DObjectRules,uniqueScene2DSpriteName} from '../contracts/scene2d-object-edits.mjs';
 import {normalizeScene2DSpriteName,scene2DObjectLimits,scene2DSpriteNameProblem,scene2DStageName} from '../contracts/scene2d-objects.mjs';
 import {decodeResourceAsset} from '../contracts/resources.mjs';
 
@@ -9,13 +9,18 @@ import {decodeResourceAsset} from '../contracts/resources.mjs';
 // keeps the mounted object and the views together. Nothing here runs a program.
 // Selection does not follow focus: choosing can apply text, take a moment and be
 // refused, so arrows only move focus and Enter, Space or a click choose (APG).
-export function createObjectsUI({authoring,codeViews,contexts,resources,editObjects,onChanged=()=>{}}){
+export function createObjectsUI({authoring,codeViews,contexts,resources,editObjects,projectId=()=>null,onChanged=()=>{}}){
   const pick=id=>document.querySelector('#'+id);
   const panel=pick('objects-panel'),list=pick('objects-list'),status=pick('objects-status');
   const form=pick('object-name-form'),input=pick('object-name'),problem=pick('object-name-error');
   const buttons={add:pick('object-add'),rename:pick('object-rename'),duplicate:pick('object-duplicate'),delete:pick('object-delete')};
   const urls=new Map();
-  let busy=false,formMode=null,opener=null,lastKey=null;
+  // An object that could not be opened cannot be selected, and Delete acts on the
+  // selected one: `unopened` keeps a way out, its own button below the status.
+  const removeUnopened=document.createElement('button');
+  removeUnopened.type='button';removeUnopened.id='object-delete-unopened';removeUnopened.hidden=true;status.after(removeUnopened);
+  problem.setAttribute('role','alert');
+  let busy=false,formMode=null,formScope=null,opener=null,lastKey=null,unopened=null;
   const config=()=>{try{return scene2DObjectsOf(authoring.captureCapabilities());}catch{return null;}};
   const mounted=()=>authoring.mountedObject();
   const entries=objects=>[{id:'stage',name:scene2DStageName,ownerId:'stage'},...objects.sprites.map(sprite=>({id:sprite.id,name:sprite.name,ownerId:sprite.id,costume:sprite.costume}))];
@@ -59,8 +64,13 @@ export function createObjectsUI({authoring,codeViews,contexts,resources,editObje
   function render(){
     const objects=config(),visible=Boolean(objects)&&contexts.current()==='2d'&&mounted()!==null;
     panel.hidden=!visible;
+    // A form opened for one object or project must not act on another.
+    if(!form.hidden&&(formScope.id!==mounted()||formScope.project!==projectId()))closeForm({restore:false});
     if(!objects)return;
     const selected=mounted(),view=resources.view();
+    if(unopened===selected||!objects.sprites.some(sprite=>sprite.id===unopened))unopened=null;
+    removeUnopened.hidden=unopened===null;
+    if(unopened!==null)removeUnopened.textContent='Borrar «'+nameOf(unopened)+'»';
     const key=JSON.stringify([objects.sprites.map(sprite=>[sprite.id,sprite.name,sprite.costume]),selected,view.costumes.map(item=>[item.ownerId,item.id,item.assetId])]);
     if(key!==lastKey){
       lastKey=key;build(objects,selected);
@@ -73,7 +83,7 @@ export function createObjectsUI({authoring,codeViews,contexts,resources,editObje
     if(result.reason==='rejected')say('El texto tiene un error: arréglalo para '+(target?'cambiar a «'+target+'»':'continuar')+'.'+stay,'error');
     else if(result.reason==='busy')say('Espera un momento: se está comprobando el programa.'+stay);
     else if(result.reason==='cancelled')say('Cambiaste el texto mientras se comprobaba. Vuelve a intentarlo.'+stay);
-    else say((target?'No se pudo abrir «'+target+'»':'No se pudo completar')+'.'+stay+(result.message?' '+result.message:''),'error');
+    else say((target?'No se pudo abrir «'+target+'»':'No se pudo completar')+'.'+stay+(result.message?' '+result.message:'')+(unopened&&nameOf(unopened)===target?' Si no lo necesitas, puedes borrarlo.':''),'error');
   }
   // A failure leaves the project as it was; `fallback` takes the focus if the
   // control that had it went away (the name form).
@@ -99,19 +109,19 @@ export function createObjectsUI({authoring,codeViews,contexts,resources,editObje
     if(!form.hidden)closeForm({restore:false});
     return exclusive(async()=>{
       const target=nameOf(id),result=await codeViews.selectObject(id);
-      if(!result.ok){explain(result,{target});return;}
+      if(!result.ok){unopened=result.reason==='failed'?id:null;explain(result,{target});return;}
       say('');render();optionOf(id)?.focus({preventScroll:true});
     });
   }
   function openForm(mode,trigger){
-    formMode=mode;opener=trigger;
+    formMode=mode;opener=trigger;formScope={id:mounted(),project:projectId()};
     pick('object-name-label').textContent=mode==='add'?'Nombre del objeto nuevo':'Nuevo nombre de «'+nameOf(mounted())+'»';
     pick('object-name-save').textContent=mode==='add'?'Añadir':'Guardar nombre';
     input.value=mode==='add'?uniqueScene2DSpriteName('Objeto '+(config().sprites.length+1),config()):nameOf(mounted());
     clearProblem();form.hidden=false;say('');input.focus();input.select();
   }
   function closeForm({restore=true}={}){
-    form.hidden=true;formMode=null;clearProblem();
+    form.hidden=true;formMode=null;formScope=null;clearProblem();
     if(restore)opener?.focus({preventScroll:true});
     opener=null;
   }
@@ -124,48 +134,76 @@ export function createObjectsUI({authoring,codeViews,contexts,resources,editObje
     if(reason){refuse(reason);return;}
     // The same name is no change, and an edit would stop a running program.
     if(mode==='rename'&&name===nameOf(mounted())){closeForm();return;}
-    const trigger=opener;
-    closeForm({restore:false});
+    // The form closes on success: a refused change keeps what was typed.
     return exclusive(async()=>{
       if(mode==='rename'){
         const id=mounted(),done=await transact(state=>renameSceneObject(state,{id,name}));
-        if(done){render();focusSelected();say('El objeto se llama ahora «'+name+'».'+savedAs(typed,name));}
+        if(done){closeForm({restore:false});render();focusSelected();say('El objeto se llama ahora «'+name+'».'+savedAs(typed,name));}
         return;
       }
       const id=newScene2DObjectId(objects,undefined,resources.view());
       const sourceId=mounted(),done=await transact(state=>addSceneObject(state,{id,name,sourceId,rules:scene2DObjectRules(state.capabilities)}));
-      if(done)await finishNew(id,'«'+name+'» se añadió. Aparecerá en el escenario al ejecutar.'+savedAs(typed,name));
-    },trigger);
+      if(!done)return;
+      closeForm({restore:false});
+      await finishNew(id,'«'+name+'» se añadió. Aparecerá en el escenario al ejecutar.'+savedAs(typed,name));
+    },input);
   }
-  // A new object becomes the selected one, through the views as always.
-  async function finishNew(id,message){
+  // A new object becomes the selected one, through the views as always. If it
+  // cannot be opened it is already in the project: the panel offers to delete it.
+  async function finishNew(id,message,{focus=true}={}){
     const result=await codeViews.selectObject(id);
-    if(result.ok){render();focusSelected();say(message);}
-    else explain(result,{target:nameOf(id)});
+    if(result.ok){render();if(focus)focusSelected();say(message);return true;}
+    if(result.reason==='failed')unopened=id;
+    explain(result,{target:nameOf(id)});
+    return false;
+  }
+  // R4: a sprite of the starter library as a new object. The media is prepared
+  // inside the transaction; focus stays in the library, to add another.
+  async function addFromLibrary(entry,prepare){
+    const reason=blocked('add',config(),mounted());
+    if(reason)throw new Error(reason);
+    let name=null,failure=null;
+    await exclusive(async()=>{
+      try{
+        const id=newScene2DObjectId(config(),undefined,resources.view());
+        const done=await transact(async state=>addLibrarySceneObject(state,{id,entry,prepared:await prepare(entry),rules:scene2DObjectRules(state.capabilities)}));
+        if(!done)return;
+        name=nameOf(id);
+        await finishNew(id,'«'+name+'» es un objeto nuevo. Aparecerá en el escenario al ejecutar.',{focus:false});
+      }catch(error){failure=error;throw error;}
+    });
+    if(failure)throw failure;
+    return name;
   }
   const duplicate=()=>exclusive(async()=>{
     const sourceId=mounted(),objects=config(),id=newScene2DObjectId(objects,undefined,resources.view()),name=uniqueScene2DSpriteName(nameOf(sourceId),objects);
     const done=await transact(state=>duplicateSceneObject(state,{id,name,sourceId,rules:scene2DObjectRules(state.capabilities)}));
     if(done)await finishNew(id,'«'+name+'» es una copia con sus scripts, disfraces y sonidos. Aparecerá en el escenario al ejecutar.');
   },buttons.duplicate);
-  function remove(){
-    const id=mounted(),name=nameOf(id);
-    if(!confirm('¿Borrar «'+name+'»? Se borran sus scripts, disfraces y sonidos. No se puede deshacer.')){buttons.delete.focus();return;}
+  function remove(id=mounted(),trigger=buttons.delete){
+    const name=nameOf(id);
+    if(!confirm('¿Borrar «'+name+'»? Se borran sus scripts, disfraces y sonidos. No se puede deshacer.')){trigger.focus();return;}
     return exclusive(async()=>{
       // The next sprite takes over first: the object in the editor cannot go.
-      const sprites=config().sprites,index=sprites.findIndex(sprite=>sprite.id===id),next=(sprites[index+1]??sprites[index-1]).id;
-      const moved=await codeViews.selectObject(next);
-      if(!moved.ok){explain(moved,{target:nameOf(next)});return;}
+      if(id===mounted()){
+        const sprites=config().sprites,index=sprites.findIndex(sprite=>sprite.id===id),next=(sprites[index+1]??sprites[index-1]).id;
+        const moved=await codeViews.selectObject(next);
+        if(!moved.ok){explain(moved,{target:nameOf(next)});return;}
+      }
       if(await transact(state=>deleteSceneObject(state,{id}))){render();focusSelected();say('«'+name+'» se borró. El escenario se actualiza al ejecutar.');}
-    },buttons.delete);
+    },trigger);
   }
-  const actions={add:trigger=>openForm('add',trigger),rename:trigger=>openForm('rename',trigger),duplicate,delete:remove};
+  const actions={add:trigger=>openForm('add',trigger),rename:trigger=>openForm('rename',trigger),duplicate,delete:()=>remove()};
   for(const [action,button]of Object.entries(buttons))button.addEventListener('click',()=>{
     if(busy){say('Espera un momento: hay otro cambio en curso.');return;}
     const reason=blocked(action,config(),mounted());
     if(reason){if(!form.hidden)closeForm({restore:false});say(reason);return;}
     if(!form.hidden)closeForm({restore:false});
     void actions[action](button);
+  });
+  removeUnopened.addEventListener('click',()=>{
+    if(busy){say('Espera un momento: hay otro cambio en curso.');return;}
+    void remove(unopened,removeUnopened);
   });
   list.addEventListener('click',event=>{const node=event.target.closest('[role=option]');if(node)void choose(node.dataset.object);});
   list.addEventListener('keydown',event=>{
@@ -190,6 +228,6 @@ export function createObjectsUI({authoring,codeViews,contexts,resources,editObje
   form.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();event.stopPropagation();closeForm();}});
   pick('object-name-cancel').addEventListener('click',()=>closeForm());
   authoring.subscribe(render);contexts.subscribe(render);
-  return Object.freeze({render,selectedName:()=>{const objects=config(),id=mounted();return objects&&id?nameOf(id):null;},
+  return Object.freeze({render,addFromLibrary,selectedName:()=>{const objects=config(),id=mounted();return objects&&id?nameOf(id):null;},
     isSingleSprite:()=>{const objects=config();return !objects||(objects.sprites.length===1&&mounted()!=='stage');},dispose(){for(const url of urls.values())URL.revokeObjectURL(url);urls.clear();}});
 }

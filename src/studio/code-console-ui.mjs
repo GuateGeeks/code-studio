@@ -6,7 +6,11 @@ import {languageAvailability, tablesForLocks} from '../contracts/language-table.
 import {languageTables} from '../packs/language-tables.mjs';
 
 // Presentation only: neither this listing nor the log enters project authoring.
-export function createCodeConsoleUI(editor, {selectSourceLocation = () => false, selectSourceBlock = (id) => editor.selectSource(id), createTextCopy = null, projectCopy = null} = {}) {
+// listingOwner: the object the listing shows (scene2d-multi-sprite 3.2), as a
+// text owner with its visible name; null in a single-workspace profile.
+// authoringKey: what counts as a change of authoring (the whole scene: choosing
+// an object is not one). Both are read only while they can answer.
+export function createCodeConsoleUI(editor, {selectSourceLocation = () => false, selectSourceBlock = (id) => editor.selectSource(id), createTextCopy = null, projectCopy = null, listingOwner = () => null, authoringKey = () => JSON.stringify(editor.save())} = {}) {
   const log = createDiagnosticConsole();
   const code = document.querySelector('#generated-code');
   const codeStatus = document.querySelector('#generated-status');
@@ -65,9 +69,11 @@ export function createCodeConsoleUI(editor, {selectSourceLocation = () => false,
               ? `Línea seleccionada: ${record.sourceLocation.line}`
               : 'El documento o la línea ya no está disponible. Vuelve a ejecutar la autoría actual.';
           } else {
-            selection.textContent = selectSourceBlock(record.sourceBlockId, record)
-              ? `Bloque seleccionado: ${record.sourceBlockId}`
-              : 'El bloque ya no está disponible. Vuelve a ejecutar la autoría actual.';
+            // Reaching a block of another object takes a moment, and can be refused.
+            void Promise.resolve(selectSourceBlock(record.sourceBlockId, record)).then(result => {
+              selection.textContent = result?.ok === false ? result.message : result ? `Bloque seleccionado: ${record.sourceBlockId}`
+                : 'El bloque ya no está disponible. Vuelve a ejecutar la autoría actual.';
+            });
           }
         });
         row.append(button);
@@ -91,14 +97,14 @@ export function createCodeConsoleUI(editor, {selectSourceLocation = () => false,
   function availability() {
     return languageAvailability(tablesForLocks(editor.captureCapabilities?.()?.locks, languageTables), {lowering: 'ir'});
   }
-  function generatedView(ir) {
-    const language = languagePicker.value;
-    if (language === 'ir') return generateCode(ir);
+  function generatedView(ir, owner) {
+    const language = languagePicker.value, resourceView = editor.resourceView?.() ?? undefined;
+    if (language === 'ir') return generateCode(ir, {resourceView, resourceOwnerId: owner?.targetId});
     if (!['javascript', 'python'].includes(language)) throw new Error('El lenguaje de lectura no está disponible.');
     const state = availability()[language];
     if (!state.available) throw Object.assign(new Error(state.reason), {unavailable: true});
     // Readable API v3 (ADR-011); the language origin translates it before running.
-    return generateApi3ProgramSource(ir, language);
+    return generateApi3ProgramSource(ir, language, {resourceView, ...(owner ? {owner} : {})});
   }
   function updateCopyControls() {
     const disabled = copying || !listing || typeof createTextCopy !== 'function';
@@ -140,7 +146,7 @@ export function createCodeConsoleUI(editor, {selectSourceLocation = () => false,
     finally { copying = false; updateCopyControls(); }
   }
   function update() {
-    const authoring = JSON.stringify(editor.save());
+    const authoring = authoringKey();
     if (authoring !== lastAuthoring) {
       // Blockly authoring and text documents are independent sources.
       for (const origin of ['runner', 'generation', 'shell']) log.invalidateSources(origin);
@@ -149,9 +155,10 @@ export function createCodeConsoleUI(editor, {selectSourceLocation = () => false,
       copyStatus.textContent = '';
     }
     try {
-      listing = generatedView(editor.program());
+      const owner = listingOwner();
+      listing = generatedView(editor.program(), owner?.textOwner);
       code.value = listing.text;
-      codeStatus.textContent = 'Actualizado desde tus bloques';
+      codeStatus.textContent = owner ? `Código de «${owner.name}» · actualizado desde tus bloques` : 'Actualizado desde tus bloques';
       lastFailure = null;
     } catch (error) {
       listing = null;

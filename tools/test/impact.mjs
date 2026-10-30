@@ -13,7 +13,7 @@ export const normalBrowserFiles = Object.freeze([
   'audio-variables.spec.mjs', 'bindings-editor.spec.mjs', 'code-console.spec.mjs', 'code-view-conversion.spec.mjs', 'code-views.spec.mjs', 'corpus.spec.mjs',
   'isolation.spec.mjs', 'sb3-resources.spec.mjs', 'resource-safety.spec.mjs', 'capability-contexts.spec.mjs', 'scene3d-advanced.spec.mjs', 'standalone-contexts.spec.mjs', 'minimum-corpus.spec.mjs', 'project-persistence.spec.mjs', 'packs-lessons.spec.mjs', 'offline-recovery.spec.mjs',
   'pxt-worker.spec.mjs', 'device-integration.spec.mjs', 'device-transfer.spec.mjs', 'language-runtime.spec.mjs', 'textual-equivalence.spec.mjs', 'textual-corpus.spec.mjs', 'runner.spec.mjs', 'scene-inspector.spec.mjs', 'simulator.spec.mjs',
-  'synced-transition-activity.spec.mjs', 'pilot-2d-mode.spec.mjs', 'starter-library.spec.mjs', 'scene2d-vocabulary.spec.mjs', 'new-project-capabilities.spec.mjs', 'scene2d-multi-sprite.spec.mjs', 'scene2d-object-views.spec.mjs', 'scene2d-objects-panel.spec.mjs'
+  'synced-transition-activity.spec.mjs', 'pilot-2d-mode.spec.mjs', 'starter-library.spec.mjs', 'scene2d-vocabulary.spec.mjs', 'new-project-capabilities.spec.mjs', 'scene2d-multi-sprite.spec.mjs', 'scene2d-object-views.spec.mjs', 'scene2d-objects-panel.spec.mjs', 'scene2d-object-resources.spec.mjs'
 ].map(file => `tests/browser/${file}`));
 const twoD = normalBrowserFiles.filter(file => !/pxt-worker|simulator/.test(file));
 const persistence = ['tests/browser/device-integration.spec.mjs', 'tests/browser/packs-lessons.spec.mjs', 'tests/browser/offline-recovery.spec.mjs', 'tests/browser/project-persistence.spec.mjs', 'tests/browser/language-runtime.spec.mjs', 'tests/browser/textual-equivalence.spec.mjs', 'tests/browser/textual-corpus.spec.mjs'];
