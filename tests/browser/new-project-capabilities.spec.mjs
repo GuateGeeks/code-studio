@@ -44,10 +44,13 @@ test('NP-BROWSER-001: the unsaved initial project and «Crear mi primera escena�
   // Initial project: explicit capabilities, same example blocks, nothing executed.
   expect(await sprites(page)).toBe('0.3.0');
   const initial=await exported(page);
-  expect(initial.version).toBe(3);expect(initial.scene).toBeUndefined();
+  // gg.sprites@0.3.0 is GGPROJ v6: one workspace per 2D object (scene2d-multi-sprite 1.3).
+  expect(initial.version).toBe(6);expect(initial.scene).toBeUndefined();expect(initial.authoring.blockly).toBeUndefined();
   // gg.sprites@0.3.0 (scene2d-multi-sprite): the stage and one sprite «hero» with the same initial state.
   expect(initial.capabilities.config['gg.sprites']).toEqual({stage:{backdrop:'stage'},sprites:[{id:'hero',name:'hero',x:0,y:0,direction:90,size:100,visible:true,costume:'hero'}]});
-  expect(compact(initial.authoring.blockly)).toEqual(compact(editableExample)); // the built-in example (shell/editable.blocks.json)
+  expect(initial.authoring.scene2d.stage).toEqual({});
+  expect(Object.keys(initial.authoring.scene2d.sprites)).toEqual(['hero']);
+  expect(compact(initial.authoring.scene2d.sprites.hero)).toEqual(compact(editableExample)); // the built-in example (shell/editable.blocks.json)
   await packs(page);
   await expect(page.locator('#packs-list')).toHaveText('gg.sprites · 0.3.0');
   await expect(page.locator('#packs-status')).toHaveText('Versiones fijadas en este proyecto');

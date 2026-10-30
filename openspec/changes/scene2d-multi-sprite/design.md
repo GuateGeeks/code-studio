@@ -8,7 +8,7 @@
 
 ## Decisions
 
-1. **Configuración en el pack, no en la raíz de GGPROJ.** `capabilities.config['gg.sprites']` pasa de `{initialScene}` a `{stage: {backdrop}, sprites: [...]}`. `authoring.blockly` se convierte en `authoring.scene2d: {stage: <workspace>, sprites: {<id>: <workspace>}}` dentro de GGPROJ v4.
+1. **Configuración en el pack, no en la raíz de GGPROJ.** `capabilities.config['gg.sprites']` pasa de `{initialScene}` a `{stage: {backdrop}, sprites: [...]}`. `authoring.blockly` se convierte en `authoring.scene2d: {stage: <workspace>, sprites: {<id>: <workspace>}}` en GGPROJ v6 (punto 12; el texto original decía v4, que ya existía con otro significado).
 2. **Un workspace Blockly por objeto, montado bajo demanda.** Solo el objeto seleccionado tiene editor montado; los demás se guardan serializados. Se conserva un único editor (regla del único escritor).
 3. **IR 2D v1.** Los scripts llevan `targetId`. El adaptador crea un target VM por sprite con sus disfraces y sonidos (`ownerId`). Los mensajes y las variables globales se comparten en el escenario (semántica Scratch).
 4. **API v3 por objeto.** El vocabulario de sprite se convierte en métodos sobre el identificador de cada sprite. Los traductores reciben el mapa identificador → `targetId` en `runtime`, igual que `variableIds`.
@@ -28,6 +28,43 @@
 9. **Compatibilidad de dependencias.** `localPackCompatibility` añade `0.3.0` satisface `0.1.0`. `gg.score`, `gg.microbit`, `gg.assets@0.1.0` y `gg.sb3@0.2.0` dependen de 0.1.0 por el vocabulario, las operaciones y los recursos, que 0.3.0 conserva. Ninguno lee la configuración de `gg.sprites`. No se declara `0.2.0`, porque ningún paquete depende de esa versión. Alternativa descartada: publicar versiones nuevas de cuatro paquetes, uno de ellos congelado.
 10. **0.3.0 es la última versión.** `latestPackVersions['gg.sprites'] = '0.3.0'` ya en esta tarea. Por R1, el proyecto inicial, «Crear mi primera escena», actividades y plantillas crean 0.3.0 con `sprites[0] = hero` sin otro cambio de código. Ejecutan igual porque ningún consumidor lee todavía la escena de la configuración: el adaptador crea `hero` como siempre. `resolveCapabilities(...).initialScene` se deriva de `sprites[0]` para los lectores de un solo sprite. Los archivos v1/v2 siguen en 0.1.0. «Actualizar packs» lleva 0.1.0/0.2.0 a 0.3.0 sin ejecutar. Hasta T4, una configuración 0.3.0 con más de un sprite (solo construible a mano, sin interfaz) valida, pero ejecuta solo `hero`. Su autoría por objeto la define T3: un GGPROJ v3 con 0.3.0 y `authoring.blockly` es la forma intermedia que T3 debe seguir leyendo. Pruebas: MS-001…006 (`tests/integration/scene2d-objects.test.mjs`). Ajustadas a la nueva verdad, sin debilitar: NP-001/002, GG-PACK-001/002, VOC-001/002/003, y en navegador NP-BROWSER-001, E1-01/E1-04/E1-05, inspector, persistencia, runtime de lenguajes, equivalencia textual y actividades (la escena del proyecto nuevo se comprueba en `sprites[0]`). Las pruebas E1 de Node fijan el perfil 0.2.0 exacto.
 11. **Hash de 0.3.0 hasta integrar E2.** 0.3.0 no está publicado fuera de esta rama. T4/T5 pueden necesitar permisos por objeto (hoy `permissions.sprites = ['hero']`) y T8 añade «ir a objeto» y «fondo» a su tabla. Esas tareas pueden cambiar el manifiesto 0.3.0 y recalcular su hash antes de integrar la etapa. Desde la integración en main queda congelado como los demás. Por eso ninguna fixture guardada fija hoy el hash de 0.3.0: las pruebas lo obtienen del catálogo.
+
+### Decisiones de E2 · formato e IR (29/10/2026, tareas 1.3–1.4)
+
+12. **GGPROJ v6, no v5.** `authoring.scene2d` estrena la versión 6, en lugar de ampliar v5 bajo la capacidad 0.3.0. Razones:
+    - **Política del repositorio.** Cada campo nuevo de autoría estrena versión y se escribe solo cuando hace falta. v4 llegó con `runtime.api` y v5 con `codeViews`. Hoy cada versión describe por sí sola qué propiedades tiene `authoring`.
+    - **Lectores anteriores.** Comparan las propiedades exactas antes que los packs. Un v5 con `scene2d` en una versión anterior de Code Studio fallaría con «propiedades ausentes o no permitidas». Un v6 se explica: «GGPROJ v6 es de una versión más reciente de Code Studio».
+    - **Alternativa descartada: v5 + capacidad.** Haría que la forma de v5 dependiera de la versión de un pack. El lector tendría que validar los packs para saber qué propiedades esperar.
+
+    Forma de v6: `authoring = {scene2d, deviceSource, textDocuments, selectedTextDocumentId}`, más `codeViews` solo si hay vistas. Lleva capacidades obligatorias y no tiene `scene` ni `authoring.blockly`. Exige `gg.sprites` con objetos 2D (0.3.0). Las claves de `scene2d.sprites` son exactamente los IDs de `config['gg.sprites'].sprites`, y cada workspace (escenario incluido) tiene el límite de siempre (64 KiB, solo `blocks`/`variables`). El lector valida la sintaxis de cada clave antes de usarla: `isScene2DSpriteId` (`scene2d-objects.mjs`), compartida con la IR. `jsonTree` ya rechaza `__proto__`, `prototype` y `constructor` en cualquier nivel. Un workspace vacío es `{}`, que es lo que guarda Blockly. v1–v5 no cambian, y un v1–v5 con `scene2d` sigue rechazándose por propiedades.
+
+    Escritura (`createProject`):
+    - Con 0.3.0, siempre v6. `blockly` es el workspace del editor único, el del primer sprite (el mismo que `resolveCapabilities().initialScene`), y `scene2d` lleva todos los objetos.
+    - Si el perfil tiene varios sprites y solo llega `blockly`, falla nombrando los que faltan. Nunca se descartan scripts en silencio.
+    - Salir de 0.3.0 (perfil sin objetos) vuelve a un solo workspace solo si el escenario está vacío y ningún otro sprite tiene scripts. Si no, falla («descartaría los scripts de otros objetos»).
+
+    Lectura auxiliar: `projectBlocklyWorkspace(document)`.
+13. **Migración de la autoría.**
+    - **«Actualizar packs».** `migrateProject` llega a 0.3.0 y mueve `authoring.blockly` a `scene2d.sprites.hero` como v6, con los mismos IDs, shadows y posiciones. El escenario y el resto de sprites empiezan vacíos. El resumen, el texto, las vistas y los recursos no cambian. Las transformaciones de bloques de migraciones futuras se aplican a cada workspace de `scene2d`.
+    - **Promoción de v1/v2.** `upgradeProject` a 0.3.0 da la misma forma.
+    - **Forma intermedia (T2).** Un GGPROJ v3–v5 con 0.3.0 y `authoring.blockly` se sigue abriendo sin cambios: abrir no migra. Su workspace es el del primer sprite (`scene2DAuthoringFromBlockly`, pura) y se guarda como v6 en el siguiente guardado.
+    - **Coordinador de autoría.** Hasta el editor por objeto (3.1), `project-authoring` guarda serializados el escenario y los demás sprites, y monta en el editor único el workspace del primer sprite. `capture()` devuelve `scene2d` con ese workspace actualizado, y los puntos de restauración incluyen los objetos.
+
+    Pruebas MS-007…012 (`tests/integration/scene2d-authoring.test.mjs`). Ajustadas a la nueva verdad (los proyectos nuevos son v6), sin debilitar:
+    - **Node:** NP-002, GG-PACK-002, GG-COMPAT-004/005/006 y GGPROJ5. Las comprobaciones de v3/v4/v5 fijan `gg.sprites@0.2.0` y añaden su variante v6.
+    - **Navegador:** new-project-capabilities, packs-lessons, textual-equivalence, capability-contexts, integrated-microbit-workspace, resource-safety y language-copies. En la partición 0: device-integration, scene-inspector, offline-recovery, code-console, language-runtime y project-persistence.
+14. **IR 2D v1.**
+    - **Forma.** `{version: 1, sprites: [<id>…], variables?, scripts: [{targetId, event, sourceBlockId, body, …}]}`. `targetId` es un sprite de `sprites` (1–8, IDs únicos con la sintaxis de objeto) o `stage`.
+    - **Límites por objeto (`scene2DProgramLimits`).** Los de IR0: 16 scripts, 300 nodos, profundidad 8 y 16 variables locales. El escenario guarda las globales, hasta 16. El tamaño total es nueve presupuestos IR0.
+    - **Variables.** Una global es `scope: 'global'` sin dueño. Una local lleva `targetId` de su sprite. Usar una local desde otro objeto, el escenario incluido, se rechaza.
+    - **Escenario.** Como en Scratch, no se mueve, no habla, no cambia de tamaño ni se clona: solo control, variables, sonido, mensajes y detener, con los eventos inicio, tecla, clic y mensaje. Sus fondos llegarán con sus bloques (3.2).
+    - **Recursos.** Disfraces y sonidos se comprueban contra el dueño de cada script. Sin vista de recursos, solo `hero` tiene los integrados.
+    - **IDs de bloque.** `sourceBlockId` es único en todo el programa, no por objeto. Es la opción más estricta y se puede relajar más tarde sin romper nada. Duplicar un sprite (3.1) deberá generar IDs nuevos, como Scratch.
+    - **Errores.** Llevan `sourceBlockId` y, en v1, `targetId`.
+    - **IR0.** Queda intacta para 0.1.0/0.2.0 y para el adaptador actual. `programObjectsFromIR0` la eleva a v1 con todo en `hero`, sin cambiar nodos, IDs ni orden.
+    - **Lock.** El de motores (`ir: 0`) no cambia: la IR no se guarda en GGPROJ. Subirlo (con el adaptador) queda para T4, cuando el adaptador consuma v1.
+
+    Pruebas MS-013…015.
 
 ## Risks / Trade-offs
 

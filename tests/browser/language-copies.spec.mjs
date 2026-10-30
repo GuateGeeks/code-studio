@@ -67,7 +67,7 @@ test('LCOPY-001: new 2D copies declare API v3, read without the bridge, run like
   }
   const path = await download(page, 'language-copies-2d.ggproj');
   const manifest = JSON.parse(await (await JSZip.loadAsync(await readFile(path))).file('manifest.json').async('string'));
-  expect(manifest.version).toBe(4);
+  expect(manifest.version).toBe(6); // declared API v3 with gg.sprites@0.3.0: GGPROJ v6
   const reopened = await reopen(browser, path);
   const documents = (await exported(reopened.page)).authoring.textDocuments;
   for (const language of ['javascript', 'python']) {

@@ -92,3 +92,13 @@ Cambio OpenSpec `pack-versioning-and-migrations`, decidido en [ADR-011](../adr/0
 - **Permisos y API de manifiesto.** Los permisos se resuelven por `pack@versión` (`operationPermissionGrantsByVersion`). Los manifiestos se aceptan si su `apiVersion` está en `supportedPackApiVersions`.
 - **GGPROJ v4.** Es GGPROJ3 con `runtime.api` (`api1`/`api2`) en los documentos textuales y solo se escribe cuando algún documento declara su API. Los documentos v2/v3 sin API usan la de su contexto: 2D → `api1`, documento de 3D/web → `api2`. La versión del intérprete se acepta si está en `textDocumentCompatibleVersions`. El texto del alumno nunca cambia.
 - **Requisitos no instalados.** Un formato más nuevo, un pack o versión ausente, un motor o un intérprete no admitidos se rechazan explicando qué falta y que hace falta una versión más reciente de Code Studio. El proyecto abierto no cambia. Abrir parcialmente un proyecto con un pack desconocido queda diferido.
+
+## Objetos 2D: GGPROJ v6 (scene2d-multi-sprite, 29/10/2026)
+
+- **Forma.** Con `gg.sprites@0.3.0` (escenario y 1–8 sprites en la configuración del pack), la autoría 2D es un workspace Blockly por objeto: `authoring.scene2d = {stage: <workspace>, sprites: {<id>: <workspace>}}`. Sustituye a `authoring.blockly`.
+- **Validación.** Las claves son exactamente los IDs de los sprites configurados y se validan antes de usarse. Cada workspace mantiene el límite de 64 KiB.
+- **Versiones anteriores.** v1–v5 no cambian. Un archivo v6 en una versión anterior de Code Studio se rechaza explicando que es de una versión más reciente.
+- **Actualizar packs.** Lleva el workspace único a `scene2d.sprites.hero` con los mismos IDs, sin ejecutar. Un v3 con 0.3.0 y un solo workspace (forma intermedia de esta etapa) se abre igual y se guarda como v6.
+- **Pérdidas.** Nunca se descartan scripts de otros objetos en silencio.
+
+Decisión y razones en `openspec/changes/scene2d-multi-sprite/design.md` (puntos 12–14).

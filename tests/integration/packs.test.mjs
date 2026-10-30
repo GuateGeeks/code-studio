@@ -11,7 +11,7 @@ import {toScratchProject} from '../../src/adapters/scratch/scratch-project.mjs';
 import {createGGBindings} from '../../src/adapters/scratch/gg-bindings.mjs';
 import {createScratchSession} from '../../spikes/scratch-adapter.mjs';
 import {generateProgramSource} from '../../src/generated-program-source.mjs';
-import {createProject, parseProject, serializeProject, upgradeProject} from '../../src/project-format.mjs';
+import {createProject, parseProject, serializeProject, upgradeProject, projectBlocklyWorkspace} from '../../src/project-format.mjs';
 import {createProjectArchive, parseProjectArchive} from '../../src/project-archive.mjs';
 import {buildProjectCatalog} from '../../tools/f1/build-project-catalog.mjs';
 import {createTone} from '../../tools/f0/tone.mjs';
@@ -259,13 +259,14 @@ test('GG-PACK-002: v1/v2 remain exact, explicit promotion owns initial scene onl
     assert.equal(legacy.version, version); assert.equal(Object.hasOwn(legacy, 'capabilities'), false);
     assert.deepEqual(await parseProject(serializeProject(legacy), {catalog}), before);
     const upgraded = await upgradeProject(legacy, {capabilities: packs(), catalog});
-    assert.equal(upgraded.version, 3); assert.equal(Object.hasOwn(upgraded, 'scene'), false);
+    // gg.sprites@0.3.0 is GGPROJ v6: the single workspace becomes hero's, same block IDs.
+    assert.equal(upgraded.version, 6); assert.equal(Object.hasOwn(upgraded, 'scene'), false);
     // gg.sprites@0.3.0: the legacy scene is the first (and only) sprite.
     assert.deepEqual(resolveCapabilities(upgraded.capabilities).initialScene, legacy.scene);
     assert.deepEqual(upgraded.capabilities.config['gg.sprites'].sprites, [{id: 'hero', name: 'hero', ...(({spriteId, ...rest}) => rest)(legacy.scene), visible: true}]);
-    assert.deepEqual(upgraded.authoring.blockly, legacy.authoring.blockly);
+    assert.deepEqual(upgraded.authoring.scene2d, {stage: {}, sprites: {hero: legacy.authoring.blockly}});
     assert.deepEqual(legacy, before);
-    const workspace = loadWorkspace(upgraded.authoring.blockly, {capabilities: upgraded.capabilities});
+    const workspace = loadWorkspace(projectBlocklyWorkspace(upgraded), {capabilities: upgraded.capabilities});
     try {
       const ir = workspaceToIR(workspace, {capabilities: upgraded.capabilities});
       assert.equal(ir.variables.find(variable => variable.id === 'gg-score').scope, undefined);
@@ -274,7 +275,12 @@ test('GG-PACK-002: v1/v2 remain exact, explicit promotion owns initial scene onl
   }
 });
 test('GG-PACK-002: GGPROJ3 JSON and strict ZIP roundtrip fixed locks/config and reject unknown capabilities without mutation', async () => {
-  const document = await createProject({name: 'Puntuación', blockly: scoreFixture, deviceSource: '', catalog, capabilities: packs()});
+  // GGPROJ3 below gg.sprites@0.3.0; the same profile at 0.3.0 is GGPROJ v6 and roundtrips too.
+  const latest = await createProject({name: 'Puntuación', blockly: scoreFixture, deviceSource: '', catalog, capabilities: packs()});
+  assert.equal(latest.version, 6);
+  assert.deepEqual(await parseProject(serializeProject(latest), {catalog}), latest);
+  assert.deepEqual(await parseProjectArchive(await createProjectArchive(latest, {catalog}), {catalog}), latest);
+  const document = await createProject({name: 'Puntuación', blockly: scoreFixture, deviceSource: '', catalog, capabilities: createCapabilities(['gg.sprites', 'gg.score'], {versions: {'gg.sprites': '0.2.0'}})});
   assert.equal(document.version, 3);
   assert.deepEqual(await parseProject(serializeProject(document), {catalog}), document);
   const bytes = await createProjectArchive(document, {catalog});

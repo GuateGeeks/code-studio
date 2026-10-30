@@ -77,6 +77,7 @@ test('GG-CONTEXT-004: a 3D-only GGPROJ requires no sprite provider and can expli
  await selectContext(page,'2d');
  await context(page,'2d');await clickVisible(page.locator('#enable-2d'));await expect(page.locator('#scene-blockly-surface')).toBeVisible();await expect(page.locator('#run-editor')).toBeEnabled();
  expect(await page.evaluate(()=>studioProbe.project.capabilities().locks.some(lock=>lock.id==='gg.sprites'))).toBe(true);
- expect((await page.evaluate(()=>studioProbe.project.capture())).version).toBe(3);
+ // gg.sprites enters at its latest version (0.3.0): GGPROJ v6 with one workspace per 2D object.
+ expect((await page.evaluate(()=>studioProbe.project.capture())).version).toBe(6);
 });
 

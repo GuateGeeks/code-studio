@@ -182,15 +182,19 @@ test('GGPROJ5: exact pending source, active view and restoration survive JSON an
 });
 test('GGPROJ5: explicit capability profiles and malformed view data retain the existing validation boundaries', async () => {
   const codeViews={version:1,activeContext:'2d',entries:[{...emptyCodeView('2d'),language:'javascript',source:'pending'}]};
-  const document=await createProject({name:'Vista con packs',blockly:editableExample,deviceSource:'',codeViews,
-    capabilities:createCapabilities(['gg.sprites']),catalog});
-  assert.equal(document.version,5);assert.ok(document.capabilities);assert.ok(!document.scene);
-  for(const edit of [
-    value=>value.authoring.codeViews.entries[0].language='typescript',
-    value=>value.authoring.codeViews.entries[0].source='x'.repeat(65537),
-    value=>value.authoring.codeViews.version=2
-  ]){
-    const bad=structuredClone(document);edit(bad);
-    await assert.rejects(validateProject(bad,{catalog}),/Vistas de código/);
+  // GGPROJ v5 below gg.sprites@0.3.0; GGPROJ v6 (one workspace per 2D object) keeps the same view boundaries.
+  for(const [version,spritesVersion] of [[5,'0.2.0'],[6,'0.3.0']]){
+    const document=await createProject({name:'Vista con packs',blockly:editableExample,deviceSource:'',codeViews,
+      capabilities:createCapabilities(['gg.sprites'],{versions:{'gg.sprites':spritesVersion}}),catalog});
+    assert.equal(document.version,version);assert.ok(document.capabilities);assert.ok(!document.scene);
+    assert.deepEqual(document.authoring.codeViews,codeViews);
+    for(const edit of [
+      value=>value.authoring.codeViews.entries[0].language='typescript',
+      value=>value.authoring.codeViews.entries[0].source='x'.repeat(65537),
+      value=>value.authoring.codeViews.version=2
+    ]){
+      const bad=structuredClone(document);edit(bad);
+      await assert.rejects(validateProject(bad,{catalog}),/Vistas de código/);
+    }
   }
 });

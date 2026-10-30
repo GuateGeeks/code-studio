@@ -190,8 +190,9 @@ test('GG-PROJECT-003/004: invalid files and manifests fail atomically while the 
     {case: 'missing-resource', mutate: value => { delete value.resources.assets[Object.keys(value.resources.assets)[0]]; }},
     {case: 'foreign-resource', mutate: value => { value.resources.assets['https://example.invalid/evil.svg'] = '<svg/>'; }},
     {case: 'extensions', mutate: value => { value.extensions = ['https://example.invalid/code.js']; }},
-    {case: 'oversized-workspace', mutate: value => { value.authoring.blockly.oversized = 'x'.repeat(65537); }},
-    {case: 'unsupported-block', mutate: value => { value.authoring.blockly = {blocks: {languageVersion: 0, blocks: [{type: 'text', id: 'foreign-block', fields: {TEXT: 'unsupported'}}]}}; }}
+    // GGPROJ v6 (gg.sprites@0.3.0): the 2D editor's workspace is hero's in authoring.scene2d.
+    {case: 'oversized-workspace', mutate: value => { value.authoring.scene2d.sprites.hero.oversized = 'x'.repeat(65537); }},
+    {case: 'unsupported-block', mutate: value => { value.authoring.scene2d.sprites.hero = {blocks: {languageVersion: 0, blocks: [{type: 'text', id: 'foreign-block', fields: {TEXT: 'unsupported'}}]}}; }}
   ];
   const rejected = [];
   for (const variant of variants) {
@@ -246,7 +247,7 @@ test('GG-PROJECT-007: damaged current autosave falls back to the previous commit
   await page.evaluate(() => studioProbe.project.ready());
   await expect(page.locator('#project-name')).toHaveValue('Copia anterior válida');
   await expect(page.locator('#recovery-notice')).toContainText(/anterior|dañ|corrupt/i);
-  expect(await authoring(page)).toEqual(first.authoring.blockly);
+  expect(await authoring(page)).toEqual(first.authoring.scene2d.sprites.hero);
   await run(page, 18);
   // Recovery must not silently destroy the only valid backup with the corrupt head.
   const afterRecovery = await records(page);
@@ -387,7 +388,7 @@ test('GG-PROJECT-006/007/009: flush during recovery and an import superseded by 
   await page.evaluate(() => window.__startupFlush);
   await expect(page.locator('#run-editor')).toBeEnabled();
   await expect(page.locator('#project-name')).toHaveValue('Checkpoint antes de recuperar');
-  expect(await authoring(page)).toEqual(JSON.parse(committed).authoring.blockly);
+  expect(await authoring(page)).toEqual(JSON.parse(committed).authoring.scene2d.sprites.hero);
   await page.unroute('**/project-catalog.json');
 
   // The first runner navigation is intentionally still loading when Stop replaces it.
@@ -409,7 +410,7 @@ test('GG-PROJECT-006/007/009: flush during recovery and an import superseded by 
   expect(outcomes[0].error).toBeUndefined();
   await expect(page.locator('#run-editor')).toBeEnabled();
   await expect(page.locator('#project-name')).toHaveValue('Importación conservada durante Stop');
-  expect(await authoring(page)).toEqual(candidate.authoring.blockly);
+  expect(await authoring(page)).toEqual(candidate.authoring.scene2d.sprites.hero);
   await flush(page);
   expect(JSON.parse((await records(page)).current.serialized).project.name).toBe('Importación conservada durante Stop');
   await run(page, 18);
@@ -438,7 +439,7 @@ test('SJ-01/02/03: create, edit repeat-move to x21, close, recover and open a re
   await expect(page.locator('#project-name')).toHaveValue('Mi primera creación');
   const seed = JSON.parse(await readFile(new URL('../fixtures/canonical/scene2d/repeat-move/project.json', import.meta.url)));
   const model = JSON.parse(await exported(page));
-  model.authoring.blockly = seed.blockly; model.project.name = 'Mi recorrido 2D';
+  model.authoring.scene2d.sprites.hero = seed.blockly; model.project.name = 'Mi recorrido 2D'; // GGPROJ v6 (gg.sprites@0.3.0)
   const catalog = await page.evaluate(() => studioProbe.project.catalog());
   await importFile(page, await createProjectArchive(model, {catalog}), 'semilla-repetir.ggproj');
   await selectContext(page, '2d');

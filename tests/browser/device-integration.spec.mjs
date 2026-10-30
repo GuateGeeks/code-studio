@@ -26,7 +26,7 @@ async function open(page){
  await expect(page.locator('#device-status')).toContainText('Dispositivo añadido');
  await page.evaluate(async()=>{
   const project=JSON.parse(await studioProbe.project.export());
-  project.authoring.blockly={blocks:{languageVersion:0,blocks:[
+  project.authoring.scene2d.sprites.hero={blocks:{languageVersion:0,blocks:[
    {type:'gg_when_start',id:'joint-start',x:20,y:20},
    {type:'gg_when_message',id:'joint-receiver',fields:{MESSAGE:'microbit-A'},x:20,y:100,inputs:{DO:{block:{type:'gg_move',id:'joint-move',inputs:{STEPS:{shadow:{type:'math_number',id:'joint-steps',fields:{NUM:10}}}}}}}}
   ]}};
@@ -76,7 +76,7 @@ for(const mobile of [false,true]){
   }
   const download=page.waitForEvent('download');await clickVisible(page.locator('#save-project'));const projectFile=await download;const projectPath=artifactPath('device-'+(mobile?'mobile':'desktop')+'.ggproj');await projectFile.saveAs(projectPath);
   const zip=await JSZip.loadAsync(await readFile(projectPath));const manifest=JSON.parse(await zip.file('manifest.json').async('string'));
-  expect(manifest.version).toBe(3);expect(manifest.authoring.deviceSource).toBe(source);
+  expect(manifest.version).toBe(6);expect(manifest.authoring.deviceSource).toBe(source); // gg.sprites@0.3.0: GGPROJ v6
   expect(manifest.capabilities.config['gg.microbit'].workspace).toEqual(await page.evaluate(()=>studioProbe.deviceEditor.captureGraph()));
   expect(JSON.stringify(manifest)).not.toContain('compilerPackHash');expect(JSON.stringify(manifest)).not.toContain('deviceRevision');expect(JSON.stringify(manifest.capabilities.config['gg.microbit'])).not.toContain('basic.showIcon');
   const context=await browser.newContext({viewport:mobile?{width:390,height:844}:{width:1280,height:900}});

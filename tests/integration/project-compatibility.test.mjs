@@ -7,7 +7,7 @@ import {createCapabilities, validateCapabilities, migrateCapabilities, supported
 import {operationPermissionGrantsByVersion, resolveOperationProfile} from '../../src/contracts/operations.mjs';
 import {currentEngineLocks, engineLockHistory, isCompatibleEngineLocks} from '../../src/contracts/engine-locks.mjs';
 import {validateMigrationRecord, findMigrationChain, transformWorkspace} from '../../src/contracts/pack-migrations.mjs';
-import {createProject, parseProject, serializeProject} from '../../src/project-format.mjs';
+import {createProject, parseProject, serializeProject, projectBlocklyWorkspace} from '../../src/project-format.mjs';
 import {createProjectArchive, parseProjectArchive} from '../../src/project-archive.mjs';
 import {availablePackUpdates, migrateProject, describeMigrationSummary} from '../../src/project-migration.mjs';
 import {createTextDocument, resolveTextDocumentApi} from '../../src/text-documents.mjs';
@@ -104,14 +104,17 @@ test('GG-COMPAT-004: project migration is explicit, atomic, keeps block IDs and 
   assert.deepEqual(document, before, 'original untouched');
   assert.equal(migrated.capabilities.locks.find(lock => lock.id === 'gg.score').version, '0.2.0');
   assert.equal(migrated.capabilities.config['gg.score'].initialValue, 0);
-  const delta = migrated.authoring.blockly.blocks.blocks[0].inputs.DO.block.next.block.inputs.DELTA.shadow;
+  // gg.sprites@0.3.0 (GGPROJ v6): the transform reaches the hero workspace of authoring.scene2d.
+  assert.equal(migrated.version, 6);
+  assert.deepEqual(migrated.authoring.scene2d.stage, document.authoring.scene2d.stage);
+  const delta = migrated.authoring.scene2d.sprites.hero.blocks.blocks[0].inputs.DO.block.next.block.inputs.DELTA.shadow;
   assert.deepEqual(delta, {type: 'math_number', id: 'compat-delta', fields: {NUM: 4}});
   assert.deepEqual(summary, [{id: 'gg.score', fromVersion: '0.1.0', toVersion: '0.2.0', steps: 1, changedBlocks: 1}]);
   assert.equal(describeMigrationSummary(summary), 'gg.score 0.1.0 → 0.2.0 (1 bloque actualizado)');
   assert.deepEqual(await parseProject(serializeProject(migrated), {catalog}), migrated);
   assert.deepEqual(availablePackUpdates(migrated.capabilities), []);
   const plain = await migrateProject(document, [{id: 'gg.score', toVersion: '0.2.0'}], {catalog});
-  assert.deepEqual(plain.document.authoring.blockly, document.authoring.blockly, 'installed migration renames config only');
+  assert.deepEqual(plain.document.authoring.scene2d, document.authoring.scene2d, 'installed migration renames config only');
   await assert.rejects(migrateProject(document, [{id: 'gg.score', toVersion: '9.0.0'}], {catalog}), /migración no instalada/);
   await assert.rejects(migrateProject(document, [{id: 'gg.webapps', toVersion: '0.2.0'}], {catalog}), /no seleccionado/);
   assert.deepEqual(document, before);
@@ -120,16 +123,24 @@ test('GG-COMPAT-004: project migration is explicit, atomic, keeps block IDs and 
 
 test('GG-COMPAT-005: text documents declare an API only in GGPROJ v4, accept compatible interpreters and resolve context APIs', async () => {
   const copy = createTextDocument({language: 'javascript', name: 'Copia', source: 'hero.move(1)'});
-  const v3 = await createProject({name: 'Texto', blockly: scoreBlockly, deviceSource: '', catalog, capabilities: oldScore(), textDocuments: [copy], selectedTextDocumentId: copy.id});
+  // GGPROJ v3/v4 hold a single workspace: gg.sprites below 0.3.0.
+  const singleWorkspace = () => createCapabilities(['gg.sprites', 'gg.score'], {versions: {'gg.score': '0.1.0', 'gg.sprites': '0.2.0'}});
+  const v3 = await createProject({name: 'Texto', blockly: scoreBlockly, deviceSource: '', catalog, capabilities: singleWorkspace(), textDocuments: [copy], selectedTextDocumentId: copy.id});
   assert.equal(v3.version, 3);
   assert.equal(Object.hasOwn(v3.authoring.textDocuments[0].runtime, 'api'), false);
   assert.equal(resolveTextDocumentApi(v3.authoring.textDocuments[0], v3.capabilities), 'api1');
   const declared = {...copy, runtime: {...copy.runtime, api: 'api1'}};
-  const v4 = await createProject({name: 'Texto', blockly: scoreBlockly, deviceSource: '', catalog, capabilities: oldScore(), textDocuments: [declared], selectedTextDocumentId: copy.id});
+  const v4 = await createProject({name: 'Texto', blockly: scoreBlockly, deviceSource: '', catalog, capabilities: singleWorkspace(), textDocuments: [declared], selectedTextDocumentId: copy.id});
   assert.equal(v4.version, 4);
   assert.deepEqual(await parseProject(serializeProject(v4), {catalog}), v4);
   assert.deepEqual(await parseProjectArchive(await createProjectArchive(v4, {catalog}), {catalog}), v4);
   assert.equal(v4.authoring.textDocuments[0].source, 'hero.move(1)');
+  // GGPROJ v6 (gg.sprites@0.3.0) keeps declared APIs.
+  const v6 = await createProject({name: 'Texto', blockly: scoreBlockly, deviceSource: '', catalog, capabilities: oldScore(), textDocuments: [declared], selectedTextDocumentId: copy.id});
+  assert.equal(v6.version, 6);
+  assert.deepEqual(v6.authoring.textDocuments, v4.authoring.textDocuments);
+  assert.deepEqual(projectBlocklyWorkspace(v6), scoreBlockly);
+  assert.deepEqual(await parseProject(serializeProject(v6), {catalog}), v6);
   const downgraded = structuredClone(v4); downgraded.version = 3;
   await assert.rejects(parseProject(JSON.stringify(downgraded), {catalog}), /requiere GGPROJ v4/);
   const unknownApi = structuredClone(v4); unknownApi.authoring.textDocuments[0].runtime.api = 'api9';
@@ -143,8 +154,8 @@ test('GG-COMPAT-005: text documents declare an API only in GGPROJ v4, accept com
 
 test('GG-COMPAT-006: newer formats and missing packs explain what is needed and leave nothing mutated', async () => {
   const document = await scoreProject();
-  const newer = structuredClone(document); newer.version = 6;
-  await assert.rejects(parseProject(JSON.stringify(newer), {catalog}), /GGPROJ v6 es de una versión más reciente/);
+  const newer = structuredClone(document); newer.version = 7;
+  await assert.rejects(parseProject(JSON.stringify(newer), {catalog}), /GGPROJ v7 es de una versión más reciente/);
   const missing = structuredClone(document);
   missing.capabilities.locks.push({id: 'gg.microbit', version: '0.9.0', sha256: '0'.repeat(64)});
   missing.capabilities.config['gg.microbit'] = {};

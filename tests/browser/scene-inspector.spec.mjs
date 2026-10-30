@@ -199,7 +199,7 @@ test('GG-INSPECT-003: real toolbox drag connects costume block, portable reopen 
   await file.saveAs(filePath);
   const zip = await JSZip.loadAsync(await readFile(filePath));
   const manifest = JSON.parse(await zip.file('manifest.json').async('string'));
-  expect(manifest.authoring.blockly).toEqual(authoring);
+  expect(manifest.authoring.scene2d.sprites.hero).toEqual(authoring); // GGPROJ v6 (gg.sprites@0.3.0): hero's workspace
   // R1: a new project keeps its initial scene in its gg.sprites capabilities (0.3.0: sprites[0] «hero»).
   expect(manifest.scene).toBeUndefined();
   expect(manifest.capabilities.config['gg.sprites'].sprites[0].x).toBe(0);

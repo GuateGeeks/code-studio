@@ -31,8 +31,12 @@ const plain = value => value && typeof value === 'object' && !Array.isArray(valu
 function exact(value, fields, label) {
   if (!plain(value) || Object.keys(value).length !== fields.length || fields.some(field => !Object.hasOwn(value, field))) fail(label + ': propiedades inválidas');
 }
+const isObjectId = value => typeof value === 'string' && /^[A-Za-z0-9:_-]{1,128}$/.test(value) && !['__proto__', 'prototype', 'constructor'].includes(value);
+// The one sprite ID syntax for every reader keyed by sprite (GGPROJ v6
+// authoring.scene2d, IR 2D v1): checked before a key is ever used.
+export const isScene2DSpriteId = value => isObjectId(value) && value !== 'stage';
 function id(value, label) {
-  if (typeof value !== 'string' || !/^[A-Za-z0-9:_-]{1,128}$/.test(value) || ['__proto__', 'prototype', 'constructor'].includes(value)) fail(label + ': ID inválido');
+  if (!isObjectId(value)) fail(label + ': ID inválido');
 }
 const between = (value, minimum, maximum) => typeof value === 'number' && Number.isFinite(value) && value >= minimum && value <= maximum;
 // Names are what the student sees and what a textual identifier is derived

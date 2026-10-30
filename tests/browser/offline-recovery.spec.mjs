@@ -159,7 +159,7 @@ test('GG-OFFLINE: immutable update and rollback survive full browser closure wit
     const coldCopy=page.waitForEvent('download');await portableButton.press('Enter');const copied=await coldCopy;
     const copyPath=artifactPath('offline-continuity.ggproj');await copied.saveAs(copyPath);
     const copyZip=await JSZip.loadAsync(await readFile(copyPath)),copyManifest=JSON.parse(await copyZip.file('manifest.json').async('string'));
-    expect(copyManifest.authoring.blockly).toEqual(blocks);
+    expect(copyManifest.authoring.scene2d.sprites.hero).toEqual(blocks); // GGPROJ v6 (gg.sprites@0.3.0)
     expect(JSON.stringify(copyManifest)).not.toContain('contentHash');
     await expect.poll(()=>page.evaluate(()=>studioProbe.project.state().continuity.portable)).toBe('current');
     await expect.poll(()=>page.evaluate(()=>studioProbe.project.state().continuity.persisted)).toBe(true);

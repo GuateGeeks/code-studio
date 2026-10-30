@@ -90,7 +90,7 @@ for (const mobile of [false,true]) {
     const manifest=JSON.parse(await zip.file('manifest.json').async('string'));
     expect(manifest.authoring.textDocuments[0].id).toBe(documentId);
     expect(manifest.authoring.textDocuments[0].source).toBe(modifiedSource);
-    expect(manifest.authoring.blockly).toEqual(changedBlocks);
+    expect(manifest.authoring.scene2d.sprites.hero).toEqual(changedBlocks); // GGPROJ v6 (gg.sprites@0.3.0): hero's workspace
     // R1: a new project keeps its initial scene in its gg.sprites capabilities.
     expect(manifest.scene).toBeUndefined();expect(manifest.capabilities.config['gg.sprites'].sprites[0].x).toBe(0);
     await selectContext(page,'text');

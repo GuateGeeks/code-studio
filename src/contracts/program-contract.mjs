@@ -1,6 +1,16 @@
 import {validateResourceView,getResourceCostume,getResourceSound} from './resources.mjs';
+import {isScene2DSpriteId,scene2DObjectLimits} from './scene2d-objects.mjs';
 // Studio-owned wire contract; no Blockly, Scratch or DOM imports.
 export const programLimits = Object.freeze({bytes: 65536, nodes: 300, depth: 8, scripts: 16, variables: 16});
+// IR 2D v1 (scene2d-multi-sprite 1.4): every script names its object
+// (targetId: a sprite of `sprites` or `stage`). The IR0 limits apply per
+// object; the stage holds the global variables, each sprite its own.
+export const scene2DProgramLimits = Object.freeze({sprites: scene2DObjectLimits.sprites, scriptsPerObject: programLimits.scripts,
+  nodesPerObject: programLimits.nodes, variablesPerObject: programLimits.variables, bytes: programLimits.bytes * (scene2DObjectLimits.sprites + 1)});
+// As in Scratch, the stage does not move, speak, change size or clone itself;
+// its backdrops arrive with their own blocks (tarea 3.2).
+const stageEvents = new Set(['start', 'key', 'click', 'message']);
+const stageStatements = new Set(['wait', 'repeat', 'forever', 'repeatUntil', 'waitUntil', 'if', 'broadcastWait', 'setVariable', 'changeVariable', 'playSound', 'stopSounds', 'stopAll', 'stopScript']);
 const fail = message => { throw new Error(`Invalid GG program: ${message}`); };
 function object(value, required, optional = []) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) fail('expected object');
@@ -15,33 +25,60 @@ function number(value, maximum = 1_000_000) {
 }
 export function validateProgram(ir,{resourceView,resourceOwnerId='hero'}={}) {
   if(resourceView)resourceView=validateResourceView(resourceView);
-  let currentSourceBlockId = null;
+  // currentTargetId stays null for IR0, whose scripts all belong to resourceOwnerId.
+  let currentSourceBlockId = null, currentTargetId = null;
   try {
+  const objects = ir?.version === 1;
   let encoded;
   try { encoded = JSON.stringify(ir); } catch { fail('not JSON serializable'); }
-  if (!encoded || new TextEncoder().encode(encoded).length > programLimits.bytes) fail('size limit');
-  object(ir, ['version', 'scripts'], ['variables']);
-  if (ir.version !== 0) fail('unsupported version');
-  const ids = new Set(); let nodes = 0;
+  if (!encoded || new TextEncoder().encode(encoded).length > (objects ? scene2DProgramLimits.bytes : programLimits.bytes)) fail('size limit');
+  const targets = new Set(['stage']);
+  if (objects) {
+    object(ir, ['version', 'sprites', 'scripts'], ['variables']);
+    if (!Array.isArray(ir.sprites) || ir.sprites.length < 1 || ir.sprites.length > scene2DProgramLimits.sprites) fail('sprite limit');
+    for (const id of ir.sprites) {
+      if (!isScene2DSpriteId(id)) fail('invalid sprite ID');
+      if (targets.has(id)) fail(`duplicate sprite ${id}`);
+      targets.add(id);
+    }
+  } else {
+    object(ir, ['version', 'scripts'], ['variables']);
+    if (ir.version !== 0) fail('unsupported version');
+  }
+  const ids = new Set(), nodes = new Map();
   function source(node, depth) {
     currentSourceBlockId = node?.sourceBlockId ?? null;
-    if (++nodes > programLimits.nodes || depth > programLimits.depth) fail('node/depth limit');
+    const count = (nodes.get(currentTargetId) ?? 0) + 1; nodes.set(currentTargetId, count);
+    if (count > programLimits.nodes || depth > programLimits.depth) fail('node/depth limit');
     text(node.sourceBlockId);
     if (ids.has(node.sourceBlockId)) fail(`duplicate source ID ${node.sourceBlockId}`);
     ids.add(node.sourceBlockId);
   }
-  const variables = new Map();
-  if (ir.variables !== undefined && (!Array.isArray(ir.variables) || ir.variables.length > programLimits.variables)) fail('variable limit');
+  // Variable owner: null when every script may use it (IR0 and globals), else its sprite.
+  const variables = new Map(), owned = new Map();
+  if (ir.variables !== undefined && (!Array.isArray(ir.variables) || (!objects && ir.variables.length > programLimits.variables))) fail('variable limit');
   for (const model of ir.variables ?? []) {
-    object(model, ['id', 'name', 'initialValue'], ['scope']); text(model.id); text(model.name, 64); number(model.initialValue);
+    object(model, ['id', 'name', 'initialValue'], objects ? ['scope', 'targetId'] : ['scope']); text(model.id); text(model.name, 64); number(model.initialValue);
     if (model.scope !== undefined && !['local', 'global'].includes(model.scope)) fail('unsupported variable scope');
+    const owner = !objects || model.scope === 'global' ? null : model.targetId;
+    if (objects) {
+      if (model.scope === 'global' ? Object.hasOwn(model, 'targetId') : !ir.sprites.includes(model.targetId)) fail('invalid variable owner');
+      const count = (owned.get(owner) ?? 0) + 1; owned.set(owner, count);
+      if (count > scene2DProgramLimits.variablesPerObject) fail('variable limit');
+    }
     if (variables.has(model.id)) fail('duplicate variable');
-    variables.set(model.id, model.name);
+    variables.set(model.id, {name: model.name, owner});
   }
   function reference(node) {
     text(node.variableId); text(node.name, 64);
-    if (variables.get(node.variableId) !== node.name) fail(`unknown variable at ${node.sourceBlockId}`);
+    const variable = variables.get(node.variableId);
+    if (variable?.name !== node.name) fail(`unknown variable at ${node.sourceBlockId}`);
+    if (variable.owner !== null && variable.owner !== currentTargetId) fail(`variable of another object at ${node.sourceBlockId}`);
   }
+  // Resources belong to the script's object in IR v1; without a resource view
+  // only the built-in hero costumes and tone exist.
+  const owner = () => objects ? currentTargetId : resourceOwnerId;
+  const builtIn = (value, list) => (!objects || currentTargetId === 'hero') && list.includes(value);
   function expression(value, depth, comparison = false) {
     if (typeof value === 'number' && !comparison) { number(value); return; }
     if (value?.kind === 'variable' && !comparison) {
@@ -62,6 +99,7 @@ export function validateProgram(ir,{resourceView,resourceOwnerId='hero'}={}) {
     for (const [index, node] of body.entries()) {
       if (!node || typeof node !== 'object') fail('expected statement');
       const common = ['kind', 'sourceBlockId']; source(node, depth);
+      if (currentTargetId === 'stage' && !stageStatements.has(node.kind)) fail(`stage cannot ${node.kind}`);
       // «por siempre» and both «detener» end their stack, as in Scratch.
       if (['forever', 'stopScript', 'stopAll'].includes(node.kind) && index !== body.length - 1) fail(`${node.kind} must be the last statement`);
       switch (node.kind) {
@@ -88,18 +126,27 @@ export function validateProgram(ir,{resourceView,resourceOwnerId='hero'}={}) {
         case 'createClone': case 'deleteClone': case 'stopSounds': object(node, common); break;
         case 'setVariable': case 'changeVariable': object(node, [...common, 'variableId', 'name', 'value']); reference(node); expression(node.value, depth + 1); break;
         case 'if': object(node, [...common, 'condition', 'body', 'elseBody']); expression(node.condition, depth + 1, true); statements(node.body, depth + 1); statements(node.elseBody, depth + 1); break;
-        case 'playSound': object(node, [...common, 'sound', 'wait']); if (typeof node.wait !== 'boolean'||(resourceView?!getResourceSound(resourceView,node.sound,resourceOwnerId):node.sound!=='tone')) fail('unsupported sound'); break;
-        case 'setCostume': object(node, [...common, 'costume']); if (resourceView?!getResourceCostume(resourceView,node.costume,resourceOwnerId):!['hero','hero-alt'].includes(node.costume)) fail('unsupported costume'); break;
+        case 'playSound': object(node, [...common, 'sound', 'wait']); if (typeof node.wait !== 'boolean'||(resourceView?!getResourceSound(resourceView,node.sound,owner()):!builtIn(node.sound,['tone']))) fail('unsupported sound'); break;
+        case 'setCostume': object(node, [...common, 'costume']); if (resourceView?!getResourceCostume(resourceView,node.costume,owner()):!builtIn(node.costume,['hero','hero-alt'])) fail('unsupported costume'); break;
         default: fail(`unsupported operation ${node.kind}`);
       }
     }
   }
-  if (!Array.isArray(ir.scripts) || ir.scripts.length > programLimits.scripts) fail('script limit');
+  if (!Array.isArray(ir.scripts) || ir.scripts.length > (objects ? scene2DProgramLimits.scriptsPerObject * targets.size : programLimits.scripts)) fail('script limit');
+  const scripts = new Map();
   for (const script of ir.scripts) {
-    currentSourceBlockId = script?.sourceBlockId ?? null;
+    currentSourceBlockId = script?.sourceBlockId ?? null; currentTargetId = null;
     const extra = script?.event === 'key' ? ['key'] : script?.event === 'message' ? ['message'] : [];
-    object(script, ['event', 'sourceBlockId', 'body', ...extra]); source(script, 0);
+    object(script, [...(objects ? ['targetId'] : []), 'event', 'sourceBlockId', 'body', ...extra]);
+    if (objects) {
+      if (!targets.has(script.targetId)) fail(`unknown target ${String(script.targetId).slice(0, 128)}`);
+      currentTargetId = script.targetId;
+      const count = (scripts.get(currentTargetId) ?? 0) + 1; scripts.set(currentTargetId, count);
+      if (count > scene2DProgramLimits.scriptsPerObject) fail('script limit');
+    }
+    source(script, 0);
     if (!['start', 'key', 'click', 'message', 'clone'].includes(script.event)) fail('unsupported event');
+    if (currentTargetId === 'stage' && !stageEvents.has(script.event)) fail(`stage cannot ${script.event}`);
     if (script.event === 'message') text(script.message, 64);
     if (script.event === 'key' && (typeof script.key !== 'string' || !/^(space|up arrow|down arrow|left arrow|right arrow|[a-z0-9])$/.test(script.key))) fail('unsupported key');
     statements(script.body, 1);
@@ -107,6 +154,18 @@ export function validateProgram(ir,{resourceView,resourceOwnerId='hero'}={}) {
   return ir;
   } catch (error) {
     if (typeof currentSourceBlockId === 'string' && currentSourceBlockId.length <= 128 && currentSourceBlockId.trim()) error.sourceBlockId = currentSourceBlockId;
+    if (currentTargetId !== null) error.targetId = currentTargetId;
     throw error;
   }
+}
+
+// IR0 (gg.sprites 0.1.0/0.2.0 and single-workspace projects) as IR v1: every
+// script and local variable belongs to one sprite (hero); nodes, source IDs
+// and order are unchanged. Returns a new object; validate it with the caller's
+// resource view.
+export function programObjectsFromIR0(ir, {spriteId = 'hero'} = {}) {
+  if (!ir || typeof ir !== 'object' || ir.version !== 0) fail('only IR version 0 can be lifted to objects');
+  if (!isScene2DSpriteId(spriteId)) fail('invalid sprite ID');
+  const variables = Array.isArray(ir.variables) ? {variables: ir.variables.map(({scope, ...model}) => ({...structuredClone(model), ...(scope === 'global' ? {scope} : {targetId: spriteId})}))} : {};
+  return {version: 1, sprites: [spriteId], ...variables, scripts: Array.isArray(ir.scripts) ? ir.scripts.map(script => ({targetId: spriteId, ...structuredClone(script)})) : ir.scripts};
 }

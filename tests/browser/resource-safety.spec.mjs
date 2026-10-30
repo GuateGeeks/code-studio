@@ -132,7 +132,7 @@ for(const action of ['cancel','edit'])test('GG-ASSET: '+action+' after the real 
   await expect(field).toHaveText('7');
   await page.evaluate(()=>studioProbe.project.flush());
   expected={...before,authoring:await exportAuthoring(page)};
-  expect(expected.authoring.authoring.blockly).not.toEqual(before.authoring.authoring.blockly);
+  expect(expected.authoring.authoring.scene2d.sprites.hero).not.toEqual(before.authoring.authoring.scene2d.sprites.hero);
  }
  await page.evaluate(()=>resourceSafetyGate.release());
  await expect(page.locator('#import-sb3')).toHaveValue('');await idle(page);

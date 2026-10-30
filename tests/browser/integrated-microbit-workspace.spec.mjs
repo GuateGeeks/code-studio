@@ -12,7 +12,7 @@ async function open(page){
   // Portable fixture: button A both plots a LED and sends the existing scene message.
   await page.evaluate(async()=>{
     const project=JSON.parse(await studioProbe.project.export());
-    project.authoring.blockly={blocks:{languageVersion:0,blocks:[
+    project.authoring.scene2d.sprites.hero={blocks:{languageVersion:0,blocks:[
       {type:'gg_when_start',id:'joint-start',x:20,y:20},
       {type:'gg_when_message',id:'joint-receiver',fields:{MESSAGE:'microbit-A'},x:20,y:100,inputs:{DO:{block:{type:'gg_move',id:'joint-move',inputs:{STEPS:{shadow:{type:'math_number',id:'joint-steps',fields:{NUM:10}}}}}}}}
     ]}};

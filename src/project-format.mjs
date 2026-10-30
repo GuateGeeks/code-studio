@@ -3,6 +3,7 @@ import {validateTextDocuments} from './text-documents.mjs';
 import {validateResources,createResourceView,cloneValidatedResources,promoteLegacyResources,promoteResources2} from './contracts/resources.mjs';
 import {validateCapabilities,resolveResourcePolicy,validateCapabilityReferences} from './contracts/packs.mjs';
 import {engineLockHistory,isCompatibleEngineLocks,describeUnsupportedEngineLocks} from './contracts/engine-locks.mjs';
+import {isScene2DSpriteId,scene2DObjectLimits,validateScene2DObjects} from './contracts/scene2d-objects.mjs';
 
 // Portable Studio data. No Blockly, Scratch, DOM or storage dependencies.
 export const projectLimits = Object.freeze({bytes: 2 * 1024 * 1024, workspaceBytes: 65536, sourceBytes: 65536, nameLength: 80});
@@ -41,15 +42,84 @@ function text(value, maximum, field) {
 function timestamp(value, field) {
   if (typeof value !== 'string' || !/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/.test(value) || !Number.isFinite(Date.parse(value)) || new Date(value).toISOString() !== value) fail(`${field}: fecha inválida`);
 }
-// Capabilities live in v3 and in v4 projects that had them; a v4 without them
-// keeps the v2 shape (scene) and only adds declared text APIs.
-export const hasCapabilityProfile = document => document?.version === 3 || ([4,5].includes(document?.version) && Object.hasOwn(document, 'capabilities'));
+// Capabilities live in v3 and v6, and in v4/v5 projects that had them; a v4
+// without them keeps the v2 shape (scene) and only adds declared text APIs.
+export const hasCapabilityProfile = document => [3, 6].includes(document?.version) || ([4,5].includes(document?.version) && Object.hasOwn(document, 'capabilities'));
+const plainObject = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value) && [Object.prototype, null].includes(Object.getPrototypeOf(value));
+const legacyWorkspaceLabel = 'workspace Blockly';
+function workspace(value, label = legacyWorkspaceLabel) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) fail(`${label} inválido`);
+  if (Object.keys(value).some(key => !['blocks', 'variables'].includes(key))) fail('metadatos de workspace no soportados' + (label === legacyWorkspaceLabel ? '' : ` (${label})`));
+  text(JSON.stringify(value), projectLimits.workspaceBytes, label);
+}
+const emptyWorkspace = value => !value.variables?.length && !value.blocks?.blocks?.length;
+
+// GGPROJ v6 (scene2d-multi-sprite 1.3): with gg.sprites@0.3.0 the 2D authoring
+// is one Blockly workspace per object, authoring.scene2d = {stage, sprites:
+// {<id>: workspace}}, keyed by the sprite IDs of the pack configuration.
+export function scene2DObjectsOf(capabilities) {
+  const config = capabilities?.config && Object.hasOwn(capabilities.config, 'gg.sprites') ? capabilities.config['gg.sprites'] : null;
+  return plainObject(config) && Object.hasOwn(config, 'sprites') ? config : null;
+}
+function scene2DWorkspaces(scene2d) {
+  object(scene2d, ['stage', 'sprites'], 'scene2d');
+  workspace(scene2d.stage, 'workspace del escenario');
+  if (!plainObject(scene2d.sprites)) fail('scene2d.sprites: se esperaba un objeto');
+  const ids = Object.keys(scene2d.sprites);
+  if (!ids.length || ids.length > scene2DObjectLimits.sprites) fail(`scene2d.sprites: se admiten entre 1 y ${scene2DObjectLimits.sprites} objetos`);
+  // Keys come from the file: their syntax is checked before any lookup.
+  for (const id of ids) {
+    if (!isScene2DSpriteId(id)) fail('scene2d.sprites: ID de sprite inválido');
+    workspace(scene2d.sprites[id], `workspace del sprite ${id}`);
+  }
+}
+function scene2DMatchesObjects(scene2d, capabilities) {
+  const objects = scene2DObjectsOf(capabilities);
+  if (!objects) fail('authoring.scene2d requiere gg.sprites@0.3.0 o posterior (objetos 2D)');
+  const ids = Object.keys(scene2d.sprites);
+  if (ids.length !== objects.sprites.length || objects.sprites.some(sprite => !Object.hasOwn(scene2d.sprites, sprite.id))) fail('los workspaces de authoring.scene2d no coinciden con los objetos 2D configurados');
+}
+// The workspace the single 2D editor shows: the first sprite's in v6 (the
+// sprite single-sprite readers know, resolveCapabilities().initialScene),
+// authoring.blockly before.
+export function projectBlocklyWorkspace(document) {
+  if (!Object.hasOwn(document.authoring, 'scene2d')) return document.authoring.blockly;
+  const [first] = scene2DObjectsOf(document.capabilities).sprites;
+  return document.authoring.scene2d.sprites[first.id];
+}
+// Pure migration of a single workspace to per-object authoring: it becomes the
+// first sprite's with the same block IDs; the stage and other sprites start empty.
+export function scene2DAuthoringFromBlockly(blockly, config) {
+  const objects = validateScene2DObjects(config);
+  return {stage: {}, sprites: Object.fromEntries(objects.sprites.map((sprite, index) => [sprite.id, index === 0 ? structuredClone(blockly) : {}]))};
+}
+// Workspaces for a new document. `blockly` is always the single editor's
+// workspace (the first sprite's); `scene2d` carries every object. Nothing is
+// dropped silently: a missing object or a lossy return to one workspace fails.
+function authoringWorkspaces(profile, {blockly, scene2d}) {
+  const objects = scene2DObjectsOf(profile);
+  if (objects) {
+    if (scene2d == null) {
+      if (objects.sprites.length > 1) fail(`faltan los workspaces de ${objects.sprites.slice(1).map(sprite => sprite.id).join(', ')}`);
+      return {scene2d: scene2DAuthoringFromBlockly(blockly, objects)};
+    }
+    if (!plainObject(scene2d) || !plainObject(scene2d.sprites)) fail('scene2d: se esperaba un objeto');
+    const result = structuredClone(scene2d);
+    if (blockly !== undefined) result.sprites[objects.sprites[0].id] = structuredClone(blockly);
+    return {scene2d: result};
+  }
+  if (scene2d == null) return {blockly: structuredClone(blockly)};
+  scene2DWorkspaces(scene2d);
+  const sprites = Object.values(scene2d.sprites), kept = blockly !== undefined ? blockly : sprites.find(item => !emptyWorkspace(item)) ?? sprites[0];
+  if (!emptyWorkspace(scene2d.stage) || sprites.some(item => !emptyWorkspace(item) && canonical(item) !== canonical(kept))) fail('volver a un solo workspace descartaría los scripts de otros objetos; conserva gg.sprites@0.3.0 o haz una copia');
+  return {blockly: structuredClone(kept)};
+}
 function structure(document) {
   jsonTree(document);
   // Format and version first: a newer file is explained before its fields are checked.
   if (!document || typeof document !== 'object' || document.format !== 'ggproj') fail('formato o versión no soportada');
-  if (Number.isSafeInteger(document.version) && document.version > 5) fail(`formato o versión no soportada: GGPROJ v${document.version} es de una versión más reciente de Code Studio; ábrelo con esa versión`);
-  if (![1, 2, 3, 4, 5].includes(document.version)) fail('formato o versión no soportada');
+  if (Number.isSafeInteger(document.version) && document.version > 6) fail(`formato o versión no soportada: GGPROJ v${document.version} es de una versión más reciente de Code Studio; ábrelo con esa versión`);
+  if (![1, 2, 3, 4, 5, 6].includes(document.version)) fail('formato o versión no soportada');
   object(document, hasCapabilityProfile(document) ? ['format', 'version', 'project', 'authoring', 'capabilities', 'resources', 'locks'] : ['format', 'version', 'project', 'authoring', 'scene', 'resources', 'locks'], 'documento');
   object(document.project, ['id', 'name', 'revision', 'createdAt', 'updatedAt'], 'project');
   const model = document.project;
@@ -58,17 +128,22 @@ function structure(document) {
   if (!Number.isSafeInteger(model.revision) || model.revision < 0) fail('revisión inválida');
   timestamp(model.createdAt, 'createdAt'); timestamp(model.updatedAt, 'updatedAt');
   if (Date.parse(model.updatedAt) < Date.parse(model.createdAt)) fail('updatedAt es anterior a createdAt');
-  object(document.authoring, document.version === 1 ? ['blockly', 'deviceSource'] : document.version === 5 ? ['blockly', 'deviceSource', 'textDocuments', 'selectedTextDocumentId', 'codeViews'] : ['blockly', 'deviceSource', 'textDocuments', 'selectedTextDocumentId'], 'authoring');
+  // GGPROJ v6 replaces authoring.blockly with authoring.scene2d; its code views
+  // (v5) are written only when there are some.
+  const views = document.version === 6 && plainObject(document.authoring) && Object.hasOwn(document.authoring, 'codeViews');
+  object(document.authoring, document.version === 1 ? ['blockly', 'deviceSource'] : document.version === 5 ? ['blockly', 'deviceSource', 'textDocuments', 'selectedTextDocumentId', 'codeViews']
+    : document.version === 6 ? ['scene2d', 'deviceSource', 'textDocuments', 'selectedTextDocumentId', ...(views ? ['codeViews'] : [])] : ['blockly', 'deviceSource', 'textDocuments', 'selectedTextDocumentId'], 'authoring');
   if (document.version === 5) validateCodeViews(document.authoring.codeViews);
+  if (views && !validateCodeViews(document.authoring.codeViews)) fail('vistas de código vacías');
   if (document.version >= 2) validateTextDocuments(document.authoring.textDocuments, document.authoring.selectedTextDocumentId);
   // GGPROJ v4 is v3 plus a declared text API; it is written only when needed.
   if (document.version >= 2 && document.version < 4 && document.authoring.textDocuments.some(item => Object.hasOwn(item.runtime ?? {}, 'api'))) fail('la API textual declarada requiere GGPROJ v4');
-  if (!document.authoring.blockly || typeof document.authoring.blockly !== 'object' || Array.isArray(document.authoring.blockly)) fail('workspace Blockly inválido');
-  if (Object.keys(document.authoring.blockly).some(key => !['blocks', 'variables'].includes(key))) fail('metadatos de workspace no soportados');
-  text(JSON.stringify(document.authoring.blockly), projectLimits.workspaceBytes, 'workspace Blockly');
+  if (document.version === 6) scene2DWorkspaces(document.authoring.scene2d);
+  else workspace(document.authoring.blockly);
   text(document.authoring.deviceSource, projectLimits.sourceBytes, 'fuente de dispositivo');
   if (hasCapabilityProfile(document)) {
     if (!validateCapabilities(document.capabilities)) fail('capacidades explícitas ausentes');
+    if (document.version === 6) scene2DMatchesObjects(document.authoring.scene2d, document.capabilities);
   } else {
     object(document.scene, Object.keys(scene), 'scene');
     if (canonical(document.scene) !== canonical(scene)) fail('estado inicial de escena no soportado');
@@ -117,13 +192,14 @@ export async function validateProject(document, {catalog, engineHistory = engine
   const result=structuredClone(document);createResourceView(result.resources,{catalog});validateCapabilityReferences(result.capabilities,{resources:result.resources,textDocuments:result.authoring.textDocuments});return result;
 }
 
-export async function createProject({name, blockly, deviceSource, catalog, resources, capabilities, textDocuments, selectedTextDocumentId = null, codeViews, id = crypto.randomUUID(), revision = 0, createdAt = new Date().toISOString(), updatedAt = new Date().toISOString()}) {
+export async function createProject({name, blockly, scene2d, deviceSource, catalog, resources, capabilities, textDocuments, selectedTextDocumentId = null, codeViews, id = crypto.randomUUID(), revision = 0, createdAt = new Date().toISOString(), updatedAt = new Date().toISOString()}) {
   const profile = capabilities == null ? null : validateCapabilities(capabilities);
   const views = validateCodeViews(codeViews);
+  const workspaces = authoringWorkspaces(profile, {blockly, scene2d});
   const textAuthoring = textDocuments === undefined ? (profile || views ? {textDocuments: [], selectedTextDocumentId: null} : null) : validateTextDocuments(textDocuments, selectedTextDocumentId);
   const declaresApi = Boolean(textAuthoring?.textDocuments.some(item => Object.hasOwn(item.runtime, 'api')));
-  const document = {format: 'ggproj', version: views ? 5 : declaresApi ? 4 : profile ? 3 : textAuthoring ? 2 : 1, project: {id, name, revision, createdAt, updatedAt},
-    authoring: {blockly: structuredClone(blockly), deviceSource, ...(textAuthoring ?? {}), ...(views ? {codeViews: views} : {})},
+  const document = {format: 'ggproj', version: workspaces.scene2d ? 6 : views ? 5 : declaresApi ? 4 : profile ? 3 : textAuthoring ? 2 : 1, project: {id, name, revision, createdAt, updatedAt},
+    authoring: {...workspaces, deviceSource, ...(textAuthoring ?? {}), ...(views ? {codeViews: views} : {})},
     ...(profile ? {capabilities: profile} : {scene: {...scene}}), resources: structuredClone(resources??catalog?.resources), locks: structuredClone(catalog?.locks)};
   return validateProject(document, {catalog});
 }
@@ -149,9 +225,12 @@ export async function upgradeProject(document, {capabilities, catalog} = {}) {
   const profile = validateCapabilities(capabilities);
   if (!profile) fail('la actualización requiere capacidades explícitas');
   const declaresApi = (previous.authoring.textDocuments ?? []).some(item => Object.hasOwn(item.runtime, 'api'));
-  const candidate = {...previous, version: previous.authoring.codeViews ? 5 : declaresApi ? 4 : 3, capabilities: profile,
-    authoring: {...previous.authoring, textDocuments: previous.authoring.textDocuments ?? [],
-      selectedTextDocumentId: previous.authoring.selectedTextDocumentId ?? null}};
+  // A single workspace promoted to 0.3.0 becomes the first sprite's (others start empty).
+  const objects = scene2DObjectsOf(profile), {blockly, scene2d, ...rest} = previous.authoring;
+  const workspaces = objects && !scene2d ? {scene2d: scene2DAuthoringFromBlockly(blockly, objects)} : authoringWorkspaces(profile, {blockly, scene2d});
+  const candidate = {...previous, version: workspaces.scene2d ? 6 : previous.authoring.codeViews ? 5 : declaresApi ? 4 : 3, capabilities: profile,
+    authoring: {...workspaces, deviceSource: rest.deviceSource, textDocuments: rest.textDocuments ?? [],
+      selectedTextDocumentId: rest.selectedTextDocumentId ?? null, ...(rest.codeViews ? {codeViews: rest.codeViews} : {})}};
   delete candidate.scene;
   const policy=resolveResourcePolicy(profile);
   if(candidate.resources.version===2&&policy!=='gg-resources-v2')fail('downgrade de recursos requiere una copia explícita sin pérdida');

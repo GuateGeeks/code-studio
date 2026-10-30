@@ -79,7 +79,7 @@ for (const mobile of [false, true]) {
     const result=await check(page);
     await expect(page.locator('#lesson-progress')).toContainText('Historial: 2 de 2');
     const saved=JSON.parse(await page.evaluate(()=>studioProbe.project.export()));
-    expect(saved.version).toBe(3); expect(saved.scene).toBeUndefined();
+    expect(saved.version).toBe(6); expect(saved.scene).toBeUndefined(); // gg.sprites@0.3.0: GGPROJ v6
     expect(saved.capabilities.config['gg.sprites'].sprites[0].x).toBe(0);
     expect(JSON.stringify(saved)).not.toContain('completedStepIds');
     await selectContext(page,'2d');
@@ -113,12 +113,12 @@ for (const mobile of [false, true]) {
     const downloadPromise=page.waitForEvent('download');await clickVisible(page.locator('#save-project'));
     const file=await downloadPromise;const path=artifactPath('score-'+layout+'.ggproj');await file.saveAs(path);
     const zip=await JSZip.loadAsync(await readFile(path));const manifest=JSON.parse(await zip.file('manifest.json').async('string'));
-    // The copy declares API v3 (runtime.api), so the project is written as GGPROJ v4 (ADR-011).
-    expect(manifest.version).toBe(4);expect(manifest.scene).toBeUndefined();
+    // The copy declares API v3 (runtime.api, GGPROJ v4 and later, ADR-011); with gg.sprites@0.3.0 the project is GGPROJ v6.
+    expect(manifest.version).toBe(6);expect(manifest.scene).toBeUndefined();
     expect(manifest.authoring.textDocuments.at(-1).runtime.api).toBe('api3');
     expect(manifest.capabilities.locks.find(lock=>lock.id==='gg.score').version).toBe('0.2.0');
     expect(manifest.capabilities.config['gg.score'].initialValue).toBe(0);
-    expect(manifest.authoring.blockly).toEqual(blocks);
+    expect(manifest.authoring.scene2d).toEqual({stage:{},sprites:{hero:blocks}});
     expect(manifest.authoring.textDocuments[0].source).toBe(source);
     const context=await browser.newContext();const reopened=await context.newPage();await open(reopened);
     await reopened.locator('#open-project').setInputFiles(path);

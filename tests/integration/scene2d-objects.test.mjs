@@ -9,7 +9,7 @@ import {canonicalPackData, createCapabilities, validateCapabilities, resolveCapa
 import {findMigrationChain, validateMigrationRecord} from '../../src/contracts/pack-migrations.mjs';
 import {scene2DObjectLimits, validateScene2DObjects, scene2DObjectsFromInitialScene} from '../../src/contracts/scene2d-objects.mjs';
 import {availablePackUpdates, migrateProject} from '../../src/project-migration.mjs';
-import {createProject, parseProject, serializeProject, projectInitialScene} from '../../src/project-format.mjs';
+import {createProject, parseProject, serializeProject, projectInitialScene, projectBlocklyWorkspace} from '../../src/project-format.mjs';
 import {loadWorkspace, workspaceToIR} from '../../src/editor/block-program.mjs';
 import {createContributions} from '../../src/editor/contributions.mjs';
 import {toScratchProject} from '../../src/adapters/scratch/scratch-project.mjs';
@@ -152,7 +152,9 @@ test('MS-005: new projects lock 0.3.0 with sprites[0] = hero; they save, reopen 
   assert.equal(resolveCapabilities(null).packs.find(pack => pack.id === 'gg.sprites').version, '0.1.0');
   assert.deepEqual(lockedPackVersions(capabilities), {'gg.sprites': '0.3.0'});
   const document = await createProject({name: 'Nuevo', blockly: heroPresents.blockly, deviceSource: '', catalog, capabilities});
-  assert.equal(document.version, 3);
+  // Tarea 1.3: gg.sprites@0.3.0 is GGPROJ v6 with hero's workspace in authoring.scene2d (scene2d-authoring.test.mjs).
+  assert.equal(document.version, 6);
+  assert.deepEqual(document.authoring.scene2d, {stage: {}, sprites: {hero: heroPresents.blockly}});
   assert.equal(Object.hasOwn(document, 'scene'), false);
   const reopened = await parseProject(serializeProject(document), {catalog});
   assert.deepEqual(reopened, document);
@@ -189,11 +191,13 @@ test('MS-006: a migrated single-sprite project keeps its blocks and IDs and runs
     const {document: migrated, summary} = await migrateProject(document, availablePackUpdates(before), {catalog});
     assert.deepEqual(document, original, 'copy-on-write');
     assert.deepEqual(summary, [{id: 'gg.sprites', fromVersion: version, toVersion: '0.3.0', steps: version === '0.1.0' ? 2 : 1, changedBlocks: 0}]);
-    assert.deepEqual(migrated.authoring, document.authoring, 'same blocks, IDs, shadows and positions');
+    // Tarea 1.3: the single workspace becomes hero's in GGPROJ v6; the rest of the authoring is unchanged.
+    const {blockly: single, ...rest} = document.authoring;
+    assert.deepEqual(migrated.authoring, {scene2d: {stage: {}, sprites: {hero: single}}, ...rest}, 'same blocks, IDs, shadows and positions');
     assert.deepEqual(migrated.resources, document.resources);
     assert.deepEqual(spritesConfig(migrated.capabilities), defaults);
     assert.deepEqual(await parseProject(serializeProject(migrated), {catalog}), migrated);
-    const irBefore = irOf(blockly, before), irAfter = irOf(migrated.authoring.blockly, migrated.capabilities);
+    const irBefore = irOf(blockly, before), irAfter = irOf(projectBlocklyWorkspace(migrated), migrated.capabilities);
     assert.deepEqual(irAfter, irBefore);
     assert.deepEqual(toScratchProject(irAfter), toScratchProject(irBefore));
   }

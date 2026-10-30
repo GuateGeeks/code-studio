@@ -1,5 +1,5 @@
 import {projectContentHash, deriveContinuity} from '../project-continuity.mjs';
-import {createProject, parseProject, serializeProject, projectLimits} from '../project-format.mjs';
+import {createProject, parseProject, serializeProject, projectLimits, projectBlocklyWorkspace} from '../project-format.mjs';
 import {createProjectArchive, parseProjectArchive} from '../project-archive.mjs';
 import {createAutosaveStore} from '../autosave-store.mjs';
 import {promoteLegacyResources,promoteResources2} from '../contracts/resources.mjs';
@@ -277,8 +277,8 @@ export function createProjectUI({editor, source, stop, textDocuments, authoring:
       const captured = await capture();
       let resources=captured.resources;
       if(resolveResourcePolicy(capabilities)==='gg-resources-v2'&&resources.version!==2)resources=await promoteResources2(resources.version===1?resources:await promoteLegacyResources(catalog));
-      return createProject({...captured.project, name: captured.project.name, blockly: captured.authoring.blockly,
-        deviceSource: captured.authoring.deviceSource, ...(captured.version >= 2 ? {textDocuments: captured.authoring.textDocuments, selectedTextDocumentId: captured.authoring.selectedTextDocumentId} : {}),
+      return createProject({...captured.project, name: captured.project.name, blockly: projectBlocklyWorkspace(captured),
+        ...(captured.authoring.scene2d ? {scene2d: captured.authoring.scene2d} : {}), deviceSource: captured.authoring.deviceSource, ...(captured.version >= 2 ? {textDocuments: captured.authoring.textDocuments, selectedTextDocumentId: captured.authoring.selectedTextDocumentId} : {}),
         ...(captured.authoring.codeViews?{codeViews:captured.authoring.codeViews}:{}),
         resources, catalog, capabilities: authoring.prepareCapabilities(validateCapabilities(capabilities))});
     }, undefined, 'Capacidades del proyecto actualizadas. No se ejecutó nada: pulsa Ejecutar cuando quieras ver el resultado.').catch(error => { report(error); throw error; });

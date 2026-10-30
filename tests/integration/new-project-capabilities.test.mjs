@@ -92,7 +92,8 @@ test('NP-002: the unsaved initial project starts at the latest version, stays cl
   assert.deepEqual(editor.captureCapabilities(), newProjectCapabilities());
   assert.deepEqual(project.capabilities(), newProjectCapabilities());
   const exported = JSON.parse(await project.export());
-  assert.equal(exported.version, 3);
+  // gg.sprites@0.3.0 is GGPROJ v6: one workspace per 2D object (scene2d-multi-sprite 1.3).
+  assert.equal(exported.version, 6);
   assert.equal(Object.hasOwn(exported, 'scene'), false);
   assert.deepEqual(exported.capabilities.locks.map(lock => [lock.id, lock.version]), [['gg.sprites', '0.3.0']]);
   // gg.sprites@0.3.0: the stage and one sprite «hero» with the same initial state as before.
@@ -100,7 +101,8 @@ test('NP-002: the unsaved initial project starts at the latest version, stays cl
     sprites: [{id: 'hero', name: 'hero', x: 0, y: 0, direction: 90, size: 100, visible: true, costume: 'hero'}]});
   assert.deepEqual(resolveCapabilities(exported.capabilities).initialScene, {spriteId: 'hero', x: 0, y: 0, direction: 90, size: 100, costume: 'hero'});
   // Same blocks (IDs, shadows, positions) as the built-in example; only the profile changed.
-  assert.deepEqual(exported.authoring.blockly, example);
+  assert.deepEqual(exported.authoring.scene2d, {stage: {}, sprites: {hero: example}});
+  assert.equal(Object.hasOwn(exported.authoring, 'blockly'), false);
   assert.deepEqual(exported.authoring.textDocuments, []);
   assert.equal(stops(), 0, 'installing the new-project profile never stops or runs a session');
   assert.equal(project.state().beforeUnloadPending, false, 'installing the profile is not a pending edit');

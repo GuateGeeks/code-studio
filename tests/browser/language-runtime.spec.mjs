@@ -57,7 +57,7 @@ for (const language of ['javascript', 'python']) {
     await download.saveAs(path);
     const zip = await JSZip.loadAsync(await readFile(path));
     const manifest = JSON.parse(await zip.file('manifest.json').async('string'));
-    expect(manifest.version).toBe(4);
+    expect(manifest.version).toBe(6); // declared API v3 with gg.sprites@0.3.0: GGPROJ v6
     expect(manifest.authoring).toEqual(authoring);
     // R1: a new project keeps its initial scene in its gg.sprites capabilities.
     expect(manifest.scene).toBeUndefined();expect(manifest.capabilities.config['gg.sprites'].sprites[0].x).toBe(0);
