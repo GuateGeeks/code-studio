@@ -6,10 +6,10 @@
 // shell derive the same identifiers from the same configuration.
 import {api3LanguageKeywords} from './api3-names.mjs';
 import {scene2DVocabularyFromTables} from '../packs/language-tables.mjs';
-import {isScene2DSpriteId} from './scene2d-objects.mjs';
+import {isScene2DSpriteId, scene2DStageName} from './scene2d-objects.mjs';
 
 export const scene2DStageIdentifier = 'stage';
-export const scene2DStageName = 'Escenario';
+export {scene2DStageName};
 const syntax = /^[A-Za-z_][A-Za-z0-9_]{0,63}$/;
 // Global API names of both languages (onStart, on_start, wait, shared…), the
 // runtime names and the loop counters the generator writes (i, j, k): a sprite

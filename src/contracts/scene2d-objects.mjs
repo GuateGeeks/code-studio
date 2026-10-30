@@ -5,6 +5,7 @@
 const fail = message => { throw new Error('GG packs: ' + message); };
 
 export const scene2DObjectLimits = Object.freeze({sprites: 8, nameLength: 32});
+export const scene2DStageName = 'Escenario';
 // Sprite and resource IDs share the resource owner syntax (resources.mjs);
 // `stage` names the stage as resource owner and cannot be a sprite.
 const resourceId = {type: 'string', pattern: '^[A-Za-z0-9:_-]+$', maxLength: 128, notEnum: ['__proto__', 'prototype', 'constructor']};
@@ -41,12 +42,27 @@ function id(value, label) {
 const between = (value, minimum, maximum) => typeof value === 'number' && Number.isFinite(value) && value >= minimum && value <= maximum;
 // Names are what the student sees and what a textual identifier is derived
 // from (R3), so they are compared without case.
-const spriteNameKey = name => name.toLocaleLowerCase('es');
+export const spriteNameKey = name => name.toLocaleLowerCase('es');
 // A name is shown and read aloud as typed: NFC (one spelling per name, so the
 // identifier derived from it is stable), no control (C0/C1), format (bidi,
 // zero-width), separator or lone surrogate characters (scene2d-multi-sprite 2.2).
 const validSpriteName = name => typeof name === 'string' && name.length > 0 && name === name.trim() && name.length <= scene2DObjectLimits.nameLength &&
   name === name.normalize('NFC') && !/[\p{Cc}\p{Cf}\p{Cs}\p{Zl}\p{Zp}]/u.test(name);
+// What the objects panel stores for what a student typed: one spelling, without
+// the characters validSpriteName refuses. Line breaks and tabs become spaces;
+// format characters (emoji ZWJ, bidi, zero width) go, so «👩‍💻» is kept as «👩💻».
+export const normalizeScene2DSpriteName = typed => String(typed)
+  .replace(/[\p{Cc}\p{Zl}\p{Zp}]+/gu, ' ').replace(/[\p{Cf}\p{Cs}]/gu, '').normalize('NFC').replace(/\s+/gu, ' ').trim();
+// Why a normalized name cannot be used, in words for the student; null if it can.
+// `except` is the object being renamed: changing its own capitals is no collision.
+export function scene2DSpriteNameProblem(name, {config, except = null} = {}) {
+  if (!name) return 'Escribe un nombre para el objeto.';
+  if (name.length > scene2DObjectLimits.nameLength) return `El nombre puede tener hasta ${scene2DObjectLimits.nameLength} caracteres y este tiene ${name.length}. Acórtalo un poco.`;
+  if (spriteNameKey(name) === spriteNameKey(scene2DStageName)) return `«${scene2DStageName}» es el nombre del escenario. Elige otro.`;
+  const taken = config.sprites.find(sprite => sprite.id !== except && spriteNameKey(sprite.name) === spriteNameKey(name));
+  if (taken) return `Ya hay un objeto llamado «${taken.name}». Elige otro nombre.`;
+  return validSpriteName(name) ? null : 'Ese nombre no se puede usar. Prueba con letras, números o emojis.';
+}
 export function validateScene2DObjects(config) {
   exact(config, ['stage', 'sprites'], 'objetos 2D');
   exact(config.stage, ['backdrop'], 'escenario');
