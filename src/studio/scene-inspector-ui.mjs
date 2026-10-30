@@ -1,14 +1,19 @@
 import {createSceneInspection} from '../scene-inspection.mjs';
 
 // Presentation of detached GG readings; never writes scene or project authoring.
-export function createSceneInspectorUI({readScene, getScope, initialScene}) {
+export function createSceneInspectorUI({readScene, getScope, initialScene, objects = () => null}) {
   const object = document.querySelector('#inspector-object');
   const button = document.querySelector('#refresh-inspector');
   const status = document.querySelector('#inspector-status');
   const initial = document.querySelector('#inspector-initial');
   const runtime = document.querySelector('#inspector-runtime');
   const variables = document.querySelector('#inspector-variables');
-  const authored = {...initialScene};
+  const fallback = {...initialScene};
+  // Until the per-object inspector (3.2) this reads hero or the first sprite, by name.
+  function inspected() {
+    const config = objects(), sprite = config?.sprites.find(item => item.id === 'hero') ?? config?.sprites[0];
+    return {count: config?.sprites.length ?? 1, authored: sprite ? {spriteId: sprite.name, x: sprite.x, y: sprite.y, direction: sprite.direction, size: sprite.size, costume: sprite.costume} : fallback};
+  }
   let timer = null;
   let visibleState = {snapshot: null, status: 'empty', error: null};
 
@@ -26,7 +31,9 @@ export function createSceneInspectorUI({readScene, getScope, initialScene}) {
   function render(next) {
     visibleState = next;
     const sceneSelected = object.value === 'scene';
-    const snapshot = next.snapshot;
+    const snapshot = next.snapshot, {count, authored} = inspected(), name = authored.spriteId;
+    object.querySelector('option[value=hero]').textContent = name + ' · Sprite';
+    document.querySelector('#inspector-variables-heading').textContent = 'Variables locales de ' + name;
     // scene2d-multi-sprite 2.1: the scene lists every sprite; the object view
     // stays on hero (or the first sprite) until per-object inspection (3.2).
     // A single-hero reading renders exactly as before.
@@ -34,7 +41,7 @@ export function createSceneInspectorUI({readScene, getScope, initialScene}) {
     const owned = snapshot?.variables.filter(variable => !variable.targetId || variable.targetId === hero.id) ?? [];
     // These authoring values stay distinct from the latest runtime reading.
     fields(initial, sceneSelected
-      ? [['Sprites de autoría', 1], ['Sprite', authored.spriteId], ['Disfraz inicial', authored.costume]]
+      ? [['Sprites de autoría', count], ['Sprite', authored.spriteId], ['Disfraz inicial', authored.costume]]
       : [['Sprite', authored.spriteId], ['x inicial', authored.x], ['y inicial', authored.y],
         ['Dirección inicial', authored.direction], ['Tamaño inicial (%)', authored.size], ['Disfraz inicial', authored.costume]]);
     fields(runtime, snapshot
@@ -54,8 +61,8 @@ export function createSceneInspectorUI({readScene, getScope, initialScene}) {
     if (!items.length) {
       const item = document.createElement('li');
       item.textContent = sceneSelected
-        ? 'Selecciona hero para consultar sus variables locales.'
-        : snapshot ? 'hero no tiene variables locales en esta lectura.' : 'Actualiza la lectura para consultar las variables locales de hero.';
+        ? `Selecciona ${name} para consultar sus variables locales.`
+        : snapshot ? `${name} no tiene variables locales en esta lectura.` : `Actualiza la lectura para consultar las variables locales de ${name}.`;
       items.push(item);
     }
     variables.replaceChildren(...items);
@@ -81,5 +88,5 @@ export function createSceneInspectorUI({readScene, getScope, initialScene}) {
   button.addEventListener('click', () => { void refresh(); });
   object.addEventListener('change', () => render(visibleState));
   render(inspection.state());
-  return Object.freeze({refresh, invalidate, scheduleRefresh, state: () => inspection.state()});
+  return Object.freeze({refresh, invalidate, scheduleRefresh, objectsChanged: () => render(visibleState), state: () => inspection.state()});
 }

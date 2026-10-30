@@ -119,7 +119,7 @@ test('E4-02: «Editando» y «Resultado de» distinguen 2D de una aplicación we
   await expect.poll(async()=>(await execution(page)).contextId).toBe('webapp');
   await expect(page.locator('#result-context')).toContainText('aplicación web');
   await selectContext(page,'2d');
-  await expect(page.locator('#editing-context')).toHaveText('Editando bloques');
+  await expect(page.locator('#editing-context')).toHaveText('Editando: hero · bloques');
   await expect(page.locator('#result-other')).toBeVisible();await expect(page.locator('#result-other')).toContainText('Aplicación web');
   await expect(page.getByRole('button',{name:'Ejecutar bloques',exact:true})).toBeVisible();
   expect((await execution(page)).contextId).toBe('webapp');

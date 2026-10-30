@@ -179,6 +179,10 @@ Un botón Ejecutar por contexto, nombrado por su autoría (Ejecutar bloques, Eje
 
 Grupo de radios nativo presentado como segmentos: Bloques · JavaScript · Python (2D, 3D, web) o Bloques de firmware · TypeScript independiente (micro:bit). En Escena 2D, elegir JavaScript o Python abre una vista editable del mismo programa; volver a Bloques valida el texto y conserva el resultado activo. El rechazo aparece junto al código con línea y tres salidas por teclado, y Deshacer recupera el programa previo. Texto 2D mantiene los documentos independientes; sus plantillas nuevas usan API3. Micro:bit y 3D/web conservan por ahora la selección de documentos independientes. La consulta de fuente derivada sigue siendo de lectura.
 
+### Objetos
+
+En Escena 2D con varios objetos (`gg.sprites@0.3.0`), una fila bajo la barra de autoría muestra Escenario y sprites con su disfraz y su nombre, y las acciones sobre el seleccionado: Añadir objeto, Renombrar, Duplicar y Borrar. Es una lista de selección única (`listbox` horizontal con foco itinerante): flechas, Inicio y Fin mueven el foco, y Enter, Espacio o clic eligen, porque elegir puede aplicar texto y ser rechazado. `Editando: <nombre> · <vista>` nombra el objeto y se anuncia. Una acción no disponible sigue enfocable y explica por qué. El nombre se pide en un formulario en línea, con el error sobre el campo. Borrar pide confirmación y el foco pasa al objeto que queda seleccionado. La fila envuelve en estrecho; un nombre largo se recorta y conserva su nombre accesible. Los objetos se ven en el escenario al ejecutar: el escenario en reposo no es la autoría.
+
 ### Consulta
 
 Pestañas reales (`tablist`, flechas, Inicio/Fin) sobre paneles montados: Propiedades, Código, Firmware, Original y copia, Objetos 3D, Código 3D, Componentes web, Código web, Actividad, Diagnósticos, Recursos y Ayuda, según el contexto. La selección se recuerda por contexto y vuelve a una herramienta válida al cambiar. Revelar un destino (diagnóstico, enlace de ayuda) selecciona su pestaña y abre el detalle necesario.

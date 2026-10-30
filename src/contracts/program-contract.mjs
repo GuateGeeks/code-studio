@@ -11,6 +11,7 @@ export const scene2DProgramLimits = Object.freeze({sprites: scene2DObjectLimits.
 // its backdrops arrive with their own blocks (tarea 3.2).
 const stageEvents = new Set(['start', 'key', 'click', 'message']);
 const stageStatements = new Set(['wait', 'repeat', 'forever', 'repeatUntil', 'waitUntil', 'if', 'broadcastWait', 'setVariable', 'changeVariable', 'playSound', 'stopSounds', 'stopAll', 'stopScript']);
+export const scene2DStageOffers = Object.freeze({events: stageEvents, statements: stageStatements});
 const fail = message => { throw new Error(`Invalid GG program: ${message}`); };
 function object(value, required, optional = []) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) fail('expected object');

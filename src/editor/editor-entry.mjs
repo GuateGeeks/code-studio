@@ -1,7 +1,7 @@
 import * as Blockly from 'blockly';
 import * as Es from 'blockly/msg/es';
 import {workspaceToIR, saveWorkspace, loadWorkspace, validateWorkspaceResources} from './block-program.mjs';
-import {validateProgram} from '../contracts/program-contract.mjs';
+import {validateProgram, scene2DStageOffers} from '../contracts/program-contract.mjs';
 import {validateCapabilities} from '../contracts/packs.mjs';
 import {createContributions, registerContributions} from './contributions.mjs';
 import {withDeferredAudioContext} from './deferred-audio.mjs';
@@ -12,7 +12,7 @@ export function createEditor(container, example) {
   Blockly.setLocale(Es);
   const listeners = new Set();
   const notify = () => { for (const callback of listeners) callback(); };
-  let capabilities = null, resourceView = null, loadGeneration = 0, scriptOrder = null;
+  let capabilities = null, resourceView = null, loadGeneration = 0, scriptOrder = null, stageToolbox = false;
   const checkpoints = new WeakMap(), codeViewSnapshots = new WeakMap(), codeViewCandidates = new WeakMap();
   const codeViewKey = () => JSON.stringify([loadGeneration, saveWorkspace(workspace), capabilities, resourceView, scriptOrder]);
   let contributions = registerContributions(Blockly, createContributions());
@@ -24,6 +24,15 @@ export function createEditor(container, example) {
     zoom: {controls: true, wheel: false, startScale: 0.85, maxScale: 1.5, minScale: 0.5},
     toolbox: {kind: 'categoryToolbox', contents: contributions.toolbox}
   }));
+  // The stage only offers what it can do (scene2d-multi-sprite 3.1): empty
+  // categories go, and blocks already in its workspace stay as they are.
+  function toolboxOf(current) {
+    if (!stageToolbox) return {kind: 'categoryToolbox', contents: current.toolbox};
+    const allowed = item => item.kind !== 'block' || (current.hats.has(item.type) ? scene2DStageOffers.events.has(current.hats.get(item.type).rule.event)
+      : !current.statements.has(item.type) || scene2DStageOffers.statements.has(current.statements.get(item.type).rule.kind));
+    const contents = current.toolbox.map(category => category.contents ? {...category, contents: category.contents.filter(allowed)} : category).filter(category => !category.contents || category.contents.length);
+    return {kind: 'categoryToolbox', contents};
+  }
   workspace.registerToolboxCategoryCallback('GG_VARIABLE', current => {
     const entries = Blockly.Variables.flyoutCategory(current);
     const model = current.getVariableMap().getAllVariables().find(variable => variable.type === '');
@@ -44,14 +53,14 @@ export function createEditor(container, example) {
       workspace.clear();
       Blockly.serialization.workspaces.load(structuredClone(state), workspace);
       if (nextScriptOrder !== null) workspaceToIR(workspace, {capabilities: nextCapabilities, resourceView: nextResourceView, scriptOrder: nextScriptOrder});
-      workspace.updateToolbox({kind: 'categoryToolbox', contents: nextContributions.toolbox});
+      workspace.updateToolbox(toolboxOf(nextContributions));
       capabilities = nextCapabilities; contributions = nextContributions; resourceView = nextResourceView; scriptOrder = structuredClone(nextScriptOrder);
     } catch (error) {
       setWorkspaceResourceView(workspace,previousResourceView);
       workspace.clear();
       Blockly.serialization.workspaces.load(previous, workspace);
       capabilities = previousCapabilities; contributions = previousContributions; resourceView = previousResourceView; scriptOrder = previousScriptOrder;
-      workspace.updateToolbox({kind: 'categoryToolbox', contents: contributions.toolbox});
+      workspace.updateToolbox(toolboxOf(contributions));
       throw error;
     } finally { Blockly.Events.enable(); }
     loadGeneration++; // Even identical imports replace the authoring generation.
@@ -139,6 +148,20 @@ export function createEditor(container, example) {
       try { return structuredClone(validateProgram(workspaceToIR(stored, {capabilities, resourceView}), {resourceView})); } finally { stored.dispose(); }
     },
     resourceView: () => resourceView == null ? null : structuredClone(resourceView),
+    setStageToolbox(value) {
+      if (stageToolbox === Boolean(value)) return;
+      stageToolbox = Boolean(value);workspace.updateToolbox(toolboxOf(contributions));
+    },
+    // History and camera of the workspace on screen, live for this session only.
+    // Each object keeps its own: replaying one object's events on another would
+    // bring its blocks here. Blockly has no public accessor for the stacks.
+    sessionState: () => ({undo: [...workspace.undoStack_], redo: [...workspace.redoStack_], scale: workspace.scale, scrollX: workspace.scrollX, scrollY: workspace.scrollY}),
+    restoreSessionState(session) {
+      workspace.clearUndo();
+      if (!session) { workspace.scrollCenter(); return; }
+      workspace.undoStack_.push(...session.undo);workspace.redoStack_.push(...session.redo);
+      workspace.setScale(session.scale);workspace.scroll(session.scrollX, session.scrollY);
+    },
     captureCapabilities: () => capabilities == null ? null : structuredClone(capabilities),
     restore: () => load(example),
     prepare,
@@ -164,11 +187,11 @@ export function createEditor(container, example) {
       codeViewSnapshots.set(snapshot, {captured, key: codeViewKey()});
       return snapshot;
     },
-    prepareCodeView: (parsed, snapshot) => {
+    prepareCodeView: (parsed, snapshot, options) => {
       const stored = codeViewSnapshots.get(snapshot);
       if (!stored || stored.key !== codeViewKey())
         throw new Error('La autoría cambió mientras se analizaba el texto; conserva el texto y vuelve a intentarlo.');
-      const candidate = prepareCodeViewCandidate(stored.captured, parsed);
+      const candidate = prepareCodeViewCandidate(stored.captured, parsed, options);
       codeViewCandidates.set(candidate, stored.key);
       return candidate;
     },

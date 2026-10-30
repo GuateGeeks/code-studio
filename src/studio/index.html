@@ -44,8 +44,14 @@
 <div class="authoring-bar">
 <div class="workspace-context"><label for="authoring-context">Qué programas</label><select id="authoring-context"><option value="2d">Escena 2D</option><option value="microbit">micro:bit y escena</option></select></div>
 <fieldset id="program-mode" class="mode-switch" hidden><legend>Programa</legend><label><input type="radio" name="program-mode" value="blocks" checked>Bloques</label><label><input type="radio" name="program-mode" value="javascript">JavaScript</label><label><input type="radio" name="program-mode" value="python">Python</label></fieldset>
-<div class="authoring-identity"><h1 id="editor-heading" tabindex="-1">Programa 2D</h1><p id="editing-context">Editando</p><output id="editor-status" aria-live="polite">Preparando bloques…</output><details class="keyboard-help"><summary>Usar bloques con el teclado</summary><p id="blockly-keyboard-help"><kbd>Tab</kbd> entra o sale del editor. Con un bloque enfocado, <kbd>T</kbd> abre la caja de herramientas y <kbd>W</kbd> vuelve al programa. Usa flechas para navegar y <kbd>Enter</kbd> para elegir o editar. <kbd>M</kbd> mueve un bloque; <kbd>Mayús + M</kbd>, su pila. Las flechas lo desplazan, <kbd>Enter</kbd> confirma y <kbd>Esc</kbd> cancela. <kbd>X</kbd> desconecta, <kbd>Supr</kbd> elimina y <kbd>Ctrl/Cmd + Z</kbd> deshace. Ejecutar y Detener se alcanzan con Tab.</p></details></div>
+<div class="authoring-identity"><h1 id="editor-heading" tabindex="-1">Programa 2D</h1><p id="editing-context" aria-live="polite">Editando</p><output id="editor-status" aria-live="polite">Preparando bloques…</output><details class="keyboard-help"><summary>Usar bloques con el teclado</summary><p id="blockly-keyboard-help"><kbd>Tab</kbd> entra o sale del editor. Con un bloque enfocado, <kbd>T</kbd> abre la caja de herramientas y <kbd>W</kbd> vuelve al programa. Usa flechas para navegar y <kbd>Enter</kbd> para elegir o editar. <kbd>M</kbd> mueve un bloque; <kbd>Mayús + M</kbd>, su pila. Las flechas lo desplazan, <kbd>Enter</kbd> confirma y <kbd>Esc</kbd> cancela. <kbd>X</kbd> desconecta, <kbd>Supr</kbd> elimina y <kbd>Ctrl/Cmd + Z</kbd> deshace. Ejecutar y Detener se alcanzan con Tab.</p></details></div>
 </div>
+<section id="objects-panel" aria-labelledby="objects-heading" hidden>
+<div class="objects-bar"><h2 id="objects-heading" class="visually-hidden">Objetos</h2><div id="objects-list" role="listbox" aria-label="Objetos del proyecto" aria-orientation="horizontal" aria-busy="false"></div>
+<div class="objects-actions" role="group" aria-label="Acciones del objeto seleccionado"><button id="object-add" type="button">Añadir objeto</button><button id="object-rename" type="button">Renombrar</button><button id="object-duplicate" type="button">Duplicar</button><button id="object-delete" type="button">Borrar</button></div></div>
+<form id="object-name-form" hidden novalidate><label id="object-name-label" for="object-name">Nombre</label><!-- The error sits above the field so it stays visible at minimum heights. --><p id="object-name-error" hidden></p><div class="object-name-fields"><input id="object-name" maxlength="64" autocomplete="off" spellcheck="false" aria-describedby="object-name-error"><button id="object-name-save" type="submit">Guardar nombre</button><button id="object-name-cancel" type="button">Cancelar</button></div></form>
+<output id="objects-status" aria-live="polite"></output>
+</section>
 <div id="inactive-2d" hidden><p>Este proyecto no incluye una escena 2D.</p><button id="enable-2d">Añadir escena 2D</button></div>
 <div id="scene-blockly-surface"><div id="code-view-undo-home" class="controls" hidden><button id="code-view-undo" type="button" disabled>Deshacer conversión</button></div><p id="creation-guide">Cambia un bloque <strong>Mover</strong>, cuéntale a tu docente qué esperas y compara con el escenario.</p><div id="blockly-editor" aria-label="Editor Blockly" aria-describedby="blockly-keyboard-help"></div>
 <output id="editor-error" role="alert"></output>
@@ -113,7 +119,7 @@
 <div class="inspection-actions"><div><label for="inspector-object">Objeto a inspeccionar</label><select id="inspector-object"><option value="hero">hero · Sprite</option><option value="scene">Escena 2D</option></select></div><button id="refresh-inspector">Actualizar lectura</button></div>
 <details><summary>Estado inicial del proyecto</summary><dl id="inspector-initial"></dl></details>
 <h3>Última lectura de ejecución</h3><dl id="inspector-runtime"></dl>
-<h3>Variables locales de hero</h3><ul id="inspector-variables"></ul>
+<h3 id="inspector-variables-heading">Variables locales de hero</h3><ul id="inspector-variables"></ul>
 <p>La lectura no cambia tu proyecto. Actualiza para consultar los valores después de un evento.</p>
 </section>
 </div>

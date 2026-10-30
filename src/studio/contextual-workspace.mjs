@@ -20,7 +20,7 @@ const toolAvailability = {
   activity:()=>true,console:()=>true,resources:id=>['2d','text','sb3'].includes(id),help:()=>true
 };
 const languageName=language=>language==='javascript'?'JavaScript':language==='python'?'Python':'bloques';
-export function createContextualWorkspace({contexts,textDocuments,capabilityUI,device,stopResult,getTextContext=()=>null,getAuthoringKey=()=>null,codeViews=null,is2DEnabled=()=>true,onError=()=>{}}) {
+export function createContextualWorkspace({contexts,textDocuments,capabilityUI,device,stopResult,getTextContext=()=>null,getAuthoringKey=()=>null,codeViews=null,is2DEnabled=()=>true,selectedObject=()=>null,canRestoreExample=()=>true,onError=()=>{}}) {
   const pick=selector=>document.querySelector(selector);
   const text=pick('.text-authoring'),inspector=pick('.scene-inspector'),generated=pick('.generated-panel');
   const tools=pick('#context-tools'),tabList=pick('#dock-tabs'),dock=pick('#dock-content');
@@ -132,7 +132,8 @@ export function createContextualWorkspace({contexts,textDocuments,capabilityUI,d
       pick('#sb3-transport').hidden=pick('#sb3-tools-panel').hidden=id!=='sb3';
       pick('#scene3d-transport').hidden=id!=='scene3d';
       pick('#webapp-transport').hidden=id!=='webapp';
-      pick('#restore-editor').hidden=id!=='2d'||Boolean(synchronized);
+      // The example is a sprite's program: its IDs fit only a project of one sprite.
+      pick('#restore-editor').hidden=id!=='2d'||Boolean(synchronized)||!canRestoreExample();
       const active=document.activeElement;
       const feedback=pick('#resource-feedback'),feedbackSlot=pick(id==='sb3'?'#sb3-feedback-slot':'#resource-feedback-home');
       if(feedback.parentElement!==feedbackSlot){
@@ -172,7 +173,10 @@ export function createContextualWorkspace({contexts,textDocuments,capabilityUI,d
       pick('#text-destination').textContent=synchronized?synchronized.destination:capabilityText
         ? `Destino: ${def.name}. Documento independiente; ejecuta con el botón de este contexto. Editarlo no cambia los bloques.`
         : 'Destino: escena 2D. Documento independiente; editarlo no modifica los bloques.';
-      pick('#editing-context').textContent=id==='sb3'?'Revisando el original · solo lectura':synchronized?'Editando '+languageName(synchronized.language)+' del programa':'Editando '+editingLabel(id,def,config);
+      const object=id==='2d'?selectedObject():null;
+      const editing=id==='sb3'?'Revisando el original · solo lectura':object?'Editando: '+object+' · '+languageName(synchronized?.language):synchronized?'Editando '+languageName(synchronized.language)+' del programa':'Editando '+editingLabel(id,def,config);
+      // A live region: only a real change is announced.
+      if(pick('#editing-context').textContent!==editing)pick('#editing-context').textContent=editing;
       pick('#run-editor-label').textContent=synchronized?'Ejecutar programa':'Ejecutar bloques';
       pick('#workspace-help-heading').textContent='Ayuda y herramientas · '+def.name;
       pick('#workspace-guidance').textContent=synchronized?'Editas el mismo programa en texto. Predice el cambio con tu docente y vuelve a Bloques para comprobarlo. Ejecutar usa el texto validado; cambiar de vista conserva el resultado activo.':def.help;

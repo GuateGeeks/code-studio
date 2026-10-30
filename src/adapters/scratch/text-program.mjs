@@ -128,7 +128,8 @@ export function createTextProgram({getVM, getRevision, onInvocation = () => {}, 
       return target;
     };
     // Every object resolves before the VM is touched.
-    const first = targetOf(program.handlers[0]?.targetId);
+    // Without handlers there may be no hero either (a project can delete it).
+    const first = program.handlers.length ? targetOf(program.handlers[0].targetId) : runtime.getSpriteTargetByName('hero') ?? stage;
     for (const item of [...program.handlers, ...program.variables.filter(variable => variable.scope !== 'global')]) targetOf(item.targetId);
     const originals = runtime.targets.filter(target => target === stage || target.isOriginal);
     const replaced = new Map(originals.map(target => [target, new target.blocks.constructor(runtime)]));

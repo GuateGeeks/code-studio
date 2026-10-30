@@ -111,6 +111,25 @@ export function createResourcesUI({store,contexts,getAuthoring,getProject,editor
         catalog:project.catalog(),capabilities:createCapabilities(ids,{config:settings,versions:{...lockedPackVersions(previous),...(resources.version===2?{'gg.assets':'0.2.0',...(ids.includes('gg.sb3')?{'gg.sb3':'0.2.0'}:{})}:{})}})});
     },{isCurrent});
   }
+  // One transaction for the objects panel (scene2d-multi-sprite 3.1): `edit` gets
+  // the live authoring and returns the parts it replaces. resources: null keeps
+  // the project's, profile included. Same path as any resource change: the
+  // runner restarts on the initial scene and nothing runs.
+  function editObjects(edit) {
+    return working(async isCurrent=>{
+      const base=await baseResources(),project=getProject();let result=null;
+      await project.replaceAuthoring(async()=>{
+        const metadata=(await project.capture()).project,captured=getAuthoring().capture(),previous=captured.capabilities;
+        result=await edit({capabilities:previous,config:previous.config['gg.sprites'],scene2d:captured.scene2d,codeViews:captured.codeViews??null,resources:base,mounted:getAuthoring().mountedObject()});
+        const resources=result.resources?await store.mergeContext(await validateResources(result.resources)):captured.resources;
+        const ids=[...new Set([...previous.locks.map(lock=>lock.id),...(result.resources?['gg.assets']:[])])];
+        const {codeViews:ignored,...kept}=captured;
+        return createProject({...metadata,...kept,blockly:undefined,scene2d:result.scene2d,...(result.codeViews?{codeViews:result.codeViews}:{}),resources,catalog:project.catalog(),
+          capabilities:createCapabilities(ids,{config:{...previous.config,'gg.sprites':result.config},versions:{...lockedPackVersions(previous),...(resources.version===2?{'gg.assets':'0.2.0'}:{})}})});
+      },{isCurrent,notice:''});
+      return result;
+    });
+  }
   async function refreshReport() {
     const sourceAssetId=reference();if(!sourceAssetId){report=null;render();return;}
     const expected=epoch;
@@ -234,7 +253,7 @@ export function createResourcesUI({store,contexts,getAuthoring,getProject,editor
     subscribe:listener=>{listeners.add(listener);return()=>listeners.delete(listener);},hasAuthoring:()=>Boolean(reference())
   };
   render();
-  return Object.freeze({participant,reference,importSb3,refreshReport,render,setReady:value=>{ready=Boolean(value);render();},
+  return Object.freeze({participant,reference,importSb3,refreshReport,editObjects,render,setReady:value=>{ready=Boolean(value);render();},
     authoringChanged:()=>{epoch++;if(!busy)processor.cancel();},invalidate:()=>{epoch++;processor.cancel();stopPreview();library.stopPreview();},
     setRunnerReady:value=>{runnerReady=Boolean(value);pick('run-sb3').disabled=busy||!ready||!runnerReady||!reference()||!report||report.status==='unsupported';},
     state:()=>({busy,sourceAssetId:reference(),report:structuredClone(report),library:library.state()}),openLibrary:()=>library.ensure(),dispose:()=>{processor.dispose();library.dispose();if(previewURL)URL.revokeObjectURL(previewURL);listeners.clear();}});

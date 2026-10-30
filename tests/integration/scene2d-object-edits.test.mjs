@@ -9,8 +9,15 @@ import {scene2DObjectIdentifiers} from '../../src/contracts/scene2d-identifiers.
 import {promoteLegacyResources, validateResources, createResourceView, resourceLimits} from '../../src/contracts/resources.mjs';
 import {composeScene2DProgram, validateProgram} from '../../src/contracts/program-contract.mjs';
 import {createProject, parseProject, serializeProject} from '../../src/project-format.mjs';
-import {validateCodeViews, emptyCodeView} from '../../src/code-views-state.mjs';
+import {createCodeViewsState, validateCodeViews, emptyCodeView} from '../../src/code-views-state.mjs';
+import {createProjectAuthoring} from '../../src/project-authoring.mjs';
+import {toScratchSceneProject} from '../../src/adapters/scratch/scratch-project.mjs';
+import {createTextProgram} from '../../src/adapters/scratch/text-program.mjs';
+import {createScratchSession} from '../../spikes/scratch-adapter.mjs';
 import {loadWorkspace, workspaceToIR} from '../../src/editor/block-program.mjs';
+import {captureCodeViewSnapshot, generateCodeViewSource, prepareCodeViewCandidate} from '../../src/editor/code-view-conversion.mjs';
+import {parseJavaScriptCodeView} from '../../src/targets/text/code-view-parser.mjs';
+import {scene2DTextOwner} from '../../src/contracts/scene2d-identifiers.mjs';
 import {buildProjectCatalog} from '../../tools/f1/build-project-catalog.mjs';
 import {createTone} from '../../tools/f0/tone.mjs';
 
@@ -248,4 +255,86 @@ test('MS-042: IDs and names never collide; edited scenes save and reopen with th
   const reopened = await parseProject(serializeProject(document), {catalog});
   assert.deepEqual(reopened.capabilities.config['gg.sprites'].sprites.map(sprite => [sprite.id, sprite.name]), [['sprite-1', 'Cesta Roja'], ['sprite-2', 'hero 2']]);
   assert.deepEqual(Object.keys(reopened.authoring.scene2d.sprites).sort(), ['sprite-1', 'sprite-2']);
+});
+
+test('MS-043: the hash of a conversion reaches its Undo point after the object was stored', () => {
+  const point = {id: '11111111-1111-4111-8111-111111111111', workspace: {}, scriptOrder: null, appliedHash: 'a'.repeat(64)};
+  const views = createCodeViewsState({version: 2, activeContext: '2d', entries: [emptyCodeView('2d')], objectId: 'cesta', objects: {hero: {scriptOrder: null, restorePoint: point}}});
+  const changes = [];
+  views.subscribe(reason => changes.push(reason.type));
+  assert.equal(views.correctStoredPoint(point.id, 'b'.repeat(64)), true);
+  assert.equal(views.objectView('hero').restorePoint.appliedHash, 'b'.repeat(64));
+  assert.deepEqual(changes, ['edit'], 'the corrected hash is saved like any view change');
+  // The same hash again is not a change; another point is not touched.
+  assert.equal(views.correctStoredPoint(point.id, 'b'.repeat(64)), true);
+  assert.equal(views.correctStoredPoint('22222222-2222-4222-8222-222222222222', 'c'.repeat(64)), false);
+  assert.equal(changes.length, 1);
+  assert.equal(views.objectView('hero').restorePoint.appliedHash, 'b'.repeat(64));
+  assert.equal(createCodeViewsState().correctStoredPoint(point.id, 'c'.repeat(64)), false);
+});
+
+test('MS-044: each object keeps its session: history and camera follow it, a stage gets its toolbox, another project starts clean', async () => {
+  const profile = createCapabilities(['gg.sprites']);
+  profile.config['gg.sprites'] = config(heroSprite, {...heroSprite, id: 'cesta', name: 'Cesta'});
+  const live = {state: {}, session: null, stage: false, restored: []};
+  const editor = {
+    save: () => structuredClone(live.state), program: () => ({version: 0, scripts: []}), resourceView: () => null, programOf: () => ({version: 0, scripts: []}),
+    captureCapabilities: () => structuredClone(profile),
+    prepare: (state, options) => ({state: structuredClone(state), scriptOrder: options.scriptOrder, capabilities: options.capabilities}),
+    commit(candidate) { live.state = structuredClone(candidate.state); },
+    sessionState: () => live.session, restoreSessionState(session) { live.restored.push(session); live.session = session; },
+    setStageToolbox(value) { live.stage = value; }
+  };
+  const authoring = createProjectAuthoring({editor, source: {value: ''}, codeViews: createCodeViewsState(), initialCapabilities: profile});
+  const open = async id => authoring.commit(authoring.prepare(await createProject({name: 'Sesión', id, scene2d: {stage: {}, sprites: {hero: {}, cesta: {}}}, deviceSource: '', catalog, capabilities: profile})));
+  await open('11111111-1111-4111-8111-111111111111');
+  live.session = 'historia de hero';
+  authoring.mountObject('cesta');
+  assert.deepEqual(live.restored, [null], 'an object seen for the first time has no history');
+  live.session = 'historia de cesta';
+  authoring.mountObject('stage');
+  assert.equal(live.stage, true);
+  authoring.mountObject('hero');
+  assert.equal(live.stage, false);
+  assert.deepEqual(live.restored, [null, null, 'historia de hero']);
+  authoring.mountObject('cesta');
+  assert.equal(live.restored.at(-1), 'historia de cesta');
+  // An edit of the same project (add, rename) keeps them; another project does not.
+  authoring.mountObject('stage');
+  await open('11111111-1111-4111-8111-111111111111');
+  live.restored.length = 0;
+  authoring.mountObject('cesta');
+  assert.deepEqual(live.restored, ['historia de cesta']);
+  await open('22222222-2222-4222-8222-222222222222');
+  live.restored.length = 0;
+  authoring.mountObject('cesta');
+  assert.deepEqual(live.restored, [null]);
+});
+
+test('MS-045: a document without handlers starts in a project without hero', {timeout: 60000}, async t => {
+  const scene = config({...heroSprite, id: 'cesta', name: 'Cesta'});
+  const {project} = toScratchSceneProject({version: 1, sprites: ['cesta'], scripts: []}, {scene});
+  const vm = await createScratchSession(project);
+  const program = createTextProgram({getVM: () => vm, getRevision: () => 1, onInvocation: () => {}});
+  t.after(() => { program.dispose(); vm.quit(); });
+  assert.deepEqual(program.call('program.start', [{variables: [{id: 'n', name: 'n', initialValue: 0, targetId: 'cesta'}], handlers: []}], 1), {started: true});
+  assert.deepEqual(Object.keys(vm.runtime.getSpriteTargetByName('cesta').variables), ['n']);
+  assert.throws(() => program.call('program.start', [{variables: [], handlers: [{id: 'lost', event: 'start'}]}], 1), /scene unavailable/);
+});
+
+test('MS-046: scripts written in text on two objects keep unique block and variable IDs', () => {
+  const profile = createCapabilities(['gg.sprites']), objects = config(heroSprite, {...heroSprite, id: 'sprite-1', name: 'Cesta'});
+  const convert = (id, text) => {
+    const owner = scene2DTextOwner(objects, id), snapshot = captureCodeViewSnapshot({}, {capabilities: profile}), generated = generateCodeViewSource(snapshot, 'javascript', {owner});
+    const parsed = parseJavaScriptCodeView(text, {capabilities: profile, owner, variableIds: generated.variableIds, variableNames: generated.variableNames});
+    return prepareCodeViewCandidate(snapshot, parsed, {targetId: id});
+  };
+  const hero = convert('hero', 'let pasos = 0;\nonStart(() => {\n  pasos = 1;\n  hero.move(pasos);\n});\n');
+  const cesta = convert('sprite-1', 'let vueltas = 0;\nonStart(() => {\n  vueltas = 1;\n  cesta.move(vueltas);\n});\n');
+  const stage = convert('stage', 'onStart(() => {\n  broadcastAndWait("hola");\n});\n');
+  const program = composeScene2DProgram(objects, {stage: stage.ir, sprites: {hero: hero.ir, 'sprite-1': cesta.ir}});
+  assert.doesNotThrow(() => validateProgram(program, {objects: true}));
+  assert.equal(program.variables.length, 2);
+  // hero keeps the IDs it always had.
+  assert.match(hero.ir.scripts[0].sourceBlockId, /^gg-code-view-\d+$/);
 });

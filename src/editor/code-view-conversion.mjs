@@ -77,11 +77,13 @@ function validateMetadata(parsed) {
 
 // Prepare in a detached workspace. The caller's authoring and runtime remain
 // unchanged until the editor explicitly commits the returned candidate.
-export function prepareCodeViewCandidate(snapshot, parsed) {
+// targetId: the object being edited. Block and variable IDs are unique across the
+// objects of a scene, so its new ones carry it; hero's stay as they always were.
+export function prepareCodeViewCandidate(snapshot, parsed, {targetId = 'hero'} = {}) {
   if (!plain(parsed)) throw new Error('Metadatos de conversión inválidos.');
   const candidate = authorizeProgram(snapshot.capabilities, parsed.ir, {resourceView: snapshot.resourceView});
   validateMetadata(parsed);
-  const result = reconcileCodeViewIdentity(snapshot.ir, candidate, {...snapshot, resourceView: snapshot.resourceView});
+  const result = reconcileCodeViewIdentity(snapshot.ir, candidate, {...snapshot, resourceView: snapshot.resourceView, idPrefix: targetId === 'hero' ? '' : targetId.slice(0, 96) + '-'});
   const state = workspaceFromIR(result.ir, {...result, capabilities: snapshot.capabilities, resourceView: snapshot.resourceView});
   const old = blocks(snapshot.state), next = blocks(state);
   for (const [id, block] of next) {

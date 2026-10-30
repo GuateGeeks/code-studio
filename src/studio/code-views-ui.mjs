@@ -15,7 +15,7 @@ export function createCodeViewsUI({state,editor,textDocuments,contexts,config,ge
   const source=document.querySelector('#text-source'),errorOutput=document.querySelector('#text-error');
   const service=createCodeViewService({origin:config.languageOrigin,releaseBase:config.releaseBase??'/'});
   const known=new Map(),pointSnapshots=new Map(),notice=new Set(),carets=new Map();
-  let ready=false,busy=false,error=null,warning='',attempt=0,epoch=0,staging=null,selfCommit=false,lastContext=contexts.current();
+  let ready=false,busy=false,error=null,warning='',attempt=0,epoch=0,staging=null,selfCommit=false,lastContext=contexts.current(),applyFailure='cancelled';
   const supports=context=>context==='2d';
   const current=()=>state.get(contexts.current());
   const ownerOption=()=>{const id=objects?.current()??null;return id===null?{}:{owner:objects.owner(id)};};
@@ -102,7 +102,9 @@ export function createCodeViewsUI({state,editor,textDocuments,contexts,config,ge
     if(entry.language==='blocks')return true;
     if(trusted(context,entry))return true;
     const available=availability(context,entry.language);
+    applyFailure='rejected';
     if(!available.editable){report(new Error(available.reason));focusSource();return false;}
+    applyFailure='cancelled';
     cancelAnalysis();const id=attempt,projectEpoch=epoch;
     busy=true;error=null;warning='';source.removeAttribute('aria-invalid');setText(errorOutput,'');render();
     let point=null;
@@ -113,7 +115,7 @@ export function createCodeViewsUI({state,editor,textDocuments,contexts,config,ge
         variableIds:generated.variableIds,variableNames:generated.variableNames,
         capabilities:snapshot.capabilities,resourceView:snapshot.resourceView,...ownerOption()});
       if(id!==attempt||projectEpoch!==epoch)return false;
-      const prepared=editor.prepareCodeView(parsed,snapshot);
+      const targetId=ownerOption().owner?.targetId,prepared=editor.prepareCodeView(parsed,snapshot,targetId?{targetId}:{});
       const changed=!same(prepared.ir,snapshot.ir)||!same(prepared.state,snapshot.state);
       if(changed){
         const hash=await digest(prepared.state,prepared.scriptOrder);
@@ -140,7 +142,8 @@ export function createCodeViewsUI({state,editor,textDocuments,contexts,config,ge
         void digest(applied.state,applied.scriptOrder).then(actual=>{
           if(projectEpoch!==epoch)return;
           const latest=state.get(context);
-          if(latest.restorePoint?.id===point.id&&latest.restorePoint.appliedHash!==actual)
+          if(latest.restorePoint?.id!==point.id)state.correctStoredPoint(point.id,actual);
+          else if(latest.restorePoint.appliedHash!==actual)
             state.set({...latest,restorePoint:{...latest.restorePoint,appliedHash:actual}});
         }).catch(()=>{});
       }else state.set({...state.get(context),baselineSource:entry.source});
@@ -148,7 +151,7 @@ export function createCodeViewsUI({state,editor,textDocuments,contexts,config,ge
       return true;
     }catch(failure){
       clearPending(point);
-      if(id===attempt&&projectEpoch===epoch){report(failure);focusSource(failure.lineNumber,failure.columnNumber);}
+      if(id===attempt&&projectEpoch===epoch){applyFailure='rejected';report(failure);focusSource(failure.lineNumber,failure.columnNumber);}
       return false;
     }finally{if(id===attempt){busy=false;render();}}
   }
@@ -229,13 +232,24 @@ export function createCodeViewsUI({state,editor,textDocuments,contexts,config,ge
   }
   // R2: changing object with pending text applies it, like returning to Blocks.
   // On rejection the object does not change, the text stays and its cause shows.
+  // The result says what happened: {ok:true} (reason `current` if it was already
+  // the object), or {ok:false,reason}: `unavailable` (one-object profile), `busy`
+  // (a check is running), `rejected` (the text has an error; #text-error says it),
+  // `cancelled` (a newer edit replaced the check) or `failed` (with `message`).
+  async function settleText(){
+    if(!ready||busy)return {ok:false,reason:'busy'};
+    if(await apply('2d'))return {ok:true};
+    return {ok:false,reason:applyFailure};
+  }
   async function selectObject(id){
     const from=objects?.current()??null;
-    if(from===null||from===id)return from===id;
-    if(!ready||busy)return false;
-    const context='2d';
-    if(!await apply(context)||objects.current()!==from)return false;
-    const language=state.get(context).language,stored=state.objectView(id),order=editor.codeViewOrder(),checkpoint=state.checkpoint();
+    if(from===null)return {ok:false,reason:'unavailable'};
+    if(from===id)return {ok:true,reason:'current'};
+    const settled=await settleText();
+    if(!settled.ok)return settled;
+    if(objects.current()!==from)return {ok:false,reason:'cancelled'};
+    const context='2d',language=state.get(context).language,stored=state.objectView(id),order=editor.codeViewOrder(),checkpoint=state.checkpoint();
+    const previous=known.get(context);
     error=null;warning='';setText(errorOutput,'');source.removeAttribute('aria-invalid');
     selfCommit=true;
     try{
@@ -249,9 +263,25 @@ export function createCodeViewsUI({state,editor,textDocuments,contexts,config,ge
       }
     }catch(failure){
       try{if(objects.current()!==from)objects.mount(from,{scriptOrder:order});}finally{state.restoreDraft(checkpoint);}
-      report(failure);return false;
+      // The object and its text are back: the baseline holds again.
+      if(previous)known.set(context,{...previous,snapshot:editor.codeViewSnapshot()});
+      // The text was not the cause: the panel says what failed, and it is logged.
+      onDiagnostic({level:'error',code:'CODE_VIEW_OBJECT',origin:'shell',message:failure.message});
+      render();return {ok:false,reason:'failed',message:failure.message};
     }finally{selfCommit=false;}
-    render();return true;
+    render();return {ok:true};
+  }
+  // The live text after the objects changed (a rename, a delete): the identifiers
+  // are others, the program is the same. The panel applied pending text first.
+  function refreshObjectText(){
+    const context='2d',entry=state.get(context);
+    if(objects?.current()==null||entry.language==='blocks')return;
+    try{
+      const snapshot=editor.codeViewSnapshot(),generated=generate(snapshot,entry.language);
+      state.set({...entry,source:generated.text,baselineSource:generated.text});
+      known.set(context,{language:entry.language,source:generated.text,owner:ownerKey(),snapshot});
+      render();
+    }catch(failure){report(failure);}
   }
   function presentation(context){
     const entry=state.get(context);
@@ -300,7 +330,7 @@ export function createCodeViewsUI({state,editor,textDocuments,contexts,config,ge
       state.set({...entry,scriptOrder:order});
     render();
   });
-  return Object.freeze({select,selectObject,applyForRun:()=>apply('2d'),presentation,
+  return Object.freeze({select,selectObject,settleText,refreshObjectText,applyForRun:()=>apply('2d'),presentation,
     mode:context=>supports(context)?state.get(context).language:null,
     setReady(value){ready=!!value;render();},cancelAnalysis,
     revealBlock(id){

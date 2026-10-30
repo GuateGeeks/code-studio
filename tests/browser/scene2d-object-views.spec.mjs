@@ -7,12 +7,12 @@ import {artifactPath} from './artifacts.mjs';
 // show the selected object's program. Actions written for another object are
 // rejected with cause and line; changing object with pending text applies it
 // like returning to Blocks, and on rejection nothing changes. IDs, Undo and
-// saved views stay per object, and an API3 copy runs on its own sprite. The
-// objects panel arrives with 3.1: these tests use the hook it will call.
+// saved views stay per object, and an API3 copy runs on its own sprite. These
+// tests call the hook the objects panel calls (scene2d-objects-panel covers the panel).
 test.setTimeout(240000);
 const snapshot=page=>page.evaluate(()=>studioProbe.request('snapshot'));
 const mounted=page=>page.evaluate(()=>studioProbe.authoring.mountedObject());
-const selectObject=(page,id)=>page.evaluate(id=>studioProbe.syncedViews.selectObject(id),id);
+const selectObject=(page,id)=>page.evaluate(id=>studioProbe.syncedViews.selectObject(id).then(result=>result.ok),id);
 const workspaces=page=>page.evaluate(()=>studioProbe.authoring.capture().scene2d);
 async function mode(page,value){await clickVisible(page,page.locator('#program-mode input[value="'+value+'"]'));await expect(page.locator('#program-mode input[value="'+value+'"]')).toBeChecked();}
 async function open(page){
@@ -144,7 +144,7 @@ test('MS-BROWSER-006: a JavaScript copy of the project uses hero. and cesta. and
   await clickVisible(page,page.locator('#stop-result'));
   await expect.poll(async()=>(await settled(snapshot,page)).threads).toBe(0);
   // The copy: one document with every object's ID in its metadata.
-  await page.evaluate(()=>document.querySelector('#copy-javascript').click());
+  await clickVisible(page,page.locator('#copy-javascript'));
   await expect(page.locator('#authoring-context')).toHaveValue('text');
   const copy=(await page.evaluate(()=>studioProbe.textDocuments.capture())).textDocuments.at(-1);
   expect(copy.runtime).toMatchObject({api:'api3',targetIds:{stage:'stage',hero:'hero',cesta:'cesta'}});

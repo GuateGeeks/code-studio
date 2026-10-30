@@ -52,7 +52,7 @@ function align(old, next) {
   return pairs;
 }
 
-export function reconcileCodeViewIdentity(previous, candidate, {numericInputIdentity = [], layout = [], resourceView} = {}) {
+export function reconcileCodeViewIdentity(previous, candidate, {numericInputIdentity = [], layout = [], resourceView, idPrefix = ''} = {}) {
   validateProgram(previous, {resourceView}); validateProgram(candidate, {resourceView});
   const before = signature(candidate), ir = structuredClone(candidate);
   const oldNodes = nodes(previous), nextNodes = nodes(ir), oldIDs = new Set(oldNodes.map(node => node.sourceBlockId));
@@ -75,7 +75,7 @@ export function reconcileCodeViewIdentity(previous, candidate, {numericInputIden
     positions.add(point.sourceBlockId);
   }
   let sequence = 0;
-  const fresh = () => { let id; do { id = 'gg-code-view-' + sequence++; } while (reserved.has(id)); reserved.add(id); return id; };
+  const fresh = () => { let id; do { id = 'gg-code-view-' + idPrefix + sequence++; } while (reserved.has(id)); reserved.add(id); return id; };
   // Names/scopes identify declarations; a new declaration receives fresh identity.
   const variableMap = new Map();
   for (const variable of ir.variables ?? []) {

@@ -17,6 +17,7 @@ import {createCodeConsoleUI} from './code-console-ui.mjs';
 import {createTextDocumentsUI} from './text-documents-ui.mjs';
 import {createLanguageController} from './language-controller.mjs';
 import {createSceneInspectorUI} from './scene-inspector-ui.mjs';
+import {createObjectsUI} from './objects-ui.mjs';
 import {projectInitialScene, scene2DObjectsOf} from '../project-format.mjs';
 import {scene2DTextOwner} from '../contracts/scene2d-identifiers.mjs';
 import {generateApi3ProgramSource, generateApi3SceneSource} from '../generated-program-source.mjs';
@@ -54,7 +55,7 @@ void offline.init().catch(error => { document.querySelector('#offline-status').t
 const editor = GGEditor.createEditor(document.querySelector('#blockly-editor'), await fetch('/editable.blocks.json').then(response => response.json()));
 const copyFacts = new Map();
 let lessons = null;
-let workspace = null, syncedViews = null, projectForCodeViews = null;
+let workspace = null, syncedViews = null, projectForCodeViews = null, inspector = null;
 const codeViewsState=createCodeViewsState();
 let executionLessonIdentity = null;
 const textDocuments = createTextDocumentsUI({onReveal:id=>workspace?.revealText(id),canRun:()=>scene2DEnabled,onError: record => consoleUI.local(record)});
@@ -114,7 +115,8 @@ syncedViews=createCodeViewsUI({state:codeViewsState,editor,textDocuments,context
   objects:{current:()=>scene2DObjectsOf(editor.captureCapabilities())?authoring.mountedObject():null,owner:id=>scene2DTextOwner(scene2DObjectsOf(editor.captureCapabilities()),id),mount:(id,options)=>authoring.mountObject(id,options)},
   onCopy:(document,blocklyHashAtCopy)=>copyFacts.set(document.id,{documentId:document.id,language:document.language,blocklyHashAtCopy,projectId:projectForCodeViews.state().id}),
   canRun:()=>scene2DEnabled&&Boolean(sessionId)&&activeRevision!==null});
-workspace=createContextualWorkspace({contexts,textDocuments,capabilityUI,device,codeViews:syncedViews,is2DEnabled:()=>scene2DEnabled,stopResult:()=>reset().then(()=>{document.querySelector('#position').textContent='x = 0';}),getAuthoringKey:contextAuthoringKey,getTextContext:id=>{const state=capabilityExecution.state();return state.sourceDocument===id?state.contextId:null;},onError:showError});
+const objectsUI=createObjectsUI({authoring,codeViews:syncedViews,contexts,resources:resourceStore,editObjects:edit=>resourcesUI.editObjects(edit),onChanged:()=>{workspace?.render();inspector?.objectsChanged();}});
+workspace=createContextualWorkspace({contexts,textDocuments,capabilityUI,device,codeViews:syncedViews,is2DEnabled:()=>scene2DEnabled,selectedObject:()=>objectsUI.selectedName(),canRestoreExample:()=>objectsUI.isSingleSprite(),stopResult:()=>reset().then(()=>{document.querySelector('#position').textContent='x = 0';}),getAuthoringKey:contextAuthoringKey,getTextContext:id=>{const state=capabilityExecution.state();return state.sourceDocument===id?state.contextId:null;},onError:showError});
 for(const entry of ['scene3d','webapp'].map(id=>capabilityUI.get(id)))entry.participant.subscribe(()=>consoleUI.invalidateSources(entry.contextId));
 authoring.subscribe(()=>{resourcesUI.authoringChanged();workspace?.authoringChanged();renderHiddenAuthoring();});
 // Pilot profile (pilot-2d-mode): name what the project keeps outside the shown contexts.
@@ -156,7 +158,7 @@ function updateTextExecutionIdentity() {
       : selected.source !== textExecution.document.source ? ' · versión anterior a tus cambios.' : '');
 }
 editor.subscribe(() => { activeAuthoring = null; lessons?.invalidate(); workspace?.authoringChanged(); });
-const inspector = createSceneInspectorUI({readScene: () => window.GG.scene.get(), getScope: () => ({sessionId, revision: activeRevision}), initialScene: projectInitialScene});
+inspector = createSceneInspectorUI({readScene: () => window.GG.scene.get(), getScope: () => ({sessionId, revision: activeRevision}), initialScene: projectInitialScene, objects: () => scene2DObjectsOf(authoring.captureCapabilities())});
 
 const language = createLanguageController({
   origin: config.languageOrigin, releaseBase: config.releaseBase ?? '/',
@@ -467,6 +469,9 @@ async function runTextDocument() {
   // gg.sprites 0.3.0: the document runs in the scene of the project, with every
   // sprite on stage and no block scripts (scene2d-multi-sprite 2.2).
   const sceneObjects = scene2DObjectsOf(capabilities), mounted = authoring.mountedObject();
+  // A copy keeps the objects it was written for; the project may have deleted one.
+  const gone = !sceneObjects || document.runtime?.api !== 'api3' ? null : Object.entries(document.runtime.targetIds ?? {hero: 'hero'}).find(([, id]) => id !== 'stage' && !sceneObjects.sprites.some(sprite => sprite.id === id));
+  if (gone) throw new Error(`Este documento escribe para «${gone[0]}», que ya no está en el proyecto. Crea una copia nueva o cambia su texto.`);
   const ir = sceneObjects ? {version: 1, sprites: sceneObjects.sprites.map(sprite => sprite.id), ...(mounted && mounted !== 'stage' && variables.length ? {variables: variables.map(({scope, ...variable}) => ({...variable, targetId: mounted}))} : {}), scripts: []}
     : {version: 0, variables, scripts: []};
   status.textContent = 'Preparando ' + (document.language === 'javascript' ? 'JavaScript…' : 'Python…');
@@ -561,8 +566,15 @@ createEntryJourneyUI({project,
   select2D: () => contexts.select('2d')
 });
 // Presentation key per result context: detects edits made after a run.
+// The whole scene, not the object on screen: choosing an object is not a change.
+function sceneAuthoring() {
+  const {blockly,scene2d}=authoring.capture(),views=codeViewsState.capture();
+  if(!scene2d)return {blockly,scriptOrder:editor.codeViewOrder()};
+  const orders=[[authoring.mountedObject(),editor.codeViewOrder()],...Object.entries(views?.objects??{}).map(([id,view])=>[id,view.scriptOrder])];
+  return {scene2d,orders:orders.filter(([,order])=>order).sort(([a],[b])=>a.localeCompare(b))};
+}
 function contextAuthoringKey(id) {
-  if(id==='2d')return JSON.stringify({blockly:editor.save(),scriptOrder:editor.codeViewOrder(),resources:resourceStore.capture(),pending:syncedViews?.pendingSource('2d')??null});
+  if(id==='2d')return JSON.stringify({...sceneAuthoring(),resources:resourceStore.capture(),pending:syncedViews?.pendingSource('2d')??null});
   if(id==='text')return JSON.stringify({document:textDocuments.selected(),resources:resourceStore.capture()});
   if(id==='microbit')return JSON.stringify({blockly:editor.save(),device:device.config(),deviceSource:source.value});
   if(id==='sb3')return JSON.stringify({scratchSource:resourcesUI.reference()});
@@ -570,7 +582,7 @@ function contextAuthoringKey(id) {
   return null;
 }
 function authoringKey() {
-  return JSON.stringify({resources:resourceStore.capture(),blockly:editor.save(),scriptOrder:editor.codeViewOrder(),pendingCode:syncedViews?.pendingSource('2d')??null,documents:textDocuments.capture(),deviceSource:source.value,device:device.config(),scene3d:capabilityUI.capture('scene3d'),webapp:capabilityUI.capture('webapp'),scratchSource:resourcesUI.reference()});
+  return JSON.stringify({resources:resourceStore.capture(),...sceneAuthoring(),pendingCode:syncedViews?.pendingSource('2d')??null,documents:textDocuments.capture(),deviceSource:source.value,device:device.config(),scene3d:capabilityUI.capture('scene3d'),webapp:capabilityUI.capture('webapp'),scratchSource:resourcesUI.reference()});
 }
 function lessonIdentity() {
   const selected = textDocuments.selected();

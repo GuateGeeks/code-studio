@@ -14,6 +14,10 @@ export function createProjectAuthoring({editor,textDocuments,codeViews,source,ca
  // `mounted` is the object in the editor (2.2): the first sprite unless the
  // saved views or mountObject name another; `primary` stays the first sprite.
  let objects=null;
+ // Blockly history and camera of the objects not in the editor (session only,
+ // never saved). They belong to one project: another project starts clean.
+ const sessions=new Map();let sessionProject=null;
+ const offerStageToolbox=()=>editor.setStageToolbox?.(objects?.mounted==='stage');
  function objectsOf(model,capabilities,views){
   const config=scene2DObjectsOf(capabilities);if(!config)return null;
   const primary=config.sprites[0].id,mounted=views?.version===2?views.objectId:primary;
@@ -98,10 +102,14 @@ export function createProjectAuthoring({editor,textDocuments,codeViews,source,ca
   if(id===objects.mounted)return;
   const resourceView=editor.resourceView?.()??null;
   const candidate=editor.prepare(structuredClone(objectWorkspace(objects,id)),{scriptOrder,capabilities:projectExecution(template,'scratch-2d',{allowInactive:true}),...(resourceView?{resourceView}:{})});
-  const outgoing=editor.save();
+  const outgoing=editor.save(),session=editor.sessionState?.();
   muted++;
-  try{editor.commit(candidate);storeWorkspace(objects,objects.mounted,outgoing);objects.mounted=id;}
-  finally{muted--;}
+  try{
+   editor.commit(candidate);storeWorkspace(objects,objects.mounted,outgoing);
+   if(session)sessions.set(objects.mounted,session);
+   objects.mounted=id;offerStageToolbox();
+   editor.restoreSessionState?.(sessions.get(id)??null);sessions.delete(id);
+  }finally{muted--;}
   emit();
  }
  function capture() {
@@ -126,7 +134,7 @@ export function createProjectAuthoring({editor,textDocuments,codeViews,source,ca
   if(resources)validateCapabilityReferences(capabilities,{resources,textDocuments:model.authoring.textDocuments??[]});
   const scene2d=objectsOf(model,capabilities,viewsCandidate);
   const plan={
-   capabilities,resourceCandidate,objects:scene2d,
+   projectId:model.project?.id??null,capabilities,resourceCandidate,objects:scene2d,
    editor:editor.prepare(scene2d?objectWorkspace(scene2d,scene2d.mounted):model.authoring.blockly,{scriptOrder:viewsCandidate?.entries.find(entry=>entry.contextId==='2d')?.scriptOrder??null,capabilities:projectExecution(capabilities,'scratch-2d',{allowInactive:true}),...(resourceView?{resourceView}:{})}),
    text:textCandidate,codeViews:viewsCandidate,
    source:model.authoring.deviceSource,
@@ -149,7 +157,7 @@ export function createProjectAuthoring({editor,textDocuments,codeViews,source,ca
   const saved=checkpoints.get(token);if(!saved)throw new TypeError('El borrador no pertenece a este coordinador.');
   const failures=[];muted++;
   try {
-   template=structuredClone(saved.template);objects=structuredClone(saved.objects);
+   template=structuredClone(saved.template);objects=structuredClone(saved.objects);offerStageToolbox();
    try {if(resourceStore)resourceStore.restoreDraft(saved.resources,{silent:true});}catch(error){failures.push(error);}
    try {if(saved.editor&&editor.restoreDraft)editor.restoreDraft(saved.editor);else editor.commit({state:structuredClone(saved.blockly),capabilities:structuredClone(saved.editorCapabilities)});}catch(error){failures.push(error);}
    try {if(codeViews)codeViews.restoreDraft(saved.codeViews);}catch(error){failures.push(error);}
@@ -174,6 +182,8 @@ export function createProjectAuthoring({editor,textDocuments,codeViews,source,ca
    for(const item of plan.managed)managed.get(item.id).commitConfig(item.candidate);
    source.value=plan.source;template=templateOf(plan.capabilities);objects=structuredClone(plan.objects);
    if(codeViews)codeViews.commit(plan.codeViews);
+   if(plan.projectId!==sessionProject){sessions.clear();sessionProject=plan.projectId;}
+   offerStageToolbox();
   }catch(error){failed=error;}
   finally{muted--;}
   if(!failed)try{emit();}catch(error){failed=error;}

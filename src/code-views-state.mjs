@@ -105,6 +105,14 @@ export function createCodeViewsState(initial=null) {
         entries:(value?.entries??[]).filter(item=>item.contextId!=='2d').concat(replaced),objectId:to,objects},{allowDrafts:true});
       emit({type:'object',objectId:to});
     },
+    // The applied state's hash arrives after the conversion; by then its object
+    // may be stored. False when no stored point has that id.
+    correctStoredPoint(pointId,appliedHash){
+      const view=Object.values(value?.objects??{}).find(item=>item.restorePoint?.id===pointId);
+      if(!view)return false;
+      if(view.restorePoint.appliedHash!==appliedHash){view.restorePoint.appliedHash=appliedHash;emit({type:'edit',contextId:'2d'});}
+      return true;
+    },
     activate(contextId){
       if(!contexts.has(contextId))fail('contexto inválido.');
       if(!value||value.activeContext===contextId)return;
