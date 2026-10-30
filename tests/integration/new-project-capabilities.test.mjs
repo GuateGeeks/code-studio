@@ -125,3 +125,34 @@ test('NP-003: saved GGPROJ v1 and v2 files open identical at the legacy 0.1.0 pr
     assert.equal(stops() - before, 1, 'opening only resets the runner');
   }
 });
+
+// Not reachable by a learner: the startup install only reads the built-in
+// example and controls that stay disabled until start. Fault injection (an
+// editor that rejects the new profile) stands in for an inconsistent build.
+test('NP-004: if the new-project profile cannot be installed, the draft stays as it was, nothing runs and the message says so', async t => {
+  installDOM(t);
+  const texts = createTextDocumentsUI(); texts.setReady(true);
+  const editor = fakeEditor(), source = document.querySelector('#source');
+  source.value = 'basic.showIcon(IconNames.Heart)';
+  const prepare = editor.prepare;
+  editor.prepare = (state, options = {}) => { if (options.capabilities) throw new Error('perfil no instalado en esta compilación'); return prepare(state, options); };
+  let stops = 0; const applied = [], diagnostics = [];
+  const project = createProjectUI({editor, source, textDocuments: texts, stop: async () => { stops++; },
+    onApplied: model => applied.push(model), onDiagnostic: record => diagnostics.push(record)});
+  await project.ready();
+  assert.equal(project.state().ready, true);
+  assert.deepEqual(editor.commits, [], 'the draft was never replaced');
+  assert.equal(editor.captureCapabilities(), null);
+  assert.equal(project.capabilities(), null);
+  assert.equal(stops, 0); assert.deepEqual(applied, []);
+  assert.equal(project.state().beforeUnloadPending, false);
+  assert.notEqual(document.querySelector('#project-status').textContent, 'Guardado en este navegador');
+  assert.equal(diagnostics.length, 1);
+  assert.equal(diagnostics[0].code, 'PROJECT_ERROR');
+  assert.match(diagnostics[0].message, /^No se pudo preparar el proyecto nuevo con los bloques más recientes\. Puedes seguir editando con los bloques de siempre; no se ejecutó nada\. \(perfil no instalado en esta compilación\)$/);
+  // The kept draft is still a valid project (legacy profile) that can be exported.
+  const exported = JSON.parse(await project.export());
+  assert.equal(exported.version, 1);
+  assert.deepEqual(exported.authoring.blockly, example);
+  assert.deepEqual(exported.scene, {spriteId: 'hero', x: 0, y: 0, direction: 90, size: 100, costume: 'hero'});
+});

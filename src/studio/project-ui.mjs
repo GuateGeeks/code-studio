@@ -288,15 +288,23 @@ export function createProjectUI({editor, source, stop, textDocuments, authoring:
   // (same blocks, IDs and positions) before the editor is enabled. It is not
   // an edit (no autosave until the learner edits) and nothing is stopped or
   // run. Saved v1/v2 files never pass here: they keep their legacy profile.
+  // Its inputs are the built-in example and controls that stay disabled until
+  // start, so a failure means an inconsistent build: the draft is kept as it
+  // was (compatible 2D profile), nothing runs and the message says so.
   async function startNewProject() {
+    let model;
     try {
-      const model = await createProject({...authoring.capture(), name: name.value.trim(), catalog, capabilities: newProjectCapabilities(),
+      model = await createProject({...authoring.capture(), name: name.value.trim(), catalog, capabilities: newProjectCapabilities(),
         id: metadata.id, revision: metadata.revision, createdAt: metadata.createdAt, updatedAt: metadata.createdAt});
       const candidate = authoring.prepare(model, {allowRemoval: true});
       suppress = true;
       try { authoring.commit(candidate); } finally { suppress = false; }
-      onApplied(model);
-    } catch (error) { report(error); }
+    } catch (error) {
+      // Preparation changes nothing and a failed commit restores the draft.
+      report(new Error(`No se pudo preparar el proyecto nuevo con los bloques más recientes. Puedes seguir editando con los bloques de siempre; no se ejecutó nada. (${error.message})`));
+      return;
+    }
+    onApplied(model);
   }
   const ready = (async () => {
     download.disabled = fileInput.disabled = name.disabled = true;

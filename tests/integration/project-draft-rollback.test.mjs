@@ -7,7 +7,7 @@ import {createProjectUI} from '../../src/studio/project-ui.mjs';
 import {createTextDocumentsUI} from '../../src/studio/text-documents-ui.mjs';
 import {createTextDocument} from '../../src/text-documents.mjs';
 import {createProject, serializeProject} from '../../src/project-format.mjs';
-import {createCapabilities} from '../../src/contracts/packs.mjs';
+import {createCapabilities, newProjectCapabilities} from '../../src/contracts/packs.mjs';
 import {buildProjectCatalog} from '../../tools/f1/build-project-catalog.mjs';
 
 const markup = await readFile(new URL('../../src/studio/index.html', import.meta.url), 'utf8');
@@ -65,9 +65,6 @@ test('GG-PROJECT: opaque checkpoints restore incomplete text drafts exactly and 
 });
 test('GG-PROJECT: an import commit failure restores an invalid editable draft, selected ID, editor profile and project identity', async t => {
   const dom = installDOM(t); const texts = createTextDocumentsUI(); texts.setReady(true);
-  const original = texts.add({language: 'javascript', name: 'Original draft', source: 'const unfinished ='});
-  input(dom, '#text-name', '');
-  const draft = texts.capture();
   let blockly = {blocks: {languageVersion: 0, blocks: []}}; let capabilities = null;
   const listeners = new Set();
   // The editor is an injected transaction participant. Its internals and IR
@@ -80,9 +77,20 @@ test('GG-PROJECT: an import commit failure restores an invalid editable draft, s
   };
   const source = document.querySelector('#source'); source.value = 'original device source';
   document.querySelector('#project-name').value = 'Original project';
-  let stops = 0; const applied = [];
-  const project = createProjectUI({editor, source, textDocuments: texts, stop: async () => { stops++; }, onApplied: model => applied.push(model)});
-  await project.ready(); const previous = project.state();
+  let stops = 0; const applied = [], diagnostics = [];
+  const project = createProjectUI({editor, source, textDocuments: texts, stop: async () => { stops++; }, onApplied: model => applied.push(model), onDiagnostic: record => diagnostics.push(record)});
+  await project.ready();
+  // Start from an ordinary new project (R1): its startup profile is installed,
+  // so the profile to restore is explicit and differs from the imported one.
+  // The incomplete draft is edited after start, as a learner would.
+  assert.deepEqual(diagnostics, []);
+  const profile = editor.captureCapabilities();
+  assert.deepEqual(profile, newProjectCapabilities());
+  const appliedBefore = applied.length;
+  const original = texts.add({language: 'javascript', name: 'Original draft', source: 'const unfinished ='});
+  input(dom, '#text-name', '');
+  const draft = texts.capture();
+  const previous = project.state();
   let fail = true;
   texts.subscribe(() => { if (fail) { fail = false; throw new Error('subscriber failed after applying imported text'); } });
   const imported = createTextDocument({language: 'python', name: 'Imported document', source: 'print(2)'});
@@ -94,10 +102,11 @@ test('GG-PROJECT: an import commit failure restores an invalid editable draft, s
   assert.equal(texts.selected().id, original.id);
   assert.equal(document.querySelector('#text-name').value, '');
   assert.equal(document.querySelector('#text-source').value, 'const unfinished =');
-  assert.equal(editor.captureCapabilities(), null);
+  assert.notDeepEqual(model.capabilities, profile);
+  assert.deepEqual(editor.captureCapabilities(), profile);
   assert.equal(project.state().id, previous.id); assert.equal(project.state().name, previous.name);
   assert.equal(project.state().revision, previous.revision);
   assert.equal(source.value, 'original device source');
-  assert.equal(stops, 0); assert.deepEqual(applied, []);
+  assert.equal(stops, 0); assert.equal(applied.length, appliedBefore);
   assert.throws(() => texts.prepare(draft), /nombre de documento inválido/);
 });
