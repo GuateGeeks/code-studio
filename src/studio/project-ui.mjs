@@ -4,7 +4,7 @@ import {createProjectArchive, parseProjectArchive} from '../project-archive.mjs'
 import {createAutosaveStore} from '../autosave-store.mjs';
 import {promoteLegacyResources,promoteResources2} from '../contracts/resources.mjs';
 import {resolveResourcePolicy} from '../contracts/packs.mjs';
-import {createCapabilities, validateCapabilities} from '../contracts/packs.mjs';
+import {createCapabilities, validateCapabilities, newProjectCapabilities} from '../contracts/packs.mjs';
 import {createProjectAuthoring} from '../project-authoring.mjs';
 import {createResourceValidationQueue} from './resource-validation.mjs';
 
@@ -283,6 +283,21 @@ export function createProjectUI({editor, source, stop, textDocuments, authoring:
         resources, catalog, capabilities: authoring.prepareCapabilities(validateCapabilities(capabilities))});
     }, undefined, 'Capacidades del proyecto actualizadas. No se ejecutó nada: pulsa Ejecutar cuando quieras ver el resultado.').catch(error => { report(error); throw error; });
   }
+  // R1 (29/10/2026): with nothing saved to recover, the draft on screen is a
+  // new project. It takes explicit capabilities at the latest catalog version
+  // (same blocks, IDs and positions) before the editor is enabled. It is not
+  // an edit (no autosave until the learner edits) and nothing is stopped or
+  // run. Saved v1/v2 files never pass here: they keep their legacy profile.
+  async function startNewProject() {
+    try {
+      const model = await createProject({...authoring.capture(), name: name.value.trim(), catalog, capabilities: newProjectCapabilities(),
+        id: metadata.id, revision: metadata.revision, createdAt: metadata.createdAt, updatedAt: metadata.createdAt});
+      const candidate = authoring.prepare(model, {allowRemoval: true});
+      suppress = true;
+      try { authoring.commit(candidate); } finally { suppress = false; }
+      onApplied(model);
+    } catch (error) { report(error); }
+  }
   const ready = (async () => {
     download.disabled = fileInput.disabled = name.disabled = true;
     for (const area of document.querySelectorAll('.authoring, .scene-inspector, .code-console')) area.inert = true;
@@ -292,6 +307,7 @@ export function createProjectUI({editor, source, stop, textDocuments, authoring:
       if (!response.ok) throw new Error('No se pudo cargar el catálogo del proyecto. Recarga para reintentar.');
       catalog = await response.json();
       const saved = await store.load();
+      if (!saved.serialized) await startNewProject();
       if (saved.serialized) {
         const model = await validate(saved.serialized);
         await apply(model, {startup: true, recovered: saved.status === 'recovered'});

@@ -91,7 +91,7 @@ for(const size of [{name:'desktop',width:1280,height:960},{name:'mobile',width:3
     const jsView=page.locator('#program-mode input[value=javascript]');
     await reachable(page,jsView);await jsView.focus();await jsView.press('Space');
     const synchronizedSource=page.locator('#text-source');await expect(synchronizedSource).toBeEditable();
-    await synchronizedSource.fill('onStart(() => {\n  while(true) {}\n});');
+    await synchronizedSource.fill('onStart(() => {\n  while(1 < 3) {}\n});');
     await synchronizedSource.press('Home');await synchronizedSource.press('Shift+ArrowRight');
     const synchronizedCaret=await synchronizedSource.evaluate(input=>({start:input.selectionStart,end:input.selectionEnd}));
     await selectContext(page,'text');await selectContext(page,'2d');

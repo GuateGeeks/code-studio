@@ -53,3 +53,15 @@ Los proyectos con la versión anterior de `gg.sprites` SHALL abrirse sin cambios
 #### Scenario: Proyecto con vocabulario v1
 - **WHEN** se actualiza un proyecto que solo usa bloques de la versión anterior
 - **THEN** su ejecución es idéntica y sus bloques conservan tipo e ID
+
+### Requirement: Proyectos nuevos en la última versión
+
+Un proyecto nuevo (el proyecto inicial sin guardar y «Crear mi primera escena») SHALL crearse con capacidades explícitas en la última versión publicada de `gg.sprites` del catálogo, y su caja de herramientas MUST ofrecer el vocabulario de esa versión. Abrir o crear un proyecto MUST NOT ejecutar nada.
+
+#### Scenario: Proyecto inicial
+- **WHEN** se abre el estudio sin ningún proyecto guardado en el navegador
+- **THEN** el proyecto fija `gg.sprites` en la última versión del catálogo, la caja ofrece «por siempre», «repetir hasta», «esperar hasta» y «detener», los bloques del ejemplo conservan sus IDs y nada se ejecuta
+
+#### Scenario: Archivo guardado sin capacidades
+- **WHEN** se abre un GGPROJ v1 o v2 guardado
+- **THEN** se abre idéntico con el perfil `gg.sprites@0.1.0` y su caja de herramientas, sin actualizar packs ni ejecutar

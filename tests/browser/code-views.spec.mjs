@@ -26,7 +26,7 @@ test('CV-VIEWS-002: text edits keep numeric IDs and live result; Undo restores a
 });
 test('CV-VIEWS-003: rejection has a line and keyboard exits; confirmed restore preserves blocks',async({page})=>{
  await open(page);await run(page,12);const before=await authoring(page);
- await mode(page,'javascript');await page.locator('#text-source').fill('onStart(() => {\n  while (true) {}\n});');
+ await mode(page,'javascript');await page.locator('#text-source').fill('onStart(() => {\n  while (1 < 3) {}\n});');
  await clickVisible(page,page.locator('#program-mode input[value=blocks]'));await expect(page.locator('#text-error')).toContainText('Línea 2');
  await expect(page.locator('#code-view-edit')).toBeVisible();await expect(page.locator('#code-view-copy')).toBeVisible();await expect(page.locator('#code-view-restore')).toBeVisible();
  expect(await authoring(page)).toEqual(before);expect((await snapshot(page)).x).toBe(12);
@@ -36,7 +36,7 @@ test('CV-VIEWS-003: rejection has a line and keyboard exits; confirmed restore p
  expect(await authoring(page)).toEqual(before);
 });
 test('CV-VIEWS-004: pending rejected text recovers without running and copies exactly to an independent API3 document',async({page})=>{
- await open(page);await mode(page,'javascript');const source='onStart(() => {\n  while (true) {}\n});';
+ await open(page);await mode(page,'javascript');const source='onStart(() => {\n  while (1 < 3) {}\n});';
  await page.locator('#text-source').fill(source);await page.evaluate(()=>studioProbe.project.flush());await page.reload();await page.waitForFunction(()=>!!window.studioProbe?.project);await page.evaluate(()=>studioProbe.project.ready());
  await expect(page.locator('#text-source')).toHaveValue(source);await expect(page.locator('#program-mode input[value=javascript]')).toBeChecked();
  await clickVisible(page,page.locator('#program-mode input[value=blocks]'));await expect(page.locator('#text-error')).toContainText('Línea 2');
@@ -54,7 +54,7 @@ test('CV-VIEWS-005: Python loads on demand, converts numeric edits and rejects w
  await mode(page,'blocks');await expect(page.locator('#blockly-editor [data-id="editable-move-n"] .blocklyText')).toHaveText('25');expect((await snapshot(page)).x).toBe(12);
  await mode(page,'python');await source.fill((await source.inputValue()).replace('hero.move(25)','hero.move(26)'));await run(page,78);
  await expect(page.locator('#program-mode input[value=python]')).toBeChecked();
- await source.fill('@on_start\ndef start():\n    while True:\n        pass');
+ await source.fill('@on_start\ndef start():\n    while 1 < 3:\n        pass');
  await clickVisible(page,page.locator('#run-editor'));await expect(page.locator('#text-error')).toContainText('Línea 3');
  await expect(page.locator('#text-error')).toContainText('bucle');expect((await snapshot(page)).x).toBe(78);
  await page.screenshot({path:artifactPath('code-view-python-rejection.png'),fullPage:true});
@@ -62,7 +62,7 @@ test('CV-VIEWS-005: Python loads on demand, converts numeric edits and rejects w
 test('CV-VIEWS-006: JavaScript Run converts first; invalid Run leaves live references usable',async({page})=>{
  await open(page);await mode(page,'javascript');const source=page.locator('#text-source');
  await source.fill((await source.inputValue()).replace('hero.move(4);','hero.move(25);'));await run(page,75);
- await source.fill('onStart(() => {\n  while(true) {}\n});');await clickVisible(page,page.locator('#run-editor'));
+ await source.fill('onStart(() => {\n  while(1 < 3) {}\n});');await clickVisible(page,page.locator('#run-editor'));
  await expect(page.locator('#text-error')).toContainText('Línea 2');expect((await snapshot(page)).x).toBe(75);
  expect((await page.evaluate(()=>GG.sprite.move('hero',1).then(()=>GG.sprite.get('hero')))).x).toBe(76);
 });
@@ -131,7 +131,7 @@ test('CV-VIEWS-011: desktop and narrow rejection controls remain visible without
  await open(page);await run(page,12);const samples=[];
  for(const [width,height] of [[1280,720],[1440,900],[390,844]]){
   await page.setViewportSize({width,height});await mode(page,'javascript');
-  const source=page.locator('#text-source');await source.fill('onStart(() => {\n  while(true) {}\n});');
+  const source=page.locator('#text-source');await source.fill('onStart(() => {\n  while(1 < 3) {}\n});');
   await clickVisible(page,page.locator('#program-mode input[value=blocks]'));await expect(page.locator('#text-error')).toContainText('Línea 2');
   for(const id of ['code-view-edit','code-view-restore','code-view-copy','run-editor','stop-result']){
    const control=page.locator('#'+id);await control.scrollIntoViewIfNeeded();await expect(control).toBeInViewport();
@@ -153,7 +153,7 @@ test('CV-VIEWS-011: desktop and narrow rejection controls remain visible without
 });
 
 test('CV-VIEWS-012: imported baseline equality cannot authorize invalid text or run the previous blocks',async({page})=>{
- await open(page);await mode(page,'javascript');await page.locator('#text-source').fill('onStart(()=>{ while(true){} });');
+ await open(page);await mode(page,'javascript');await page.locator('#text-source').fill('onStart(()=>{ while(1<3){} });');
  const model=await page.evaluate(()=>studioProbe.project.capture());const entry=model.authoring.codeViews.entries.find(item=>item.contextId==='2d');entry.baselineSource=entry.source;
  await page.locator('#open-project').setInputFiles({name:'baseline-no-confiable.ggproj',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(model))});
  await expect(page.locator('#open-project')).toHaveValue('');await expect(page.locator('#text-source')).toHaveValue(entry.source);

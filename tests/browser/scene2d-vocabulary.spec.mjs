@@ -55,6 +55,14 @@ async function trace(page,length=40){
 
 test('E1-01: the 0.2.0 toolbox offers every E1 block from its menus; a legacy project keeps the 0.1.0 toolbox',async({page})=>{
   await open(page);
+  // R1 (29/10/2026): the unsaved initial project is already 0.2.0; the legacy
+  // toolbox is the one of a saved GGPROJ v1 (no capabilities).
+  expect(await toolboxText(page,'Control')).toContain('por siempre');
+  await page.evaluate(async()=>{
+    const {createProject}=await import(new URL('./app/project-format.mjs',location.href).href);
+    await studioProbe.project.open(JSON.stringify(await createProject({name:'Guardado v1',blockly:studioProbe.editor.save(),deviceSource:'basic.showNumber(1)',catalog:studioProbe.project.catalog()})));
+  });
+  expect(await page.evaluate(()=>studioProbe.project.capabilities())).toBeNull();
   const legacy=await toolboxText(page,'Control');
   expect(legacy).not.toContain('por siempre');
   await starter(page,hero);
