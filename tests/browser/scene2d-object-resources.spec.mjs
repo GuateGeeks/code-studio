@@ -231,12 +231,12 @@ test('MS-BROWSER-018: menus, toolbox, the resource list and uploads follow the s
   await page.locator('#import-media').setInputFiles({name:'caja.svg',mimeType:'image/svg+xml',buffer:Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"><rect width="32" height="32" fill="#c33"/></svg>')});
   await expect(page.locator('#resources-status')).toHaveText('Autoría actualizada · sin ejecutar');
   await expect.poll(async()=>(await capture(page)).resources.costumes.find(item=>item.name==='caja.svg')?.ownerId).toBe(cesta);
-  // The stage has no costumes: the upload explains; a sound is its own.
+  // The stage has no costumes: an image is a new backdrop (4.1), named without its extension.
   await pick(page,'Escenario');
-  expect(await page.locator('#resource-list').evaluate(node=>[...node.options].map(item=>item.textContent))).toEqual(['stage · Escenario']);
+  expect(await page.locator('#resource-list').evaluate(node=>[...node.options].map(item=>item.textContent))).toEqual(['Fondo inicial · Escenario']);
   await page.locator('#import-media').setInputFiles({name:'caja2.svg',mimeType:'image/svg+xml',buffer:Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30"><rect width="30" height="30" fill="#3c3"/></svg>')});
-  await expect(page.locator('#resources-error')).toContainText('El escenario no lleva disfraces');
-  expect((await capture(page)).resources.costumes.some(item=>item.name==='caja2.svg')).toBe(false);
+  await expect.poll(async()=>(await capture(page)).resources.costumes.find(item=>item.name==='caja2')?.ownerId).toBe('stage');
+  await expect(page.locator('#resources-error')).toHaveText('');
   expect((await snapshot(page)).threads).toBe(0);
 });
 

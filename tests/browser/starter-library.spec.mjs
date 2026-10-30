@@ -91,7 +91,10 @@ test('GG-LIB-004/005/006/007: library loaded on demand, prepared offline, adds c
   const stored = await resources(page);
   expect(stored.costumes.find(item => item.id === 'gato')).toEqual({id: 'gato', ownerId: 'hero', name: 'Gato', assetId: entry('gato').sha256, centerX: 48, centerY: 48, bitmapResolution: 1});
   expect(stored.sounds.find(item => item.id === 'sonido-salto')).toEqual({id: 'sonido-salto', ownerId: 'hero', name: 'Salto', assetId: entry('sonido-salto').sha256});
-  expect(stored.costumes.filter(item => item.ownerId === 'stage').map(item => [item.name, item.assetId])).toEqual([['Teatro', entry('teatro').sha256]]);
+  // With objects the stage keeps its backdrops; the chosen one is the one it starts with (4.1).
+  expect(stored.costumes.filter(item => item.ownerId === 'stage').map(item => item.name)).toEqual(['stage', 'Teatro']);
+  expect(stored.costumes.find(item => item.name === 'Teatro').assetId).toBe(entry('teatro').sha256);
+  expect((await page.evaluate(() => studioProbe.authoring.captureCapabilities().config['gg.sprites'])).stage.backdrop).toBe(stored.costumes.find(item => item.name === 'Teatro').id);
   for (const id of ['gato', 'sonido-salto', 'teatro']) expect(hash(decodeResourceAsset(stored.assets[entry(id).sha256]))).toBe(entry(id).sha256);
 
   // A learner's program uses the library resources through the gg.assets menus.
@@ -145,7 +148,7 @@ test('GG-LIB-004/005/006/007: library loaded on demand, prepared offline, adds c
   await clickVisible(page, page.locator('#restore-backdrop'));
   await expect(page.locator('#starter-library-status')).toHaveText('Volviste al fondo inicial del escenario. Se verá al ejecutar.');
   await expect(page.locator('#restore-backdrop')).toBeHidden();
-  await expect(card(page, 'teatro').locator('.library-state')).toHaveText('');
+  await expect(card(page, 'teatro').locator('.library-state')).toHaveText('En tu proyecto');
   await clickVisible(page, page.locator('#run-editor'));
   await expect.poll(async () => (await settled(snapshot, page)).costume.name).toBe('gato');
   expect((await snapshot(page)).pixels.count).toBeLessThan(2000);

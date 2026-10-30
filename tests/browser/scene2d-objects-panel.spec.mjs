@@ -386,8 +386,14 @@ test('MS-BROWSER-012: Run starts every object, Detener stops them; the stage off
   await expect(option(page,'Escenario')).toHaveAttribute('aria-selected','true');
   await expect.poll(categories).not.toContain('Movimiento');
   const stage=await categories();
-  expect(stage).not.toContain('Apariencia');
   expect(stage).not.toContain('Clones');
+  // Apariencia holds only the backdrops: nothing that a sprite does.
+  await page.locator('#blockly-editor .blocklyToolboxCategory').filter({has:page.locator('.blocklyToolboxCategoryLabel',{hasText:/^Apariencia$/})}).first().click();
+  const looks=page.locator('#blockly-editor .blocklyFlyout').filter({has:page.locator('.blocklyDraggable')}).first();
+  await expect(looks.locator('g.gg_set_backdrop')).toBeVisible();
+  await expect(looks.locator('g.gg_next_backdrop')).toBeVisible();
+  await expect(looks.locator('g.gg_say, g.gg_show, g.gg_set_size, g.gg_next_costume')).toHaveCount(0);
+  await page.keyboard.press('Escape');
   expect(stage).toEqual(expect.arrayContaining(['Eventos','Control','Sonido','Variables']));
   await option(page,'hero').click();
   await expect.poll(categories).toContain('Movimiento');
@@ -476,13 +482,17 @@ for(const [label,width,height] of views)test('MS-BROWSER-013: the panel fits '+l
   for(const name of ['Cesta','Pelota con un nombre bien largo','Robot']){await add(page,name);await page.locator('#objects-status').waitFor({state:'attached'});}
   const box=await page.evaluate(()=>{
     const rect=selector=>{const value=document.querySelector(selector).getBoundingClientRect();return {left:value.left,right:value.right,top:value.top,bottom:value.bottom,width:value.width,height:value.height};};
-    return {viewport:innerWidth,scroll:document.scrollingElement.scrollWidth,panel:rect('#objects-panel'),editor:rect('#blockly-editor'),
+    return {viewport:innerWidth,scroll:document.scrollingElement.scrollWidth,panel:rect('#objects-panel'),editor:rect('#blockly-editor'),list:rect('#objects-list'),
+      selected:rect('#objects-list [aria-selected=true]'),
       options:[...document.querySelectorAll('#objects-list [role=option]')].map(node=>{const r=node.getBoundingClientRect();return {left:r.left,right:r.right,height:r.height};}),
       buttons:[...document.querySelectorAll('#objects-panel button:not([hidden])')].filter(node=>node.getClientRects().length).map(node=>node.getBoundingClientRect().height)};
   });
   expect(box.scroll).toBeLessThanOrEqual(box.viewport);
   expect(box.panel.right).toBeLessThanOrEqual(box.viewport);
-  for(const item of box.options){expect(item.left).toBeGreaterThanOrEqual(0);expect(item.right).toBeLessThanOrEqual(box.viewport);expect(item.height).toBeGreaterThanOrEqual(44);}
+  // The row scrolls inside itself: it fits the page and keeps the selected object in sight.
+  expect(box.list.left).toBeGreaterThanOrEqual(0);expect(box.list.right).toBeLessThanOrEqual(box.viewport);
+  expect(box.selected.left).toBeGreaterThanOrEqual(box.list.left-1);expect(box.selected.right).toBeLessThanOrEqual(box.list.right+1);
+  for(const item of box.options)expect(item.height).toBeGreaterThanOrEqual(44);
   for(const height of box.buttons)expect(height).toBeGreaterThanOrEqual(44);
   if(label==='desktop'||label==='laptop')expect(box.editor.height).toBeGreaterThanOrEqual(300);
   await page.locator('#objects-panel').scrollIntoViewIfNeeded();

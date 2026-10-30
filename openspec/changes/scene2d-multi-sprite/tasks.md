@@ -19,5 +19,5 @@
 
 ## 4. Verificación
 
-- [ ] 4.1 Proyecto canónico «Diálogo» en `tests/fixtures/canonical/scene2d/`; E2E de añadir/ejecutar/Detener/guardar/reabrir; actualización de un proyecto 0.1.0.
+- [x] 4.1 Proyecto canónico «Diálogo» en `tests/fixtures/canonical/scene2d/`; E2E de añadir/ejecutar/Detener/guardar/reabrir; actualización de un proyecto 0.1.0. (30/10/2026: design puntos 53–61; MS-058…069 en `tests/integration/scene2d-dialogo.test.mjs`; MS-BROWSER-033…041 en `tests/browser/scene2d-dialogo.spec.mjs`; evidencia en `artifacts/stabilization-2d/e2-multisprite/task-8/`.)
 - [ ] 4.2 `test:affected` y una puerta completa; acta con límites.
