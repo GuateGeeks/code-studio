@@ -40,9 +40,9 @@ export const localPackMigrations=freezeData([{id:'gg.assets',fromVersion:'0.1.0'
 // Reviewed backward compatibility (catalog data, since manifests are frozen):
 // a version listed here satisfies dependencies declared on the older versions
 // because it keeps their blocks, configuration and behavior and only adds.
-// gg.sprites@0.3.0 changes only its own configuration (the stage and the
-// sprite list), which no dependant reads; blocks, rules, resources and
-// permissions are those of 0.2.0. No pack depends on 0.2.0.
+// gg.sprites@0.3.0 changes its own configuration (the stage and the sprite
+// list), which no dependant reads, and adds blocks; those of 0.2.0, their rules,
+// resources and permissions stay. No pack depends on 0.2.0.
 export const localPackCompatibility=freezeData([{id:'gg.sprites',version:'0.2.0',satisfies:['0.1.0']},{id:'gg.sprites',version:'0.3.0',satisfies:['0.1.0']}]);
 // Projects without explicit capabilities (GGPROJ v1/v2 and the unsaved
 // starting project) keep the vocabulary they were made with.
