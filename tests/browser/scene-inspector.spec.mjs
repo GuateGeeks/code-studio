@@ -111,8 +111,9 @@ for (const mobile of [false, true]) {
     expect((await page.evaluate(() => studioProbe.project.state())).revision).toBe(before.project.revision);
     expect(await currentRecord(page)).toEqual(before.record);
     const afterExport = JSON.parse(await page.evaluate(() => studioProbe.project.export()));
-    for (const key of ['authoring', 'scene', 'resources', 'locks']) expect(afterExport[key]).toEqual(before.exported[key]);
-    expect(Object.keys(afterExport).sort()).toEqual(['authoring', 'format', 'locks', 'project', 'resources', 'scene', 'version']);
+    // R1: the initial project carries explicit capabilities (GGPROJ v3) instead of the legacy scene.
+    for (const key of ['authoring', 'capabilities', 'resources', 'locks']) expect(afterExport[key]).toEqual(before.exported[key]);
+    expect(Object.keys(afterExport).sort()).toEqual(['authoring', 'capabilities', 'format', 'locks', 'project', 'resources', 'version']);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(mobile ? 390 : 1280);
     await page.locator('.scene-inspector').screenshot({path: artifactPath(`scene-inspector-${mobile ? 'mobile' : 'desktop'}.png`)});
     expect(errors).toEqual([]);
@@ -158,7 +159,8 @@ test('GG-INSPECT-003: real toolbox drag connects costume block, portable reopen 
   await open(page);
   expect(await page.evaluate(() => document.querySelector('#blockly-editor').contains(inspectorTestWorkspace.getInjectionDiv()))).toBe(true);
   await clickVisible(page.getByRole('treeitem', {name: 'Apariencia', exact: true}));
-  const flyout = page.locator('.blocklyFlyout .blocklyDraggable').first();
+  // The 0.2.0 Apariencia menu (R1: initial project) starts with «decir … durante»; drag «cambiar disfraz a».
+  const flyout = page.locator('.blocklyFlyout .blocklyDraggable').filter({hasText: /cambiar\sdisfraz\sa/}).first();
   await expect(flyout).toBeVisible();
   const start = await flyout.boundingBox();
   const editor = await page.locator('#blockly-editor').boundingBox();
@@ -198,8 +200,10 @@ test('GG-INSPECT-003: real toolbox drag connects costume block, portable reopen 
   const zip = await JSZip.loadAsync(await readFile(filePath));
   const manifest = JSON.parse(await zip.file('manifest.json').async('string'));
   expect(manifest.authoring.blockly).toEqual(authoring);
-  expect(manifest.scene.x).toBe(0);
-  expect(manifest.scene.costume).toBe('hero');
+  // R1: a new project keeps its initial scene in its gg.sprites capabilities.
+  expect(manifest.scene).toBeUndefined();
+  expect(manifest.capabilities.config['gg.sprites'].initialScene.x).toBe(0);
+  expect(manifest.capabilities.config['gg.sprites'].initialScene.costume).toBe('hero');
   const context = await browser.newContext();
   const reopened = await context.newPage();
   await open(reopened);
@@ -210,6 +214,6 @@ test('GG-INSPECT-003: real toolbox drag connects costume block, portable reopen 
   expect((await snapshot(reopened)).costume.name).toBe('hero');
   await run(reopened);
   await expect.poll(async () => (await snapshot(reopened)).costume.name).toBe('hero-alt');
-  await writeFile(artifactPath('scene-inspector-toolbox.json'), JSON.stringify({addedBlockId: connection.id, authoring, reopenedCostume: (await snapshot(reopened)).costume, portableInitialCostume: manifest.scene.costume, runtimeX: (await snapshot(reopened)).x}, null, 2));
+  await writeFile(artifactPath('scene-inspector-toolbox.json'), JSON.stringify({addedBlockId: connection.id, authoring, reopenedCostume: (await snapshot(reopened)).costume, portableInitialCostume: manifest.capabilities.config['gg.sprites'].initialScene.costume, runtimeX: (await snapshot(reopened)).x}, null, 2));
   await context.close();
 });

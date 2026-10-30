@@ -91,7 +91,8 @@ for (const mobile of [false,true]) {
     expect(manifest.authoring.textDocuments[0].id).toBe(documentId);
     expect(manifest.authoring.textDocuments[0].source).toBe(modifiedSource);
     expect(manifest.authoring.blockly).toEqual(changedBlocks);
-    expect(manifest.scene.x).toBe(0);
+    // R1: a new project keeps its initial scene in its gg.sprites capabilities.
+    expect(manifest.scene).toBeUndefined();expect(manifest.capabilities.config['gg.sprites'].initialScene.x).toBe(0);
     await selectContext(page,'text');
     await clickVisible(page.getByRole('button',{name:'Detener',exact:true}));
     await expect(page.locator('#run-editor')).toBeEnabled();

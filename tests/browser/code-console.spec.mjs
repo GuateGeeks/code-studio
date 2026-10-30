@@ -90,7 +90,9 @@ for (const mobile of [false, true]) {
     await file.saveAs(filePath);
     const zip = await JSZip.loadAsync(await readFile(filePath));
     const manifest = JSON.parse(await zip.file('manifest.json').async('string'));
-    expect(Object.keys(manifest.authoring).sort()).toEqual(['blockly', 'deviceSource']);
+    // R1: the initial project is GGPROJ v3, whose authoring always lists its (empty) text documents.
+    expect(Object.keys(manifest.authoring).sort()).toEqual(['blockly', 'deviceSource', 'selectedTextDocumentId', 'textDocuments']);
+    expect(manifest.authoring.textDocuments).toEqual([]);expect(manifest.authoring.selectedTextDocumentId).toBeNull();
     expect(JSON.stringify(manifest)).not.toMatch(/SCRIPT_STARTED|generatedCode|sourceMap|consoleEntries/);
     const context = await browser.newContext({viewport: {width: mobile ? 390 : 1280, height: 900}});
     const reopened = await context.newPage();

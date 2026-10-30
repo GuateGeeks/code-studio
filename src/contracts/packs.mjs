@@ -31,6 +31,13 @@ export function satisfiesPackVersion(id, installed, required, {compatibility = l
 export function lockedPackVersions(capabilities) {
   return capabilities == null ? {...legacyPackVersions} : Object.fromEntries(capabilities.locks.map(lock => [lock.id, lock.version]));
 }
+// Profile of a new project (R1, 29/10/2026): explicit capabilities at the
+// latest catalog version (latestPackVersions), so a new project gets the
+// current vocabulary without a code change when a later version is published.
+// Saved projects without capabilities keep the legacy versions above.
+export function newProjectCapabilities({catalog = localPackCatalog} = {}) {
+  return createCapabilities(['gg.sprites'], {catalog});
+}
 function entry(id, version, catalog = localPackCatalog) {
   const found = catalog.find(item => item.manifest.id === id && item.manifest.version === version);
   if (!found) fail('pack/versión no instalado: ' + id + '@' + version + '. Este proyecto necesita ' + id + ' ' + version + '; ábrelo con una versión más reciente de Code Studio');
