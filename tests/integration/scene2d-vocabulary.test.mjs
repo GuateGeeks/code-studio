@@ -21,7 +21,8 @@ import {availablePackUpdates} from '../../src/project-migration.mjs';
 import {createScratchSession} from '../../spikes/scratch-adapter.mjs';
 import {vocabularyCases, structureCases, singleBlockWorkspace, singleBlockSource} from '../fixtures/scene2d-vocabulary.mjs';
 
-const v2 = () => createCapabilities(['gg.sprites']);
+// The E1 profile is gg.sprites@0.2.0 exactly (0.3.0, scene2d-multi-sprite, is now the latest).
+const v2 = () => createCapabilities(['gg.sprites'], {versions: {'gg.sprites': '0.2.0'}});
 const v1 = () => createCapabilities(['gg.sprites'], {versions: {'gg.sprites': '0.1.0'}});
 const strip = value => JSON.parse(JSON.stringify(value, (key, item) => key === 'sourceBlockId' ? undefined : item));
 function irOf(state, capabilities = v2()) {
@@ -37,7 +38,8 @@ const opcodes = project => Object.values(project.targets[1].blocks).map(block =>
 
 test('VOC-001: gg.sprites@0.2.0 is a new frozen apiVersion 2 manifest; 0.1.0 keeps its hash', () => {
   const sprites = localPackCatalog.filter(item => item.manifest.id === 'gg.sprites');
-  assert.deepEqual(sprites.map(item => [item.manifest.version, item.manifest.apiVersion]), [['0.1.0', 1], ['0.2.0', 2]]);
+  assert.deepEqual(sprites.map(item => [item.manifest.version, item.manifest.apiVersion]), [['0.1.0', 1], ['0.2.0', 2], ['0.3.0', 2]]);
+  assert.equal(sprites[1].sha256, '70475dfae3921d1ac28e862d30c2c31e815da2b2f1133060038f37c24c4e366a');
   assert.equal(sprites[0].sha256, '225d6c992253966ac0645d9e73360c13da853787c0b02ff23c6cc9bdad6072d2');
   for (const item of sprites) assert.equal(createHash('sha256').update(canonicalPackData(item.manifest)).digest('hex'), item.sha256);
   assert.equal(sprites[1].manifest.language, spriteLanguage02);
@@ -54,21 +56,22 @@ test('VOC-001: gg.sprites@0.2.0 is a new frozen apiVersion 2 manifest; 0.1.0 kee
   for (const entry of languageTables['gg.sprites@0.1.0']) assert.deepEqual(spriteLanguage02.find(item => item.block === entry.block), entry);
 });
 
-test('VOC-002: new and activity projects lock 0.2.0, legacy projects keep 0.1.0 and dependants on 0.1.0 are satisfied', () => {
-  assert.equal(latestPackVersions['gg.sprites'], '0.2.0');
+test('VOC-002: new and activity projects lock the latest (0.2.0 or later), legacy projects keep 0.1.0 and dependants on 0.1.0 are satisfied', () => {
+  // scene2d-multi-sprite (E2) publishes 0.3.0 as the latest; 0.2.0 stays installed.
+  assert.equal(latestPackVersions['gg.sprites'], '0.3.0');
   assert.equal(resolveCapabilities(null).packs.find(pack => pack.id === 'gg.sprites').version, '0.1.0');
   assert.equal(v2().locks[0].version, '0.2.0');
   for (const ids of [['gg.sprites', 'gg.score'], ['gg.score', 'gg.sprites'], ['gg.score'], ['gg.sprites', 'gg.microbit']]) {
     const locks = createCapabilities(ids).locks;
-    assert.equal(locks.find(lock => lock.id === 'gg.sprites').version, ids.includes('gg.sprites') ? '0.2.0' : '0.1.0', ids.join());
+    assert.equal(locks.find(lock => lock.id === 'gg.sprites').version, ids.includes('gg.sprites') ? latestPackVersions['gg.sprites'] : '0.1.0', ids.join());
   }
-  assert.deepEqual(localPackCompatibility, [{id: 'gg.sprites', version: '0.2.0', satisfies: ['0.1.0']}]);
+  assert.deepEqual(localPackCompatibility, [{id: 'gg.sprites', version: '0.2.0', satisfies: ['0.1.0']}, {id: 'gg.sprites', version: '0.3.0', satisfies: ['0.1.0']}]);
   // Compatibility is one-way: a dependant of 0.2.0 is not satisfied by 0.1.0.
   const sprites02 = localPackCatalog.find(item => item.manifest.id === 'gg.sprites' && item.manifest.version === '0.2.0');
   const dependant = {manifest: {...structuredClone(localPackCatalog.find(item => item.manifest.id === 'gg.score' && item.manifest.version === '0.2.0').manifest), dependencies: [{id: 'gg.sprites', version: '0.2.0'}]}, sha256: 'a'.repeat(64)};
   const catalog = localPackCatalog.filter(item => !(item.manifest.id === 'gg.score')).concat(dependant);
   assert.throws(() => createCapabilities(['gg.sprites', 'gg.score'], {versions: {'gg.sprites': '0.1.0'}, catalog}), /dependencias en conflicto/);
-  assert.equal(createCapabilities(['gg.sprites', 'gg.score'], {catalog}).locks.length, 2);
+  assert.equal(createCapabilities(['gg.sprites', 'gg.score'], {versions: {'gg.sprites': '0.2.0'}, catalog}).locks.length, 2);
   void sprites02;
   // Adding a context or resources to a legacy project keeps gg.sprites@0.1.0 (no implicit upgrade).
   assert.deepEqual(lockedPackVersions(null), {'gg.sprites': '0.1.0'});
@@ -79,11 +82,13 @@ test('VOC-002: new and activity projects lock 0.2.0, legacy projects keep 0.1.0 
 test('VOC-003: the declared migration takes 0.1.0 to 0.2.0 without block transforms and is offered by «Actualizar packs»', () => {
   assert.ok(localPackMigrations.some(record => record.id === 'gg.sprites' && record.fromVersion === '0.1.0' && record.toVersion === '0.2.0' && !record.blocks));
   const old = createCapabilities(['gg.sprites', 'gg.score'], {versions: {'gg.sprites': '0.1.0'}});
-  assert.deepEqual(availablePackUpdates(old), [{id: 'gg.sprites', fromVersion: '0.1.0', toVersion: '0.2.0'}]);
+  // «Actualizar packs» offers the latest (0.3.0, scene2d-multi-sprite); its chain starts with this record.
+  assert.deepEqual(availablePackUpdates(old), [{id: 'gg.sprites', fromVersion: '0.1.0', toVersion: latestPackVersions['gg.sprites']}]);
   const migrated = migrateCapabilities(old, {id: 'gg.sprites', toVersion: '0.2.0'});
   assert.deepEqual(migrated.config, old.config);
   assert.equal(migrated.locks.find(lock => lock.id === 'gg.sprites').version, '0.2.0');
-  assert.deepEqual(availablePackUpdates(migrated), []);
+  assert.deepEqual(availablePackUpdates(migrated), [{id: 'gg.sprites', fromVersion: '0.2.0', toVersion: '0.3.0'}]);
+  assert.deepEqual(availablePackUpdates(migrateCapabilities(old, {id: 'gg.sprites', toVersion: '0.3.0'})), []);
   assert.deepEqual(availablePackUpdates(null), [], 'legacy projects are updated only through explicit capabilities');
 });
 

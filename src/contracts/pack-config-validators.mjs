@@ -1,6 +1,7 @@
 import {validateScene3DConfig,validateScene3DFeatures} from './scene3d-program.mjs';
 import {validateWebAppConfig} from './webapp-program.mjs';
 import {validateDeviceConfig} from './device-program.mjs';
+import {validateScene2DObjects} from './scene2d-objects.mjs';
 // Only installed, reviewed validators. Imported data names no executable module.
 function validateSb3Reference(config) {
  if(!config||typeof config!=='object'||Array.isArray(config)||Object.keys(config).length!==2||
@@ -8,7 +9,7 @@ function validateSb3Reference(config) {
   throw new Error('GG packs: referencia SB3 inválida');
  return structuredClone(config);
 }
-export const packConfigValidators=Object.freeze({'scene3d-program-v1':validateScene3DConfig,'webapp-program-v1':validateWebAppConfig,'device-program-v1':validateDeviceConfig,'sb3-reference-v1':validateSb3Reference});
+export const packConfigValidators=Object.freeze({'scene3d-program-v1':validateScene3DConfig,'webapp-program-v1':validateWebAppConfig,'device-program-v1':validateDeviceConfig,'sb3-reference-v1':validateSb3Reference,'scene2d-objects-v1':validateScene2DObjects});
 export function validateLocalPackConfig(id,config) {
  if(id===undefined)return config;
  if(typeof id!=='string'||!Object.hasOwn(packConfigValidators,id))throw new Error('GG packs: validador local no instalado');

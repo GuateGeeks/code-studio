@@ -2,7 +2,8 @@ import {createResourceView} from './resources.mjs';
 import {localPackCatalog, latestPackVersions, localPackMigrations, localPackCompatibility, legacyPackVersions} from '../packs/catalog.mjs';
 import {validatePackJSON,validatePackConfigSchema} from './pack-config-schema.mjs';
 import {validateLocalPackConfig,validateLocalPackReferences,validateLocalPackFeatures} from './pack-config-validators.mjs';
-import {findMigrationChain,transformWorkspace} from './pack-migrations.mjs';
+import {findMigrationChain,transformWorkspace,migratePackConfig} from './pack-migrations.mjs';
+import {initialSceneOfObjects} from './scene2d-objects.mjs';
 import {validateLanguageTables} from './language-table.mjs';
 
 export const packLimits = Object.freeze({packs: 16, configBytes: 16384, depth: 16});
@@ -119,7 +120,13 @@ export function resolveCapabilities(capabilities = null, {catalog = localPackCat
     variables.push(variable);
   }
   return {legacy: capabilities == null, capabilities: capabilities == null ? null : resolved, packs, variables,
-    initialScene: resolved.config['gg.sprites']?structuredClone(resolved.config['gg.sprites'].initialScene):undefined};
+    initialScene: initialSceneOf(resolved.config['gg.sprites'])};
+}
+// The single-sprite initial scene: 0.1.0/0.2.0 store it; 0.3.0 derives it from
+// its first sprite (scene2d-multi-sprite) for readers that know one sprite.
+function initialSceneOf(config) {
+  if (!config) return undefined;
+  return own(config, 'sprites') ? initialSceneOfObjects(config) : structuredClone(config.initialScene);
 }
 // Walks the registered chain (manifest records and catalog records) one step at
 // a time; each step renames config fields, transforms pack workspaces and must
@@ -137,7 +144,7 @@ export function migrateCapabilities(capabilities, {id, toVersion}, {catalog = lo
       if (!own(config, from) || own(config, to)) fail('migración ambigua');
       config[to] = config[from]; delete config[from];
     }
-    current.config[id] = config;
+    current.config[id] = step.config ? migratePackConfig(step.config, config) : config;
     if (step.blocks) for (const [packId, packConfig] of Object.entries(current.config)) {
       if (plain(packConfig) && plain(packConfig.workspace) && Array.isArray(packConfig.workspace.nodes)) current.config[packId] = {...packConfig, workspace: transformWorkspace(packConfig.workspace, step.blocks).workspace};
     }

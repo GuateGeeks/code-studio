@@ -4,7 +4,7 @@ import {webAppsPack} from './gg.webapps/manifest.mjs';
 import {assetsPack,assetsPack02} from './gg.assets/manifest.mjs';
 import {sb3Pack,sb3Pack02} from './gg.sb3/manifest.mjs';
 import {microbitPack} from './gg.microbit/manifest.mjs';
-import {spritesPack, spritesPack02} from './gg.sprites/manifest.mjs';
+import {spritesPack, spritesPack02, spritesPack03} from './gg.sprites/manifest.mjs';
 import {scorePack01, scorePack02} from './gg.score/manifest.mjs';
 // Build-reviewed, declarative packages. Imported projects never add entries.
 function freezeData(value) {
@@ -25,18 +25,25 @@ export const localPackCatalog = freezeData([
   {manifest: microbitPack, sha256: '1ce6214b23eb2a90a9c236bf5270fe61c69ec78ff9122690eb8800c0354d72cf'},
   {manifest: spritesPack, sha256: '225d6c992253966ac0645d9e73360c13da853787c0b02ff23c6cc9bdad6072d2'},
   {manifest: spritesPack02, sha256: '70475dfae3921d1ac28e862d30c2c31e815da2b2f1133060038f37c24c4e366a'},
+  {manifest: spritesPack03, sha256: '6237b1c5b4db41db7d6debedbb5358b46b37f0d06522be7244d87c4c8711e08f'},
   {manifest: scorePack01, sha256: 'fae8b8a0f9095df052a3aec6b849c118603ae23a9e957f87f3e321559667348b'},
   {manifest: scorePack02, sha256: 'eeab7a5d0e90bf23f4fd5e55d056ce61434c85f7cc82984e59248b45ff73f53c'}
 ]);
-export const latestPackVersions = Object.freeze({'gg.sprites': '0.2.0', 'gg.score': '0.2.0', 'gg.microbit':'0.1.0','gg.assets':'0.1.0','gg.sb3':'0.1.0','gg.3d-basic':'0.1.0','gg.3d-advanced':'0.1.0','gg.webapps':'0.1.0'});
+export const latestPackVersions = Object.freeze({'gg.sprites': '0.3.0', 'gg.score': '0.2.0', 'gg.microbit':'0.1.0','gg.assets':'0.1.0','gg.sb3':'0.1.0','gg.3d-basic':'0.1.0','gg.3d-advanced':'0.1.0','gg.webapps':'0.1.0'});
 
 export const localPackMigrations=freezeData([{id:'gg.assets',fromVersion:'0.1.0',toVersion:'0.2.0',rename:{}},{id:'gg.sb3',fromVersion:'0.1.0',toVersion:'0.2.0',rename:{}},
   // scene2d-vocabulary-v2 E1: 0.2.0 only adds blocks; IDs, types and config are unchanged.
-  {id:'gg.sprites',fromVersion:'0.1.0',toVersion:'0.2.0',rename:{}}]);
+  {id:'gg.sprites',fromVersion:'0.1.0',toVersion:'0.2.0',rename:{}},
+  // scene2d-multi-sprite E2: initialScene → sprites[0] «hero» (reviewed config
+  // transform in pack-migrations.mjs); no block transforms, IDs unchanged.
+  {id:'gg.sprites',fromVersion:'0.2.0',toVersion:'0.3.0',rename:{},config:'scene2d-objects-from-initial-scene-v1'}]);
 // Reviewed backward compatibility (catalog data, since manifests are frozen):
 // a version listed here satisfies dependencies declared on the older versions
 // because it keeps their blocks, configuration and behavior and only adds.
-export const localPackCompatibility=freezeData([{id:'gg.sprites',version:'0.2.0',satisfies:['0.1.0']}]);
+// gg.sprites@0.3.0 changes only its own configuration (the stage and the
+// sprite list), which no dependant reads; blocks, rules, resources and
+// permissions are those of 0.2.0. No pack depends on 0.2.0.
+export const localPackCompatibility=freezeData([{id:'gg.sprites',version:'0.2.0',satisfies:['0.1.0']},{id:'gg.sprites',version:'0.3.0',satisfies:['0.1.0']}]);
 // Projects without explicit capabilities (GGPROJ v1/v2 and the unsaved
 // starting project) keep the vocabulary they were made with.
 export const legacyPackVersions=Object.freeze({'gg.sprites':'0.1.0'});

@@ -1,5 +1,6 @@
 // Pure pack migrations (ADR-011): reviewed data records, chain lookup and
 // block transforms over both workspace shapes. No Blockly, DOM or storage.
+import {scene2DObjectsFromInitialScene} from './scene2d-objects.mjs';
 const fail = message => { throw new Error(`GG migraciones: ${message}`); };
 const identifier = /^[A-Za-z_][A-Za-z0-9_:-]{0,127}$/;
 const version = /^\d+\.\d+\.\d+$/;
@@ -29,15 +30,25 @@ function scalarMap(map, label) {
   return map;
 }
 
+// Reviewed configuration transforms a record may name in `config` (pure, data
+// in → data out). Like the pack config validators, records only name installed
+// code; a project file never brings its own.
+export const packConfigMigrations = Object.freeze({'scene2d-objects-from-initial-scene-v1': scene2DObjectsFromInitialScene});
+export function migratePackConfig(name, config) {
+  if (typeof name !== 'string' || !Object.hasOwn(packConfigMigrations, name)) fail('transformación de configuración no instalada');
+  return packConfigMigrations[name](structuredClone(config));
+}
+
 // `fields`, `inputs` and `values` are keyed by the block type after renaming.
 export function validateMigrationRecord(record) {
   if (!plain(record)) fail('registro inválido');
-  const allowed = ['id', 'fromVersion', 'toVersion', 'rename', 'blocks'];
+  const allowed = ['id', 'fromVersion', 'toVersion', 'rename', 'blocks', 'config'];
   if (Object.keys(record).some(key => !allowed.includes(key))) fail('propiedad no permitida en registro');
   if (typeof record.id !== 'string' || !/^gg\.[a-z0-9][a-z0-9.-]{0,63}$/.test(record.id)) fail('ID de pack inválido');
   if (!version.test(record.fromVersion ?? '') || !version.test(record.toVersion ?? '') || record.fromVersion === record.toVersion) fail('versiones inválidas');
   if (!plain(record.rename)) fail('rename inválido');
   for (const [from, to] of Object.entries(record.rename)) if (forbidden.has(from) || forbidden.has(to) || typeof to !== 'string' || !to) fail('rename inválido');
+  if (record.config !== undefined && (typeof record.config !== 'string' || !Object.hasOwn(packConfigMigrations, record.config))) fail('transformación de configuración no instalada');
   if (record.blocks !== undefined) {
     if (!plain(record.blocks) || Object.keys(record.blocks).some(key => !['types', 'fields', 'inputs', 'values'].includes(key))) fail('transformación de bloques inválida');
     if (record.blocks.types) names(record.blocks.types, 'tipos');

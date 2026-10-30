@@ -42,13 +42,14 @@ test('NP-BROWSER-001: the unsaved initial project and «Crear mi primera escena�
   const errors=[];page.on('pageerror',error=>errors.push(error.message));
   await open(page);
   // Initial project: explicit capabilities, same example blocks, nothing executed.
-  expect(await sprites(page)).toBe('0.2.0');
+  expect(await sprites(page)).toBe('0.3.0');
   const initial=await exported(page);
   expect(initial.version).toBe(3);expect(initial.scene).toBeUndefined();
-  expect(initial.capabilities.config['gg.sprites'].initialScene).toEqual({spriteId:'hero',x:0,y:0,direction:90,size:100,costume:'hero'});
+  // gg.sprites@0.3.0 (scene2d-multi-sprite): the stage and one sprite «hero» with the same initial state.
+  expect(initial.capabilities.config['gg.sprites']).toEqual({stage:{backdrop:'stage'},sprites:[{id:'hero',name:'hero',x:0,y:0,direction:90,size:100,visible:true,costume:'hero'}]});
   expect(compact(initial.authoring.blockly)).toEqual(compact(editableExample)); // the built-in example (shell/editable.blocks.json)
   await packs(page);
-  await expect(page.locator('#packs-list')).toHaveText('gg.sprites · 0.2.0');
+  await expect(page.locator('#packs-list')).toHaveText('gg.sprites · 0.3.0');
   await expect(page.locator('#packs-status')).toHaveText('Versiones fijadas en este proyecto');
   await expect(page.locator('#update-packs')).toBeHidden();
   const initialToolbox=await expectE1Toolbox(page);
@@ -58,9 +59,9 @@ test('NP-BROWSER-001: the unsaved initial project and «Crear mi primera escena�
   await clickVisible(page,page.locator('#entry-create'));
   await expect(page.locator('#entry-create')).toHaveText('Crear mi primera escena');
   await expect(page.locator('#project-name')).toHaveValue('Mi primera creación');
-  expect(await sprites(page)).toBe('0.2.0');
+  expect(await sprites(page)).toBe('0.3.0');
   const created=await exported(page);
-  expect(created.capabilities.locks.map(lock=>[lock.id,lock.version])).toEqual([['gg.sprites','0.2.0']]);
+  expect(created.capabilities.locks.map(lock=>[lock.id,lock.version])).toEqual([['gg.sprites','0.3.0']]);
   await expectE1Toolbox(page);
   expect((await settled(snapshot,page)).x).toBe(0);
   await expect(page.locator('#status')).not.toHaveText('Bloques ejecutados');

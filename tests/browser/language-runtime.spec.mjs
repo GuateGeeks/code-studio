@@ -60,7 +60,7 @@ for (const language of ['javascript', 'python']) {
     expect(manifest.version).toBe(4);
     expect(manifest.authoring).toEqual(authoring);
     // R1: a new project keeps its initial scene in its gg.sprites capabilities.
-    expect(manifest.scene).toBeUndefined();expect(manifest.capabilities.config['gg.sprites'].initialScene.x).toBe(0);
+    expect(manifest.scene).toBeUndefined();expect(manifest.capabilities.config['gg.sprites'].sprites[0].x).toBe(0);
     expect(JSON.stringify(manifest)).not.toContain('resultado 6');
     await selectContext(page,'text');
     await clickVisible(page.getByRole('button', {name:'Detener',exact:true}));

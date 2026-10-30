@@ -105,8 +105,8 @@ test('GG-PACK-001/002: resolution is explicit, detached, dependency-complete and
   assert.equal(resolveCapabilities().capabilities, null);
   const capabilities = packs();
   const profile = resolveCapabilities(capabilities);
-  // gg.sprites@0.2.0 is the latest and satisfies gg.score's dependency on 0.1.0.
-  assert.deepEqual(profile.packs.map(pack => [pack.id, pack.version]), [['gg.score', '0.2.0'], ['gg.sprites', '0.2.0']]);
+  // gg.sprites@0.3.0 is the latest and satisfies gg.score's dependency on 0.1.0.
+  assert.deepEqual(profile.packs.map(pack => [pack.id, pack.version]), [['gg.score', '0.2.0'], ['gg.sprites', '0.3.0']]);
   assert.deepEqual(resolveCapabilities(createCapabilities(['gg.sprites', 'gg.score'], {versions: {'gg.sprites': '0.1.0'}})).packs.map(pack => [pack.id, pack.version]), [['gg.score', '0.2.0'], ['gg.sprites', '0.1.0']]);
   assert.equal(profile.variables[0].id, 'gg-pack-score');
   profile.variables[0].initialValue = 42;
@@ -118,10 +118,17 @@ test('GG-PACK-001/002: resolution is explicit, detached, dependency-complete and
     value => { value.config['gg.score'].module = 'https://example.invalid/a.js'; },
     value => { value.config['gg.score'].initialValue = Infinity; },
     value => { value.config['gg.score'].variableId = '__proto__'; },
-    value => { value.config['gg.sprites'].initialScene.x = 3; },
+    value => { value.config['gg.sprites'].sprites[0].x = 241; },
+    value => { value.config['gg.sprites'].sprites.push(structuredClone(value.config['gg.sprites'].sprites[0])); },
     value => { value.locks = value.locks.filter(lock => lock.id !== 'gg.sprites'); delete value.config['gg.sprites']; },
     value => { value.locks = Array(1); }
   ]) { const value = structuredClone(capabilities); corrupt(value); assert.throws(() => validateCapabilities(value), /GG packs/); }
+  // 0.1.0/0.2.0 keep their constant initial scene.
+  for (const version of ['0.1.0', '0.2.0']) {
+    const value = createCapabilities(['gg.sprites', 'gg.score'], {versions: {'gg.sprites': version}});
+    value.config['gg.sprites'].initialScene.x = 3;
+    assert.throws(() => validateCapabilities(value), /GG packs/, version);
+  }
   assert.throws(() => createCapabilities(['gg.remote']), /no instalado/);
   assert.throws(() => createCapabilities(['gg.sprites'], {config: {'gg.score': {}}}), /no seleccionado/);
 });
@@ -253,7 +260,9 @@ test('GG-PACK-002: v1/v2 remain exact, explicit promotion owns initial scene onl
     assert.deepEqual(await parseProject(serializeProject(legacy), {catalog}), before);
     const upgraded = await upgradeProject(legacy, {capabilities: packs(), catalog});
     assert.equal(upgraded.version, 3); assert.equal(Object.hasOwn(upgraded, 'scene'), false);
-    assert.deepEqual(upgraded.capabilities.config['gg.sprites'].initialScene, legacy.scene);
+    // gg.sprites@0.3.0: the legacy scene is the first (and only) sprite.
+    assert.deepEqual(resolveCapabilities(upgraded.capabilities).initialScene, legacy.scene);
+    assert.deepEqual(upgraded.capabilities.config['gg.sprites'].sprites, [{id: 'hero', name: 'hero', ...(({spriteId, ...rest}) => rest)(legacy.scene), visible: true}]);
     assert.deepEqual(upgraded.authoring.blockly, legacy.authoring.blockly);
     assert.deepEqual(legacy, before);
     const workspace = loadWorkspace(upgraded.authoring.blockly, {capabilities: upgraded.capabilities});

@@ -103,6 +103,8 @@ export const coreLanguageEntries = Object.freeze([
 export const languageTables = Object.freeze({
   'gg.sprites@0.1.0': Object.freeze(sprite2D),
   'gg.sprites@0.2.0': spriteLanguage02,
+  // gg.sprites@0.3.0 (scene2d-multi-sprite): same vocabulary as 0.2.0.
+  'gg.sprites@0.3.0': spriteLanguage02,
   'gg.assets@0.1.0': Object.freeze(assets2D),
   'gg.assets@0.2.0': Object.freeze(assets2D),
   'gg.score@0.1.0': Object.freeze(score2D),

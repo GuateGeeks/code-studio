@@ -55,7 +55,7 @@ async function trace(page,length=40){
 
 test('E1-01: the 0.2.0 toolbox offers every E1 block from its menus; a legacy project keeps the 0.1.0 toolbox',async({page})=>{
   await open(page);
-  // R1 (29/10/2026): the unsaved initial project is already 0.2.0; the legacy
+  // R1 (29/10/2026): the unsaved initial project is already at the latest (0.2.0 or later); the legacy
   // toolbox is the one of a saved GGPROJ v1 (no capabilities).
   expect(await toolboxText(page,'Control')).toContain('por siempre');
   await page.evaluate(async()=>{
@@ -70,7 +70,7 @@ test('E1-01: the 0.2.0 toolbox offers every E1 block from its menus; a legacy pr
   for(const text of ['girar ↻','girar ↺','ir a x:','deslizar en','apuntar en dirección','cambiar x por','fijar x a','cambiar y por','fijar y a','rebotar si toca un borde'])expect(motion).toContain(text);
   for(const text of ['decir','durante','pensar','siguiente disfraz','cambiar tamaño por','fijar tamaño a','mostrar','esconder'])expect(looks).toContain(text);
   for(const text of ['por siempre','esperar hasta que','repetir hasta que','detener todo','detener este programa'])expect(control).toContain(text);
-  expect((await page.evaluate(()=>studioProbe.project.capabilities())).locks.find(lock=>lock.id==='gg.sprites').version).toBe('0.2.0');
+  expect((await page.evaluate(()=>studioProbe.project.capabilities())).locks.find(lock=>lock.id==='gg.sprites').version).toBe('0.3.0'); // E2: the latest (0.3.0) keeps the whole E1 vocabulary
   await writeFile(artifactPath('e1-toolbox.json'),JSON.stringify({legacy,motion,looks,control},null,2));
 });
 
@@ -134,14 +134,15 @@ test('E1-04: JavaScript and Python views edit E1 blocks keeping IDs, then save, 
   await page.evaluate(()=>studioProbe.project.flush());await page.reload();await page.waitForFunction(()=>!!window.studioProbe?.project);await page.evaluate(()=>studioProbe.project.ready());
   await expect(page.locator('#run-editor')).toBeEnabled();
   expect(await authoring(page)).toEqual(afterPy);
-  expect((await page.evaluate(()=>studioProbe.project.capabilities())).locks.find(lock=>lock.id==='gg.sprites').version).toBe('0.2.0');
+  expect((await page.evaluate(()=>studioProbe.project.capabilities())).locks.find(lock=>lock.id==='gg.sprites').version).toBe('0.3.0'); // E2: the latest (0.3.0) keeps the whole E1 vocabulary
   expect((await snapshot(page)).hero).toEqual({x:0,y:0,direction:90,size:100,visible:true,costume:'hero',bubble:null});
   await runBlocks(page);
   await expect.poll(async()=>stable(await settled(snapshot,page)),{timeout:30000}).toEqual({...finalState,size:130,bubble:{type:'say',text:'¡Reboto!'}});
   await stopResult(page);
 });
 
-test('E1-05: «Actualizar packs» takes a 0.1.0 project to 0.2.0 without running and with the same blocks',async({page})=>{
+// E2 (scene2d-multi-sprite): «Actualizar packs» goes to the latest, 0.3.0, through 0.2.0.
+test('E1-05: «Actualizar packs» takes a 0.1.0 project to the latest (0.2.0 → 0.3.0) without running and with the same blocks',async({page})=>{
   await open(page);
   const project=JSON.parse(readFileSync(resolve(import.meta.dirname,'../fixtures/canonical/scene2d/repeat-move/project.json'),'utf8'));
   await starter(page,project);
@@ -154,8 +155,9 @@ test('E1-05: «Actualizar packs» takes a 0.1.0 project to 0.2.0 without running
   expect(await toolboxText(page,'Control')).not.toContain('por siempre');
   const original=await authoring(page);
   await clickVisible(page,page.locator('#update-packs'));
-  await expect(page.locator('#packs-list')).toContainText('gg.sprites · 0.2.0');
+  await expect(page.locator('#packs-list')).toContainText('gg.sprites · 0.3.0');
   expect(await authoring(page)).toEqual(original);
+  expect((await page.evaluate(()=>studioProbe.project.capabilities())).config['gg.sprites'].sprites).toEqual([{id:'hero',name:'hero',x:0,y:0,direction:90,size:100,visible:true,costume:'hero'}]);
   expect((await snapshot(page)).x).toBe(0);
   expect(await toolboxText(page,'Control')).toContain('por siempre');
   await runBlocks(page);await expect.poll(async()=>(await settled(snapshot,page)).x).toBe(15);

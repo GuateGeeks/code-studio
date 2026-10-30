@@ -71,7 +71,7 @@ async function boot(t) {
 test('NP-001: a new project uses explicit capabilities at the catalog latest gg.sprites with the E1 vocabulary and core structures', () => {
   const capabilities = newProjectCapabilities();
   assert.deepEqual(capabilities.locks.map(lock => [lock.id, lock.version]), [['gg.sprites', latestPackVersions['gg.sprites']]]);
-  assert.equal(latestPackVersions['gg.sprites'], '0.2.0', 'today the latest published gg.sprites is 0.2.0');
+  assert.equal(latestPackVersions['gg.sprites'], '0.3.0', 'today the latest published gg.sprites is 0.3.0 (scene2d-multi-sprite)');
   assert.notEqual(latestPackVersions['gg.sprites'], legacyPackVersions['gg.sprites']);
   const types = toolboxTypes(capabilities);
   for (const type of [...e1Blocks, 'gg_forever', 'gg_repeat_until', 'gg_wait_until', 'gg_stop_all', 'gg_stop_script']) assert.ok(types.has(type), type);
@@ -88,14 +88,17 @@ test('NP-001: a new project uses explicit capabilities at the catalog latest gg.
 test('NP-002: the unsaved initial project starts at the latest version, stays clean and runs nothing', async t => {
   const {project, editor, applied, diagnostics, stops} = await boot(t);
   assert.equal(project.state().recoveryStatus, 'unavailable'); // no IndexedDB here: an unsaved draft
-  assert.equal(spritesVersion(editor.captureCapabilities()), '0.2.0');
+  assert.equal(spritesVersion(editor.captureCapabilities()), '0.3.0');
   assert.deepEqual(editor.captureCapabilities(), newProjectCapabilities());
   assert.deepEqual(project.capabilities(), newProjectCapabilities());
   const exported = JSON.parse(await project.export());
   assert.equal(exported.version, 3);
   assert.equal(Object.hasOwn(exported, 'scene'), false);
-  assert.deepEqual(exported.capabilities.locks.map(lock => [lock.id, lock.version]), [['gg.sprites', '0.2.0']]);
-  assert.deepEqual(exported.capabilities.config['gg.sprites'].initialScene, {spriteId: 'hero', x: 0, y: 0, direction: 90, size: 100, costume: 'hero'});
+  assert.deepEqual(exported.capabilities.locks.map(lock => [lock.id, lock.version]), [['gg.sprites', '0.3.0']]);
+  // gg.sprites@0.3.0: the stage and one sprite «hero» with the same initial state as before.
+  assert.deepEqual(exported.capabilities.config['gg.sprites'], {stage: {backdrop: 'stage'},
+    sprites: [{id: 'hero', name: 'hero', x: 0, y: 0, direction: 90, size: 100, visible: true, costume: 'hero'}]});
+  assert.deepEqual(resolveCapabilities(exported.capabilities).initialScene, {spriteId: 'hero', x: 0, y: 0, direction: 90, size: 100, costume: 'hero'});
   // Same blocks (IDs, shadows, positions) as the built-in example; only the profile changed.
   assert.deepEqual(exported.authoring.blockly, example);
   assert.deepEqual(exported.authoring.textDocuments, []);

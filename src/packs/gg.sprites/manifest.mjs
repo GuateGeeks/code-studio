@@ -1,5 +1,6 @@
 import {blocks, blocksV2} from './blocks.mjs';
 import {spriteLanguage02} from '../language-tables.mjs';
+import {scene2DObjectsSchema} from '../../contracts/scene2d-objects.mjs';
 const block = (type, inputs) => ({kind: 'block', type, ...(inputs ? {inputs} : {})});
 const number = (name, value) => ({[name]: {shadow: {type: 'math_number', fields: {NUM: value}}}});
 export const initialScene = Object.freeze({spriteId: 'hero', x: 0, y: 0, direction: 90, size: 100, costume: 'hero'});
@@ -109,4 +110,20 @@ export const spritesPack02 = {
     },
     expressions: {}
   }
+};
+
+// gg.sprites@0.3.0 (scene2d-multi-sprite, E2). Same vocabulary, language table,
+// resources and permissions as 0.2.0, whose manifest above stays frozen by its
+// hash. The configuration holds the stage and a list of 1–8 sprites; the
+// 0.2.0 → 0.3.0 migration (initialScene → sprites[0] «hero», no block changes)
+// is a catalog record and 0.3.0 satisfies dependencies declared on 0.1.0
+// (catalog compatibility data).
+const hero = {id: 'hero', name: 'hero', x: initialScene.x, y: initialScene.y, direction: initialScene.direction, size: initialScene.size, visible: true, costume: initialScene.costume};
+export const spritesPack03 = {
+  id: 'gg.sprites', version: '0.3.0', apiVersion: 2, dependencies: [], resources: [...spritesPack02.resources],
+  configSchema: structuredClone(scene2DObjectsSchema), configValidator: 'scene2d-objects-v1',
+  defaults: {stage: {backdrop: 'stage'}, sprites: [hero]}, variables: [], migrations: [],
+  permissions: structuredClone(spritesPack02.permissions),
+  language: spriteLanguage02,
+  contributions: structuredClone(spritesPack02.contributions)
 };

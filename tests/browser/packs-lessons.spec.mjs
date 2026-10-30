@@ -80,14 +80,14 @@ for (const mobile of [false, true]) {
     await expect(page.locator('#lesson-progress')).toContainText('Historial: 2 de 2');
     const saved=JSON.parse(await page.evaluate(()=>studioProbe.project.export()));
     expect(saved.version).toBe(3); expect(saved.scene).toBeUndefined();
-    expect(saved.capabilities.config['gg.sprites'].initialScene.x).toBe(0);
+    expect(saved.capabilities.config['gg.sprites'].sprites[0].x).toBe(0);
     expect(JSON.stringify(saved)).not.toContain('completedStepIds');
     await selectContext(page,'2d');
     await clickVisible(page.locator('#stop-result')); await expect(page.locator('#run-editor')).toBeEnabled();
     expect((await snapshot(page)).x).toBe(0);
     expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(mobile?390:1280);
     await page.locator('.lessons').screenshot({path:artifactPath('lesson-story-'+layout+'.png')});
-    await writeFile(artifactPath('lesson-story-'+layout+'.json'),JSON.stringify({result,initialScene:saved.capabilities.config['gg.sprites'].initialScene,errors},null,2));
+    await writeFile(artifactPath('lesson-story-'+layout+'.json'),JSON.stringify({result,sprites:saved.capabilities.config['gg.sprites'].sprites,errors},null,2));
     expect(errors).toEqual([]);
   });
 

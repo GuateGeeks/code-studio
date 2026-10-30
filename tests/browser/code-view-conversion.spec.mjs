@@ -64,7 +64,7 @@ test('CV-CONVERT-BROWSER-002: unsupported source, forged candidate and stale ana
   const rejected=await page.evaluate(async()=>{
     const state=studioProbe.editor.codeViewSnapshot(),generated=GGEditor.generateCodeViewSource(state,'javascript');
     const base={language:'javascript',variableIds:generated.variableIds,capabilities:state.capabilities,resourceView:state.resourceView};
-    // R1: the initial project is gg.sprites@0.2.0, where while(true) is «por siempre»; a free while has no block in any version.
+    // R1: the initial project is gg.sprites@0.2.0 or later (today 0.3.0), where while(true) is «por siempre»; a free while has no block in any version.
     const invalid=await codeViewService.convert({...base,source:'onStart(()=>{\nwhile(1<3){}\n})'}).then(()=>null,e=>({message:e.message,line:e.lineNumber}));
     const parsed=await codeViewService.convert({...base,source:generated.text});
     const forged=structuredClone(parsed);forged.ir.version=9;

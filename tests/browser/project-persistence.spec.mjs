@@ -109,10 +109,11 @@ test('GG-PROJECT-001/002/003/005/010: downloaded ZIP reopens in a clean browser 
   expect(Object.keys(zip.files).some(name => name.startsWith('assets/') && name.endsWith('.svg'))).toBe(true);
   const manifest = JSON.parse(await zip.file('manifest.json').async('string'));
   expect(manifest.project.name).toBe('Mi robot viajero');
-  // R1: a new project keeps its initial scene in its gg.sprites capabilities.
+  // R1: a new project keeps its initial scene in its gg.sprites capabilities (0.3.0: sprites[0] «hero»).
   expect(manifest.scene).toBeUndefined();
-  expect(manifest.capabilities.config['gg.sprites'].initialScene.x).toBe(0);
-  expect(manifest.capabilities.config['gg.sprites'].initialScene.y).toBe(0);
+  expect(manifest.capabilities.config['gg.sprites'].sprites[0].x).toBe(0);
+  expect(manifest.capabilities.config['gg.sprites'].sprites[0].y).toBe(0);
+  expect(manifest.capabilities.config['gg.sprites'].sprites.map(sprite => sprite.id)).toEqual(['hero']);
   const id = manifest.project.id;
   await page.close();
 
@@ -127,13 +128,13 @@ test('GG-PROJECT-001/002/003/005/010: downloaded ZIP reopens in a clean browser 
     expect(await authoring(reopened)).toEqual(original);
     const restored = JSON.parse(await exported(reopened));
     expect(restored.project.id).toBe(id);
-    expect(restored.capabilities.config['gg.sprites'].initialScene.x).toBe(0);
+    expect(restored.capabilities.config['gg.sprites'].sprites[0].x).toBe(0);
     expect((await snapshot(reopened)).x).toBe(0);
     await run(reopened, 18);
     expect((await snapshot(reopened)).sourceMap['editable-move']).toBe('editable-move');
     expect(await reopened.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
     await reopened.screenshot({path: artifactPath('f1-project-mobile.png'), fullPage: true});
-    await saveEvidence('portable', {filename: saved.name, localArtifact: artifactPath('f1-example.ggproj'), bytes: saved.bytes.length, sha256: createHash('sha256').update(saved.bytes).digest('hex'), entries: Object.keys(zip.files), projectId: id, authoringPreserved: true, sourcePreserved: true, initialX: restored.capabilities.config['gg.sprites'].initialScene.x, runtimeX: (await snapshot(reopened)).x, freshContext: true});
+    await saveEvidence('portable', {filename: saved.name, localArtifact: artifactPath('f1-example.ggproj'), bytes: saved.bytes.length, sha256: createHash('sha256').update(saved.bytes).digest('hex'), entries: Object.keys(zip.files), projectId: id, authoringPreserved: true, sourcePreserved: true, initialX: restored.capabilities.config['gg.sprites'].sprites[0].x, runtimeX: (await snapshot(reopened)).x, freshContext: true});
   } finally { await fresh.close(); }
 });
 
