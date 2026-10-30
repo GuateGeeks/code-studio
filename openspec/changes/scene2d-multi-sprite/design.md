@@ -121,12 +121,12 @@
     - **Compatibilidad.** La versión 1 se lee igual y se escribe mientras no se cambie de objeto, por eso los proyectos de un objeto no cambian. `switchObject` pasa a la 2. Solo GGPROJ v6 la admite, y sus claves deben ser objetos configurados; v5 la rechaza con mensaje. Límite 1 MiB (9 puntos de 64 KiB).
     - **Consecuencia.** Salir de 0.3.0 con vistas versión 2 falla al guardar. Ya exigía que los demás objetos estuvieran vacíos.
 25. **Cambio de objeto.** `codeViewsUI.selectObject(id)` es el contrato completo de R2 y T6 lo cablea al panel.
-    1. Aplica el texto como al volver a Bloques. Si se rechaza, devuelve `false`: selección y texto intactos, causa visible.
+    1. Aplica el texto como al volver a Bloques. Si se rechaza, selección y texto quedan intactos y la causa se ve (el resultado se detalla en el punto 29).
     2. Monta el objeto con su orden guardado (`authoring.mountObject`).
     3. Cambia el estado de vistas y regenera el texto si la vista no es Bloques.
     - Si falla el paso 3, se vuelve al objeto anterior. `mountObject` guarda el workspace saliente solo tras cargar el entrante.
     - `objects.mounted` sustituye a la suposición del primer sprite en `sceneProgram` y `capture`. **`capture().blockly` sigue siendo el primer sprite**: `createProject` lo escribe ahí, y con otro objeto montado borraría sus bloques (MS-033). Las vistas guardadas deciden qué objeto se monta al abrir.
-    - La caja de herramientas sigue siendo la del sprite también en el escenario: es de 3.1/3.2. `Consulta de código` y lecciones siguen leyendo `editor.program()`, el objeto montado: es de 3.2 y T7.
+    - La caja de herramientas del escenario quedó resuelta en 3.1 (punto 38). `Consulta de código` y lecciones siguen leyendo `editor.program()`, el objeto montado: es de 3.2 y T7.
 26. **Dos formas de copia independiente.** La especificación pide que la copia de un proyecto con dos sprites ejecute lo mismo que los bloques.
     - **Copia del proyecto (`Código › Crear copia`).** Un documento, con `runtime.targetIds` = todos los objetos, escenario incluido. Variables arriba, y **cada evento nombra su objeto**: `hero.onStart(...)`, `stage.onMessage(...)`. Una acción debe ser del objeto de su evento, igual que en una vista. `generateApi3SceneSource` es la única ruta que abre el generador a la v1. Si un proyecto tiene un solo objeto con scripts, conserva el texto de su vista, y con hero es el de siempre.
     - **Copia de la vista (`Crear copia` en una vista).** El texto exacto del objeto seleccionado, también si no convierte; `targetIds` = ese objeto. Es lo único posible: el texto puede no ser analizable y no se puede mezclar con el de los demás. Al ejecutarse están todos los sprites en escena, pero solo ese tiene programa.

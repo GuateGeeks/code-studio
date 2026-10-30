@@ -24,10 +24,10 @@ export function createObjectsUI({authoring,codeViews,contexts,resources,editObje
   const options=()=>[...list.querySelectorAll('[role=option]')];
   function say(text,tone='info'){status.textContent=text;status.dataset.tone=tone;}
   // A picture of the object's costume, so it is recognized before its name is read.
-  function thumbnail(item,view){
+  function thumbnail(item,view,assets){
     const owned=view.costumes.filter(costume=>costume.ownerId===item.ownerId);
     const costume=owned.find(entry=>entry.id===item.costume)??owned[0];
-    const asset=costume&&resources.capture().assets[costume.assetId];
+    const asset=costume&&assets[costume.assetId];
     if(!asset)return null;
     if(!urls.has(costume.assetId)){
       const svg=typeof asset==='string'||asset.format==='svg';
@@ -36,9 +36,9 @@ export function createObjectsUI({authoring,codeViews,contexts,resources,editObje
     return urls.get(costume.assetId);
   }
   function build(objects,selected){
-    const view=resources.view(),focused=list.contains(document.activeElement)?document.activeElement.dataset.object:null;
+    const view=resources.view(),{assets}=resources.capture(),focused=list.contains(document.activeElement)?document.activeElement.dataset.object:null;
     list.replaceChildren(...entries(objects).map(item=>{
-      const node=document.createElement('div'),label=document.createElement('span'),url=thumbnail(item,view);
+      const node=document.createElement('div'),label=document.createElement('span'),url=thumbnail(item,view,assets);
       node.setAttribute('role','option');node.id='object-option-'+item.id.replace(/[^A-Za-z0-9_-]/g,'-');node.dataset.object=item.id;node.className='object-option';
       node.setAttribute('aria-selected',String(item.id===selected));node.tabIndex=item.id===selected?0:-1;node.title=item.name;
       label.className='object-name';label.textContent=item.name;
@@ -122,6 +122,8 @@ export function createObjectsUI({authoring,codeViews,contexts,resources,editObje
     const mode=formMode,typed=input.value,name=normalizeScene2DSpriteName(typed),objects=config();
     const reason=scene2DSpriteNameProblem(name,{config:objects,except:mode==='rename'?mounted():null});
     if(reason){refuse(reason);return;}
+    // The same name is no change, and an edit would stop a running program.
+    if(mode==='rename'&&name===nameOf(mounted())){closeForm();return;}
     const trigger=opener;
     closeForm({restore:false});
     return exclusive(async()=>{

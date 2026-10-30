@@ -275,15 +275,23 @@ test('MS-BROWSER-010: a rejected change of object is explained; the views follow
 
   // Undo after leaving and returning: the point moved to objects, its hash is corrected.
   await mode(page,'javascript');
-  await page.evaluate(()=>{ // The hash of the prepared state differs from the applied one (as a reload can).
-    const digest=crypto.subtle.digest.bind(crypto.subtle);let calls=0;
-    crypto.subtle.digest=async(...args)=>{const value=await digest(...args);if(++calls===1){const bytes=new Uint8Array(value);bytes[0]^=255;return bytes.buffer;}return value;};
+  // The hash of the prepared state differs from the applied one (as a reload can). Only
+  // the conversion's digest of [state,order] is touched: autosave hashes the project too.
+  await page.evaluate(()=>{
+    const digest=crypto.subtle.digest.bind(crypto.subtle);let done=false;
+    crypto.subtle.digest=async(algorithm,data)=>{
+      const value=await digest(algorithm,data),text=new TextDecoder().decode(data);
+      if(done||!text.startsWith('[')||!text.includes('Hola otra vez'))return value;
+      done=true;const bytes=new Uint8Array(value);bytes[0]^=255;return bytes.buffer;
+    };
+    window.__digestTouched=()=>done;
     window.__restoreDigest=()=>{crypto.subtle.digest=digest;};
   });
   await source.fill((await source.inputValue()).replace('"Hola"','"Hola otra vez"'));
   await option(page,'Cesta').click();
   await expect(option(page,'Cesta')).toHaveAttribute('aria-selected','true');
   await expect.poll(async()=>(await capture(page)).codeViews.objects.hero?.restorePoint?.id).toBeTruthy();
+  expect(await page.evaluate(()=>window.__digestTouched())).toBe(true);
   await page.evaluate(()=>window.__restoreDigest());
   await option(page,'Rojo').click();
   await expect(option(page,'Rojo')).toHaveAttribute('aria-selected','true');
@@ -359,6 +367,12 @@ test('MS-BROWSER-012: Run starts every object, Detener stops them; the stage off
   await expect(option(page,'Cesta')).toHaveAttribute('aria-selected','true');
   await page.waitForTimeout(400);
   await expect(page.locator('#result-pending')).toBeHidden();
+  await expect(page.locator('#result-context')).toContainText('activo');
+  // Saving the same name is no change: the program keeps running.
+  await page.locator('#object-rename').focus();await page.keyboard.press('Enter');
+  await page.locator('#object-name').press('Enter');
+  await expect(page.locator('#object-name-form')).toBeHidden();
+  await expect(page.locator('#object-rename')).toBeFocused();
   await expect(page.locator('#result-context')).toContainText('activo');
   await clickVisible(page,page.locator('#stop-result'));
   await expect.poll(async()=>(await settled(snapshot,page)).threads).toBe(0);
