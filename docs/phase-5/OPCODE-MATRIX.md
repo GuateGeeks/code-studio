@@ -133,3 +133,17 @@ El vocabulario esencial (`scene2d-vocabulary-v2`, tanda E1) baja la IR 2D a opco
 | control_stop | STOP_OPTION `all` / `this script` (mutación `hasnext: false`) | `all` → `runtime.stopAll()` (hilos y clones); `this script` → `stopThisScript()`. «otros programas del objeto» no se usa | VOC-010, VOC-013 |
 
 Límites: el renderer recorta tamaño y posición («fence»); por eso tamaño y rebote se verifican en Chromium. Los literales de la IR quedan acotados (posición ±240/±180, giros ±3600, tamaño 0–1000, cambios ±480/±1000, segundos 0–60, texto ≤ 330 caracteres sin saltos de línea).
+
+## Revisión E2 (30/10/2026): «ir a» y fondos
+
+`gg.sprites@0.3.0` (`scene2d-multi-sprite`, tarea 4.1) baja «ir a objeto», «ir a una posición aleatoria», «cambiar fondo a» y «siguiente fondo» a cinco opcodes del núcleo revisados para esa bajada (`e2ReviewedOpcodes`). Como en E1, **no** se añaden a la lista de importación SB3, que sigue congelada.
+
+| Opcode | Entradas / campos | Primitiva de la VM local (`packages/scratch-vm`) | Comprobación |
+|---|---|---|---|
+| motion_goto | TO | `goTo`: resuelve el menú con `getTargetXY`. `_random_` da un punto dentro del escenario; otro valor busca el sprite por nombre (los targets se llaman como el ID del objeto) y, si no existe, no hace nada | MS-063, MS-064 (Node) y MS-BROWSER-033 (Chromium) |
+| motion_goto_menu | campo TO | Menú sombra, como `looks_costume` | MS-063 |
+| looks_switchbackdropto | BACKDROP | `switchBackdrop`: cambia el fondo del escenario desde cualquier objeto y arranca `event_whenbackdropswitchesto`, que no se usa | MS-063, MS-BROWSER-033 |
+| looks_backdrops | campo BACKDROP | Menú sombra | MS-063 |
+| looks_nextbackdrop | — | `nextBackdrop`: siguiente fondo, con vuelta al primero | MS-064 |
+
+Un nombre reservado de la VM (`_mouse_`, `next backdrop`) no puede llegar al menú: el valor es siempre un ID validado de sprite o de recurso, y un ID de recurso no admite espacios.

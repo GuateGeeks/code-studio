@@ -53,24 +53,28 @@ export function scene2DObjectIdentifiers(config) {
 }
 
 // The owner a per-object view or copy is written for: its identifier, kind
-// and sprite ID, and the other objects ({identifier: visible name}) so that an
-// action written for one of them is rejected naming it.
+// and sprite ID, the other objects ({identifier: visible name}) so that an
+// action written for one of them is rejected naming it, and every sprite
+// ({identifier: sprite ID}), because a block can name one (`cesta.goToObject(hero)`).
 export function scene2DTextOwner(config, objectId) {
   const {objects} = scene2DObjectIdentifiers(config);
   const owner = objects.find(object => object.id === objectId);
   if (!owner) throw new Error('Identificadores: objeto desconocido.');
   return {identifier: owner.identifier, kind: owner.kind, targetId: owner.id,
-    others: Object.fromEntries(objects.filter(object => object !== owner).map(object => [object.identifier, object.name]))};
+    others: Object.fromEntries(objects.filter(object => object !== owner).map(object => [object.identifier, object.name])),
+    sprites: Object.fromEntries(objects.filter(object => object.kind === 'sprite').map(object => [object.identifier, object.id]))};
 }
 
 // Owner descriptor carried by conversion requests and generator options.
 export function validateScene2DTextOwner(owner, fail = message => { throw new Error(message); }) {
   const plain = value => value && typeof value === 'object' && !Array.isArray(value) && [Object.prototype, null].includes(Object.getPrototypeOf(value));
-  if (!plain(owner) || Object.keys(owner).sort().join(',') !== 'identifier,kind,others,targetId') fail('Objeto de la vista inválido.');
+  if (!plain(owner) || !['identifier,kind,others,targetId', 'identifier,kind,others,sprites,targetId'].includes(Object.keys(owner).sort().join(','))) fail('Objeto de la vista inválido.');
   if (!['sprite', 'stage'].includes(owner.kind) || (owner.kind === 'stage') !== (owner.targetId === 'stage' && owner.identifier === scene2DStageIdentifier) ||
       (owner.kind === 'sprite' && (!isScene2DSpriteId(owner.targetId) || !isScene2DTextIdentifier(owner.identifier)))) fail('Objeto de la vista inválido.');
   if (!plain(owner.others) || Object.keys(owner.others).length > 8 || Object.hasOwn(owner.others, owner.identifier) ||
       Object.entries(owner.others).some(([identifier, name]) => !(identifier === scene2DStageIdentifier || isScene2DTextIdentifier(identifier)) ||
         typeof name !== 'string' || !name || name.length > 32)) fail('Objeto de la vista inválido.');
-  return {identifier: owner.identifier, kind: owner.kind, targetId: owner.targetId, others: {...owner.others}};
+  const sprites = owner.sprites ?? {};
+  if (!plain(sprites) || Object.keys(sprites).length > 8 || Object.entries(sprites).some(([identifier, id]) => !isScene2DTextIdentifier(identifier) || !isScene2DSpriteId(id))) fail('Objeto de la vista inválido.');
+  return {identifier: owner.identifier, kind: owner.kind, targetId: owner.targetId, others: {...owner.others}, sprites: {...sprites}};
 }

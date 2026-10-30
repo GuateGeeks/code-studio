@@ -1,10 +1,10 @@
 import {resolveCapabilities, canonicalPackData} from '../contracts/packs.mjs';
-import {registerResourceMenus} from './resource-menus.mjs';
+import {registerObjectMenus,registerResourceMenus} from './resource-menus.mjs';
 
 const installed = new Map();
 export function createContributions(capabilities = null, {context = 'scratch-2d'} = {}) {
   const plan = resolveCapabilities(capabilities);
-  const result = {plan, blocks: [], toolbox: [], hats: new Map(), statements: new Map(), expressions: new Map(), variableFlyout: [], fieldMenus: []};
+  const result = {plan, blocks: [], toolbox: [], hats: new Map(), statements: new Map(), expressions: new Map(), variableFlyout: [], fieldMenus: [], objectMenus: []};
   const types = new Set();
   for (const pack of plan.packs) {
     if ((pack.manifest.context ?? 'scratch-2d') !== context) continue;
@@ -17,6 +17,7 @@ export function createContributions(capabilities = null, {context = 'scratch-2d'
       if (!contribution.blocks.some(block => block.type === menu.type)) throw new Error('Pack menu must belong to its own block');
       result.fieldMenus.push(structuredClone(menu));
     }
+    result.objectMenus.push(...structuredClone(contribution.objectMenus ?? []));
     result.toolbox.push(...structuredClone(contribution.toolbox));
     result.variableFlyout.push(...structuredClone(contribution.variableFlyout ?? []));
     for (const kind of ['hats', 'statements', 'expressions']) for (const [type, rule] of Object.entries(contribution[kind])) {
@@ -38,5 +39,6 @@ export function registerContributions(Blockly, contributions) {
     }
   }
   registerResourceMenus(Blockly,contributions.fieldMenus);
+  registerObjectMenus(Blockly,contributions.objectMenus);
   return contributions;
 }

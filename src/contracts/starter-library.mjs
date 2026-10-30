@@ -76,11 +76,13 @@ export const starterOwners=Object.freeze({sprite:'hero',stage:'stage'});
 // resources: validated gg-resources-v1 projection; prepared: output of the
 // installed media preparation (prepareAsset) for the entry's bytes. ownerId:
 // the object that receives a costume or a sound (hero by default); a backdrop
-// is always the stage's.
-export async function applyStarterLibraryEntry(resources,entry,prepared,{ownerId=starterOwners.sprite}={}){
+// is always the stage's. keepBackdrops (profiles with objects): a backdrop joins
+// the stage's list instead of replacing the only one, because blocks can name it.
+export async function applyStarterLibraryEntry(resources,entry,prepared,{ownerId=starterOwners.sprite,keepBackdrops=false}={}){
  checkPrepared(entry,prepared);
  if(resources?.version!==1)fail('se requiere la proyección de recursos 2D');
- if(entry.kind==='backdrop'){
+ if(entry.kind==='backdrop'&&keepBackdrops)ownerId=starterOwners.stage;
+ else if(entry.kind==='backdrop'){
   const stage=resources.costumes.find(item=>item.ownerId===starterOwners.stage);
   if(stage?.assetId===prepared.id)return {resources:cloneValidatedResources(resources),status:'present',descriptorId:stage.id};
   const descriptor={id:stage?.id??descriptorId(resources,'fondo'),ownerId:starterOwners.stage,name:entry.name,assetId:prepared.id,centerX:entry.centerX,centerY:entry.centerY,bitmapResolution:1};
@@ -99,13 +101,23 @@ export async function applyStarterLibraryEntry(resources,entry,prepared,{ownerId
 
 // The initial backdrop comes from the project's own build catalog, not from
 // the library: it keeps its existing provenance.
-export async function restoreInitialBackdrop(resources,catalogResources){
+export async function restoreInitialBackdrop(resources,catalogResources,{keepBackdrops=false}={}){
  if(resources?.version!==1||catalogResources?.version!==1)fail('se requieren recursos 2D validados');
  const initial=catalogResources.costumes.find(item=>item.ownerId===starterOwners.stage);
  if(!initial)fail('el catálogo no tiene fondo inicial');
+ if(keepBackdrops){
+  const present=resources.costumes.find(item=>item.ownerId===starterOwners.stage&&item.assetId===initial.assetId);
+  if(present)return {resources:cloneValidatedResources(resources),status:'present',descriptorId:present.id};
+  const descriptor={...initial,id:descriptorId(resources,initial.id)};
+  return {resources:await edit(resources,{type:'replace-costume',descriptor,prepared:{id:initial.assetId,asset:structuredClone(catalogResources.assets[initial.assetId]),integrity:structuredClone(catalogResources.integrity[initial.assetId])}}),status:'restored',descriptorId:descriptor.id};
+ }
  const stage=resources.costumes.find(item=>item.ownerId===starterOwners.stage);
  if(stage?.assetId===initial.assetId&&stage.centerX===initial.centerX&&stage.centerY===initial.centerY)return {resources:cloneValidatedResources(resources),status:'present',descriptorId:stage.id};
  const descriptor={...initial,id:stage?.id??initial.id};
  return {resources:await edit(resources,{type:'replace-costume',descriptor,prepared:{id:initial.assetId,asset:structuredClone(catalogResources.assets[initial.assetId]),integrity:structuredClone(catalogResources.integrity[initial.assetId])}}),status:'restored',descriptorId:descriptor.id};
 }
-export function stageBackdropAssetId(view){return view?.costumes?.find(item=>item.ownerId===starterOwners.stage)?.assetId??null;}
+// id: the backdrop the project starts with, when it has several; the first otherwise.
+export function stageBackdropAssetId(view,id=null){
+ const backdrops=view?.costumes?.filter(item=>item.ownerId===starterOwners.stage)??[];
+ return (backdrops.find(item=>item.id===id)??backdrops[0])?.assetId??null;
+}

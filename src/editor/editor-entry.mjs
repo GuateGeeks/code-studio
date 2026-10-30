@@ -1,11 +1,11 @@
 import * as Blockly from 'blockly';
 import * as Es from 'blockly/msg/es';
-import {workspaceToIR, isOfferedBlock, orderedRoots, saveWorkspace, loadWorkspace, validateWorkspaceBlocks, validateWorkspaceResources} from './block-program.mjs';
+import {workspaceToIR, isOfferedBlock, orderedRoots, saveWorkspace, loadWorkspace, sceneSprites, validateWorkspaceBlocks, validateWorkspaceResources} from './block-program.mjs';
 import {validateProgram, scene2DStageOffers} from '../contracts/program-contract.mjs';
 import {validateCapabilities} from '../contracts/packs.mjs';
 import {createContributions, registerContributions} from './contributions.mjs';
 import {withDeferredAudioContext} from './deferred-audio.mjs';
-import {setWorkspaceResourceOwner,setWorkspaceResourceView} from './resource-menus.mjs';
+import {setWorkspaceObjects,setWorkspaceResourceOwner,setWorkspaceResourceView} from './resource-menus.mjs';
 import {captureCodeViewSnapshot, prepareCodeViewCandidate} from './code-view-conversion.mjs';
 
 export function createEditor(container, example) {
@@ -57,6 +57,7 @@ export function createEditor(container, example) {
     try {
       setWorkspaceResourceView(workspace,nextResourceView);
       setWorkspaceResourceOwner(workspace,nextOwner);
+      setWorkspaceObjects(workspace,sceneSprites(nextCapabilities));
       workspace.clear();
       Blockly.serialization.workspaces.load(structuredClone(state), workspace);
       orderedRoots(workspace, nextScriptOrder);
@@ -65,6 +66,7 @@ export function createEditor(container, example) {
     } catch (error) {
       setWorkspaceResourceView(workspace,previousResourceView);
       setWorkspaceResourceOwner(workspace,previousOwner);
+      setWorkspaceObjects(workspace,sceneSprites(previousCapabilities));
       workspace.clear();
       Blockly.serialization.workspaces.load(previous, workspace);
       capabilities = previousCapabilities; contributions = previousContributions; resourceView = previousResourceView; scriptOrder = previousScriptOrder; resourceOwner = previousOwner;

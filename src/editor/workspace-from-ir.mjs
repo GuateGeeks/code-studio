@@ -3,6 +3,7 @@ import {authorizeProgram} from '../contracts/pack-broker.mjs';
 import {canonicalPackData} from '../contracts/packs.mjs';
 import {createContributions} from './contributions.mjs';
 import {loadWorkspace, workspaceToIR} from './block-program.mjs';
+import {menuOwner} from './resource-menus.mjs';
 
 const fail = (message, node) => { throw Object.assign(new Error('IR → Blockly: ' + message),
   node?.sourceBlockId ? {sourceBlockId: node.sourceBlockId} : {}); };
@@ -100,7 +101,7 @@ export function workspaceFromIR(input, {capabilities = null, resourceView = null
       else if (source.config) { if (value !== config[source.config]) return null; }
       else if (source.field) {
         if (source.enum && !source.enum.includes(value)) return null;
-        if (source.resource && !(resourceView?.[source.resource] ?? []).some(item => item.id === value && item.ownerId === (ownerId ?? source.ownerId))) return null;
+        if (source.resource && !(resourceView?.[source.resource] ?? []).some(item => item.id === value && item.ownerId === menuOwner(source, ownerId))) return null;
         fields[source.field] = value;
       } else if (!source.input) return null;
       if ((source.minimum !== undefined && value < source.minimum) || (source.maximum !== undefined && value > source.maximum)) return null;

@@ -5,6 +5,7 @@ import {api3Identifier} from './contracts/api3-names.mjs';
 import {languageTables} from './packs/language-tables.mjs';
 import {scene2DCallForms} from './packs/scene2d-forms.mjs';
 import {validateScene2DTextOwner, scene2DObjectIdentifiers} from './contracts/scene2d-identifiers.mjs';
+import {scene2DBackdrops, scene2DStageAllows} from './contracts/scene2d-objects.mjs';
 export {api3Identifier};
 
 const sourceBytes = 65536;
@@ -165,11 +166,11 @@ export function generateProgramSource(ir, language,options={}) {
 // level. The stage has no sprite actions and cannot clone itself. Without an
 // owner the program is hero's, exactly as before. Only `resourceView` and the
 // owner reach the validator: the generator stays closed to IR v1.
-const heroOwner = Object.freeze({identifier: 'hero', kind: 'sprite', targetId: 'hero', others: Object.freeze({})});
+const heroOwner = Object.freeze({identifier: 'hero', kind: 'sprite', targetId: 'hero', others: Object.freeze({}), sprites: Object.freeze({hero: 'hero'})});
 export function generateApi3ProgramSource(ir, language, options = {}) {
   const owner = options.owner === undefined ? heroOwner : validateScene2DTextOwner(options.owner);
   validateProgram(ir, {resourceView: options.resourceView, resourceOwnerId: owner.targetId});
-  return writeApi3(ir, language, {owner, taken: [owner.identifier, ...Object.keys(owner.others)]});
+  return writeApi3(ir, language, {owner, taken: [owner.identifier, ...Object.keys(owner.others)], sprites: owner.sprites, resourceView: options.resourceView});
 }
 // Copy of a whole gg.sprites@0.3.0 project from its IR 2D v1, the one route that
 // opens the generator to the v1 (scene2d-multi-sprite 2.2): one text document,
@@ -181,13 +182,13 @@ export function generateApi3SceneSource(ir, language, {config, resourceView} = {
   const {objects, targetIds} = scene2DObjectIdentifiers(config);
   const owners = new Map(objects.map(object => [object.id, {identifier: object.identifier, kind: object.kind}]));
   for (const id of ir.sprites) if (!owners.has(id)) throw new Error('El programa nombra un objeto desconocido.');
-  const written = writeApi3(ir, language, {owner: null, owners, taken: Object.keys(targetIds)});
+  const written = writeApi3(ir, language, {owner: null, owners, taken: Object.keys(targetIds), sprites: Object.fromEntries(objects.filter(object => object.kind === 'sprite').map(object => [object.identifier, object.id])), resourceView});
   // One document runs under the limits of one text program.
   if (ir.scripts.length > textProgramLimits.handlers || Object.keys(written.variableIds).length > textProgramLimits.variables)
     throw new Error(`Una copia del proyecto admite hasta ${textProgramLimits.handlers} eventos y ${textProgramLimits.variables} variables. Crea la copia de cada objeto desde su vista de código.`);
   return {...written, targetIds: {...targetIds}};
 }
-function writeApi3(ir, language, {owner: documentOwner, owners = null, taken: objectIdentifiers}) {
+function writeApi3(ir, language, {owner: documentOwner, owners = null, taken: objectIdentifiers, sprites = {}, resourceView = null}) {
   if (!['javascript', 'python'].includes(language)) throw new Error('Unsupported generated language');
   // The object of the script being written.
   let owner = documentOwner, stage = owner?.kind === 'stage', prefix = owner ? owner.identifier + '.' : '';
@@ -215,12 +216,17 @@ function writeApi3(ir, language, {owner: documentOwner, owners = null, taken: ob
   const value = (node, ids) => { if (typeof node === 'number') return String(node); ids.push(node.sourceBlockId); return names.get(node.variableId); };
   const loopNames = ['i', 'j', 'k'];
   const call = (js, py, args, ids, depth) => line(`${python ? py : js}(${args.join(', ')})${python ? '' : ';'}`, ids, depth);
+  // Another object is written by its identifier and a backdrop by its name: what the student reads.
+  const backdrops = new Map(scene2DBackdrops(resourceView).map(item => [item.id, item.label]));
+  const objectText = (id, node) => Object.keys(sprites).find(identifier => sprites[identifier] === id) ?? (() => { throw Object.assign(new Error('Ese objeto ya no está en el proyecto. Elige otro en su bloque.'), {sourceBlockId: node.sourceBlockId}); })();
+  const argument = (arg, node, ids) => arg.type === 'expression' ? value(node[arg.field], ids) : arg.type === 'object' ? objectText(node[arg.field], node)
+    : arg.type === 'backdrop' ? quote(backdrops.get(node[arg.field]) ?? node[arg.field]) : typeof node[arg.field] === 'number' ? String(node[arg.field]) : quote(node[arg.field]);
   // Action names come from the sprite language table (ADR-011); playSound picks its variant by `wait`.
-  const actions = languageTables['gg.sprites@0.2.0'].filter(entry => entry.kind === 'call');
+  const actions = languageTables['gg.sprites@0.3.0'].filter(entry => entry.kind === 'call');
   const action = (node, args, ids, depth) => {
     const entry = actions.find(item => item.lower.ir === node.kind && (item.append === undefined || item.append === Boolean(node.wait)));
     if (!entry) throw Object.assign(new Error(`Unsupported generated operation: ${node.kind}`), {sourceBlockId: node.sourceBlockId});
-    if (stage && (entry.target === 'sprite' || ['createClone', 'deleteClone'].includes(entry.lower.ir))) onStage(entry.js, node);
+    if (stage && !scene2DStageAllows(entry.lower.ir)) onStage(entry.js, node);
     const self = entry.target === 'sprite' ? prefix : '';
     call(self + entry.js, self + entry.python, args, ids, depth);
   };
@@ -281,9 +287,9 @@ function writeApi3(ir, language, {owner: documentOwner, owners = null, taken: ob
           // E1 calls: forms and argument order come from the table (scene2d-forms).
           const form = scene2DCallForms.find(item => item.kind === node.kind && item.append === undefined);
           if (!form) throw Object.assign(new Error(`Unsupported generated operation: ${node.kind}`), {sourceBlockId: node.sourceBlockId});
-          if (stage && form.target === 'sprite') onStage(form.js, node);
+          if (stage && !scene2DStageAllows(form.kind)) onStage(form.js, node);
           const self = form.target === 'sprite' ? prefix : '';
-          call(self + form.js, self + form.python, form.args.map(arg => arg.type === 'expression' ? value(node[arg.field], ids) : typeof node[arg.field] === 'number' ? String(node[arg.field]) : quote(node[arg.field])), ids, depth);
+          call(self + form.js, self + form.python, form.args.map(arg => argument(arg, node, ids)), ids, depth);
         }
       }
     }
@@ -310,7 +316,7 @@ function writeApi3(ir, language, {owner: documentOwner, owners = null, taken: ob
       message: {js: `${global}onMessage(${quote(script.message ?? '')}, () => {`, py: `@${global}on_message(${quote(script.message ?? '')})`, name: 'al_recibir'},
       clone: {js: `${prefix}onCloneStart(() => {`, py: `@${prefix}on_clone_start`, name: 'al_empezar_clon'}
     }[script.event];
-    if (stage && script.event === 'clone') onStage('onCloneStart', script);
+    if (stage && !scene2DStageAllows(script.event)) onStage('onCloneStart', script);
     if (python) {
       line(event.py, [script.sourceBlockId]);
       line(`def ${api3Identifier(event.name, handlerNames)}():`, [script.sourceBlockId]);

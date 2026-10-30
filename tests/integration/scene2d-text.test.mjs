@@ -84,7 +84,7 @@ test('MS-026: every object has a stable JS/Python identifier derived from its na
   const renamed = scene2DObjectIdentifiers({...config, sprites: [hero, {...cesta, name: 'Canasta'}]});
   assert.deepEqual([renamed.targetIds.canasta, renamed.identifierOf.cesta], ['cesta', 'canasta']);
   assert.deepEqual(scene2DObjectIdentifiers(config).targetIds, {stage: 'stage', hero: 'hero', cesta: 'cesta'});
-  assert.deepEqual(cestaOwner, {identifier: 'cesta', kind: 'sprite', targetId: 'cesta', others: {stage: 'Escenario', hero: 'hero'}});
+  assert.deepEqual(cestaOwner, {identifier: 'cesta', kind: 'sprite', targetId: 'cesta', others: {stage: 'Escenario', hero: 'hero'}, sprites: {hero: 'hero', cesta: 'cesta'}});
   assert.deepEqual(validateScene2DTextOwner(structuredClone(stageOwner)), stageOwner);
   for (const bad of [{...cestaOwner, identifier: 'for'}, {...cestaOwner, kind: 'stage'}, {...cestaOwner, extra: 1}, {...stageOwner, identifier: 'escenario'}, {...cestaOwner, others: {cesta: 'Cesta'}}])
     assert.throws(() => validateScene2DTextOwner(bad), /Objeto de la vista/);

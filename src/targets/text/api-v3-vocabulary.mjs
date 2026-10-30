@@ -1,7 +1,7 @@
 // API v3 vocabulary (ADR-011). The unbundled Python worker imports it, so it
 // reaches only relative data modules (never acorn or any package).
 import {scene2DVocabularyFromTables} from '../../packs/language-tables.mjs';
-import {isScene2DSpriteId} from '../../contracts/scene2d-objects.mjs';
+import {isScene2DSpriteId, scene2DStageAllows} from '../../contracts/scene2d-objects.mjs';
 
 // Statements and events come from the language tables (one source per block).
 const derived = scene2DVocabularyFromTables();
@@ -22,9 +22,8 @@ export function api3DocumentObjects(targetIds = {}) {
   for (const [, targetId] of entries) if (targetId !== 'stage' && !isScene2DSpriteId(targetId)) throw new Error('Objeto desconocido en el documento.');
   return entries.map(([identifier, targetId]) => ({identifier, targetId, stage: targetId === 'stage'}));
 }
-// As in Scratch the stage has no sprite actions and cannot clone itself; its
-// one sprite event is the click.
+// The stage rule of the IR (scene2DStageAllows): the same answer in text.
 export const api3StageForbids = (key, vocabulary = scene2DApi3) => {
   const action = Object.hasOwn(vocabulary.statements, key ?? '') ? vocabulary.statements[key] : Object.hasOwn(vocabulary.events, key ?? '') ? vocabulary.events[key] : null;
-  return action ? (key.startsWith('hero.') && key !== 'hero.onClick' && key !== 'hero.on_click') || ['createClone', 'deleteClone'].includes(action.ctx) : false;
+  return action ? !scene2DStageAllows(action.ir) : false;
 };

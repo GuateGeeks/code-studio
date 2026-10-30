@@ -8,7 +8,7 @@ const simple = Object.freeze({
   turnRight: ['motion_turnright', {DEGREES: 'degrees'}], turnLeft: ['motion_turnleft', {DEGREES: 'degrees'}],
   pointDirection: ['motion_pointindirection', {DIRECTION: 'direction'}], goTo: ['motion_gotoxy', {X: 'x', Y: 'y'}],
   changeX: ['motion_changexby', {DX: 'dx'}], setX: ['motion_setx', {X: 'x'}], changeY: ['motion_changeyby', {DY: 'dy'}], setY: ['motion_sety', {Y: 'y'}],
-  bounce: ['motion_ifonedgebounce', {}], show: ['looks_show', {}], hide: ['looks_hide', {}], nextCostume: ['looks_nextcostume', {}],
+  bounce: ['motion_ifonedgebounce', {}], show: ['looks_show', {}], hide: ['looks_hide', {}], nextCostume: ['looks_nextcostume', {}], nextBackdrop: ['looks_nextbackdrop', {}],
   setSize: ['looks_setsizeto', {SIZE: 'size'}], changeSize: ['looks_changesizeby', {CHANGE: 'delta'}]
 });
 const speech = Object.freeze({say: 'looks_say', think: 'looks_think', sayFor: 'looks_sayforsecs', thinkFor: 'looks_thinkforsecs'});
@@ -115,6 +115,21 @@ function lowerScripts(ir, {targetOf = () => 'hero', stageId = null} = {}) {
       } else if (node.kind === 'stopSounds') {
         block.opcode = 'sound_stopallsounds';
         reserve(id, block);
+      } else if (node.kind === 'goToObject' || node.kind === 'goToRandom') {
+        // VM targets are named by sprite ID, so a rename never reaches this menu.
+        block.opcode = 'motion_goto';
+        const menuId = `${id}:menu`;
+        block.inputs.TO = [1, menuId];
+        reserve(id, block);
+        reserve(menuId, {opcode: 'motion_goto_menu', next: null, parent: id, inputs: {}, fields: {TO: [node.kind === 'goToRandom' ? '_random_' : node.target, null]}, shadow: true, topLevel: false});
+        sourceMap[menuId] = id;
+      } else if (node.kind === 'setBackdrop') {
+        block.opcode = 'looks_switchbackdropto';
+        const menuId = `${id}:menu`;
+        block.inputs.BACKDROP = [1, menuId];
+        reserve(id, block);
+        reserve(menuId, {opcode: 'looks_backdrops', next: null, parent: id, inputs: {}, fields: {BACKDROP: [node.backdrop, null]}, shadow: true, topLevel: false});
+        sourceMap[menuId] = id;
       } else if (Object.hasOwn(simple, node.kind)) {
         const [opcode, inputs] = simple[node.kind];
         block.opcode = opcode;

@@ -26,6 +26,16 @@ export function propertyLabel(path) {
   return words.length ? words.join(' · ') : path.join(' · ');
 }
 
+// The guide above the blocks, true of the object on screen. `owner`: its ID, null
+// in a single-workspace profile; `blocks`: the types in its workspace.
+export function creationGuide({owner, name, blocks}) {
+  if (owner === 'stage') return blocks.length ? 'Cambia un bloque del escenario, cuéntale a tu docente qué esperas y compara con el resultado.'
+    : 'El escenario no se mueve, pero cambia de fondo: añade un evento y un bloque de Apariencia, y compara con el resultado.';
+  if (!blocks.length) return 'Empieza ' + (name ? 'el programa de ' + name : 'tu programa') + ': arrastra un evento, como «al iniciar», y ponle bloques dentro.';
+  const move = blocks.includes('gg_move');
+  return 'Cambia un bloque' + (move ? ' Mover' : '') + ', cuéntale a tu docente qué esperas y compara con el escenario.';
+}
+
 function technical(message) { return String(message ?? '').replace(/^GG capability: /, ''); }
 
 // Validation of initial properties. Returns a cause and a next step.

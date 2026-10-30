@@ -2,11 +2,15 @@ import {
   textProgramLimits, validateTextProgram, validateTextProgramRPC,
   validateTextProgramNumber, validateTextInvocationResult
 } from '../../contracts/text-program.mjs';
+import {scene2DStageAllows} from '../../contracts/scene2d-objects.mjs';
+import {scene2DObjectIdentifiers} from '../../contracts/scene2d-identifiers.mjs';
+import {languageTables} from '../../packs/language-tables.mjs';
 
-// Operations a stage callback may use (scene2d-multi-sprite 2.2): the same
-// statements IR v1 allows the stage; the translators already reject the rest.
-const stageOperations = new Set(['program.wait', 'program.setVariable', 'program.changeVariable', 'program.compare', 'program.broadcastAndWait',
-  'program.playSound', 'program.stopSounds', 'program.stopAll', 'program.frame']);
+// Operations a stage callback may use (scene2d-multi-sprite 2.2): the actions of
+// the one stage rule, plus the control calls every object has. A barrier of its
+// own: an API1 document could reach here without the translators.
+const stageOperations = new Set(['program.setVariable', 'program.changeVariable', 'program.compare', 'program.frame',
+  ...languageTables['gg.sprites@0.3.0'].filter(entry => entry.kind === 'call' && scene2DStageAllows(entry.lower.ir)).map(entry => 'program.' + entry.ctx)]);
 const singleInput = Object.freeze({
   'program.turnRight': ['motion_turnright', 'DEGREES'], 'program.turnLeft': ['motion_turnleft', 'DEGREES'],
   'program.pointInDirection': ['motion_pointindirection', 'DIRECTION'], 'program.changeX': ['motion_changexby', 'DX'],
@@ -15,7 +19,9 @@ const singleInput = Object.freeze({
 });
 // A native hat suspends on one private Promise primitive. The interpreter owns
 // its callback/control flow; Scratch retains targets, variables and scheduling.
-export function createTextProgram({getVM, getRevision, onInvocation = () => {}, onCancel = () => {}, onError = () => {}}) {
+// getScene: the sprites ({id, name}) and backdrops ({id, label}) of the loaded
+// project, because text names them as the student reads them.
+export function createTextProgram({getVM, getRevision, getScene = () => null, onInvocation = () => {}, onCancel = () => {}, onError = () => {}}) {
   let runtime = null;
   let active = false;
   let revision = null;
@@ -282,6 +288,11 @@ export function createTextProgram({getVM, getRevision, onInvocation = () => {}, 
         runtime._primitives.motion_gotoxy({X: expression(record, args[1]), Y: expression(record, args[2])}, util);
         return state(record.target);
       case 'program.bounceOnEdge': runtime._primitives.motion_ifonedgebounce({}, util); return state(record.target);
+      // gg.sprites@0.3.0: the primitives the blocks lower to (motion_goto, looks_switchbackdropto).
+      case 'program.goToObject': runtime._primitives.motion_goto({TO: objectOf(args[1])}, util); return state(record.target);
+      case 'program.goToRandom': runtime._primitives.motion_goto({TO: '_random_'}, util); return state(record.target);
+      case 'program.setBackdrop': runtime._primitives.looks_switchbackdropto({BACKDROP: backdropOf(args[1])}, util); return {changed: true};
+      case 'program.nextBackdrop': runtime._primitives.looks_nextbackdrop({}, util); return {changed: true};
       case 'program.show': case 'program.hide': case 'program.nextCostume':
         runtime._primitives[{'program.show': 'looks_show', 'program.hide': 'looks_hide', 'program.nextCostume': 'looks_nextcostume'}[method]]({}, util);
         return state(record.target);
@@ -320,6 +331,18 @@ export function createTextProgram({getVM, getRevision, onInvocation = () => {}, 
       // true tells the translated text to return right away.
       case 'program.stopAll': runtime.stopAll(); return true;
     }
+  }
+  // API v3 writes an identifier, API1 the sprite ID; both name one sprite of the scene.
+  function objectOf(name) {
+    const sprites = getScene()?.objects ?? [];
+    const id = sprites.length ? scene2DObjectIdentifiers({sprites}).targetIds[name] ?? sprites.find(sprite => sprite.id === name)?.id : undefined;
+    if (!id || id === 'stage') fail(`no hay ningún objeto llamado «${name}»`);
+    return id;
+  }
+  function backdropOf(name) {
+    const backdrops = getScene()?.backdrops ?? [], found = backdrops.find(item => item.label === name) ?? backdrops.find(item => item.id === name);
+    if (!found) fail(`no hay ningún fondo llamado «${name}»`);
+    return found.id;
   }
   function state(target) { return {x: target.x, y: target.y, direction: target.direction, size: target.size, visible: target.visible, costume: target.currentCostume}; }
   function message(record, value) { return typeof value === 'string' ? value : String(expression(record, value)); }

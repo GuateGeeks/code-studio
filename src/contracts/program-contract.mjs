@@ -1,5 +1,6 @@
 import {validateResourceView,getResourceCostume,getResourceSound} from './resources.mjs';
-import {isScene2DSpriteId,scene2DObjectLimits} from './scene2d-objects.mjs';
+import {isScene2DSpriteId,scene2DObjectLimits,scene2DStageOffers} from './scene2d-objects.mjs';
+export {scene2DStageOffers};
 // Studio-owned wire contract; no Blockly, Scratch or DOM imports.
 export const programLimits = Object.freeze({bytes: 65536, nodes: 300, depth: 8, scripts: 16, variables: 16});
 // IR 2D v1 (scene2d-multi-sprite 1.4): every script names its object
@@ -7,11 +8,7 @@ export const programLimits = Object.freeze({bytes: 65536, nodes: 300, depth: 8, 
 // object; the stage holds the global variables, each sprite its own.
 export const scene2DProgramLimits = Object.freeze({sprites: scene2DObjectLimits.sprites, scriptsPerObject: programLimits.scripts,
   nodesPerObject: programLimits.nodes, variablesPerObject: programLimits.variables, bytes: programLimits.bytes * (scene2DObjectLimits.sprites + 1)});
-// As in Scratch, the stage does not move, speak, change size or clone itself;
-// its backdrops arrive with their own blocks (tarea 3.2).
-const stageEvents = new Set(['start', 'key', 'click', 'message']);
-const stageStatements = new Set(['wait', 'repeat', 'forever', 'repeatUntil', 'waitUntil', 'if', 'broadcastWait', 'setVariable', 'changeVariable', 'playSound', 'stopSounds', 'stopAll', 'stopScript']);
-export const scene2DStageOffers = Object.freeze({events: stageEvents, statements: stageStatements});
+const {events: stageEvents, statements: stageStatements} = scene2DStageOffers;
 const fail = message => { throw new Error(`Invalid GG program: ${message}`); };
 function object(value, required, optional = []) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) fail('expected object');
@@ -122,6 +119,10 @@ export function validateProgram(ir,{resourceView,resourceOwnerId='hero',objects:
         case 'setSize': object(node, [...common, 'size']); expression(node.size, depth + 1); bounded(node.size, 0, 1000, 'size'); break;
         case 'changeSize': object(node, [...common, 'delta']); expression(node.delta, depth + 1); bounded(node.delta, -1000, 1000, 'size change'); break;
         case 'bounce': case 'show': case 'hide': case 'nextCostume': case 'stopAll': case 'stopScript': object(node, common); break;
+        // gg.sprites@0.3.0: an object by its stable ID; a backdrop is the stage's, whichever object asks.
+        case 'goToObject': object(node, [...common, 'target']); if (!isScene2DSpriteId(node.target) || (objects && !ir.sprites.includes(node.target))) fail('unknown object'); break;
+        case 'goToRandom': case 'nextBackdrop': object(node, common); break;
+        case 'setBackdrop': object(node, [...common, 'backdrop']); if (resourceView ? !getResourceCostume(resourceView, node.backdrop, 'stage') : node.backdrop !== 'stage') fail('unsupported backdrop'); break;
         case 'forever': object(node, [...common, 'body']); statements(node.body, depth + 1); break;
         case 'repeatUntil': object(node, [...common, 'condition', 'body']); expression(node.condition, depth + 1, true); statements(node.body, depth + 1); break;
         case 'waitUntil': object(node, [...common, 'condition']); expression(node.condition, depth + 1, true); break;

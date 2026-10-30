@@ -1,5 +1,5 @@
-import {blocks, blocksV2} from './blocks.mjs';
-import {spriteLanguage02} from '../language-tables.mjs';
+import {blocks, blocksV2, blocksV3} from './blocks.mjs';
+import {spriteLanguage02, spriteLanguage03} from '../language-tables.mjs';
 import {scene2DObjectsSchema} from '../../contracts/scene2d-objects.mjs';
 const block = (type, inputs) => ({kind: 'block', type, ...(inputs ? {inputs} : {})});
 const number = (name, value) => ({[name]: {shadow: {type: 'math_number', fields: {NUM: value}}}});
@@ -112,10 +112,11 @@ export const spritesPack02 = {
   }
 };
 
-// gg.sprites@0.3.0 (scene2d-multi-sprite, E2). Same vocabulary, language table
-// and resources as 0.2.0, whose manifest above stays frozen by its hash, and
-// the same permissions plus `objectResources`: a resource permission or menu
-// that names `hero` (gg.assets, frozen) means the object that owns the script.
+// gg.sprites@0.3.0 (scene2d-multi-sprite, E2). The vocabulary, language table
+// and resources of 0.2.0, whose manifest above stays frozen by its hash, plus
+// «ir a» an object or a random position and the backdrop blocks (4.1), and the
+// same permissions plus `objectResources`: a resource permission or menu that
+// names `hero` (gg.assets, frozen) means the object that owns the script.
 // The configuration holds the stage and a list of 1–8 sprites; the
 // 0.2.0 → 0.3.0 migration (initialScene → sprites[0] «hero», no block changes)
 // is a catalog record and 0.3.0 satisfies dependencies declared on 0.1.0
@@ -125,7 +126,21 @@ export const spritesPack03 = {
   id: 'gg.sprites', version: '0.3.0', apiVersion: 2, dependencies: [], resources: [...spritesPack02.resources],
   configSchema: structuredClone(scene2DObjectsSchema), configValidator: 'scene2d-objects-v1',
   defaults: {stage: {backdrop: 'stage'}, sprites: [hero]}, variables: [], migrations: [],
-  permissions: {...structuredClone(spritesPack02.permissions), objectResources: true},
-  language: spriteLanguage02,
-  contributions: structuredClone(spritesPack02.contributions)
+  permissions: {...structuredClone(spritesPack02.permissions), operations: [...spritesPack02.permissions.operations,
+    'program.goToObject', 'program.goToRandom', 'program.setBackdrop', 'program.nextBackdrop'], objectResources: true},
+  language: spriteLanguage03,
+  contributions: (() => {
+    const contributions = structuredClone(spritesPack02.contributions);
+    const contents = name => contributions.toolbox.find(item => item.name === name).contents;
+    contents('Movimiento').splice(4, 0, block('gg_go_to_object'), block('gg_go_to_random'));
+    contents('Apariencia').splice(6, 0, block('gg_set_backdrop'), block('gg_next_backdrop'));
+    return {...contributions, blocks: [...contributions.blocks, ...blocksV3],
+      fieldMenus: [{type: 'gg_set_backdrop', field: 'BACKDROP', resource: 'costumes', ownerId: 'stage'}],
+      objectMenus: [{type: 'gg_go_to_object', field: 'TARGET'}],
+      statements: {...contributions.statements,
+        gg_go_to_object: {kind: 'goToObject', values: {target: {field: 'TARGET', type: 'object'}}},
+        gg_go_to_random: {kind: 'goToRandom'},
+        gg_set_backdrop: {kind: 'setBackdrop', values: {backdrop: {field: 'BACKDROP', type: 'backdrop', resource: 'costumes', ownerId: 'stage'}}},
+        gg_next_backdrop: {kind: 'nextBackdrop'}}};
+  })()
 };

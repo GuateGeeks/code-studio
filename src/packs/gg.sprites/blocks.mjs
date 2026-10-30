@@ -44,3 +44,13 @@ export const blocksV2 = [
   // «detener todo» ends every script: like Scratch, nothing can follow it.
   {type: 'gg_stop_all', message0: 'detener todo', previousStatement: null, colour: 45}
 ];
+
+// gg.sprites@0.3.0 (scene2d-multi-sprite 4.1). Their menus are filled by the editor:
+// other objects by name (objectMenus) and the stage's backdrops (fieldMenus).
+const menu = (name, label, value) => ({type: 'field_dropdown', name, options: [[label, value]]});
+export const blocksV3 = [
+  statement('gg_go_to_object', 'ir a %1', [menu('TARGET', 'elige un objeto', '__gg_missing_object__')], {colour: 210}),
+  statement('gg_go_to_random', 'ir a una posición aleatoria', [], {colour: 210}),
+  statement('gg_set_backdrop', 'cambiar fondo a %1', [menu('BACKDROP', 'Sin fondos', '__gg_missing_resource__')], {colour: 290}),
+  statement('gg_next_backdrop', 'siguiente fondo', [], {colour: 290})
+];

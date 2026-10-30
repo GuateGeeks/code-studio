@@ -1,0 +1,21 @@
+{
+  "initial": {
+    "x": 0,
+    "backdrop": "stage",
+    "hero.bubble": null
+  },
+  "final": {
+    "backdrop": "fondo-noche",
+    "sprites.0.x": -120,
+    "sprites.0.bubble": {
+      "type": "say",
+      "text": "¡Ya es de noche!"
+    },
+    "sprites.1.x": -120,
+    "sprites.1.y": 0,
+    "sprites.1.bubble": {
+      "type": "say",
+      "text": "Aquí estoy"
+    }
+  }
+}

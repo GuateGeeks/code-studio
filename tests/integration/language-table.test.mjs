@@ -23,9 +23,9 @@ test('LANG-002: the API v3 2D vocabulary is derived from the tables, not written
   const derived = scene2DVocabularyFromTables();
   assert.deepEqual(scene2DApi3.statements, derived.statements);
   assert.deepEqual(scene2DApi3.events, derived.events);
-  // gg.sprites@0.2.0 (E1) adds its single-sprite vocabulary and stopAll to the 0.1.0 forms.
-  assert.deepEqual(Object.keys(derived.statements).sort(), ['broadcastAndWait', 'createClone', 'deleteClone', 'hero.bounceOnEdge', 'hero.changeSize', 'hero.changeX', 'hero.changeY', 'hero.glide', 'hero.goTo', 'hero.hide', 'hero.move', 'hero.nextCostume', 'hero.pointInDirection', 'hero.say', 'hero.sayFor', 'hero.setCostume', 'hero.setSize', 'hero.setX', 'hero.setY', 'hero.show', 'hero.think', 'hero.thinkFor', 'hero.turnLeft', 'hero.turnRight', 'playSound', 'playSoundUntilDone', 'stopAll', 'stopSounds', 'wait']);
-  for (const name of ['broadcastAndWait', 'createClone', 'deleteClone', 'hero.move', 'hero.setCostume', 'playSound', 'playSoundUntilDone', 'stopSounds', 'wait']) assert.ok(scene2DVocabularyFromTables({...languageTables, 'gg.sprites@0.2.0': languageTables['gg.sprites@0.1.0']}).statements[name], name);
+  // gg.sprites@0.2.0 (E1) adds its single-sprite vocabulary and stopAll to the 0.1.0 forms; 0.3.0 adds objects and backdrops.
+  assert.deepEqual(Object.keys(derived.statements).sort(), ['broadcastAndWait', 'createClone', 'deleteClone', 'hero.bounceOnEdge', 'hero.changeSize', 'hero.changeX', 'hero.changeY', 'hero.glide', 'hero.goTo', 'hero.goToObject', 'hero.goToRandom', 'hero.hide', 'hero.move', 'hero.nextCostume', 'hero.pointInDirection', 'hero.say', 'hero.sayFor', 'hero.setCostume', 'hero.setSize', 'hero.setX', 'hero.setY', 'hero.show', 'hero.think', 'hero.thinkFor', 'hero.turnLeft', 'hero.turnRight', 'nextBackdrop', 'playSound', 'playSoundUntilDone', 'setBackdrop', 'stopAll', 'stopSounds', 'wait']);
+  for (const name of ['broadcastAndWait', 'createClone', 'deleteClone', 'hero.move', 'hero.setCostume', 'playSound', 'playSoundUntilDone', 'stopSounds', 'wait']) assert.ok(scene2DVocabularyFromTables({...languageTables, 'gg.sprites@0.3.0': languageTables['gg.sprites@0.1.0']}).statements[name], name);
 });
 
 test('LANG-003: blockable rules reject ambiguous, reserved or inconsistent entries', () => {

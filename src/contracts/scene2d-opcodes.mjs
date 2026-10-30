@@ -14,6 +14,15 @@ export const e1ReviewedOpcodes = Object.freeze({
   looks_thinkforsecs: Object.freeze({inputs: ['MESSAGE', 'SECS'], fields: [], kind: 'statement'}),
   control_stop: Object.freeze({inputs: [], fields: ['STOP_OPTION'], kind: 'statement', options: Object.freeze(['all', 'this script'])})
 });
+// E2 adds «ir a» and the backdrops (OPCODE-MATRIX, «Revisión E2», 30/10/2026),
+// for the lowering only as well: the SB3 import allowlist does not change.
+export const e2ReviewedOpcodes = Object.freeze({
+  motion_goto: Object.freeze({inputs: ['TO'], fields: [], kind: 'statement'}),
+  motion_goto_menu: Object.freeze({inputs: [], fields: ['TO'], kind: 'menu'}),
+  looks_switchbackdropto: Object.freeze({inputs: ['BACKDROP'], fields: [], kind: 'statement'}),
+  looks_backdrops: Object.freeze({inputs: [], fields: ['BACKDROP'], kind: 'menu'}),
+  looks_nextbackdrop: Object.freeze({inputs: [], fields: [], kind: 'statement'})
+});
 export function isScene2DLoweringOpcode(opcode) {
-  return Object.hasOwn(sb3OpcodeDefinitions, opcode) || Object.hasOwn(e1ReviewedOpcodes, opcode);
+  return Object.hasOwn(sb3OpcodeDefinitions, opcode) || Object.hasOwn(e1ReviewedOpcodes, opcode) || Object.hasOwn(e2ReviewedOpcodes, opcode);
 }

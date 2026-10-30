@@ -29,7 +29,8 @@ export function scene2DObjectRules(capabilities) {
   const globals = new Map(), menus = new Map();
   for (const {manifest} of resolveCapabilities(capabilities).packs) {
     for (const [type, rule] of Object.entries(manifest.contributions?.statements ?? {})) if (rule.declaresGlobal) globals.set(type, rule.declaresGlobal);
-    for (const menu of manifest.contributions?.fieldMenus ?? []) menus.set(menu.type, {field: menu.field, resource: menu.resource});
+    // A backdrop menu names the stage's, which a copied object shares.
+    for (const menu of manifest.contributions?.fieldMenus ?? []) if (menu.ownerId !== 'stage') menus.set(menu.type, {field: menu.field, resource: menu.resource});
   }
   return {globals, menus};
 }
@@ -111,6 +112,12 @@ function withNewObject({config, scene2d, codeViews}, {id, name, costumeId, resou
   const globals = globalVariables(scene2d, rules);
   return {id, config: validateScene2DObjects({...config, sprites: [...structuredClone(config.sprites), sprite]}), codeViews,
     scene2d: {stage: stageWithGlobals(scene2d.stage, globals), sprites: {...scene2d.sprites, [id]: programFromVariables([...globals.values()])}}, resources};
+}
+// The backdrop the project starts with (scene2d-multi-sprite 4.1). The stage keeps
+// every backdrop it has, because blocks name them: the library and an upload add
+// one here. `resources` carries it; null keeps the project's.
+export function chooseSceneBackdrop({config, scene2d, codeViews}, {resources = null, backdrop}) {
+  return {id: 'stage', config: validateScene2DObjects({...config, stage: {backdrop}}), scene2d, codeViews, resources};
 }
 // One costume of its source, so that it can be seen: the costume of the selected
 // sprite, or of the first one from the stage.

@@ -135,7 +135,13 @@ def _gg_api3_compile(source, variable_ids_json, target_ids_json="{}"):
                 if action.get("stops"):
                     out.append(at(ast.If(test=ast.Await(value=ast.Call(func=attr("ctx", action["ctx"]), args=[], keywords=[])), body=[ast.Return(value=None)], orelse=[]), node))
                     continue
-                args = [argument(item) for item in call.args] + ([ast.Constant(action["append"])] if "append" in action else [])
+                # Another object goes by its identifier; the scene knows which one that is.
+                if action.get("object"):
+                    if not isinstance(call.args[0], ast.Name) or call.args[0].id in variables: fail(written(call.func) + " recibe el nombre de un objeto, sin comillas.", call.args[0])
+                    call.args[0] = at(ast.Constant(call.args[0].id), call.args[0])
+                    args = list(call.args)
+                else:
+                    args = [argument(item) for item in call.args] + ([ast.Constant(action["append"])] if "append" in action else [])
                 out.append(at(ast.Expr(value=ast.Await(value=ast.Call(func=attr("ctx", action["ctx"]), args=args, keywords=[]))), node))
                 continue
             if isinstance(node, ast.Expr) and isinstance(node.value, ast.Call) and isinstance(node.value.func, ast.Attribute) and dotted(node.value.func) and isinstance(node.value.func.value, ast.Name) and node.value.func.value.id == current[0]:

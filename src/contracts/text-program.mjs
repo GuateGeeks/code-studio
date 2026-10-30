@@ -81,7 +81,9 @@ const arities = Object.freeze({
   'program.turnRight': 2, 'program.turnLeft': 2, 'program.pointInDirection': 2, 'program.goTo': 3, 'program.glide': 4,
   'program.changeX': 2, 'program.setX': 2, 'program.changeY': 2, 'program.setY': 2, 'program.bounceOnEdge': 1,
   'program.say': 2, 'program.think': 2, 'program.sayFor': 3, 'program.thinkFor': 3, 'program.nextCostume': 1,
-  'program.changeSize': 2, 'program.setSize': 2, 'program.show': 1, 'program.hide': 1, 'program.stopAll': 1, 'program.frame': 1
+  'program.changeSize': 2, 'program.setSize': 2, 'program.show': 1, 'program.hide': 1, 'program.stopAll': 1, 'program.frame': 1,
+  // gg.sprites@0.3.0. Text names an object by identifier and a backdrop by its name; the scene resolves them.
+  'program.goToObject': 2, 'program.goToRandom': 1, 'program.setBackdrop': 2, 'program.nextBackdrop': 1
 });
 // Arguments after the invocation ID that are numeric expressions (number or variable reference).
 const expressionArguments = Object.freeze({'program.turnRight': [1], 'program.turnLeft': [1], 'program.pointInDirection': [1], 'program.goTo': [1, 2],
@@ -113,6 +115,8 @@ export function validateTextProgramRPC(method, args) {
   if (['program.sayFor', 'program.thinkFor'].includes(method)) validateSeconds(args[2]);
   if (method === 'program.broadcastAndWait') text(args[1], textProgramLimits.message);
   if (method === 'program.playSound' && (typeof args[1]!=='string'||! /^[A-Za-z0-9:_-]{1,128}$/.test(args[1])||['__proto__','constructor','prototype'].includes(args[1])||typeof args[2] !== 'boolean')) fail('unsupported sound');
+  if (method === 'program.goToObject' && (typeof args[1] !== 'string' || !/^[A-Za-z0-9:_-]{1,128}$/.test(args[1]) || ['__proto__', 'constructor', 'prototype'].includes(args[1]))) fail('unsupported object');
+  if (method === 'program.setBackdrop' && (typeof args[1] !== 'string' || !args[1].trim() || args[1].length > 128 || /[\u0000-\u001f\u007f]/.test(args[1]))) fail('unsupported backdrop');
   if (method === 'program.setCostume' && (typeof args[1]!=='string'||! /^[A-Za-z0-9:_-]{1,128}$/.test(args[1])||['__proto__','constructor','prototype'].includes(args[1]))) fail('unsupported costume');
   return {method, args: structuredClone(args)};
 }

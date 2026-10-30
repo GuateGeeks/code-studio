@@ -55,6 +55,17 @@ const sprite2DV2 = [
   {block: 'gg_stop_all', kind: 'call', js: 'stopAll', python: 'stop_all', ctx: 'stopAll', args: [], stops: true, lower: {ir: 'stopAll'}}
 ].map(entry => Object.freeze(entry));
 export const spriteLanguage02 = Object.freeze(sprite2DV2);
+// gg.sprites@0.3.0 (scene2d-multi-sprite 4.1): objects and backdrops. An action
+// names another object by its identifier (`hero.goToObject(cesta)`, format
+// `object`) and a backdrop by its name (`setBackdrop("Noche")`); backdrops have no
+// target, because any object can change them.
+export const spriteLanguage03 = Object.freeze([
+  ...sprite2DV2,
+  sprite('gg_go_to_object', 'goToObject', 'go_to_object', ['TARGET'], 'goToObject', {format: {TARGET: 'object'}}),
+  sprite('gg_go_to_random', 'goToRandom', 'go_to_random', [], 'goToRandom'),
+  {block: 'gg_set_backdrop', kind: 'call', js: 'setBackdrop', python: 'set_backdrop', ctx: 'setBackdrop', args: ['BACKDROP'], lower: {ir: 'setBackdrop'}},
+  {block: 'gg_next_backdrop', kind: 'call', js: 'nextBackdrop', python: 'next_backdrop', ctx: 'nextBackdrop', args: [], lower: {ir: 'nextBackdrop'}}
+].map(entry => Object.freeze(entry)));
 // gg.assets offers resource-backed versions of the same actions. When both
 // packs are active the assets block is the one text maps back to.
 const assets2D = [
@@ -103,8 +114,7 @@ export const coreLanguageEntries = Object.freeze([
 export const languageTables = Object.freeze({
   'gg.sprites@0.1.0': Object.freeze(sprite2D),
   'gg.sprites@0.2.0': spriteLanguage02,
-  // gg.sprites@0.3.0 (scene2d-multi-sprite): same vocabulary as 0.2.0.
-  'gg.sprites@0.3.0': spriteLanguage02,
+  'gg.sprites@0.3.0': spriteLanguage03,
   'gg.assets@0.1.0': Object.freeze(assets2D),
   'gg.assets@0.2.0': Object.freeze(assets2D),
   'gg.score@0.1.0': Object.freeze(score2D),
@@ -118,11 +128,11 @@ export const languageTables = Object.freeze({
 // the sprite and assets tables (one source of truth).
 export function scene2DVocabularyFromTables(tables = languageTables) {
   const statements = {}, events = {};
-  for (const entry of [...tables['gg.sprites@0.2.0'], ...tables['gg.assets@0.2.0']]) {
+  for (const entry of [...tables['gg.sprites@0.3.0'], ...tables['gg.assets@0.2.0']]) {
     const key = (entry.target === 'sprite' ? 'hero.' : '') + entry.js;
     const python = (entry.target === 'sprite' ? 'hero.' : '') + entry.python;
-    if (entry.kind === 'call' && !statements[key]) statements[key] = {python, ctx: entry.ctx, arity: entry.args.length, ...(entry.append !== undefined ? {append: entry.append} : {}), ...(entry.stops ? {stops: true} : {})};
-    if (entry.kind === 'event') events[key] = {python, register: entry.register, ...(entry.option ? {option: true} : {}), ...(entry.target === 'sprite' ? {target: 'hero'} : {})};
+    if (entry.kind === 'call' && !statements[key]) statements[key] = {python, ctx: entry.ctx, arity: entry.args.length, ir: entry.lower.ir, ...(entry.append !== undefined ? {append: entry.append} : {}), ...(entry.stops ? {stops: true} : {}), ...(entry.format?.TARGET === 'object' ? {object: true} : {})};
+    if (entry.kind === 'event') events[key] = {python, register: entry.register, ir: entry.lower.ir, ...(entry.option ? {option: true} : {}), ...(entry.target === 'sprite' ? {target: 'hero'} : {})};
   }
   return {statements, events};
 }

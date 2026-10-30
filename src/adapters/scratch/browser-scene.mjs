@@ -3,6 +3,7 @@ import {createGGBindings} from './gg-bindings.mjs';
 import {measureScenePerformance} from './performance-probe.mjs';
 import {createTextProgram} from './text-program.mjs';
 import {validateResources,createResourceView,decodeResourceAsset} from '../../contracts/resources.mjs';
+import {scene2DBackdrops} from '../../contracts/scene2d-objects.mjs';
 import {toNativeSb3Project} from './sb3/native-project.mjs';
 import {installRuntimeGuards} from './sb3/runtime-guards.mjs';
 import {awaitRenderReadiness,awaitSceneStep} from './sb3/readiness.mjs';
@@ -21,7 +22,7 @@ function publishMove(bundle,x){
 }
 let preparationEpoch=0;
 const prepared=new WeakMap(),preparations=new Set();
-const textProgram=createTextProgram({getVM:()=>vm,getRevision,onInvocation:onTextInvocation,onCancel:onTextCancel,
+const textProgram=createTextProgram({getVM:()=>vm,getRevision,getScene:()=>currentFixture,onInvocation:onTextInvocation,onCancel:onTextCancel,
   onError:(code,message)=>diagnostic('error',code,message)});
 const ggCall=createGGBindings(()=>vm,()=>currentFixture?.objects);
 function diagnostic(level,code,message,sourceBlockId,revision=getRevision()){onDiagnostic(level,code,message,sourceBlockId,revision);}
@@ -58,7 +59,8 @@ function snapshot(){
   // scene2d-multi-sprite 2.1: every configured sprite (VM targets are named by ID), in configuration order.
   const sprites=(currentFixture?.objects??[{id:'hero',name:'hero'}]).flatMap(object=>{const target=vm.runtime.getSpriteTargetByName(object.id);
     return target?.isOriginal?[{id:object.id,name:object.name,...state(target),variables:variablesOf(target)}]:[];});
-  return {x:hero?.x??null,hero:sprite,sprites,pixels:{count,centerX:count?sumX/count:null,minX,maxX},origin:location.origin,bluePixels:blueCount,
+  const stage=vm.runtime.getTargetForStage();
+  return {x:hero?.x??null,hero:sprite,sprites,backdrop:stage?.getCostumes()[stage.currentCostume]?.name??null,pixels:{count,centerX:count?sumX/count:null,minX,maxX},origin:location.origin,bluePixels:blueCount,
     costume:hero?{index:hero.currentCostume,name:hero.getCostumes()[hero.currentCostume]?.name??null}:null,
     globalVariables:variablesOf(vm.runtime.getTargetForStage()),targets,revision:getRevision(),threads:vm.runtime.threads.length,moves:[...moves],sourceMap:currentFixture?.sourceMap,
     variables:variablesOf(hero),authoringVariables:structuredClone(currentFixture?.project.targets.find(target=>!target.isStage)?.variables??{}),
@@ -212,9 +214,9 @@ async function handle(command,payload={}){
       // profile; one target per sprite. IR0 keeps the single hero exactly as before.
       const objects=payload.ir?.version===1?payload.objects:null;
       if(payload.ir?.version===1&&!objects)throw new Error('Escena con objetos sin configuración válida');
-      let project,sourceMap,assets,sceneObjects=null;
+      let project,sourceMap,assets,sceneObjects=null,backdropView=null;
       if(payload.resources?.version===1){
-        const resources=await validateResources(payload.resources),view=createResourceView(resources);
+        const resources=await validateResources(payload.resources),view=createResourceView(resources);backdropView=view;
         if(objects)({project,sourceMap,objects:sceneObjects}=toScratchSceneProject(payload.ir,{scene:objects,resourceView:view}));
         else{
           ({project,sourceMap}=toScratchProject(payload.ir,{resourceView:view}));
@@ -242,7 +244,7 @@ async function handle(command,payload={}){
         assets=resources.assets;
       }
       project.projectVersion=3;loadingScene=true;
-      try{await loadScene({project,sourceMap,ir:payload.ir,assets,...(sceneObjects?{objects:sceneObjects}:{})});textMode=payload.textMode===true;activeBundle.input?.setMode(textMode?'text':'native');audioButton.textContent=textMode?'Activar audio':'Reproducir sonido';}
+      try{await loadScene({project,sourceMap,ir:payload.ir,assets,...(sceneObjects?{objects:sceneObjects,backdrops:scene2DBackdrops(backdropView)}:{})});textMode=payload.textMode===true;activeBundle.input?.setMode(textMode?'text':'native');audioButton.textContent=textMode?'Activar audio':'Reproducir sonido';}
       finally{loadingScene=false;activeBundle?.input?.refresh();}return snapshot();
     }
     case 'load-corpus':{

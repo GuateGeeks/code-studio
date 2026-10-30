@@ -3,7 +3,7 @@ import 'blockly/blocks';
 
 import {createContributions, registerContributions} from './contributions.mjs';
 import {authorizeProgram} from '../contracts/pack-broker.mjs';
-import {getWorkspaceResourceOwner,getWorkspaceResourceView,missingResource,setWorkspaceResourceOwner,setWorkspaceResourceView} from './resource-menus.mjs';
+import {getWorkspaceResourceOwner,getWorkspaceResourceView,menuOwner,missingObject,missingResource,setWorkspaceObjects,setWorkspaceResourceOwner,setWorkspaceResourceView} from './resource-menus.mjs';
 import {registerCoreBlocks} from './core-blocks.mjs';
 import {offeredCoreStructures} from '../contracts/language-table.mjs';
 registerCoreBlocks(Blockly);
@@ -92,7 +92,8 @@ export function workspaceToIR(workspace, {capabilities = null, resourceView = ge
           throw blockError('Texto no válido (hasta 330 caracteres, sin saltos de línea) en ' + block.id, block);
       } else throw blockError('Unsupported declarative lowering at ' + block.id, block);
       if (source.resource && value === missingResource) throw blockError('Este objeto aún no tiene ese recurso. Añádeselo en Recursos o quita el bloque.', block);
-      if (source.resource && !(resourceView?.[source.resource] ?? []).some(item => item.id === value && item.ownerId === (ownerId ?? source.ownerId))) throw blockError('Recurso no disponible en este objeto: ' + value,block);
+      if (source.resource && !(resourceView?.[source.resource] ?? []).some(item => item.id === value && item.ownerId === menuOwner(source, ownerId))) throw blockError('Recurso no disponible en este objeto: ' + value,block);
+      if (source.type === 'object' && (value === missingObject || !config.sprites?.some(sprite => sprite.id === value))) throw blockError('Este bloque aún no tiene objeto. Elige uno en su menú o quita el bloque.', block);
       // The fixed menus list hero's built-in resources: on another object (a pasted block) they are not its own.
       if (source.enum && ownerId && ownerId !== 'hero' && ['setCostume', 'playSound'].includes(rule.kind)) throw blockError('Recurso no disponible en este objeto: ' + value, block);
       if (source.enum && !source.enum.includes(value)) throw blockError('Unsupported local ' + key + ' ' + value + ' at ' + block.id, block);
@@ -176,19 +177,24 @@ export function validateWorkspaceResources(state, {capabilities = null,resourceV
     const menu = byType.get(value.type);
     if (menu) {
       const id = value.fields?.[menu.field];
-      if (id !== missingResource && (typeof id !== 'string' || !(resourceView?.[menu.resource] ?? []).some(item => item.id === id && item.ownerId === (ownerId ?? menu.ownerId)))) throw blockError('Recurso no disponible en este objeto: ' + String(id),value);
+      if (id !== missingResource && (typeof id !== 'string' || !(resourceView?.[menu.resource] ?? []).some(item => item.id === id && item.ownerId === menuOwner(menu, ownerId)))) throw blockError('Recurso no disponible en este objeto: ' + String(id),value);
     }
     for (const child of Object.values(value)) visit(child);
   }
   visit(state);
 }
 
+// The sprites a menu can name: those of the profile's configuration.
+export function sceneSprites(capabilities) {
+  return createContributions(capabilities).plan.packs.find(pack => pack.manifest.id === 'gg.sprites')?.config?.sprites ?? [];
+}
 export function loadWorkspace(state, {capabilities = null,resourceView = null,ownerId = null} = {}) {
   registerContributions(Blockly, createContributions(capabilities));
   validateWorkspaceResources(state,{capabilities,resourceView,ownerId});
   const workspace = new Blockly.Workspace();
   setWorkspaceResourceView(workspace,resourceView);
   setWorkspaceResourceOwner(workspace,ownerId);
+  setWorkspaceObjects(workspace,sceneSprites(capabilities));
   try { Blockly.serialization.workspaces.load(state, workspace); }
   catch (error) { workspace.dispose(); throw error; }
   return workspace;

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import {localPackCatalog, latestPackVersions, localPackMigrations, localPackCompatibility} from '../../src/packs/catalog.mjs';
-import {languageTables, spriteLanguage02} from '../../src/packs/language-tables.mjs';
+import {languageTables, spriteLanguage02, spriteLanguage03} from '../../src/packs/language-tables.mjs';
 import {languageCoverage, offeredCoreStructures} from '../../src/contracts/language-table.mjs';
 import {canonicalPackData, createCapabilities, validateCapabilities, resolveCapabilities, migrateCapabilities, newProjectCapabilities, lockedPackVersions} from '../../src/contracts/packs.mjs';
 import {findMigrationChain, validateMigrationRecord} from '../../src/contracts/pack-migrations.mjs';
@@ -44,22 +44,30 @@ test('MS-001: gg.sprites@0.3.0 is a frozen apiVersion 2 manifest that keeps the 
   assert.equal(entries[1].sha256, '70475dfae3921d1ac28e862d30c2c31e815da2b2f1133060038f37c24c4e366a');
   for (const item of entries) assert.equal(createHash('sha256').update(canonicalPackData(item.manifest)).digest('hex'), item.sha256);
   const [, previous, next] = entries.map(item => item.manifest);
-  // Same language table, blocks, rules, toolbox and resources. Beyond the
-  // configuration, the only change is that each object owns its resources (3.2).
-  assert.equal(next.language, spriteLanguage02);
-  assert.equal(languageTables['gg.sprites@0.3.0'], spriteLanguage02);
+  // The language table, blocks, rules, toolbox and resources of 0.2.0, plus the
+  // blocks of objects and backdrops (4.1). Beyond the configuration, the other
+  // change is that each object owns its resources (3.2).
+  assert.equal(next.language, spriteLanguage03);
+  assert.equal(languageTables['gg.sprites@0.3.0'], spriteLanguage03);
+  for (const entry of spriteLanguage02) assert.deepEqual(spriteLanguage03.find(item => item.block === entry.block), entry);
   assert.deepEqual(languageCoverage(localPackCatalog, {tables: languageTables}), {missing: [], orphan: [], core: []});
-  assert.deepEqual(next.contributions, previous.contributions);
-  const {objectResources, ...permissions} = next.permissions;
+  for (const definition of previous.contributions.blocks) assert.deepEqual(next.contributions.blocks.find(block => block.type === definition.type), definition);
+  for (const [type, rule] of Object.entries(previous.contributions.statements)) assert.deepEqual(next.contributions.statements[type], rule);
+  assert.deepEqual(next.contributions.hats, previous.contributions.hats);
+  for (const category of previous.contributions.toolbox) for (const block of category.contents ?? [])
+    assert.ok(next.contributions.toolbox.find(item => item.name === category.name).contents.some(item => item.type === block.type), block.type);
+  const {objectResources, operations, ...permissions} = next.permissions, {operations: earlier, ...rest} = previous.permissions;
   assert.equal(objectResources, true);
-  assert.deepEqual(permissions, previous.permissions);
+  assert.deepEqual(permissions, rest);
+  assert.deepEqual(operations, [...earlier, 'program.goToObject', 'program.goToRandom', 'program.setBackdrop', 'program.nextBackdrop']);
   assert.deepEqual(next.resources, previous.resources);
   assert.deepEqual(next.dependencies, []);
   assert.deepEqual(next.defaults, defaults);
   assert.deepEqual(offeredCoreStructures(resolveCapabilities(sprites('0.3.0')).packs), offeredCoreStructures(resolveCapabilities(sprites('0.2.0')).packs));
-  const contributions = version => (({blocks, toolbox, variableFlyout, statements, hats}) => ({blocks, toolbox, variableFlyout,
+  const contributions = version => (({blocks, variableFlyout, statements, hats}) => ({blocks: blocks.map(block => block.type), variableFlyout,
     statements: [...statements.keys()], hats: [...hats.keys()]}))(createContributions(sprites(version)));
-  assert.deepEqual(contributions('0.3.0'), contributions('0.2.0'));
+  const added = ['gg_go_to_object', 'gg_go_to_random', 'gg_set_backdrop', 'gg_next_backdrop'], older = contributions('0.2.0');
+  assert.deepEqual(contributions('0.3.0'), {...older, blocks: [...older.blocks, ...added], statements: [...older.statements, ...added]});
 });
 
 test('MS-002: the 0.3.0 configuration admits 1–8 sprites with stable unique IDs and unique names', () => {

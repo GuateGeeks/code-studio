@@ -11,7 +11,8 @@ const operationOf = Object.freeze({move: 'program.move', wait: 'program.wait', s
   turnRight: 'program.turnRight', turnLeft: 'program.turnLeft', pointDirection: 'program.pointInDirection', goTo: 'program.goTo', glide: 'program.glide',
   changeX: 'program.changeX', setX: 'program.setX', changeY: 'program.changeY', setY: 'program.setY', bounce: 'program.bounceOnEdge',
   say: 'program.say', sayFor: 'program.sayFor', think: 'program.think', thinkFor: 'program.thinkFor', nextCostume: 'program.nextCostume',
-  changeSize: 'program.changeSize', setSize: 'program.setSize', show: 'program.show', hide: 'program.hide', stopAll: 'program.stopAll'});
+  changeSize: 'program.changeSize', setSize: 'program.setSize', show: 'program.show', hide: 'program.hide', stopAll: 'program.stopAll',
+  goToObject: 'program.goToObject', goToRandom: 'program.goToRandom', setBackdrop: 'program.setBackdrop', nextBackdrop: 'program.nextBackdrop'});
 // IR value fields and text RPC argument positions that may read a variable.
 const expressionFields = Object.freeze({move: ['steps'], turnRight: ['degrees'], turnLeft: ['degrees'], pointDirection: ['direction'], goTo: ['x', 'y'],
   glide: ['x', 'y'], changeX: ['dx'], setX: ['x'], changeY: ['dy'], setY: ['y'], changeSize: ['delta'], setSize: ['size']});
@@ -67,6 +68,9 @@ function authorize(plan, method, args, variables, principal = null,resourceView=
     if (method.startsWith('sprite.') && !permissions.sprites.includes(args[0])) return false;
     if (method === 'program.playSound' && !resourceAllowed(permissions.sounds,args[1],'sounds',resourceView,ownerId,perObject)) return false;
     if (method === 'program.setCostume' && !resourceAllowed(permissions.costumes,args[1],'costumes',resourceView,ownerId,perObject)) return false;
+    // A backdrop is the stage's for every object. A text call names it as the
+    // student reads it (ownerId null): the scene resolves that name.
+    if (method === 'program.setBackdrop' && ownerId !== null && resourceView && !getResourceCostume(resourceView,args[1],'stage')) return false;
     return true;
   });
   if (!allowed) fail('operación o recurso no declarado: ' + method);
@@ -119,6 +123,8 @@ export function authorizeProgram(capabilities, ir,{resourceView,objects=false,ow
       if (['setVariable', 'changeVariable'].includes(node.kind)) args.push(node.variableId, node.value);
       else if (node.kind === 'playSound') args.push(node.sound, node.wait);
       else if (node.kind === 'setCostume') args.push(node.costume);
+      else if (node.kind === 'setBackdrop') args.push(node.backdrop);
+      else if (node.kind === 'goToObject') args.push(node.target);
       else if (node.kind === 'glide') args.push(node.seconds, node.x, node.y);
       else if (Object.hasOwn(expressionFields, node.kind)) args.push(...expressionFields[node.kind].map(field => node[field]));
       authorize(plan, method, args, variables,null,resourceView,owner);

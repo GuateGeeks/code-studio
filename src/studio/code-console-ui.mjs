@@ -97,9 +97,11 @@ export function createCodeConsoleUI(editor, {selectSourceLocation = () => false,
   function availability() {
     return languageAvailability(tablesForLocks(editor.captureCapabilities?.()?.locks, languageTables), {lowering: 'ir'});
   }
+  // The listing reads names, as the blocks do: {sprite ID: visible name}.
+  const objectNames = owner => Object.fromEntries(Object.entries(owner?.sprites ?? {}).map(([identifier, id]) => [id, owner.others[identifier] ?? identifier]));
   function generatedView(ir, owner) {
     const language = languagePicker.value, resourceView = editor.resourceView?.() ?? undefined;
-    if (language === 'ir') return generateCode(ir, {resourceView, resourceOwnerId: owner?.targetId});
+    if (language === 'ir') return generateCode(ir, {resourceView, resourceOwnerId: owner?.targetId, objectNames: objectNames(owner)});
     if (!['javascript', 'python'].includes(language)) throw new Error('El lenguaje de lectura no está disponible.');
     const state = availability()[language];
     if (!state.available) throw Object.assign(new Error(state.reason), {unavailable: true});

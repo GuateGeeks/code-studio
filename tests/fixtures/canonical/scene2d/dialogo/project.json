@@ -1,0 +1,173 @@
+{
+  "format": "gg-canonical-fixture",
+  "version": 2,
+  "context": "scene2d",
+  "name": "Canónico · Diálogo",
+  "packIds": [
+    "gg.sprites"
+  ],
+  "objects": {
+    "stage": {
+      "backdrop": "stage"
+    },
+    "sprites": [
+      {
+        "id": "hero",
+        "name": "hero",
+        "x": -120,
+        "y": 0,
+        "direction": 90,
+        "size": 100,
+        "visible": true,
+        "costume": "hero"
+      },
+      {
+        "id": "cesta",
+        "name": "Cesta",
+        "x": 120,
+        "y": -60,
+        "direction": -90,
+        "size": 100,
+        "visible": true,
+        "costume": "cesta:c0"
+      }
+    ]
+  },
+  "resources": [
+    {
+      "id": "cesta:c0",
+      "ownerId": "cesta",
+      "name": "Cesta",
+      "from": "hero"
+    },
+    {
+      "id": "fondo-noche",
+      "ownerId": "stage",
+      "name": "Noche",
+      "from": "stage"
+    }
+  ],
+  "scene2d": {
+    "stage": {},
+    "sprites": {
+      "hero": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "gg_when_start",
+              "id": "hero-start",
+              "x": 20,
+              "y": 20,
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "gg_say_for",
+                    "id": "hero-hola",
+                    "fields": {
+                      "MESSAGE": "¡Hola, Cesta!"
+                    },
+                    "inputs": {
+                      "SECONDS": {
+                        "shadow": {
+                          "type": "math_number",
+                          "id": "hero-hola-s",
+                          "fields": {
+                            "NUM": 0.2
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "gg_broadcast_wait",
+                        "id": "hero-envia",
+                        "fields": {
+                          "MESSAGE": "responde"
+                        },
+                        "next": {
+                          "block": {
+                            "type": "gg_set_backdrop",
+                            "id": "hero-fondo",
+                            "fields": {
+                              "BACKDROP": "fondo-noche"
+                            },
+                            "next": {
+                              "block": {
+                                "type": "gg_say",
+                                "id": "hero-noche",
+                                "fields": {
+                                  "MESSAGE": "¡Ya es de noche!"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "cesta": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "gg_when_message",
+              "id": "cesta-oye",
+              "x": 20,
+              "y": 20,
+              "fields": {
+                "MESSAGE": "responde"
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "gg_say_for",
+                    "id": "cesta-hola",
+                    "fields": {
+                      "MESSAGE": "¡Hola, hero!"
+                    },
+                    "inputs": {
+                      "SECONDS": {
+                        "shadow": {
+                          "type": "math_number",
+                          "id": "cesta-hola-s",
+                          "fields": {
+                            "NUM": 0.2
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "gg_go_to_object",
+                        "id": "cesta-va",
+                        "fields": {
+                          "TARGET": "hero"
+                        },
+                        "next": {
+                          "block": {
+                            "type": "gg_say",
+                            "id": "cesta-llega",
+                            "fields": {
+                              "MESSAGE": "Aquí estoy"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

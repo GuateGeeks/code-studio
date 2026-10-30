@@ -1,4 +1,5 @@
 import {validateProgram} from './contracts/program-contract.mjs';
+import {scene2DBackdrops} from './contracts/scene2d-objects.mjs';
 
 // Educational notation derived from IR. It is never an executable language.
 export const generatedCodeLimits = Object.freeze({bytes: 65536});
@@ -8,8 +9,10 @@ const variable = node => `${quoted(node.name)} [${quoted(node.variableId)}]`;
 
 // IR0 only: just the resource view reaches the validator, so a forwarded
 // `objects` option can never open it to IR 2D v1 (2.2 adds per-object listings).
-export function generateCode(ir,{resourceView,resourceOwnerId}={}) {
+// objectNames: {sprite ID: visible name}, for the blocks that name another object.
+export function generateCode(ir,{resourceView,resourceOwnerId,objectNames={}}={}) {
   validateProgram(ir,{resourceView,...(resourceOwnerId?{resourceOwnerId}:{})});
+  const backdropName = id => scene2DBackdrops(resourceView).find(item => item.id === id)?.label ?? id;
   const lines = [];
   const sourceMap = [];
   function line(text, ids = [], depth = 0) {
@@ -69,6 +72,10 @@ export function generateCode(ir,{resourceView,resourceOwnerId}={}) {
         case 'setSize': line(`fijar tamaño a ${expression(node.size, ids)} %`, ids, depth); break;
         case 'show': line('mostrar', ids, depth); break;
         case 'hide': line('esconder', ids, depth); break;
+        case 'goToObject': line(`ir a ${quoted(objectNames[node.target] ?? node.target)}`, ids, depth); break;
+        case 'goToRandom': line('ir a una posición aleatoria', ids, depth); break;
+        case 'setBackdrop': line(`cambiar fondo a ${quoted(backdropName(node.backdrop))}`, ids, depth); break;
+        case 'nextBackdrop': line('siguiente fondo', ids, depth); break;
         case 'stopAll': line('detener todo', ids, depth); break;
         case 'stopScript': line('detener este programa', ids, depth); break;
         case 'waitUntil': line(`esperar hasta que ${expression(node.condition, ids)}`, ids, depth); break;

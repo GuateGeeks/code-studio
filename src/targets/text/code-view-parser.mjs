@@ -5,6 +5,7 @@ import {validateLanguageTables, tablesForLocks, languageAvailability, offeredCor
 import {languageTables, coreLanguageEntries} from '../../packs/language-tables.mjs';
 import {api3Keywords} from '../../contracts/api3-names.mjs';
 import {validateScene2DTextOwner, scene2DStageIdentifier} from '../../contracts/scene2d-identifiers.mjs';
+import {scene2DBackdrops, scene2DStageAllows} from '../../contracts/scene2d-objects.mjs';
 
 const calleeName = node => node?.type === 'Identifier' ? node.name :
   node?.type === 'MemberExpression' && !node.computed && !node.optional && node.object.type === 'Identifier' &&
@@ -14,12 +15,10 @@ const plain = value => value && typeof value === 'object' && !Array.isArray(valu
   [Object.prototype, null].includes(Object.getPrototypeOf(value));
 // scene2d-multi-sprite 2.2 (R2): a view reads the program of one object, its
 // owner. Without one, hero's, as before.
-const viewOwner = owner => owner === undefined ? {identifier: 'hero', kind: 'sprite', targetId: 'hero', others: {}} :
+const viewOwner = owner => owner === undefined ? {identifier: 'hero', kind: 'sprite', targetId: 'hero', others: {}, sprites: {hero: 'hero'}} :
   validateScene2DTextOwner(owner, message => { throw Object.assign(new Error(message), {code: 'CV_METADATA', lineNumber: 1, columnNumber: 1}); });
-// As in Scratch the stage has no sprite actions and cannot clone itself; its
-// only sprite event is the click (`stage.onClick`).
-const stageAllows = entry => entry.kind === 'event' ? entry.target !== 'sprite' || entry.lower.ir === 'click' :
-  entry.target !== 'sprite' && !['createClone', 'deleteClone'].includes(entry.lower.ir);
+// The one stage rule (scene2d-objects): its only sprite event is the click (`stage.onClick`).
+const stageAllows = entry => scene2DStageAllows(entry.lower.ir);
 const otherObjectMessage = (call, name, identifier) => '«' + call + '» es una acción de ' +
   (identifier === scene2DStageIdentifier ? 'el escenario' : '«' + name + '»') + '. Cada objeto programa sus propios scripts: selecciónalo y escríbela allí.';
 const stageMessage = call => 'El escenario no se mueve, no habla ni se clona: «' + call + '» es una acción de los sprites.';
@@ -127,6 +126,21 @@ export function parseJavaScriptCodeView(source, {capabilities = null, resourceVi
     if (!identifier || variables.has(identifier)) continue;
     variables.set(identifier, structuredClone(model));
   }
+  // Another object is written by its identifier, as in `cesta.move(10)`.
+  function objectArgument(arg) {
+    if (arg?.type !== 'Identifier') reject('Escribe el objeto por su nombre, sin comillas: ' + (Object.keys(owner.sprites).find(name => name !== owner.identifier) ?? 'cesta') + '.', arg);
+    if (arg.name === owner.identifier) reject('«' + arg.name + '» no puede ir a sí mismo: elige otro objeto.', arg);
+    if (!own(owner.sprites, arg.name)) reject('No hay ningún objeto llamado «' + arg.name + '» en este proyecto.', arg);
+    return owner.sprites[arg.name];
+  }
+  // A backdrop is written by the name its menu shows.
+  function backdropArgument(arg) {
+    const backdrops = scene2DBackdrops(resourceView);
+    if (arg?.type !== 'Literal' || typeof arg.value !== 'string') reject('Escribe el fondo como un texto entre comillas: "' + backdrops[0].label + '".', arg);
+    const found = backdrops.find(item => item.label === arg.value);
+    if (!found) reject('Este proyecto no tiene ese fondo. Sus fondos son: ' + backdrops.map(item => item.label).join(', ') + '.', arg);
+    return found.id;
+  }
   function lower(call, kind, node) {
     const name = calleeName(call.callee), definition = forms.get(name);
     if (!definition && !call.optional && name) {
@@ -146,6 +160,8 @@ export function parseJavaScriptCodeView(source, {capabilities = null, resourceVi
       if (binding.config) { result[field] = config[binding.config]; continue; }
       const arg = argumentsBySlot.get(binding.input ?? binding.field);
       if (!arg) reject('La tabla no declara el argumento ' + field + '.', call, 'CV_TABLE');
+      if (binding.type === 'object') { result[field] = objectArgument(arg); continue; }
+      if (binding.type === 'backdrop') { result[field] = backdropArgument(arg); continue; }
       const value = binding.type === 'expression' ? expression(arg) : binding.type === 'number' ? number(arg) : literal(arg);
       if (binding.enum && !binding.enum.includes(value)) reject('Elige uno de estos valores: ' + binding.enum.join(', ') + '.', arg);
       if (binding.type === 'text' && (typeof value !== 'string' || value.length > 330 || /[\u0000-\u001f\u007f]/.test(value)))

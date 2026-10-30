@@ -6,6 +6,30 @@ const fail = message => { throw new Error('GG packs: ' + message); };
 
 export const scene2DObjectLimits = Object.freeze({sprites: 8, nameLength: 32});
 export const scene2DStageName = 'Escenario';
+// The one stage rule (tarea 4.1): as in Scratch the stage does not move, speak,
+// change size or clone itself, and any object can change the backdrop. IR kinds;
+// the toolbox, the parsers, the translators, the generator and the scene's text
+// calls all read them from here. Dependency-free: the Python worker imports it.
+const stageEvents = new Set(['start', 'key', 'click', 'message']);
+const stageStatements = new Set(['wait', 'repeat', 'forever', 'repeatUntil', 'waitUntil', 'if', 'broadcastWait', 'setVariable', 'changeVariable', 'playSound', 'stopSounds', 'stopAll', 'stopScript', 'setBackdrop', 'nextBackdrop']);
+export const scene2DStageOffers = Object.freeze({events: stageEvents, statements: stageStatements});
+export const scene2DStageAllows = kind => stageEvents.has(kind) || stageStatements.has(kind);
+
+// The stage's backdrops as a student reads them, in resource order: one label each,
+// in menus and in text. The built-in backdrop is called `stage` in the catalog, and
+// two with one name stay two choices. `view` is a resource view; without one, the
+// built-in backdrop. The label is the text form: `setBackdrop("Noche")`.
+const labelKey = label => label.toLocaleLowerCase('es');
+export function scene2DBackdrops(view) {
+  const items = view?.costumes ? view.costumes.filter(item => item.ownerId === 'stage') : [{id: 'stage', name: 'stage'}], taken = new Set();
+  return items.map(item => {
+    const base = item.name === 'stage' ? 'Fondo inicial' : item.name;
+    let label = base;
+    for (let number = 2; taken.has(labelKey(label)); number++) label = `${base} ${number}`;
+    taken.add(labelKey(label));
+    return {id: item.id, label};
+  });
+}
 // Sprite and resource IDs share the resource owner syntax (resources.mjs);
 // `stage` names the stage as resource owner and cannot be a sprite.
 const resourceId = {type: 'string', pattern: '^[A-Za-z0-9:_-]+$', maxLength: 128, notEnum: ['__proto__', 'prototype', 'constructor']};

@@ -1,11 +1,11 @@
-import {spritesPack02} from './gg.sprites/manifest.mjs';
-import {spriteLanguage02} from './language-tables.mjs';
+import {spritesPack03} from './gg.sprites/manifest.mjs';
+import {spriteLanguage03} from './language-tables.mjs';
 
 // API v3 call forms of the 2D sprite vocabulary, joined with the installed
 // lowering rules: each argument slot of the table names the IR field that
 // carries it. The generator reads these data instead of a hand-written switch.
-const rules = spritesPack02.contributions.statements;
-export const scene2DCallForms = Object.freeze(spriteLanguage02.filter(entry => entry.kind === 'call' && entry.lower.ir).map(entry => {
+const rules = spritesPack03.contributions.statements;
+export const scene2DCallForms = Object.freeze(spriteLanguage03.filter(entry => entry.kind === 'call' && entry.lower.ir).map(entry => {
   const rule = rules[entry.block];
   if (!rule || rule.kind !== entry.lower.ir) throw new Error('GG tabla 2D: la bajada de ' + entry.block + ' no coincide con su regla');
   const args = entry.args.map(slot => {
