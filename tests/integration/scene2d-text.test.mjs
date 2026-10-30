@@ -274,6 +274,12 @@ test('MS-034: a copy of the project is one document where every event names its 
   // Rules of a project document: events name their object, actions stay on the event's object, locals on one object.
   const targetIds = {hero: 'hero', cesta: 'cesta', stage: 'stage'}, compile = source => () => compileApi3JavaScript(source, {targetIds});
   assert.throws(compile('\nonStart(() => {});'), error => /de quién es el evento.*hero\.onStart/.test(error.message) && error.lineNumber === 2);
+  // Real project documents list the stage first: the hint and an unused local still go to a sprite.
+  const stageFirst = {stage: 'stage', cesta: 'cesta'};
+  assert.throws(() => compileApi3JavaScript('onStart(() => {});', {targetIds: stageFirst}), /como cesta\.onStart/);
+  assert.match(compileApi3JavaScript('let libre = 0;\ncesta.onStart(() => {});', {targetIds: stageFirst}).source, /"name":"libre"[^}]*"targetId":"cesta"/);
+  await assert.rejects(trace('python', '@on_start\ndef go():\n    pass', {api: 'api3', targetIds: stageFirst}), /como @cesta\.on_start/);
+  assert.equal((await trace('python', 'libre = 0\n@cesta.on_start\ndef go():\n    pass', {api: 'api3', targetIds: stageFirst})).program.variables[0].targetId, 'cesta');
   assert.throws(compile('hero.onStart(() => {\n  cesta.move(1);\n});'), error => /«cesta\.move».*«hero».*cada objeto programa/.test(error.message) && error.lineNumber === 2);
   assert.throws(compile('stage.onStart(() => {\n  stage.move(1);\n});'), error => /escenario/i.test(error.message) && error.lineNumber === 2);
   assert.throws(compile('let n = 0;\nhero.onStart(() => { n = 1; });\ncesta.onStart(() => { n = 2; });'), error => /Varios objetos usan «n».*shared/.test(error.message) && error.lineNumber === 1);

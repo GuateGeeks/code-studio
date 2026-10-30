@@ -25,6 +25,7 @@ def _gg_api3_compile(source, variable_ids_json, target_ids_json="{}"):
     # scene2d-multi-sprite 2.2: the objects of the document (see api3DocumentObjects).
     objects = _gg_json.loads(target_ids_json) or {"hero": "hero"}
     sole = next(iter(objects)) if len(objects) == 1 else None
+    first_object = next((name for name, target in objects.items() if target != "stage"), next(iter(objects)))
     current = [sole]  # Object of the code being read: the event's, or the only one.
     statements, events = _GG_VOCABULARY["statements"], _GG_VOCABULARY["events"]
     stage_forbids = _GG_VOCABULARY["stageForbids"]
@@ -186,7 +187,7 @@ def _gg_api3_compile(source, variable_ids_json, target_ids_json="{}"):
                 event = events.get(head.attr) or events.get("hero." + head.attr)
             else:
                 event = events.get(dotted(head))
-                if event is not None and sole is None: fail("Este documento programa varios objetos: escribe de quién es el evento, como @" + next(iter(objects)) + "." + written(head) + ".", decorator)
+                if event is not None and sole is None: fail("Este documento programa varios objetos: escribe de quién es el evento, como @" + first_object + "." + written(head) + ".", decorator)
         if event is None:
             action = has_action(statement)
             if action is not None: fail("Las acciones del programa van dentro de un evento, como @on_start.", action)
@@ -222,7 +223,7 @@ def _gg_api3_compile(source, variable_ids_json, target_ids_json="{}"):
         if item["scope"] == "global": continue
         owners = users.get(item["name"], set())
         if len(owners) > 1: fail("Varios objetos usan «" + item["name"] + "»: decláralo con shared(…) para compartirlo.", declarations[item["name"]])
-        target = objects[next(iter(owners))] if owners else next(iter(objects.values()))
+        target = objects[next(iter(owners))] if owners else objects[first_object]
         if target != "hero": item["targetId"] = target
     first = ast.Expr(value=ast.Call(func=attr("GG", "program", "configure"), args=[ast.parse(repr({"variables": configured}), mode="eval").body], keywords=[]))
     last = ast.Expr(value=ast.Await(value=ast.Call(func=attr("GG", "events", "run"), args=[], keywords=[])))

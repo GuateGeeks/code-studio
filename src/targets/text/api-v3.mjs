@@ -52,7 +52,7 @@ export function isApi3Source(source) {
 // (scene2d-multi-sprite 2.2, see api3DocumentObjects).
 export function compileApi3JavaScript(source, {variableIds = {}, targetIds = {}, vocabulary = scene2DApi3} = {}) {
   const objects = api3DocumentObjects(targetIds), byIdentifier = new Map(objects.map(item => [item.identifier, item]));
-  const sole = objects.length === 1 ? objects[0] : null;
+  const sole = objects.length === 1 ? objects[0] : null, firstObject = objects.find(item => !item.stage) ?? objects[0];
   // Object of the code being read: the event's, or the only one at the top level.
   let current = sole;
   // The vocabulary keys sprite actions under hero; the document writes them on
@@ -226,7 +226,7 @@ export function compileApi3JavaScript(source, {variableIds = {}, targetIds = {},
     const named = byIdentifier.get(prefix) ?? null;
     const eventName = named ? [method, `hero.${method}`].find(key => Object.hasOwn(vocabulary.events, key)) : call ? actionKey(call.callee) : null;
     const event = eventName && Object.hasOwn(vocabulary.events, eventName) ? vocabulary.events[eventName] : null;
-    if (event && !named && !sole) throw located(`Este documento programa varios objetos: escribe de quién es el evento, como ${objects[0].identifier}.${written}(…).`, call);
+    if (event && !named && !sole) throw located(`Este documento programa varios objetos: escribe de quién es el evento, como ${firstObject.identifier}.${written}(…).`, call);
     if (!event) {
       const action = containsAction(statement, vocabulary, actionKey);
       if (action) throw located('Las acciones del programa van dentro de un evento, como onStart(() => { … }).', action);
@@ -266,7 +266,7 @@ export function compileApi3JavaScript(source, {variableIds = {}, targetIds = {},
     const owners = [...(users.get(item.name) ?? [])];
     if (item.scope === 'global') return item;
     if (owners.length > 1) throw located(`Varios objetos usan «${item.name}»: decláralo con shared(…) para compartirlo.`, localNodes.get(item.name));
-    const owner = owners[0] ?? objects[0];
+    const owner = owners[0] ?? firstObject;
     return owner.targetId === 'hero' ? item : {...item, targetId: owner.targetId};
   });
   const configure = `GG.program.configure(${JSON.stringify({variables: declared})});`;
