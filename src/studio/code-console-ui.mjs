@@ -101,12 +101,12 @@ export function createCodeConsoleUI(editor, {selectSourceLocation = () => false,
   const objectNames = owner => Object.fromEntries(Object.entries(owner?.sprites ?? {}).map(([identifier, id]) => [id, owner.others[identifier] ?? identifier]));
   function generatedView(ir, owner) {
     const language = languagePicker.value, resourceView = editor.resourceView?.() ?? undefined;
-    if (language === 'ir') return generateCode(ir, {resourceView, resourceOwnerId: owner?.targetId, objectNames: objectNames(owner)});
+    if (language === 'ir') return generateCode(ir, {resourceView, resourceOwnerId: owner?.targetId, objectWorkspace: Boolean(owner), objectNames: objectNames(owner)});
     if (!['javascript', 'python'].includes(language)) throw new Error('El lenguaje de lectura no está disponible.');
     const state = availability()[language];
     if (!state.available) throw Object.assign(new Error(state.reason), {unavailable: true});
     // Readable API v3 (ADR-011); the language origin translates it before running.
-    return generateApi3ProgramSource(ir, language, {resourceView, ...(owner ? {owner} : {})});
+    return generateApi3ProgramSource(ir, language, {resourceView, objectWorkspace: Boolean(owner), ...(owner ? {owner} : {})});
   }
   function updateCopyControls() {
     const disabled = copying || !listing || typeof createTextCopy !== 'function';

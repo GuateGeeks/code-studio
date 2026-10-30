@@ -59,6 +59,7 @@ function globalVariables(scene2d, rules) {
   }
   return found;
 }
+export const scene2DGlobalVariableIds = (scene2d, capabilities) => [...globalVariables(scene2d, scene2DObjectRules(capabilities)).keys()];
 const programFromVariables = models => models.length ? {variables: models} : {};
 // A block declares a variable global only while it exists. Once a second object
 // holds the same model, the stage must hold it too: the stage's variables are

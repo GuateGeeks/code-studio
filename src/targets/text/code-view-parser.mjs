@@ -27,7 +27,7 @@ const stageMessage = call => 'El escenario no se mueve, no habla ni se clona: «
 // Tables and installed declarative rules determine calls, fields and enums;
 // only the installed core syntax is recognized here.
 export function parseJavaScriptCodeView(source, {capabilities = null, resourceView,
-  variableIds = {}, variableNames = {}, catalog, owner: requestedOwner} = {}) {
+  variableIds = {}, variableNames = {}, globalIds = [], catalog, owner: requestedOwner} = {}) {
   const owner = viewOwner(requestedOwner), self = owner.identifier + '.';
   const reject = (message, node, code = 'CV_UNSUPPORTED') => {
     throw Object.assign(new Error(message), {code, lineNumber: node?.loc?.start.line ?? 1,
@@ -35,11 +35,15 @@ export function parseJavaScriptCodeView(source, {capabilities = null, resourceVi
   };
   if (typeof source !== 'string' || new TextEncoder().encode(source).length > programLimits.bytes)
     reject('El texto supera el límite de 65.536 bytes.', null, 'CV_SOURCE_LIMIT');
-  for (const map of [variableIds, variableNames]) if (!plain(map) || Object.keys(map).length > programLimits.variables ||
+  const plan = resolveCapabilities(capabilities, catalog ? {catalog} : {});
+  const objectWorkspace = requestedOwner !== undefined && plan.packs.some(pack => pack.manifest.permissions?.objectResources);
+  if (!objectWorkspace) globalIds = [];
+  const variableLimit = programLimits.variables * (objectWorkspace ? 2 : 1);
+  for (const map of [variableIds, variableNames]) if (!plain(map) || Object.keys(map).length > variableLimit ||
       Object.entries(map).some(([key, value]) => !/^[A-Za-z_][A-Za-z0-9_]*$/.test(key) ||
         typeof value !== 'string' || !value.trim() || value.length > 128))
     reject('Los metadatos de variables no son válidos.', null, 'CV_METADATA');
-  const plan = resolveCapabilities(capabilities, catalog ? {catalog} : {});
+
   const packs = plan.packs.filter(pack => !pack.manifest.context || pack.manifest.context === 'scratch-2d');
   const manifests = Object.fromEntries(packs.map(pack => [pack.id + '@' + pack.version, pack.manifest]));
   const tables = tablesForLocks(packs.map(pack => ({id: pack.id, version: pack.version})), languageTables, manifests);
@@ -102,7 +106,7 @@ export function parseJavaScriptCodeView(source, {capabilities = null, resourceVi
   for (const node of ast.body) if (node.type === 'VariableDeclaration') {
     if (node.kind !== 'let') reject('Declara las variables del programa con let.', node);
     for (const declaration of node.declarations) {
-      if (variables.size >= programLimits.variables) reject('El programa supera el límite de 16 variables.', declaration, 'CV_VARIABLE_LIMIT');
+      if (variables.size >= variableLimit) reject('El programa supera el límite de variables.', declaration, 'CV_VARIABLE_LIMIT');
       const name = declaration.id?.name;
       if (declaration.id.type !== 'Identifier' || api3Keywords.has(name) || variables.has(name) || forms.has(name) || name === owner.identifier || own(owner.others, name))
         reject('Usa un nombre de variable nuevo, sin palabras reservadas ni nombres de la API.', declaration.id);
@@ -112,6 +116,7 @@ export function parseJavaScriptCodeView(source, {capabilities = null, resourceVi
       const initialValue = number(shared ? declaration.init.arguments[0] : declaration.init);
       const id = own(variableIds, name) ? variableIds[name] : newVariableID();
       if ([...variables.values()].some(variable => variable.id === id)) reject('Dos variables no pueden compartir identidad.', declaration);
+      if (globalIds.includes(id) && !shared) reject('Esta variable es de todos los objetos: conserva shared.', declaration.init);
       const supplied = plan.variables.find(variable => variable.id === id);
       if (supplied && (supplied.initialValue !== initialValue || (supplied.scope === 'global') !== shared))
         reject('Conserva el valor inicial y ámbito declarados por el pack; cambia su configuración desde bloques.', declaration.init);
@@ -279,9 +284,9 @@ export function parseJavaScriptCodeView(source, {capabilities = null, resourceVi
   const seenAssignments = new Set();
   const walk = items => { for (const item of items) { if (item.kind === 'setVariable') seenAssignments.add(item.variableId); if (item.body) walk(item.body); if (item.elseBody) walk(item.elseBody); } };
   scripts.forEach(script => walk(script.body));
-  for (const model of variables.values()) if (model.scope === 'global' && declarations.has(model.id) && !plan.variables.some(variable => variable.id === model.id) && !seenAssignments.has(model.id))
+  for (const model of variables.values()) if (model.scope === 'global' && declarations.has(model.id) && !plan.variables.some(variable => variable.id === model.id) && !globalIds.includes(model.id) && !seenAssignments.has(model.id))
     reject('La variable shared necesita una asignación global dentro de un evento para conservar su bloque.', declarations.get(model.id));
-  try { validateProgram(ir, {resourceView, resourceOwnerId: owner.targetId}); }
+  try { validateProgram(ir, {resourceView, resourceOwnerId: owner.targetId, objectWorkspace}); }
   catch (error) {
     const location = sourceLocations.find(item => item.sourceBlockId === error.sourceBlockId);
     throw Object.assign(new Error('El programa no cumple los límites de sus bloques: ' + error.message),

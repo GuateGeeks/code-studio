@@ -194,7 +194,7 @@ export function workspaceFromIR(input, {capabilities = null, resourceView = null
   const state = {blocks: {languageVersion: 0, blocks}, ...(variables.length ? {variables} : {})};
   const workspace = loadWorkspace(state, {capabilities, resourceView, ownerId});
   try {
-    const restored = workspaceToIR(workspace, {capabilities, resourceView, scriptOrder, ownerId});
+    const restored = workspaceToIR(workspace, {capabilities, resourceView, scriptOrder, ownerId, globalIds: ir.variables?.filter(model=>model.scope==='global').map(model=>model.id)??[]});
     const normalize = value => {
       const result = structuredClone(value);
       if (result.variables?.length) result.variables = result.variables.map(variable => ({...variable, scope: variable.scope ?? 'local'})).sort((a, b) => a.id.localeCompare(b.id));

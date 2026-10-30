@@ -178,10 +178,10 @@ export function createProjectUI({editor, source, stop, textDocuments, authoring:
     saveQueue = result.catch(() => {});
     return result;
   }
-  async function apply(model, {recovered = false, startup = false, notice = null, beforeCommit = () => {}} = {}) {
+  async function apply(model, {recovered = false, startup = false, notice = null, beforeCommit = () => {}, resetHistory = true} = {}) {
     // All fallible import validation is finished before authoring or runtime change.
     await validateResources(model.resources);
-    const candidate = authoring.prepare(model,{allowRemoval:true});
+    const candidate = authoring.prepare(model,{allowRemoval:true,resetHistory});
     clearTimeout(timer);
     await saveQueue;
     beforeCommit();
@@ -258,7 +258,7 @@ export function createProjectUI({editor, source, stop, textDocuments, authoring:
       const model = await makeModel();
       authoring.prepare(model,{allowRemoval:true});
       await flush();
-      await apply(model, {notice: typeof notice === 'function' ? notice(model) : notice, beforeCommit: () => {
+      await apply(model, {resetHistory:false,notice: typeof notice === 'function' ? notice(model) : notice, beforeCommit: () => {
         if (changes !== expectedChanges || !isCurrent()) throw new Error('El proyecto cambió durante la preparación. No se reemplazó tu trabajo.');
       }});
       await flush().catch(report);

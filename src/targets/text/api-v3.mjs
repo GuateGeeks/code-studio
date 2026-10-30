@@ -135,7 +135,13 @@ export function compileApi3JavaScript(source, {variableIds = {}, targetIds = {},
             const target = expression.arguments[0];
             if (target.type !== 'Identifier' || variables.has(target.name)) throw located(`${calleeName(expression.callee)} recibe el nombre de un objeto, sin comillas.`, target);
             allowed.add(target);
-            edit(target.start, target.end, JSON.stringify({identifier: target.name}));
+            edit(target.start, target.end, JSON.stringify(Object.hasOwn(targetIds, target.name) ? targetIds[target.name] : {identifier: target.name}));
+            return;
+          }
+          if (action.ctx === 'setBackdrop') {
+            const label = expression.arguments[0];
+            if (label.type !== 'Literal' || typeof label.value !== 'string') throw located('El fondo se escribe como texto entre comillas.', label);
+            edit(label.start, label.end, JSON.stringify({label: label.value}));
             return;
           }
           expression.arguments.forEach(argument);

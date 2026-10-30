@@ -89,7 +89,7 @@ test('VOC-003: the declared migration takes 0.1.0 to 0.2.0 without block transfo
   assert.equal(migrated.locks.find(lock => lock.id === 'gg.sprites').version, '0.2.0');
   assert.deepEqual(availablePackUpdates(migrated), [{id: 'gg.sprites', fromVersion: '0.2.0', toVersion: '0.3.0'}]);
   assert.deepEqual(availablePackUpdates(migrateCapabilities(old, {id: 'gg.sprites', toVersion: '0.3.0'})), []);
-  assert.deepEqual(availablePackUpdates(null), [], 'legacy projects are updated only through explicit capabilities');
+  assert.deepEqual(availablePackUpdates(null), [{id: 'gg.sprites', fromVersion: '0.1.0', toVersion: '0.3.0'}], 'legacy projects offer an explicit update');
 });
 
 test('VOC-004: core structures are offered only by packs that list them (0.2.0), never by 0.1.0 or legacy projects', () => {

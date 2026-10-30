@@ -124,7 +124,11 @@ export function validateTextProgramRPC(method, args) {
           ['__proto__', 'constructor', 'prototype', 'stage'].includes(args[1].identifier)) fail('unsupported object');
     }
   }
-  if (method === 'program.setBackdrop' && (typeof args[1] !== 'string' || !args[1].trim() || args[1].length > 128 || /[\u0000-\u001f\u007f]/.test(args[1]))) fail('unsupported backdrop');
+  if (method === 'program.setBackdrop') {
+    if (typeof args[1] !== 'string') object(args[1], ['label']);
+    const name = typeof args[1] === 'string' ? args[1] : args[1].label;
+    if (typeof name !== 'string' || !name.trim() || name.length > 128 || /[\u0000-\u001f\u007f]/.test(name)) fail('unsupported backdrop');
+  }
   if (method === 'program.setCostume' && (typeof args[1]!=='string'||! /^[A-Za-z0-9:_-]{1,128}$/.test(args[1])||['__proto__','constructor','prototype'].includes(args[1]))) fail('unsupported costume');
   return {method, args: structuredClone(args)};
 }

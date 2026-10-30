@@ -53,7 +53,7 @@ function align(old, next) {
 }
 
 export function reconcileCodeViewIdentity(previous, candidate, {numericInputIdentity = [], layout = [], resourceView, idPrefix = '', ownerId = null} = {}) {
-  const options = {resourceView, ...(ownerId ? {resourceOwnerId: ownerId} : {})};
+  const options = {resourceView, ...(ownerId ? {resourceOwnerId: ownerId, objectWorkspace: true} : {})};
   validateProgram(previous, options); validateProgram(candidate, options);
   const before = signature(candidate), ir = structuredClone(candidate);
   const oldNodes = nodes(previous), nextNodes = nodes(ir), oldIDs = new Set(oldNodes.map(node => node.sourceBlockId));

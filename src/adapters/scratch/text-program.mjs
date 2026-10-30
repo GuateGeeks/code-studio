@@ -343,8 +343,9 @@ export function createTextProgram({getVM, getRevision, getScene = () => null, on
     if (!id || id === 'stage') fail('no hay ningún objeto llamado «' + name + '»');
     return id;
   }
-  function backdropOf(name) {
-    const backdrops = getScene()?.backdrops ?? [], found = backdrops.find(item => item.label === name) ?? backdrops.find(item => item.id === name);
+  function backdropOf(reference) {
+    const byId = typeof reference === 'string', name = byId ? reference : reference.label;
+    const found = (getScene()?.backdrops ?? []).find(item => (byId ? item.id : item.label) === name);
     if (!found) fail(`no hay ningún fondo llamado «${name}»`);
     return found.id;
   }

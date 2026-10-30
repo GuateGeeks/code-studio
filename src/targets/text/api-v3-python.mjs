@@ -138,8 +138,13 @@ def _gg_api3_compile(source, variable_ids_json, target_ids_json="{}"):
                 # Another object goes by its identifier; the scene knows which one that is.
                 if action.get("object"):
                     if not isinstance(call.args[0], ast.Name) or call.args[0].id in variables: fail(written(call.func) + " recibe el nombre de un objeto, sin comillas.", call.args[0])
-                    call.args[0] = at(ast.Dict(keys=[ast.Constant('identifier')], values=[ast.Constant(call.args[0].id)]), call.args[0])
+                    target_name = call.args[0].id
+                    call.args[0] = at(ast.Constant(objects[target_name]) if target_name in _gg_json.loads(target_ids_json) else ast.Dict(keys=[ast.Constant('identifier')], values=[ast.Constant(target_name)]), call.args[0])
                     args = list(call.args)
+                elif action['ctx'] == 'setBackdrop':
+                    label = call.args[0]
+                    if not isinstance(label, ast.Constant) or not isinstance(label.value, str): fail('El fondo se escribe como texto entre comillas.', label)
+                    args = [at(ast.Dict(keys=[ast.Constant('label')], values=[ast.Constant(label.value)]), label)]
                 else:
                     args = [argument(item) for item in call.args] + ([ast.Constant(action["append"])] if "append" in action else [])
                 out.append(at(ast.Expr(value=ast.Await(value=ast.Call(func=attr("ctx", action["ctx"]), args=args, keywords=[]))), node))

@@ -1,3 +1,4 @@
+import * as Blockly from 'blockly';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
@@ -289,6 +290,7 @@ test('MS-044: each object keeps its session: history and camera follow it, a sta
   const authoring = createProjectAuthoring({editor, source: {value: ''}, codeViews: createCodeViewsState(), initialCapabilities: profile});
   const open = async id => authoring.commit(authoring.prepare(await createProject({name: 'Sesión', id, scene2d: {stage: {}, sprites: {hero: {}, cesta: {}}}, deviceSource: '', catalog, capabilities: profile})));
   await open('11111111-1111-4111-8111-111111111111');
+  live.restored.length = 0;
   live.session = 'historia de hero';
   authoring.mountObject('cesta');
   assert.deepEqual(live.restored, [null], 'an object seen for the first time has no history');
@@ -389,4 +391,41 @@ test('MS-047: a shared variable stays shared when its declaring block or object 
   // Without shared variables, adding leaves the stage empty.
   const quiet = await addSceneObject(state({scene2d: scene({hero: workspace([say('s', 'x')])})}), {id: 'sprite-4', name: 'B', sourceId: 'hero', rules});
   assert.deepEqual(quiet.scene2d.stage, {});
+});
+
+for (const sameId of [false, true]) test('MS-080: real Blockly history resets on explicit reopen (' + (sameId ? 'same UUID' : 'new UUID') + ')', async t => {
+  const profile = createCapabilities(['gg.sprites']);
+  const workspace = new Blockly.Workspace();
+  t.after(() => workspace.dispose());
+  const session = () => ({undo: [...workspace.undoStack_], redo: [...workspace.redoStack_]});
+  const restoreSession = saved => {workspace.clearUndo(); if(saved){workspace.undoStack_.push(...saved.undo);workspace.redoStack_.push(...saved.redo);}};
+  const load = state => {Blockly.Events.disable();try{workspace.clear();Blockly.serialization.workspaces.load(state,workspace);}finally{Blockly.Events.enable();}};
+  const editor = {save: () => Blockly.serialization.workspaces.save(workspace), captureCapabilities: () => profile,
+    prepare: state => ({state}), commit: candidate => load(candidate.state), sessionState: session, restoreSessionState: restoreSession,
+    checkpoint() {return {state:this.save(),session:session()};}, restoreDraft(point) {load(point.state);restoreSession(point.session);}};
+  const authoring = createProjectAuthoring({editor,source:{value:''},initialCapabilities:profile});
+  const state = value => ({blocks:{languageVersion:0,blocks:[{type:'math_number',id:'shared-number',fields:{NUM:value}}]}});
+  const a = '11111111-1111-4111-8111-111111111111', b = sameId ? a : '22222222-2222-4222-8222-222222222222';
+  const document = async (id,value) => createProject({name:'History',id,blockly:state(value),deviceSource:'',catalog,capabilities:profile});
+  authoring.commit(authoring.prepare(await document(a,0),{resetHistory:true}));
+  workspace.getBlockById('shared-number').setFieldValue(17,'NUM');
+  await new Promise(done => setTimeout(done,40));
+  assert.ok(workspace.undoStack_.length);
+  authoring.commit(authoring.prepare(await document(b,99),{resetHistory:true}));
+  workspace.undo(false); workspace.undo(true);
+  assert.equal(workspace.getBlockById('shared-number').getFieldValue('NUM'),99);
+  assert.deepEqual(session(),{undo:[],redo:[]});
+  workspace.getBlockById('shared-number').setFieldValue(23,'NUM');
+  await new Promise(done => setTimeout(done,40));
+  const point=authoring.checkpoint(),history=session();
+  let fail=true; const unsubscribe=authoring.subscribe(()=>{if(fail){fail=false;throw new Error('publish failed');}});
+  assert.throws(()=>authoring.commit(authoring.prepare({...authoring.capture(),project:{id:a},authoring:{scene2d:{stage:{},sprites:{hero:state(2)}},deviceSource:''},capabilities:profile},{resetHistory:true})),/publish failed/);
+  unsubscribe();
+  assert.equal(workspace.getBlockById('shared-number').getFieldValue('NUM'),23);
+  assert.deepEqual(session(),history);
+  authoring.restoreDraft(point);
+  // A same-project capability/resource transaction keeps the current edit.
+  authoring.commit(authoring.prepare(await document(b,23)));
+  workspace.undo(false);
+  assert.equal(workspace.getBlockById('shared-number').getFieldValue('NUM'),99);
 });

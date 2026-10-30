@@ -9,15 +9,15 @@ import {buildCommands, run} from '../../tools/test/run.mjs';
 
 test('TEST-IMPACT: persistence, UI and PXT select their observable integration boundaries', () => {
   const persistence = createPlan('affected', {files: ['src/project-format.mjs', 'src/autosave-store.mjs']});
-  assert.deepEqual(persistence.browser, ['tests/browser/device-integration.spec.mjs', 'tests/browser/language-runtime.spec.mjs', 'tests/browser/offline-recovery.spec.mjs', 'tests/browser/packs-lessons.spec.mjs', 'tests/browser/project-persistence.spec.mjs', 'tests/browser/textual-corpus.spec.mjs', 'tests/browser/textual-equivalence.spec.mjs']);
+  assert.deepEqual(persistence.browser, ['tests/browser/device-integration.spec.mjs', 'tests/browser/language-runtime.spec.mjs', 'tests/browser/offline-recovery.spec.mjs', 'tests/browser/packs-lessons.spec.mjs', 'tests/browser/project-persistence.spec.mjs', 'tests/browser/scene2d-final-fixes.spec.mjs', 'tests/browser/textual-corpus.spec.mjs', 'tests/browser/textual-equivalence.spec.mjs']);
   assert.equal(persistence.node, true);
   const controls = createPlan('affected', {files: ['spikes/browser/shell/index.html', 'spikes/browser/shell/style.css']});
-  assert.deepEqual(new Set(controls.browser), new Set(['tests/browser/device-integration.spec.mjs', 'tests/browser/device-transfer.spec.mjs', 'tests/browser/packs-lessons.spec.mjs', 'tests/browser/offline-recovery.spec.mjs', 'tests/browser/textual-corpus.spec.mjs', 'tests/browser/textual-equivalence.spec.mjs', 'tests/browser/language-runtime.spec.mjs', 'tests/browser/project-persistence.spec.mjs', 'tests/browser/bindings-editor.spec.mjs', 'tests/browser/audio-variables.spec.mjs', 'tests/browser/code-console.spec.mjs']));
+  assert.deepEqual(new Set(controls.browser), new Set(['tests/browser/device-integration.spec.mjs', 'tests/browser/device-transfer.spec.mjs', 'tests/browser/packs-lessons.spec.mjs', 'tests/browser/offline-recovery.spec.mjs', 'tests/browser/textual-corpus.spec.mjs', 'tests/browser/textual-equivalence.spec.mjs', 'tests/browser/language-runtime.spec.mjs', 'tests/browser/project-persistence.spec.mjs', 'tests/browser/bindings-editor.spec.mjs', 'tests/browser/audio-variables.spec.mjs', 'tests/browser/code-console.spec.mjs', 'tests/browser/scene2d-final-fixes.spec.mjs']));
   assert.equal(controls.browser.some(file => /pxt|simulator/.test(file)), false);
   const pxt = createPlan('affected', {files: ['spikes/browser/runner/compiler-worker.js']});
   assert.deepEqual(new Set(pxt.browser), new Set(['tests/browser/device-integration.spec.mjs', 'tests/browser/device-transfer.spec.mjs', 'tests/browser/pxt-worker.spec.mjs', 'tests/browser/simulator.spec.mjs']));
   const joint = createPlan('affected', {files: ['src/project-archive.mjs', 'spikes/browser/runner/compiler-worker.js']});
-  assert.equal(joint.browser.length, 10);
+  assert.equal(joint.browser.length, 11);
 });
 
 test('TEST-IMPACT: Studio HTML and CSS include the entry journey and real accessibility while preserving shared full selection', () => {
@@ -220,4 +220,25 @@ test('TEST-IMPACT: code-view parsing and authenticated transport include the rea
     assert.ok(plan.browser.includes('tests/browser/project-persistence.spec.mjs'),file);
   }
   assert.ok(createPlan('affected',{files:['src/code-view-identity.mjs']}).browser.includes('tests/browser/code-view-conversion.spec.mjs'));
+});
+
+test('TEST-IMPACT-E2: each dependency selects its object/resource/dialogue regressions', () => {
+  const all = ['scene2d-multi-sprite', 'scene2d-object-views', 'scene2d-objects-panel', 'scene2d-object-resources', 'scene2d-dialogo', 'scene2d-final-fixes'];
+  const cases = [
+    ['src/studio/objects-ui.mjs', all], ['src/contracts/scene2d-object-edits.mjs', all],
+    ['src/studio/resources-ui.mjs', ['scene2d-object-resources', 'scene2d-dialogo']],
+    ['src/studio/starter-library-ui.mjs', ['scene2d-object-resources', 'scene2d-dialogo']],
+    ['src/targets/text/api-v3.mjs', ['scene2d-dialogo', 'scene2d-object-views']],
+    ['src/targets/text/api-v3-python.mjs', ['scene2d-dialogo', 'scene2d-object-views']],
+    ['src/generated-program-source.mjs', ['scene2d-dialogo', 'scene2d-object-views', 'scene2d-final-fixes']],
+    ['src/project-migration.mjs', ['scene2d-final-fixes']], ['src/studio/project-ui.mjs', ['scene2d-final-fixes']],
+    ['src/generated-code.mjs', ['scene2d-final-fixes']], ['src/studio/code-console-ui.mjs', ['scene2d-final-fixes']],
+    ['src/studio/index.html', all], ['src/studio/style.css', all],
+    ['tests/fixtures/canonical/scene2d/dialogo/project.json', ['canonical-projects', 'scene2d-dialogo']]
+  ];
+  for (const [file, specs] of cases) {
+    const plan = createPlan('affected', {files: [file]});
+    for (const spec of specs) assert.ok(plan.browser.includes('tests/browser/' + spec + '.spec.mjs'), file + ' → ' + spec);
+  }
+  assert.equal(createPlan('affected', {files: ['src/project-authoring.mjs']}).selection, 'full');
 });

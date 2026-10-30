@@ -25,7 +25,7 @@ function number(value, maximum = 1_000_000) {
 // Scratch adapter and the simulator boundary, the broker, generators, the SB3
 // export) keeps rejecting it by default instead of folding every object into
 // hero. Multi-object consumers opt in as they gain support (T4/T5).
-export function validateProgram(ir,{resourceView,resourceOwnerId='hero',objects:acceptObjects=false}={}) {
+export function validateProgram(ir,{resourceView,resourceOwnerId='hero',objects:acceptObjects=false,objectWorkspace=false}={}) {
   if(resourceView)resourceView=validateResourceView(resourceView);
   // currentTargetId stays null for IR0, whose scripts all belong to resourceOwnerId.
   let currentSourceBlockId = null, currentTargetId = null;
@@ -59,7 +59,7 @@ export function validateProgram(ir,{resourceView,resourceOwnerId='hero',objects:
   }
   // Variable owner: null when every script may use it (IR0 and globals), else its sprite.
   const variables = new Map(), owned = new Map();
-  if (ir.variables !== undefined && (!Array.isArray(ir.variables) || (!objects && ir.variables.length > programLimits.variables))) fail('variable limit');
+  if (ir.variables !== undefined && (!Array.isArray(ir.variables) || (!objects && ir.variables.length > programLimits.variables * (objectWorkspace ? 2 : 1)))) fail('variable limit');
   for (const model of ir.variables ?? []) {
     object(model, ['id', 'name', 'initialValue'], objects ? ['scope', 'targetId'] : ['scope']); text(model.id); text(model.name, 64); number(model.initialValue);
     if (model.scope !== undefined && !['local', 'global'].includes(model.scope)) fail('unsupported variable scope');
@@ -68,6 +68,11 @@ export function validateProgram(ir,{resourceView,resourceOwnerId='hero',objects:
       if (model.scope === 'global' ? Object.hasOwn(model, 'targetId') : !ir.sprites.includes(model.targetId)) fail('invalid variable owner');
       const count = (owned.get(owner) ?? 0) + 1; owned.set(owner, count);
       if (count > scene2DProgramLimits.variablesPerObject) fail('variable limit');
+    }
+    if (objectWorkspace && !objects) {
+      const owner = model.scope === 'global' || resourceOwnerId === 'stage' ? 'global' : 'local';
+      const count = (owned.get(owner) ?? 0) + 1; owned.set(owner, count);
+      if (count > programLimits.variables) fail('variable limit');
     }
     if (variables.has(model.id)) fail('duplicate variable');
     variables.set(model.id, {name: model.name, owner});

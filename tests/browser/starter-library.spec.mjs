@@ -150,6 +150,7 @@ test('GG-LIB-004/005/006/007: library loaded on demand, prepared offline, adds c
   await expect(page.locator('#restore-backdrop')).toBeHidden();
   await expect(card(page, 'teatro').locator('.library-state')).toHaveText('En tu proyecto');
   await clickVisible(page, page.locator('#run-editor'));
+  await expect(page.locator('#status')).toHaveText('Bloques ejecutados');
   await expect.poll(async () => (await settled(snapshot, page)).costume.name).toBe('gato');
   expect((await snapshot(page)).pixels.count).toBeLessThan(2000);
   expect(errors).toEqual([]);

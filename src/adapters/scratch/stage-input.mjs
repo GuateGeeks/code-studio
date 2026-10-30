@@ -21,7 +21,7 @@ export function stagePointerCoordinates(canvas, clientX, clientY) {
   return {x: x / width * clientWidth, y: y / height * clientHeight, canvasWidth: clientWidth, canvasHeight: clientHeight};
 }
 
-export function createStageInput({canvas, container, vm, isCurrent, mode = 'native', onError = () => {}}) {
+export function createStageInput({canvas, container, vm, isCurrent, mode = 'native', objects = [], onError = () => {}}) {
   const doc = canvas.ownerDocument, view = doc.defaultView, runtime = vm.runtime;
   const controller = new view.AbortController(), signal = controller.signal;
   const root = doc.createElement('div'), label = doc.createElement('label'), select = doc.createElement('select');
@@ -44,8 +44,9 @@ export function createStageInput({canvas, container, vm, isCurrent, mode = 'nati
   }
   function release() {releaseKeys(); releaseMouse();}
   function name(target) {
-    const text = mode === 'native' ? sceneIdFromScratchTargetName(target.getName()) : target.getName();
-    if (target.isStage) return 'escenario ' + text;
+    const id = sceneIdFromScratchTargetName(target.getName());
+    const text = mode === 'scratch' ? target.getName() : objects.find(object => object.id === id)?.name ?? id;
+    if (target.isStage) return mode === 'scratch' ? 'escenario ' + text : 'Escenario';
     if (target.isOriginal) return text;
     if (!cloneNumbers.has(target)) cloneNumbers.set(target, ++nextClone);
     return text + ' · clon ' + cloneNumbers.get(target);

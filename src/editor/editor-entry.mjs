@@ -14,9 +14,9 @@ export function createEditor(container, example) {
   const notify = () => { for (const callback of listeners) callback(); };
   // resourceOwner: the object in the editor (scene2d-multi-sprite 3.2), null in a
   // single-workspace profile. Menus, validation and the toolbox follow it.
-  let capabilities = null, resourceView = null, loadGeneration = 0, scriptOrder = null, resourceOwner = null;
+  let capabilities = null, resourceView = null, loadGeneration = 0, scriptOrder = null, resourceOwner = null, sceneGlobals = [];
   const checkpoints = new WeakMap(), codeViewSnapshots = new WeakMap(), codeViewCandidates = new WeakMap();
-  const codeViewKey = () => JSON.stringify([loadGeneration, saveWorkspace(workspace), capabilities, resourceView, scriptOrder, resourceOwner]);
+  const codeViewKey = () => JSON.stringify([loadGeneration, saveWorkspace(workspace), capabilities, resourceView, scriptOrder, resourceOwner, sceneGlobals]);
   let contributions = registerContributions(Blockly, createContributions());
   const shadow = (name, value) => ({[name]: {shadow: {type: 'math_number', fields: {NUM: value}}}});
   const block = (type, inputs) => ({kind: 'block', type, ...(inputs ? {inputs} : {})});
@@ -45,14 +45,14 @@ export function createEditor(container, example) {
     if (model) for (const item of contributions.variableFlyout) entries.push({...block(item.type, shadow(item.input, item.initial)), fields: {[item.field]: {id: model.getId()}}});
     return entries;
   });
-  function load(state, profile = capabilities, nextResourceView = resourceView, nextScriptOrder = null, nextOwner = resourceOwner) {
+  function load(state, profile = capabilities, nextResourceView = resourceView, nextScriptOrder = null, nextOwner = resourceOwner, nextGlobals = sceneGlobals) {
     const nextCapabilities = validateCapabilities(profile);
     const nextContributions = registerContributions(Blockly, createContributions(nextCapabilities));
     if (new TextEncoder().encode(JSON.stringify(state)).length > 65536) throw new Error('Workspace exceeds size limit');
     validateWorkspaceResources(state,{capabilities:nextCapabilities,resourceView:nextResourceView,ownerId:nextOwner});
     const previous = saveWorkspace(workspace);
     const previousCapabilities = capabilities; const previousContributions = contributions;
-    const previousResourceView = resourceView, previousScriptOrder = scriptOrder, previousOwner = resourceOwner;
+    const previousResourceView = resourceView, previousScriptOrder = scriptOrder, previousOwner = resourceOwner, previousGlobals = sceneGlobals;
     Blockly.Events.disable();
     try {
       setWorkspaceResourceView(workspace,nextResourceView);
@@ -62,14 +62,14 @@ export function createEditor(container, example) {
       Blockly.serialization.workspaces.load(structuredClone(state), workspace);
       orderedRoots(workspace, nextScriptOrder);
       workspace.updateToolbox(toolboxOf(nextContributions, nextOwner));
-      capabilities = nextCapabilities; contributions = nextContributions; resourceView = nextResourceView; scriptOrder = structuredClone(nextScriptOrder); resourceOwner = nextOwner;
+      capabilities = nextCapabilities; contributions = nextContributions; resourceView = nextResourceView; scriptOrder = structuredClone(nextScriptOrder); resourceOwner = nextOwner; sceneGlobals = [...nextGlobals];
     } catch (error) {
       setWorkspaceResourceView(workspace,previousResourceView);
       setWorkspaceResourceOwner(workspace,previousOwner);
       setWorkspaceObjects(workspace,sceneSprites(previousCapabilities));
       workspace.clear();
       Blockly.serialization.workspaces.load(previous, workspace);
-      capabilities = previousCapabilities; contributions = previousContributions; resourceView = previousResourceView; scriptOrder = previousScriptOrder; resourceOwner = previousOwner;
+      capabilities = previousCapabilities; contributions = previousContributions; resourceView = previousResourceView; scriptOrder = previousScriptOrder; resourceOwner = previousOwner; sceneGlobals = previousGlobals;
       workspace.updateToolbox(toolboxOf(contributions, resourceOwner));
       throw error;
     } finally { Blockly.Events.enable(); }
@@ -78,17 +78,17 @@ export function createEditor(container, example) {
     if (container.clientWidth < 500) workspace.zoomToFit();
     notify();
   }
-  const ownerOption = owner => owner ? {resourceOwnerId: owner} : {};
+  const ownerOption = owner => owner ? {resourceOwnerId: owner, objectWorkspace: true} : {};
   // A candidate is lowered as a final check. `lower: false` skips it: a project
   // with objects keeps unfinished work, and only running asks it to be complete.
-  function prepare(state, {capabilities: profile = null,resourceView: nextResourceView = null, scriptOrder: nextScriptOrder = null, ownerId = null, lower = true} = {}) {
+  function prepare(state, {capabilities: profile = null,resourceView: nextResourceView = null, scriptOrder: nextScriptOrder = null, ownerId = null, globalIds = [], lower = true} = {}) {
     const nextCapabilities = validateCapabilities(profile);
     if (new TextEncoder().encode(JSON.stringify(state)).length > 65536) throw new Error('Workspace exceeds size limit');
     const candidate = loadWorkspace(structuredClone(state), {capabilities: nextCapabilities,resourceView:nextResourceView,ownerId});
     try {
       orderedRoots(candidate, nextScriptOrder);
-      const ir = lower ? structuredClone(validateProgram(workspaceToIR(candidate, {capabilities: nextCapabilities,resourceView:nextResourceView,scriptOrder:nextScriptOrder,ownerId}),{resourceView:nextResourceView,...ownerOption(ownerId)})) : null;
-      return {state: saveWorkspace(candidate), capabilities: nextCapabilities, resourceView:nextResourceView, ownerId, ir, scriptOrder:structuredClone(nextScriptOrder)};
+      const ir = lower ? structuredClone(validateProgram(workspaceToIR(candidate, {capabilities: nextCapabilities,resourceView:nextResourceView,scriptOrder:nextScriptOrder,ownerId,globalIds}),{resourceView:nextResourceView,...ownerOption(ownerId)})) : null;
+      return {state: saveWorkspace(candidate), capabilities: nextCapabilities, resourceView:nextResourceView, ownerId, globalIds:[...globalIds], ir, scriptOrder:structuredClone(nextScriptOrder)};
     } finally { candidate.dispose(); }
   }
   function checkpoint() {
@@ -101,7 +101,7 @@ export function createEditor(container, example) {
     const fieldName = focused?.name ?? (editableFields.length === 1 ? editableFields[0].name : undefined);
     const token=Object.freeze({});
     checkpoints.set(token,{state:saveWorkspace(workspace),capabilities:structuredClone(capabilities),resourceView:structuredClone(resourceView),
-      scriptOrder:structuredClone(scriptOrder),ownerId:resourceOwner,scale:workspace.scale,scrollX:workspace.scrollX,scrollY:workspace.scrollY,
+      scriptOrder:structuredClone(scriptOrder),ownerId:resourceOwner,globalIds:[...sceneGlobals],undo:[...workspace.undoStack_],redo:[...workspace.redoStack_],scale:workspace.scale,scrollX:workspace.scrollX,scrollY:workspace.scrollY,
       selected:Blockly.common.getSelected()?.workspace===workspace?Blockly.common.getSelected().id:null,
       focused:ownsFocus,blockId:block?.id,fieldName,fieldFocused:focused!==block&&Boolean(focused?.name),
       auxiliary:ownsFocus && tree!==workspace?focused??tree?.getRootFocusableNode():null,
@@ -112,7 +112,8 @@ export function createEditor(container, example) {
   function restoreDraft(token) {
     const saved=checkpoints.get(token);
     if(!saved)throw new Error('El borrador no pertenece a este editor2D.');
-    load(saved.state,saved.capabilities,saved.resourceView,saved.scriptOrder,saved.ownerId);
+    load(saved.state,saved.capabilities,saved.resourceView,saved.scriptOrder,saved.ownerId,saved.globalIds);
+    workspace.clearUndo();workspace.undoStack_.push(...saved.undo);workspace.redoStack_.push(...saved.redo);
     workspace.setScale(saved.scale);workspace.scroll(saved.scrollX,saved.scrollY);
     const selected=saved.selected&&workspace.getBlockById(saved.selected);if(selected)selected.select();
     if(saved.focused) {
@@ -174,14 +175,14 @@ export function createEditor(container, example) {
       return true;
     },
     selectedSource: () => Blockly.common.getSelected()?.id ?? null,
-    program: () => structuredClone(validateProgram(workspaceToIR(workspace, {capabilities,resourceView,scriptOrder,ownerId:resourceOwner}),{resourceView,...ownerOption(resourceOwner)})),
+    program: (options = {}) => structuredClone(validateProgram(workspaceToIR(workspace, {capabilities,resourceView,scriptOrder,ownerId:resourceOwner,globalIds:options.globalIds??sceneGlobals}),{resourceView,...ownerOption(resourceOwner)})),
     // IR0 of a stored (not mounted) workspace with the mounted profile and
     // resources: the stage and other sprites of a 0.3.0 scene (2.1), each
     // with its own resources (3.2).
-    programOf: (state, {ownerId = null} = {}) => {
+    programOf: (state, {ownerId = null, globalIds = sceneGlobals} = {}) => {
       if (new TextEncoder().encode(JSON.stringify(state)).length > 65536) throw new Error('Workspace exceeds size limit');
       const stored = loadWorkspace(structuredClone(state), {capabilities, resourceView, ownerId});
-      try { return structuredClone(validateProgram(workspaceToIR(stored, {capabilities, resourceView, ownerId}), {resourceView, ...ownerOption(ownerId)})); } finally { stored.dispose(); }
+      try { return structuredClone(validateProgram(workspaceToIR(stored, {capabilities, resourceView, ownerId, globalIds}), {resourceView, ...ownerOption(ownerId)})); } finally { stored.dispose(); }
     },
     resourceView: () => resourceView == null ? null : structuredClone(resourceView),
     resourceOwner: () => resourceOwner,
@@ -202,7 +203,7 @@ export function createEditor(container, example) {
     commit: candidate => {
       if (codeViewCandidates.has(candidate) && codeViewCandidates.get(candidate) !== codeViewKey())
         throw new Error('La autoría cambió mientras se preparaba la conversión; conserva el texto y vuelve a intentarlo.');
-      load(candidate.state, candidate.capabilities ?? null, candidate.resourceView ?? null, candidate.scriptOrder ?? null, candidate.ownerId === undefined ? resourceOwner : candidate.ownerId);
+      load(candidate.state, candidate.capabilities ?? null, candidate.resourceView ?? null, candidate.scriptOrder ?? null, candidate.ownerId === undefined ? resourceOwner : candidate.ownerId, candidate.globalIds ?? sceneGlobals);
       if (codeViewCandidates.has(candidate)) codeViewCandidates.set(candidate, null);
     },
     isCodeViewCurrent: snapshot => codeViewSnapshots.get(snapshot)?.key === codeViewKey(),
@@ -210,13 +211,13 @@ export function createEditor(container, example) {
       const stored = codeViewSnapshots.get(snapshot);
       if (!stored || stored.key !== codeViewKey()) throw new Error('La autoría cambió; vuelve a intentar Deshacer.');
       const candidate = prepare(point.workspace, {capabilities: stored.captured.capabilities,
-        resourceView: stored.captured.resourceView, scriptOrder: point.scriptOrder, ownerId: stored.captured.ownerId});
+        resourceView: stored.captured.resourceView, scriptOrder: point.scriptOrder, ownerId: stored.captured.ownerId, globalIds: stored.captured.globalIds});
       codeViewCandidates.set(candidate, stored.key);
       return candidate;
     },
     codeViewOrder: () => structuredClone(scriptOrder),
     codeViewSnapshot: () => {
-      const captured = captureCodeViewSnapshot(saveWorkspace(workspace), {capabilities, resourceView, scriptOrder, ownerId: resourceOwner});
+      const captured = captureCodeViewSnapshot(saveWorkspace(workspace), {capabilities, resourceView, scriptOrder, ownerId: resourceOwner, globalIds: sceneGlobals});
       const snapshot = structuredClone(captured);
       codeViewSnapshots.set(snapshot, {captured, key: codeViewKey()});
       return snapshot;

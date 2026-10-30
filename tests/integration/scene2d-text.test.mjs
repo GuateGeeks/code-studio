@@ -10,7 +10,7 @@ import {createCapabilities} from '../../src/contracts/packs.mjs';
 import {validateScene2DObjects} from '../../src/contracts/scene2d-objects.mjs';
 import {scene2DObjectIdentifiers, scene2DTextOwner, scene2DIdentifierBase, isScene2DTextIdentifier, validateScene2DTextOwner} from '../../src/contracts/scene2d-identifiers.mjs';
 import {api3LanguageKeywords} from '../../src/contracts/api3-names.mjs';
-import {generateApi3ProgramSource, generateApi3SceneSource} from '../../src/generated-program-source.mjs';
+import {generateProgramSource, generateApi3ProgramSource, generateApi3SceneSource} from '../../src/generated-program-source.mjs';
 import {parseJavaScriptCodeView, pythonCodeViewVocabulary} from '../../src/targets/text/code-view-parser.mjs';
 import {pythonCodeViewReader} from '../../src/targets/text/code-view-python.mjs';
 import {reconcileCodeViewIdentity} from '../../src/code-view-identity.mjs';
@@ -18,7 +18,8 @@ import {compileApi3JavaScript} from '../../src/targets/text/api-v3.mjs';
 import {createQuickJSEngine} from '../../src/targets/text/quickjs-engine.mjs';
 import {createPythonEngine} from '../../src/targets/text/python-engine.mjs';
 import {validateTextProgram, validateTextProgramRPC, validateTextInvocation} from '../../src/contracts/text-program.mjs';
-import {composeScene2DProgram} from '../../src/contracts/program-contract.mjs';
+import {generateCode} from '../../src/generated-code.mjs';
+import {composeScene2DProgram, validateProgram} from '../../src/contracts/program-contract.mjs';
 import {validateLanguageRPC} from '../../src/contracts/language-runtime.mjs';
 import {validateCodeViewRequest} from '../../src/contracts/code-view-conversion.mjs';
 import {createTextProgram} from '../../src/adapters/scratch/text-program.mjs';
@@ -501,4 +502,84 @@ test('MS-072: API1 literal IDs and API3 identifiers retain distinct destinations
       assert.deepEqual([sender.x, sender.y], api === 'api1' ? [-43, -29] : [73, 81], language + ' ' + api);
     }
   }
+});
+
+for (const language of ['javascript', 'python']) for (const id of ['cesta', '_mouse_', '_random_']) {
+  test('MS-075: saved ' + language + ' target ID survives rename, reuse and deletion: ' + id, {timeout: 240000}, async t => {
+    const original = {stage: {backdrop: 'stage'}, sprites: [hero, {...cesta, id}]};
+    const ir = {version: 1, sprites: ['hero', id], scripts: [{targetId: 'hero', event: 'start', sourceBlockId: 's', body: [n('goToObject', 'go', {target: id})]}]};
+    const generated = generateApi3SceneSource(ir, language, {config: original});
+    const current = {stage: {backdrop: 'stage'}, sprites: [hero, {...cesta, id, name: 'Canasta', x: 73, y: 81}, {...cesta, id: 'new-cesta', x: -43, y: -29}]};
+    const fixture = toScratchSceneProject({version: 1, sprites: current.sprites.map(sprite => sprite.id), scripts: []}, {scene: current});
+    const vm = await createScratchSession(fixture.project), invocations = [];
+    const adapter = createTextProgram({getVM: () => vm, getRevision: () => 1, getScene: () => fixture, onInvocation: event => invocations.push(event)});
+    t.after(() => {adapter.dispose(); vm.quit();});
+    adapter.call('program.start', [{variables: [], handlers: [{id: 'sender', event: 'start'}]}], 1);
+    for (let i = 0; i < 100 && !invocations.length; i++) await new Promise(done => setTimeout(done, 5));
+    const result = await trace(language, generated.text, {api: 'api3', targetIds: generated.targetIds});
+    const destination = result.calls.find(call => call.method === 'program.goToObject').args[0];
+    adapter.call('program.goToObject', [invocations[0].invocationId, destination], 1);
+    const sender = vm.runtime.getSpriteTargetByName('hero');
+    assert.deepEqual([sender.x, sender.y], [73, 81], 'saved identity wins over reused visible name');
+    fixture.objects = fixture.objects.filter(object => object.id !== id);
+    assert.throws(() => adapter.call('program.goToObject', [invocations[0].invocationId, destination], 1), /no hay ningún objeto/, 'deleted saved ID never rebinds');
+  });
+}
+for (const language of ['javascript', 'python']) test('MS-076: ' + language + ' API1 backdrop IDs and API3 labels have separate spaces', {timeout: 240000}, async t => {
+  const fixture = toScratchSceneProject({version: 1, sprites: ['hero'], scripts: []}, {scene: {stage: {backdrop: 'stage'}, sprites: [hero]}});
+  const costume = fixture.project.targets[0].costumes[0];
+  fixture.project.targets[0].costumes = [{...costume, name: 'noche'}, {...costume, name: 'otra'}];
+  fixture.backdrops = [{id: 'noche', label: 'Otro'}, {id: 'otra', label: 'noche'}];
+  const vm = await createScratchSession(fixture.project), invocations = [];
+  const adapter = createTextProgram({getVM: () => vm, getRevision: () => 1, getScene: () => fixture, onInvocation: event => invocations.push(event)});
+  t.after(() => {adapter.dispose(); vm.quit();});
+  adapter.call('program.start', [{variables: [], handlers: [{id: 'sender', event: 'start'}]}], 1);
+  for (let i = 0; i < 100 && !invocations.length; i++) await new Promise(done => setTimeout(done, 5));
+  const view = {version: 1, assets: [{id: 'a'.repeat(32), type: 'Image', format: 'svg', bytes: 1}],
+    costumes: ['noche', 'otra'].map((id, index) => ({id, ownerId: 'stage', name: index ? 'noche' : 'Otro', assetId: 'a'.repeat(32), centerX: 0, centerY: 0, bitmapResolution: 1})), sounds: []};
+  const ir = {version: 0, scripts: [{event: 'start', sourceBlockId: 's', body: [n('setBackdrop', 'b', {backdrop: 'noche'})]}]};
+  const api1 = generateProgramSource(ir, language, {resourceView: view}).text;
+  const api3 = language === 'javascript' ? 'onStart(() => { setBackdrop("noche"); });' : '@on_start\ndef go():\n    set_backdrop("noche")';
+  for (const [api, source, wanted] of [['api1', api1, 'noche'], ['api3', api3, 'otra']]) {
+    const result = await trace(language, source, api === 'api3' ? {api} : {});
+    const reference = result.calls.find(call => call.method === 'program.setBackdrop').args[0];
+    adapter.call('program.setBackdrop', [invocations[0].invocationId, reference], 1);
+    const stage = vm.runtime.getTargetForStage();
+    assert.equal(stage.getCostumes()[stage.currentCostume].name, wanted, api);
+  }
+  for (const reference of ['missing', {label: 'missing'}, {}, {label: 'noche', extra: true}, {label: 1}])
+    assert.throws(() => adapter.call('program.setBackdrop', [invocations[0].invocationId, reference], 1), /GG text program/);
+  assert.throws(() => adapter.call('program.setBackdrop', [invocations[0].invocationId, 'Otro'], 1), /no hay ningún fondo/, 'API1 cannot fall back to labels');
+  assert.throws(() => adapter.call('program.setBackdrop', [invocations[0].invocationId, {label: 'otra'}], 1), /no hay ningún fondo/, 'API3 cannot fall back to IDs');
+});
+
+for (const localCount of [1, 16]) test('MS-078: object Blockly and JS/Python conversion admit 16 globals plus ' + localCount + ' locals', () => {
+  const globals = Array.from({length: 16}, (_, i) => ({id: 'global-' + i, name: 'global' + i, type: ''}));
+  const locals = Array.from({length: localCount}, (_, i) => ({id: 'local-' + i, name: 'local' + i, type: ''}));
+  const state = {variables: [...globals, ...locals], blocks: {languageVersion: 0, blocks: [{type: 'gg_when_start', id: 'budget-start', x: 20, y: 20, inputs: {DO: {block: {type: 'math_change', id: 'budget-change', fields: {VAR: {id: 'local-0'}}, inputs: {DELTA: {shadow: {type: 'math_number', id: 'budget-num', fields: {NUM: 7}}}}}}}}]}};
+  const snapshot = captureCodeViewSnapshot(state, {capabilities, ownerId: 'hero', globalIds: globals.map(model => model.id)});
+  assert.equal(snapshot.ir.variables.filter(model => model.scope === 'global').length, 16);
+  assert.throws(() => parseJavaScriptCodeView(Array.from({length:17},(_,i)=>'let v'+i+' = 0;').join('\n')+'\nonStart(() => {});', {capabilities,owner:heroOwner}), /variable limit|límite/);
+  assert.match(generateCode(snapshot.ir, {objectWorkspace: true}).text, /local0/);
+  for (const language of ['javascript', 'python']) {
+    const generated = generateCodeViewSource(snapshot, language, {owner: heroOwner});
+    const request = validateCodeViewRequest({language, source: generated.text, capabilities, owner: heroOwner, globalIds: globals.map(model => model.id), variableIds: generated.variableIds, variableNames: generated.variableNames});
+    const source = language === 'javascript' ? request.source : runPython([request.source], pythonCodeViewVocabulary(request))[0].source;
+    const parsed = parseJavaScriptCodeView(source, request);
+    const candidate = prepareCodeViewCandidate(snapshot, parsed);
+    assert.deepEqual(candidate.state.variables.map(model => model.id).sort(), [...globals, ...locals].map(model => model.id).sort());
+    const scene = composeScene2DProgram(config, {stage: {version: 0, variables: globals.map(({type, ...model}) => ({...model, initialValue: 0})), scripts: []}, sprites: {hero: candidate.ir}});
+    assert.doesNotThrow(() => validateProgram(scene, {objects: true}));
+    assert.equal(scene.variables.filter(model => model.scope === 'global').length, 16);
+    assert.equal(scene.variables.filter(model => model.targetId === 'hero').length, localCount);
+    const extraLocal = {...scene, variables: [...scene.variables, ...Array.from({length: 17 - localCount}, (_, i) => ({id: 'extra-local-' + i, name: 'extra' + i, initialValue: 0, targetId: 'hero'}))]};
+    assert.throws(() => validateProgram(extraLocal, {objects: true}), /variable limit/);
+    assert.throws(() => validateProgram({...scene, variables: [...scene.variables, {id: 'extra-global', name: 'extra', initialValue: 0, scope: 'global'}]}, {objects: true}), /variable limit/);
+  }
+  for (const version of ['0.1.0', '0.2.0']) {
+    const legacy = createCapabilities(['gg.sprites'], {versions: {'gg.sprites': version}});
+    assert.throws(() => captureCodeViewSnapshot(state, {capabilities: legacy}), /variable limit/);
+    assert.throws(() => parseJavaScriptCodeView('let puntos = shared(0);\nonStart(() => {});', {capabilities:legacy,variableIds:{puntos:'legacy-g'},globalIds:['legacy-g']}), /asignación global/);
+  }
+  assert.throws(() => validateTextProgram({variables: [...globals, ...locals].map(({type, ...model}) => ({...model, initialValue: 0})), handlers: []}), /variable limit/);
 });

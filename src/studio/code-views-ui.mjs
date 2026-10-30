@@ -40,7 +40,7 @@ export function createCodeViewsUI({state,editor,textDocuments,contexts,config,ge
     if(wait?.[field])examples.push(wait[field]+'(1)');
     const backdrop=entries.find(entry=>entry.lower?.ir==='setBackdrop');
     if(backdrop?.[field]){
-      const available=scene2DBackdrops(editor.codeViewSnapshot().resourceView);
+      const available=scene2DBackdrops(editor.resourceView());
       if(available.length)examples.push(backdrop[field]+'('+JSON.stringify(available[0].label)+')');
     }
     return 'Usa '+events.join(', ')+' en '+name(language)+'. Dentro de un evento: '+examples.join(', ')+'. Puedes usar variables, repetición y comparaciones. El texto fuera del subconjunto se puede conservar como copia independiente.';
@@ -130,7 +130,7 @@ export function createCodeViewsUI({state,editor,textDocuments,contexts,config,ge
       requirePack(entry.language==='python'?'python-stdlib':'javascript-quickjs');
       const snapshot=editor.codeViewSnapshot(),generated=generate(snapshot,entry.language);
       const parsed=await service.convert({language:entry.language,source:entry.source,
-        variableIds:generated.variableIds,variableNames:generated.variableNames,
+        variableIds:generated.variableIds,variableNames:generated.variableNames,globalIds:snapshot.ir.variables?.filter(model=>model.scope==='global').map(model=>model.id)??[],
         capabilities:snapshot.capabilities,resourceView:snapshot.resourceView,...ownerOption()});
       if(id!==attempt||projectEpoch!==epoch)return false;
       const targetId=ownerOption().owner?.targetId,prepared=editor.prepareCodeView(parsed,snapshot,targetId?{targetId}:{});

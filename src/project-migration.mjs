@@ -1,5 +1,5 @@
-import {validateProject, scene2DObjectsOf, scene2DAuthoringFromBlockly} from './project-format.mjs';
-import {migrateCapabilities, validateCapabilities} from './contracts/packs.mjs';
+import {validateProject, upgradeProject, scene2DObjectsOf, scene2DAuthoringFromBlockly} from './project-format.mjs';
+import {migrateCapabilities, validateCapabilities, createCapabilities, lockedPackVersions} from './contracts/packs.mjs';
 import {findMigrationChain, combineBlockTransforms, applyBlockTransforms} from './contracts/pack-migrations.mjs';
 import {localPackCatalog, latestPackVersions, localPackMigrations} from './packs/catalog.mjs';
 
@@ -8,7 +8,7 @@ import {localPackCatalog, latestPackVersions, localPackMigrations} from './packs
 const fail = message => { throw new Error(`GGPROJ migración: ${message}`); };
 
 export function availablePackUpdates(capabilities, {catalog = localPackCatalog, records = localPackMigrations, latest = latestPackVersions} = {}) {
-  if (capabilities == null) return [];
+  if (capabilities == null) capabilities = createCapabilities(['gg.sprites'], {catalog, versions: lockedPackVersions(null)});
   const current = validateCapabilities(capabilities, {catalog});
   return current.locks.flatMap(lock => {
     const toVersion = latest[lock.id];
@@ -20,7 +20,8 @@ export function availablePackUpdates(capabilities, {catalog = localPackCatalog, 
 
 export async function migrateProject(document, updates, {catalog, packCatalog = localPackCatalog, records = localPackMigrations, engineHistory} = {}) {
   const options = {catalog, ...(engineHistory ? {engineHistory} : {})};
-  const original = await validateProject(document, options);
+  let original = await validateProject(document, options);
+  if (!original.capabilities) original = await upgradeProject(original, {catalog, capabilities: createCapabilities(['gg.sprites'], {catalog: packCatalog, versions: lockedPackVersions(null)})});
   if (original.version < 3 || !original.capabilities) fail('actualizar packs requiere capacidades explícitas');
   if (!Array.isArray(updates) || !updates.length) fail('no hay actualizaciones seleccionadas');
   let capabilities = original.capabilities;

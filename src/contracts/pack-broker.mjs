@@ -97,7 +97,7 @@ export function authorizeProgram(capabilities, ir,{resourceView,objects=false,ow
   const plan = resolveCapabilities(capabilities);
   const result = structuredClone(ir);
   if (plan.variables.length || Object.hasOwn(result, 'variables')) result.variables = defaults(result.variables, plan);
-  validateProgram(result,{resourceView,objects:objects===true,...(ownerId?{resourceOwnerId:ownerId}:{})});
+  validateProgram(result,{resourceView,objectWorkspace:ownerId!==null&&declaresObjectResources(plan),objects:objects===true,...(ownerId?{resourceOwnerId:ownerId}:{})});
   if (result.version === 1) {
     const configured = plan.packs.find(pack => pack.manifest.id === 'gg.sprites')?.config?.sprites;
     if (!Array.isArray(configured) || configured.length !== result.sprites.length || configured.some((sprite, index) => sprite.id !== result.sprites[index]))

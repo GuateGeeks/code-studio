@@ -22,7 +22,7 @@ import {projectInitialScene, scene2DObjectsOf} from '../project-format.mjs';
 import {createSceneScope} from './scene-scope.mjs';
 import {scene2DTextOwner} from '../contracts/scene2d-identifiers.mjs';
 import {generateApi3ProgramSource, generateApi3SceneSource} from '../generated-program-source.mjs';
-import {createCapabilities, resolveCapabilities} from '../contracts/packs.mjs';
+import {createCapabilities, resolveCapabilities, lockedPackVersions} from '../contracts/packs.mjs';
 import {availablePackUpdates, migrateProject, describeMigrationSummary} from '../project-migration.mjs';
 import {createLessonsUI} from './lessons-ui.mjs';
 import {createOfflineController} from '../offline/controller.mjs';
@@ -470,8 +470,7 @@ async function runTextDocument() {
   // Legacy top-level GG documents may use the project's numeric locals.
   // Copied event programs configure their own declarations; invalid blocks
   // must not prevent an independent textual program from running.
-  let variables = [];
-  try { variables = (authoring.sceneProgram().variables ?? []).filter(variable => !variable.scope || variable.scope === 'local'); } catch {}
+  const variables = authoring.variables().filter(variable => !variable.scope || variable.scope === 'local');
   const key = authoringKey();
   const capabilities = authoring.captureExecutionCapabilities('scratch-2d');
   // gg.sprites 0.3.0: the document runs in the scene of the project, with every
@@ -587,7 +586,7 @@ function sceneAuthoring() {
 function contextAuthoringKey(id) {
   if(id==='2d')return JSON.stringify({...sceneAuthoring(),resources:resourceStore.capture(),pending:syncedViews?.pendingSource('2d')??null});
   if(id==='text')return JSON.stringify({document:textDocuments.selected(),resources:resourceStore.capture()});
-  if(id==='microbit')return JSON.stringify({blockly:editor.save(),device:device.config(),deviceSource:source.value});
+  if(id==='microbit')return JSON.stringify({...sceneAuthoring(),resources:resourceStore.capture(),pending:syncedViews?.pendingSource('2d')??null,device:device.config(),deviceSource:source.value});
   if(id==='sb3')return JSON.stringify({scratchSource:resourcesUI.reference()});
   if(id==='scene3d'||id==='webapp')return JSON.stringify({context:capabilityUI.capture(id),documents:textDocuments.capture()});
   return null;
@@ -615,7 +614,7 @@ source.addEventListener('input', () => { lessons?.invalidate();workspace?.author
 let previousCapabilities = null;
 // Whole-project snapshot from the last pack update: block transforms make a
 // capabilities-only rollback unsafe, so update rollback restores the project.
-let previousProjectSnapshot = null;
+let previousProjectSnapshot = null, previousProjectKey = null;
 function renderPacks() {
   renderGGMove();
   const capabilities = authoring.captureCapabilities();
@@ -643,16 +642,16 @@ async function changeCapabilities(capabilities) {
   try {
     await project.useCapabilities(capabilities);
     previousCapabilities = before;
-    previousProjectSnapshot = null;
+    previousProjectSnapshot = null;previousProjectKey = null;
     renderPacks();
     lessons?.invalidate();
   } catch (error) { document.querySelector('#packs-error').textContent = error.message; }
 }
-document.querySelector('#enable-2d').addEventListener('click',()=>{const current=authoring.captureCapabilities();changeCapabilities(createCapabilities([...new Set([...(current?.locks.map(lock=>lock.id)??[]),'gg.sprites'])],{config:current?.config??{},versions:Object.fromEntries((current?.locks??[]).map(lock=>[lock.id,lock.version]))}));});
+document.querySelector('#enable-2d').addEventListener('click',()=>{const current=authoring.captureCapabilities();changeCapabilities(createCapabilities([...new Set([...(current?.locks.map(lock=>lock.id)??[]),'gg.sprites'])],{config:current?.config??{},versions:lockedPackVersions(current)}));});
 document.querySelector('#enable-score').addEventListener('click', () => {
   const current = authoring.captureCapabilities();
   const ids = [...new Set([...(current?.locks.map(lock => lock.id) ?? ['gg.sprites']), 'gg.score'])];
-  changeCapabilities(createCapabilities(ids, {config: current?.config ?? {}, versions: Object.fromEntries((current?.locks ?? []).map(lock => [lock.id, lock.version]))}));
+  changeCapabilities(createCapabilities(ids, {config: current?.config ?? {}, versions: lockedPackVersions(current)}));
 });
 // Explicit update of every pack with a registered chain; atomic, never runs.
 document.querySelector('#update-packs').addEventListener('click', async () => {
@@ -669,15 +668,18 @@ document.querySelector('#update-packs').addEventListener('click', async () => {
     previousProjectSnapshot = before;
     previousCapabilities = null;
     renderPacks();
+    previousProjectKey = JSON.stringify([project.state().id,authoringKey()]);
     lessons?.invalidate();
   } catch (error) { errorOutput.textContent = error.message; }
 });
 document.querySelector('#rollback-packs').addEventListener('click', async () => {
   if (previousProjectSnapshot) {
     const snapshot = previousProjectSnapshot;
+    const unchanged=()=>previousProjectKey===JSON.stringify([project.state().id,authoringKey()]);
     try {
-      await project.replaceAuthoring(async () => snapshot, {notice: 'Se restauraron las versiones anteriores de los packs. No se ejecutó nada.'});
-      previousProjectSnapshot = null;
+      if(!unchanged())throw new Error('Hay cambios posteriores a la actualización. Se conservó tu trabajo. Guarda una copia antes de volver a una versión anterior.');
+      await project.replaceAuthoring(async () => snapshot, {isCurrent:unchanged,notice: 'Se restauraron las versiones anteriores de los packs. No se ejecutó nada.'});
+      previousProjectSnapshot = null;previousProjectKey = null;
       renderPacks();
       lessons?.invalidate();
     } catch (error) { document.querySelector('#packs-error').textContent = error.message; }

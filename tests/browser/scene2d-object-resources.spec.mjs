@@ -181,11 +181,16 @@ test('MS-BROWSER-028: unfinished blocks never lock their object: it opens again,
   await clickVisible(page,page.locator('#run-editor'));
   await expect(blockErrors(page)).toContainText('«Cesta»');
   // From a text view it opens too, in Blocks: it has no text yet.
-  await mode(page,'javascript');
-  await pick(page,'Cesta');
-  await expect(page.locator('#program-mode input[value=blocks]')).toBeChecked();
-  expect(JSON.stringify(await page.evaluate(()=>studioProbe.editor.save()))).toContain('c-if');
-  await expect(page.locator('#object-delete-unopened')).toBeHidden();
+  for(const language of ['javascript','python']){
+    await mode(page,language);
+    await pick(page,'Cesta');
+    await expect(page.locator('#program-mode input[value=blocks]')).toBeChecked();
+    expect(await page.evaluate(()=>studioProbe.editor.save())).toEqual(await page.evaluate(()=>studioProbe.authoring.capture().scene2d.sprites.cesta));
+    expect(JSON.stringify(await page.evaluate(()=>studioProbe.editor.save()))).toContain('c-if');
+    await expect(page.locator('#object-delete-unopened')).toBeHidden();
+    expect((await snapshot(page)).threads).toBe(0);
+    await pick(page,'hero');
+  }
 });
 
 test('MS-BROWSER-018: menus, toolbox, the resource list and uploads follow the selected object',async({page})=>{

@@ -71,7 +71,7 @@ function bindInput(bundle){
   const revision=getRevision();
   bundle.input=createStageInput({canvas:bundle.canvas,container:bundle.canvas.ownerDocument.querySelector('#stage-controls'),vm:bundle.vm,
     isCurrent:()=>activeBundle===bundle&&!bundle.disposed&&!loadingScene&&getRevision()===revision,
-    mode:bundle.compatibility?'scratch':'native',onError:error=>{if(activeBundle===bundle)diagnostic('error','STAGE_INPUT_FAILED',String(error.message));}});
+    mode:bundle.compatibility?'scratch':'native',objects:bundle.fixture.objects??[],onError:error=>{if(activeBundle===bundle)diagnostic('error','STAGE_INPUT_FAILED',String(error.message));}});
 }
 function bitmapAdapter(){
   return {resize(source,width,height){const result=document.createElement('canvas');result.width=width;result.height=height;result.getContext('2d').drawImage(source,0,0,width,height);return result;},

@@ -10,13 +10,13 @@ function target(id, {name = id, stage = false, original = true, visible = true, 
   return {id, isStage: stage, isOriginal: original, visible, getName: () => name,
     blocks: {getScripts: () => blocks.map(block => block.id), getBlock: id => blocks.find(block => block.id === id)}};
 }
-function harness(t) {
+function harness(t, options = {}) {
   const dom = new JSDOM('<canvas width="480" height="360"></canvas><div id="controls"></div><input id="after">', {pretendToBeVisual: true});
   const canvas = dom.window.document.querySelector('canvas'), container = dom.window.document.querySelector('#controls');
   const runtime = new EventEmitter(), io = [], activations = []; runtime.targets = [target('hero')];
   runtime.startHats = (...args) => activations.push(args);
   const vm = {runtime, postIOData: (...args) => io.push(args)}; let current = true;
-  const input = createStageInput({canvas, container, vm, isCurrent: () => current});
+  const input = createStageInput({canvas, container, vm, isCurrent: () => current, ...options});
   t.after(() => {input.dispose(); dom.window.close();});
   return {dom, canvas, container, runtime, io, activations, input, stale: () => {current = false;},
     select: () => container.querySelector('select'), action: () => container.querySelector('button')};
@@ -131,4 +131,18 @@ test('GG-F7-INPUT: pointer outside the image never activates; pointer cancellati
   pointer('pointerdown', 300, 150); assert.equal(h.io.at(-1)[0], 'mouse'); assert.equal(h.io.at(-1)[1].isDown, true);
   pointer('pointerup', 110, 100); assert.deepEqual(h.io.at(-1), ['mouse', {x: -1, y: -1, canvasWidth: 480, canvasHeight: 360, isDown: false}]);
   const before = h.io.length; h.canvas.dispatchEvent(new h.dom.window.Event('pointercancel')); assert.equal(h.io.length, before);
+});
+
+for (const mode of ['native', 'text', 'scratch']) test('MS-074: click labels use visible object names in ' + mode, t => {
+  const h = harness(t, {mode, objects: [{id: 'hero', name: 'Ana'}, {id: 'sprite-123', name: 'Cesta'}, {id: '_mouse_', name: 'Ratón'}, {id: '_random_', name: 'Azar'}]});
+  h.runtime.targets = [target('hero'), target('new', {name: 'sprite-123'}), target('mouse', {name: '/gg/_mouse_'}), target('random', {name: '/gg/_random_'}), target('clone', {name: 'sprite-123', original: false}), target('stage', {name: 'Stage', stage: true})];
+  h.input.refresh();
+  const labels = mode === 'scratch' ? ['hero', 'sprite-123', '/gg/_mouse_', '/gg/_random_', 'sprite-123 · clon 1', 'escenario Stage'] : ['Ana', 'Cesta', 'Ratón', 'Azar', 'Cesta · clon 1', 'Escenario'];
+  assert.deepEqual([...h.select().options].map(option => option.textContent), labels);
+  for (const [index, selected] of h.runtime.targets.entries()) {
+    h.select().value = selected.id; h.select().dispatchEvent(new h.dom.window.Event('change')); h.action().click();
+    assert.equal(h.action().textContent, 'Activar ' + labels[index]);
+    assert.equal(h.container.querySelector('output').textContent, 'Clic enviado a ' + labels[index] + '.');
+    assert.equal(h.activations.at(-1)[2], selected);
+  }
 });

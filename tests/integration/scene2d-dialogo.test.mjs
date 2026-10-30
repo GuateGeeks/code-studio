@@ -308,7 +308,7 @@ test('MS-065: text names objects by identifier and backdrops by name, and refuse
     assert.throws(() => parse(line), error => reason.test(error.message) && error.lineNumber === 2, line);
   // The translator of a text document, before it reaches the scene.
   const compiled = compileApi3JavaScript('onStart(() => {\n  hero.goToObject(cesta);\n  setBackdrop("Noche");\n  hero.goToRandom();\n  nextBackdrop();\n});\n').source;
-  for (const expected of ['await ctx.goToObject({"identifier":"cesta"})', 'await ctx.setBackdrop("Noche")', 'await ctx.goToRandom()', 'await ctx.nextBackdrop()']) assert.ok(compiled.includes(expected), expected);
+  for (const expected of ['await ctx.goToObject({"identifier":"cesta"})', 'await ctx.setBackdrop({"label":"Noche"})', 'await ctx.goToRandom()', 'await ctx.nextBackdrop()']) assert.ok(compiled.includes(expected), expected);
   assert.throws(() => compileApi3JavaScript('onStart(() => {\n  hero.goToObject(3);\n});\n'), error => /nombre de un objeto/.test(error.message) && error.lineNumber === 2);
   assert.throws(() => compileApi3JavaScript('let x = 0;\nonStart(() => {\n  hero.goToObject(x);\n});\n'), error => /nombre de un objeto/.test(error.message) && error.lineNumber === 3);
   for (const [name, arity] of Object.entries({goToObject: 1, goToRandom: 0, setBackdrop: 1, nextBackdrop: 0})) assert.equal(contextOperations[name], arity, name);
@@ -337,9 +337,9 @@ test('MS-066: in text mode the scene resolves identifiers and backdrop names, an
   call('goToObject', [fromCesta, 'hero']);
   assert.deepEqual([cesta.x, cesta.y], [-120, 0]);
   assert.throws(() => call('goToObject', [fromCesta, 'fantasma']), /«fantasma»/);
-  call('setBackdrop', [fromCesta, 'Noche']);
+  call('setBackdrop', [fromCesta, {label: 'Noche'}]);
   assert.equal(stage.getCostumes()[stage.currentCostume].name, 'fondo-noche');
-  call('setBackdrop', [fromStage, 'Fondo inicial']);
+  call('setBackdrop', [fromStage, {label: 'Fondo inicial'}]);
   assert.equal(stage.currentCostume, 0);
   call('nextBackdrop', [fromStage]);
   assert.equal(stage.currentCostume, 1);
@@ -461,7 +461,7 @@ test('MS-073: synchronized help teaches a usable backdrop action only in the loc
         const capabilities = createCapabilities(['gg.sprites'], {versions: {'gg.sprites': version}});
         const state = createCodeViewsState();
         state.set({...state.get('2d'), language});
-        const ui = createCodeViewsUI({state, editor: {subscribe() {}, captureCapabilities: () => capabilities, codeViewSnapshot: () => ({resourceView})},
+        const ui = createCodeViewsUI({state, editor: {subscribe() {}, captureCapabilities: () => capabilities, resourceView: () => resourceView, codeViewSnapshot() { throw new Error("unfinished condition must not be lowered by help"); }},
           textDocuments: {}, contexts: {current: () => '2d', subscribe() {}}, config: {languageOrigin: 'http://localhost:5703'},
           getProject: () => null});
         const help = ui.presentation('2d').help;

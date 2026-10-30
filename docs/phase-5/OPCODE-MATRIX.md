@@ -147,3 +147,6 @@ Límites: el renderer recorta tamaño y posición («fence»); por eso tamaño y
 | looks_nextbackdrop | — | `nextBackdrop`: siguiente fondo, con vuelta al primero | MS-064 |
 
 Los IDs válidos de sprite `_mouse_` y `_random_` se conservan en el proyecto. El adaptador los convierte a nombres privados de VM (`/gg/_mouse_` y `/gg/_random_`) tanto en los targets como en los destinos de bloques y texto; la barra no pertenece a la sintaxis de IDs, así que no colisionan con otro objeto válido. Solo «ir a una posición aleatoria» envía el centinela `_random_` a `motion_goto`. Los IDs de fondos no admiten espacios, por lo que no se confunden con `next backdrop`. MS-070/071 verifican ambos IDs en la VM real.
+
+
+La revisión final E2 del 30/10/2026 distingue las referencias antes de invocar estas mismas primitivas: una cadena API1 conserva el ID literal del objeto/fondo; API3 usa el mapa guardado de IDs de objetos cuando existe y un DTO de identificador solo para nombres no guardados. Para fondos, API3 envía un DTO interno de etiqueta y se resuelve exclusivamente por etiqueta. La colisión entre el ID de un fondo y la etiqueta visible de otro no altera ninguna API. MS-075/076 cubren QuickJS, Pyodide y VM, incluida la fuente API1 generada. Este ajuste no amplía opcodes, importación SB3 ni manifests publicados.

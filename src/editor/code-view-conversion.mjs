@@ -18,10 +18,10 @@ function blocks(state) {
   for (const block of state.blocks?.blocks ?? []) visit(block);
   return result;
 }
-export function captureCodeViewSnapshot(state, {capabilities = null, resourceView = null, scriptOrder = null, ownerId = null} = {}) {
+export function captureCodeViewSnapshot(state, {capabilities = null, resourceView = null, scriptOrder = null, ownerId = null, globalIds = []} = {}) {
   const workspace = loadWorkspace(structuredClone(state), {capabilities, resourceView, ownerId});
   try {
-    return {state: saveWorkspace(workspace), ir: workspaceToIR(workspace, {capabilities, resourceView, scriptOrder, ownerId}), scriptOrder: structuredClone(scriptOrder), ownerId,
+    return {state: saveWorkspace(workspace), ir: workspaceToIR(workspace, {capabilities, resourceView, scriptOrder, ownerId, globalIds}), scriptOrder: structuredClone(scriptOrder), ownerId, globalIds:[...globalIds],
       numericInputIdentity: captureNumericInputIdentity(workspace),
       layout: workspace.getTopBlocks(true).map(block => ({sourceBlockId: block.id, ...block.getRelativeToSurfaceXY()})),
       capabilities: structuredClone(capabilities), resourceView: structuredClone(resourceView)};
@@ -29,7 +29,7 @@ export function captureCodeViewSnapshot(state, {capabilities = null, resourceVie
 }
 // `owner` (scene2DTextOwner): the object whose program the snapshot holds (R2).
 export function generateCodeViewSource(snapshot, language, {owner} = {}) {
-  const generated = generateApi3ProgramSource(snapshot.ir, language, {resourceView: snapshot.resourceView, ...(owner ? {owner} : {})});
+  const generated = generateApi3ProgramSource(snapshot.ir, language, {resourceView: snapshot.resourceView, objectWorkspace: snapshot.ownerId !== null, ...(owner ? {owner} : {})});
   const oldBlocks = blocks(snapshot.state), lines = generated.text.split('\n'), sourceMap = [], output = [], emitted = new Set();
   const commentPrefix = language === 'python' ? '# ' : '// ';
   for (let i = 0; i < lines.length; i++) {
@@ -117,8 +117,8 @@ export function prepareCodeViewCandidate(snapshot, parsed, {targetId = 'hero'} =
   const workspace = loadWorkspace(state, {capabilities: snapshot.capabilities, resourceView: snapshot.resourceView, ownerId});
   try {
     return {state: saveWorkspace(workspace), capabilities: structuredClone(snapshot.capabilities),
-      resourceView: structuredClone(snapshot.resourceView), ownerId, ir: workspaceToIR(workspace,
-        {capabilities: snapshot.capabilities, resourceView: snapshot.resourceView, scriptOrder: result.scriptOrder, ownerId}),
+      resourceView: structuredClone(snapshot.resourceView), ownerId, globalIds:[...(snapshot.globalIds??[])], ir: workspaceToIR(workspace,
+        {capabilities: snapshot.capabilities, resourceView: snapshot.resourceView, scriptOrder: result.scriptOrder, ownerId, globalIds: candidate.variables?.filter(model=>model.scope==='global').map(model=>model.id)??[]}),
       scriptOrder: result.scriptOrder, sourceLocations: locations, identityMatches: result.matches};
   } finally { workspace.dispose(); }
 }

@@ -326,3 +326,33 @@ test('MS-016: IR v1 is opt-in; every IR0 consumer rejects it by default until it
   assert.doesNotThrow(() => toScratchProject(ir0));
   assert.doesNotThrow(() => authorizeProgram(sprites('0.3.0'), ir0));
 });
+
+for (const version of [1, 2]) test('MS-077: actual saved v' + version + ' explicitly migrates from its implicit 0.1 profile', async () => {
+  const before = await createProject({name: 'Legado real', blockly: editableExample, deviceSource: 'original\r\n', catalog, ...(version === 2 ? {textDocuments: [], selectedTextDocumentId: null} : {})});
+  const saved = await parseProject(serializeProject(before), {catalog});
+  assert.equal(saved.version, version); assert.equal(saved.capabilities, undefined);
+  assert.deepEqual(availablePackUpdates(saved.capabilities), [{id: 'gg.sprites', fromVersion: '0.1.0', toVersion: '0.3.0'}]);
+  const {document, summary} = await migrateProject(saved, availablePackUpdates(saved.capabilities), {catalog});
+  assert.equal(document.version, 6);
+  assert.equal(summary[0].steps, 2);
+  assert.deepEqual(document.authoring.scene2d, {stage: {}, sprites: {hero: editableExample}});
+  assert.equal(document.authoring.deviceSource, 'original\r\n');
+  assert.deepEqual(document.resources, saved.resources);
+  assert.deepEqual(document.project, saved.project);
+  assert.deepEqual(saved, before);
+});
+
+test('MS-079: independent variable capture ignores unfinished scripts and keeps owner and scope', async () => {
+  const profile = sprites('0.3.0', [hero, cesta]);
+  const local = {id: 'hero-local', name: 'pasos', type: ''}, global = {id: 'global', name: 'puntos', type: ''};
+  const states = {stage: {variables: [global]}, sprites: {hero: {variables: [local, global]}, cesta: {blocks: {languageVersion: 0, blocks: [{type: 'controls_if', id: 'unfinished'}]}}}};
+  let live = {};
+  const editor = {save: () => live, captureCapabilities: () => profile, prepare: state => ({state}), commit: candidate => {live = candidate.state;}, program() {throw new Error('unfinished program');}, programOf() {throw new Error('unfinished program');}};
+  const authoring = createProjectAuthoring({editor, source: {value: ''}, initialCapabilities: profile});
+  const project = await createProject({name: 'Variables', scene2d: states, deviceSource: '', catalog, capabilities: profile});
+  authoring.commit(authoring.prepare(project));
+  const expected = [{id: 'global', name: 'puntos', initialValue: 0, scope: 'global'}, {id: 'hero-local', name: 'pasos', initialValue: 0, targetId: 'hero'}];
+  assert.deepEqual(authoring.variables(), expected);
+  authoring.mountObject('cesta');
+  assert.deepEqual(authoring.variables(), expected);
+});

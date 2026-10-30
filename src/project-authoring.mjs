@@ -1,7 +1,7 @@
 import {validateCapabilities,resolveResourcePolicy,selectCapabilityLocksForContext,validateCapabilityReferences} from './contracts/packs.mjs';
 import {scene2DObjectsOf,scene2DAuthoringFromBlockly} from './project-format.mjs';
-import {composeScene2DProgram} from './contracts/program-contract.mjs';
-import {eachWorkspaceBlock} from './contracts/scene2d-object-edits.mjs';
+import {composeScene2DProgram, validateProgram} from './contracts/program-contract.mjs';
+import {eachWorkspaceBlock, scene2DObjectRules, scene2DGlobalVariableIds} from './contracts/scene2d-object-edits.mjs';
 import {scene2DStageName} from './contracts/scene2d-objects.mjs';
 
 // Injected participants own live drafts. This coordinator owns profile metadata
@@ -102,12 +102,28 @@ export function createProjectAuthoring({editor,textDocuments,codeViews,source,ca
  // A program that cannot be lowered names its object: the student must be able
  // to find it among the others, and the failure keeps its block and target.
  function objectProgram(config,id){
-  if(id===objects.mounted)return editor.program();
+  const globalIds=scene2DGlobalVariableIds(capture().scene2d,captureCapabilities());
+  if(id===objects.mounted)return editor.program({globalIds});
   const state=objectWorkspace(objects,id);
   if(emptyWorkspace(state))return {version:0,scripts:[]};
   if(typeof editor.programOf!=='function')throw new Error('Este editor no puede convertir los scripts de otros objetos.');
-  try{return editor.programOf(structuredClone(state),{ownerId:id});}
+  try{return editor.programOf(structuredClone(state),{ownerId:id,globalIds});}
   catch(error){error.targetId=id;error.message='«'+(config.sprites.find(sprite=>sprite.id===id)?.name??scene2DStageName)+'»: '+error.message;throw error;}
+ }
+ function variables() {
+  const capabilities=captureCapabilities(),rules=scene2DObjectRules(capabilities).globals;
+  function models(state) {
+   const globalIds=new Set();
+   eachWorkspaceBlock(state,block=>{const field=rules.get(block.type);if(field){const value=block.fields?.[field];globalIds.add(value?.id??value);}});
+   return (state.variables??[]).map(model=>{
+    if(model.type!==''&&model.type!==undefined)throw new Error('Only numeric scalar variables are supported');
+    return {id:model.id,name:model.name,initialValue:0,...(globalIds.has(model.id)?{scope:'global'}:{})};
+   });
+  }
+  const live=editor.save();
+  if(!objects)return validateProgram({version:0,variables:models(live),scripts:[]}).variables;
+  const program=id=>({version:0,variables:models(id===objects.mounted?live:objectWorkspace(objects,id)),scripts:[]});
+  return validateProgram(composeScene2DProgram(sceneConfig(),{stage:program('stage'),sprites:Object.fromEntries(sceneConfig().sprites.map(sprite=>[sprite.id,program(sprite.id)]))}),{objects:true}).variables??[];
  }
  function sceneProgram() {
   if(!objects)return editor.program();
@@ -145,7 +161,7 @@ export function createProjectAuthoring({editor,textDocuments,codeViews,source,ca
   if(id!=='stage'&&!Object.hasOwn(objects.scene2d.sprites,id))throw new Error('Objeto desconocido.');
   if(id===objects.mounted)return;
   const resourceView=editor.resourceView?.()??null;
-  const candidate=editor.prepare(structuredClone(objectWorkspace(objects,id)),{scriptOrder,ownerId:id,lower:false,capabilities:projectExecution(template,'scratch-2d',{allowInactive:true}),...(resourceView?{resourceView}:{})});
+  const candidate=editor.prepare(structuredClone(objectWorkspace(objects,id)),{scriptOrder,ownerId:id,globalIds:scene2DGlobalVariableIds(capture().scene2d,captureCapabilities()),lower:false,capabilities:projectExecution(template,'scratch-2d',{allowInactive:true}),...(resourceView?{resourceView}:{})});
   const outgoing=editor.save(),session=editor.sessionState?.();
   muted++;
   try{
@@ -187,8 +203,8 @@ export function createProjectAuthoring({editor,textDocuments,codeViews,source,ca
    for(const state of [scene2d.scene2d.stage,...Object.values(scene2d.scene2d.sprites)])editor.validateBlocks(state,{capabilities:execution});
   }
   const plan={
-   projectId:model.project?.id??null,capabilities,resourceCandidate,objects:scene2d,
-   editor:editor.prepare(scene2d?objectWorkspace(scene2d,scene2d.mounted):model.authoring.blockly,{scriptOrder:viewsCandidate?.entries.find(entry=>entry.contextId==='2d')?.scriptOrder??null,ownerId:scene2d?.mounted??null,...(scene2d?{lower:false}:{}),capabilities:projectExecution(capabilities,'scratch-2d',{allowInactive:true}),...(resourceView?{resourceView}:{})}),
+   projectId:model.project?.id??null,resetHistory:options.resetHistory===true,capabilities,resourceCandidate,objects:scene2d,
+   editor:editor.prepare(scene2d?objectWorkspace(scene2d,scene2d.mounted):model.authoring.blockly,{scriptOrder:viewsCandidate?.entries.find(entry=>entry.contextId==='2d')?.scriptOrder??null,ownerId:scene2d?.mounted??null,globalIds:scene2d?scene2DGlobalVariableIds(scene2d.scene2d,capabilities):[],...(scene2d?{lower:false}:{}),capabilities:projectExecution(capabilities,'scratch-2d',{allowInactive:true}),...(resourceView?{resourceView}:{})}),
    text:textCandidate,codeViews:viewsCandidate,
    source:model.authoring.deviceSource,
    managed:[...managed].map(([id,participant])=>{const config=capabilities?.config[id]??null;const contextId=(participant.contexts??[participant.context??participant.id])[0];const view=resourceStore?.candidateView(resourceCandidate,{contextId,documentId:config?.documentId});return {id,candidate:participant.prepareConfig(config,{resources,resourceView:view,textDocuments:model.authoring.textDocuments??[]})};})
@@ -198,7 +214,7 @@ export function createProjectAuthoring({editor,textDocuments,codeViews,source,ca
  function checkpoint() {
   const token=Object.freeze(Object.create(null));
   checkpoints.set(token,{
-   template:structuredClone(template),objects:structuredClone(objects),source:source.value,resources:resourceStore?.checkpoint(),
+   template:structuredClone(template),objects:structuredClone(objects),sessions:new Map(sessions),sessionProject,source:source.value,resources:resourceStore?.checkpoint(),
    sourceView:{selection:[source.selectionStart,source.selectionEnd,source.selectionDirection],scroll:[source.scrollTop,source.scrollLeft],focused:source.ownerDocument?.activeElement===source},
    editor:editor.checkpoint?.(),blockly:editor.save(),editorCapabilities:projectExecution(template,'scratch-2d',{allowInactive:true}),
    text:textDocuments?.checkpoint(),codeViews:codeViews?.checkpoint(),
@@ -211,6 +227,7 @@ export function createProjectAuthoring({editor,textDocuments,codeViews,source,ca
   const failures=[];muted++;
   try {
    template=structuredClone(saved.template);objects=structuredClone(saved.objects);
+   sessions.clear();for(const [id,session]of saved.sessions)sessions.set(id,session);sessionProject=saved.sessionProject;
    try {if(resourceStore)resourceStore.restoreDraft(saved.resources,{silent:true});}catch(error){failures.push(error);}
    try {if(saved.editor&&editor.restoreDraft)editor.restoreDraft(saved.editor);else editor.commit({state:structuredClone(saved.blockly),capabilities:structuredClone(saved.editorCapabilities)});}catch(error){failures.push(error);}
    try {if(codeViews)codeViews.restoreDraft(saved.codeViews);}catch(error){failures.push(error);}
@@ -235,7 +252,7 @@ export function createProjectAuthoring({editor,textDocuments,codeViews,source,ca
    for(const item of plan.managed)managed.get(item.id).commitConfig(item.candidate);
    source.value=plan.source;template=templateOf(plan.capabilities);objects=structuredClone(plan.objects);
    if(codeViews)codeViews.commit(plan.codeViews);
-   if(plan.projectId!==sessionProject){sessions.clear();sessionProject=plan.projectId;}
+   if(plan.resetHistory||plan.projectId!==sessionProject){sessions.clear();sessionProject=plan.projectId;editor.restoreSessionState?.(null);}
   }catch(error){failed=error;}
   finally{muted--;}
   if(!failed)try{emit();}catch(error){failed=error;}
@@ -250,7 +267,7 @@ export function createProjectAuthoring({editor,textDocuments,codeViews,source,ca
   const unsubscribe=participant.subscribe(emit);if(typeof unsubscribe==='function')disposers.push(unsubscribe);
  }
  if(source.addEventListener){source.addEventListener('input',emit);disposers.push(()=>source.removeEventListener('input',emit));}
- return Object.freeze({capture,sceneProgram,exportProgram,blocksKey,objectOfBlock,mountObject,mountedObject:()=>objects?.mounted??null,captureCapabilities,capabilities:captureCapabilities,captureExecutionCapabilities,prepareCapabilities,prepare,commit,checkpoint,restoreDraft,
+ return Object.freeze({capture,variables,sceneProgram,exportProgram,blocksKey,objectOfBlock,mountObject,mountedObject:()=>objects?.mounted??null,captureCapabilities,capabilities:captureCapabilities,captureExecutionCapabilities,prepareCapabilities,prepare,commit,checkpoint,restoreDraft,
   subscribe(callback){subscribers.add(callback);return()=>subscribers.delete(callback);},
   dispose(){disposed=true;for(const dispose of disposers)dispose();subscribers.clear();}
  });

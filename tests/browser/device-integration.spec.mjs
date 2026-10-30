@@ -179,3 +179,31 @@ test('GG-DEVICE: Stop cancels a compiler bootstrap and a fresh session compiles 
  await clickVisible(page.locator('#compile-device'));await expect(page.locator('#download-device')).toBeEnabled({timeout:45000});
  expect(await page.evaluate(()=>studioProbe.console.snapshot().entries.some(x=>/Session stopped/.test(x.message)))).toBe(false);
 });
+
+test('MS-FINAL-COMBINED: selection alone is current; editing another sprite or pending text stays visibly stale',async({page})=>{
+ const choose=async name=>{const option=page.getByRole('option',{name,exact:true});await option.click();await expect(option).toHaveAttribute('aria-selected','true');};
+ await open(page);await selectContext(page,'2d');
+ await clickVisible(page,page.locator('#object-add'));await page.locator('#object-name').fill('Cesta');await page.locator('#object-name').press('Enter');
+ await expect(page.getByRole('option',{name:'Cesta',exact:true})).toHaveAttribute('aria-selected','true');
+ await choose('hero');
+ await selectContext(page,'microbit');await run(page);
+ const beforeHero=await page.evaluate(()=>studioProbe.editor.save());
+ await selectContext(page,'2d');await choose('Cesta');await choose('hero');
+ await selectContext(page,'microbit');await expect(page.locator('#result-pending')).toBeHidden();
+ await selectContext(page,'2d');await choose('Cesta');
+ await clickVisible(page,page.locator('#program-mode input[value=javascript]'));
+ await page.locator('#text-source').fill('onStart(() => {\n  cesta.move(7);\n});\n');
+ await selectContext(page,'microbit');await expect(page.locator('#result-pending')).toBeVisible();
+ await selectContext(page,'2d');await clickVisible(page,page.locator('#program-mode input[value=blocks]'));
+ await expect(page.locator('#code-view-actions')).toBeHidden();await expect(page.locator('#text-error')).toHaveText('');
+ await choose('hero');await selectContext(page,'microbit');
+ expect(await page.evaluate(()=>studioProbe.editor.save())).toEqual(beforeHero);
+ // The notice is debounced by 200ms; observing the old visible value would miss this regression.
+ await page.waitForTimeout(250);
+ await expect(page.locator('#result-pending')).toBeVisible();
+ const previousGeneration=await page.evaluate(()=>studioProbe.device.state().simulation?.generation);
+ await run(page);
+ await expect.poll(()=>page.evaluate(previous=>{const current=studioProbe.device.state().simulation?.generation;return Boolean(current&&current!==previous);},previousGeneration)).toBe(true);
+ await expect(page.locator('#result-pending')).toBeHidden();
+ await expect.poll(async()=>(await snap(page)).sprites.find(sprite=>sprite.name==='Cesta')?.x).toBe(-113);
+});

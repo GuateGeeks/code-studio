@@ -54,7 +54,7 @@ export function orderedRoots(workspace, scriptOrder) {
 }
 // ownerId (scene2d-multi-sprite 3.2): the object this workspace programs. Its
 // menus and resources are that object's; null keeps the owner the pack names.
-export function workspaceToIR(workspace, {capabilities = null, resourceView = getWorkspaceResourceView(workspace), scriptOrder = null, ownerId = getWorkspaceResourceOwner(workspace)} = {}) {
+export function workspaceToIR(workspace, {capabilities = null, resourceView = getWorkspaceResourceView(workspace), scriptOrder = null, ownerId = getWorkspaceResourceOwner(workspace), globalIds: inheritedGlobalIds = []} = {}) {
   const contributions = registerContributions(Blockly, createContributions(capabilities));
   // Scope belongs to the GG program, identified by the stable Blockly variable
   // ID. A global assignment declares that ID for all scripts and clone reads.
@@ -162,9 +162,10 @@ export function workspaceToIR(workspace, {capabilities = null, resourceView = ge
       return script;
     })
   };
+  for (const id of inheritedGlobalIds) globalIds.add(id);
   const variables = workspace.getVariableMap().getAllVariables();
   if (variables.some(model => model.type !== '')) throw new Error('Only numeric scalar variables are supported');
-  if (variables.length) ir.variables = variables.map(model => ({id: model.getId(), name: model.name, initialValue: 0, ...(globalIds.has(model.getId()) ? {scope: 'global'} : {})})).sort((a, b) => a.id.localeCompare(b.id));
+  if (variables.length) ir.variables = variables.map(model => ({id: model.getId(), name: model.name, initialValue: 0, ...(ownerId === 'stage' || globalIds.has(model.getId()) ? {scope: 'global'} : {})})).sort((a, b) => a.id.localeCompare(b.id));
   return authorizeProgram(capabilities, ir, {resourceView, ownerId});
 }
 

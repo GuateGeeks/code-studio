@@ -169,7 +169,7 @@ export function generateProgramSource(ir, language,options={}) {
 const heroOwner = Object.freeze({identifier: 'hero', kind: 'sprite', targetId: 'hero', others: Object.freeze({}), sprites: Object.freeze({hero: 'hero'})});
 export function generateApi3ProgramSource(ir, language, options = {}) {
   const owner = options.owner === undefined ? heroOwner : validateScene2DTextOwner(options.owner);
-  validateProgram(ir, {resourceView: options.resourceView, resourceOwnerId: owner.targetId});
+  validateProgram(ir, {resourceView: options.resourceView, resourceOwnerId: owner.targetId, objectWorkspace: options.objectWorkspace === true});
   return writeApi3(ir, language, {owner, taken: [owner.identifier, ...Object.keys(owner.others)], sprites: owner.sprites, resourceView: options.resourceView});
 }
 // Copy of a whole gg.sprites@0.3.0 project from its IR 2D v1, the one route that
