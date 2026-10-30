@@ -630,31 +630,52 @@ test('MS-BROWSER-031: a pack rollback that would strand blocks is refused with i
   await expect(option(page,'Caja')).toBeVisible();
 });
 
-test('MS-BROWSER-032: a block of a pack the project lacks cannot come back by paste or undo, and the project keeps saving',async({page})=>{
+test('MS-BROWSER-032: a block of a pack the project lacks cannot come back by paste or undo; the history stays usable and the project keeps saving',async({page})=>{
   await open(page);
   await enableScore(page);
-  await page.evaluate(state=>studioProbe.editor.load(state),onStart('h-start',scoreBlock('h-score'),move('h-move',5)));
-  // Undo: the block is deleted, the pack goes, and Ctrl+Z brings it back to a profile without it.
+  await page.evaluate(state=>studioProbe.editor.load(state),onStart('h-start',scoreBlock('h-score'),move('h-move',5),move('h-extra',7)));
+  const saved=async text=>JSON.stringify(await page.evaluate(()=>studioProbe.editor.save())).includes(text);
+  const present=()=>saved('gg_score_set'),extra=()=>saved('h-extra');
+  const history=async key=>{await page.evaluate(()=>studioProbe.editor.selectSource('h-move'));await page.keyboard.press(key);};
+  const refused=async()=>{await expect(blockErrors(page)).toContainText('no está disponible en este proyecto');await expect.poll(present).toBe(false);await page.evaluate(()=>{document.querySelector('#editor-error').textContent='';});};
+  // An earlier edit, which Undo must still reach later.
+  await page.evaluate(()=>studioProbe.editor.selectSource('h-extra'));
+  await page.keyboard.press('Delete');
+  await expect.poll(extra).toBe(false);
+  // The block is deleted and the pack goes, as the refusal of a rollback asks.
   await page.evaluate(()=>studioProbe.editor.selectSource('h-score'));
   await page.keyboard.press('Control+C');
   await page.keyboard.press('Delete');
-  await expect.poll(async()=>JSON.stringify(await page.evaluate(()=>studioProbe.editor.save()))).not.toContain('h-score');
+  await expect.poll(present).toBe(false);
   await openPacks(page);
   await clickVisible(page,page.locator('#rollback-packs'));
   await expect.poll(async()=>(await packs(page)).some(item=>item.startsWith('gg.score'))).toBe(false);
   await expect(page.locator('#packs-error')).toHaveText('');
   await expect(page.locator('#run-editor')).toBeEnabled();
-  const present=async()=>JSON.stringify(await page.evaluate(()=>studioProbe.editor.save())).includes('gg_score_set');
-  await page.evaluate(()=>studioProbe.editor.selectSource('h-move'));
-  await page.keyboard.press('Control+Z');
-  await expect(blockErrors(page)).toContainText('no está disponible en este proyecto');
-  await expect.poll(present).toBe(false);
+  // Undo: the first press reaches the foreign block, which goes again; the next one goes past it.
+  await history('Control+Z');
+  await refused();
   expect(await saves(page)).toBe(true);
-  // Paste, from the clipboard filled while the pack was there.
-  await page.evaluate(()=>{document.querySelector('#editor-error').textContent='';studioProbe.editor.selectSource('h-move');});
-  await page.keyboard.press('Control+V');
-  await expect(blockErrors(page)).toContainText('no está disponible en este proyecto');
-  await expect.poll(present).toBe(false);
+  await history('Control+Z');
+  await expect.poll(extra).toBe(true);
+  expect(await present()).toBe(false);
+  // Redo is not left empty.
+  await history('Control+Y');
+  await expect.poll(extra).toBe(false);
+  // Paste, from the clipboard filled while the pack was there: undo walks past it, redo stays.
+  await history('Control+V');
+  await refused();
+  expect(await saves(page)).toBe(true);
+  await history('Control+Z');
+  await page.waitForTimeout(100);
+  expect(await present()).toBe(false);
+  expect(await extra()).toBe(false);
+  await history('Control+Z');
+  await expect.poll(extra).toBe(true);
+  await history('Control+Y');
+  await expect.poll(extra).toBe(false);
+  expect(await present()).toBe(false);
+  await expect(blockErrors(page)).toHaveText('');
   expect(await saves(page)).toBe(true);
   await expect(page.locator('#project-status')).toHaveText('Guardado en este navegador');
   await add(page,'Cesta');

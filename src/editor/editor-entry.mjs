@@ -133,14 +133,22 @@ export function createEditor(container, example) {
   observer.observe(container);
   // Blockly's clipboard and undo history outlive a project and a profile: a block
   // of a pack this project does not lock could come back through them and leave
-  // a project that cannot save. It goes right away, in the same undo step.
+  // a project that cannot save. It goes right away. After a paste, the removal joins
+  // that step: Blockly 13 pastes with no group, so the step gets one here, or Undo
+  // would need two presses and bring the block and the message back in between. A
+  // block brought back by Undo or Redo is removed outside the history: recording
+  // it would clear Redo and catch Undo on this block forever. Blockly restores
+  // recordUndo before this listener runs, so the event says which case this is.
   workspace.addChangeListener(event => {
     if (event.type !== Blockly.Events.BLOCK_CREATE || resourceOwner === null) return;
     const foreign = event.ids.map(id => workspace.getBlockById(id)).filter(block => block && !isOfferedBlock(contributions, block.type));
     if (!foreign.length) return;
-    const group = Blockly.Events.getGroup();
+    const group = Blockly.Events.getGroup(), recording = Blockly.Events.getRecordUndo();
+    if (event.recordUndo && !event.group) event.group = Blockly.utils.idGenerator.genUid();
     Blockly.Events.setGroup(event.group);
-    try { for (const block of foreign) if (!block.isDeadOrDying()) block.dispose(true); } finally { Blockly.Events.setGroup(group); }
+    Blockly.Events.setRecordUndo(recording && event.recordUndo);
+    try { for (const block of foreign) if (!block.isDeadOrDying()) block.dispose(true); }
+    finally { Blockly.Events.setRecordUndo(recording); Blockly.Events.setGroup(group); }
     document.querySelector('#editor-error').textContent = 'Ese bloque no está disponible en este proyecto, así que se quitó.';
   });
   workspace.addChangeListener(event => {

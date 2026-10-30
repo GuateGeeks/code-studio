@@ -295,7 +295,7 @@ test('MS-055: GG reads a local variable of any sprite; hero and the stage stay a
   assert.throws(() => single('variables.get', ['c']), /Unknown GG numeric variable/, 'a single hero sees what it always saw');
 });
 
-test('MS-056: object profiles do not lower on project transactions; legacy ones do; a file\'s blocks are guarded by the import', async () => {
+test('MS-056: object profiles do not lower on project transactions; legacy ones do; prepare checks the blocks of every object', async () => {
   const hero = {blocks: {blocks: [{type: 'gg_when_start', id: 'h'}]}}, seen = [];
   const editorFor = capabilities => ({save: () => ({}), program: () => ({version: 0, scripts: []}), commit() {}, subscribe: () => () => {}, captureCapabilities: () => capabilities,
     prepare(state, options) { seen.push(options.lower); return {state, ...options}; }, validateBlocks(state, options) { blockProgram.validateWorkspaceBlocks?.(state, options); }});
