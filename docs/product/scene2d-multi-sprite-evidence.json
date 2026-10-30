@@ -5,7 +5,7 @@
   "draft": false,
   "documentationSourceHead": "e51b2d39bab871c693b2dabae0e7ac300d638fea",
   "verificationHead": "e51b2d39bab871c693b2dabae0e7ac300d638fea",
-  "status": "Task8 approved named affected232/232; documentation review and local integration pending",
+  "status": "Task8 approved named affected232/232; initial local integration,packfreeze and refreshedpreviews verified",
   "provenance": {
     "kind": "current selected-spec productcaptures and finalnativezoom; historicalcuts separately retained",
     "sourceReport": "artifacts/stabilization-2d/e2-multisprite/final-record/task-8-report.md",
@@ -335,12 +335,12 @@
     "finalBroadVerification": false,
     "newNativeZoomAppearanceCaptures": false,
     "task9ApplicationAfterExplicitRelease": false,
-    "finalDocumentationReview": true,
-    "localIntegrationCommitAndFrozenHash": true,
+    "localIntegrationCommitAndFrozenHash": false,
     "libraryLayout1280x720": true,
     "sevenReviewedSb3Opcodes": true,
     "userAuthorizedFull": true,
-    "humanObservation": true
+    "humanObservation": true,
+    "previewRefresh": false
   },
   "limitations": [
     "232/232 named29 plus smoke3 is approved affected coverage, not full or baseline advancement.",
@@ -354,7 +354,7 @@
     "Ordinary blank/clipped viewport and CSS-sized variants remain inconclusive and preserved.",
     "No student/teacher/screenreaderhuman acceptance, classroom performance or physicalhardware observation.",
     "Raw artifact paths may be absent in another clone; measured values and SHA256 are durable here.",
-    "Local integration, previews and frozen release hash follow final documentation review; not claimed complete here."
+    "Initial local integration is dfc3f8e; documentationClosure metadata is recorded separately in final-record/integration-record.json. No future documentation commit or current final mainHEAD is assumed here."
   ],
   "historicalStates": [
     {
@@ -819,5 +819,175 @@
     "ordinaryViewport200": "640×316,clipped/mostlyblank",
     "cssSizedFullPageAndSurface": "horizontallycropped;retained",
     "older7dfe56cVariants": "retained separately, exact sourcehead where known; never reclassified as valid appearance"
+  },
+  "localIntegration": {
+    "record": "artifacts/stabilization-2d/e2-multisprite/final-record/integration-record.json",
+    "recordedAt": "2026-10-30T23:23:34.4689616Z",
+    "previousMain": "9473f03762c191de3c1e5ed6e1563ffe56534bb6",
+    "integrationCommit": "dfc3f8e8f3f128ea070b1d66adfb1e9d4a8047a2",
+    "integrationType": "local fast-forward",
+    "productBuildCommit": "fb4215f06e5d22e06cb9977324079f2de4758f08",
+    "browserVerificationCommit": "e51b2d39bab871c693b2dabae0e7ac300d638fea",
+    "remotePush": false,
+    "publication": false,
+    "mainVerification": {
+      "command": "npm test",
+      "cancelled": 0,
+      "durationMs": 119256.927981,
+      "skipped": 0,
+      "log": "main-node.log",
+      "passed": 624,
+      "exitCode": 0,
+      "failed": 0
+    },
+    "packFreeze": {
+      "verifiedAt": "2026-10-30T23:18:30.36Z",
+      "evidence": "pack-hashes.json",
+      "status": "frozen after local integration",
+      "packs": [
+        {
+          "id": "gg.sprites",
+          "version": "0.1.0",
+          "sha256": "225d6c992253966ac0645d9e73360c13da853787c0b02ff23c6cc9bdad6072d2"
+        },
+        {
+          "id": "gg.sprites",
+          "version": "0.2.0",
+          "sha256": "70475dfae3921d1ac28e862d30c2c31e815da2b2f1133060038f37c24c4e366a"
+        },
+        {
+          "id": "gg.sprites",
+          "version": "0.3.0",
+          "sha256": "1702532cb4cb424ab8a6ebf8a8813e9fe567a5255ebe45d5c558eb51e7b87cfc"
+        }
+      ]
+    },
+    "previewRefresh": {
+      "evidence": "preview-health.json",
+      "buildExitCode": 0,
+      "profiles": [
+        {
+          "name": "full",
+          "url": "http://127.0.0.1:5283",
+          "pid": 1352411,
+          "config": {
+            "shellOrigin": "http://127.0.0.1:5283",
+            "runnerOrigin": "http://127.0.0.1:5284",
+            "simulatorOrigin": "http://127.0.0.1:5285",
+            "languageOrigin": "http://127.0.0.1:5286",
+            "scene3dOrigin": "http://127.0.0.1:5291",
+            "webappOrigin": "http://127.0.0.1:5292",
+            "cohort": "c0b5d2dfc5a38af58e52b8443a6870f0e47de283dc45cda19470690add52853a",
+            "releaseBase": "/releases/c0b5d2dfc5a38af58e52b8443a6870f0e47de283dc45cda19470690add52853a/",
+            "offlineProtocolVersion": 2
+          },
+          "health": [
+            {
+              "role": "shell",
+              "url": "http://127.0.0.1:5283",
+              "status": 200
+            },
+            {
+              "role": "runner",
+              "url": "http://127.0.0.1:5284",
+              "status": 200
+            },
+            {
+              "role": "simulator",
+              "url": "http://127.0.0.1:5285",
+              "status": 200
+            },
+            {
+              "role": "language",
+              "url": "http://127.0.0.1:5286",
+              "status": 200
+            },
+            {
+              "role": "scene3d",
+              "url": "http://127.0.0.1:5291",
+              "status": 200
+            },
+            {
+              "role": "webapp",
+              "url": "http://127.0.0.1:5292",
+              "status": 200
+            }
+          ],
+          "objectsPanelPresent": true
+        },
+        {
+          "name": "pilot",
+          "url": "http://127.0.0.1:5383",
+          "pid": 1352412,
+          "config": {
+            "shellOrigin": "http://127.0.0.1:5383",
+            "runnerOrigin": "http://127.0.0.1:5384",
+            "simulatorOrigin": "http://127.0.0.1:5385",
+            "languageOrigin": "http://127.0.0.1:5386",
+            "scene3dOrigin": "http://127.0.0.1:5391",
+            "webappOrigin": "http://127.0.0.1:5392",
+            "cohort": "4edb9265990bd179e7e80963c5d7fbbba861257ea04e64c02bfa45472c59fd29",
+            "releaseBase": "/releases/4edb9265990bd179e7e80963c5d7fbbba861257ea04e64c02bfa45472c59fd29/",
+            "offlineProtocolVersion": 2,
+            "contexts": [
+              "2d",
+              "text"
+            ]
+          },
+          "health": [
+            {
+              "role": "shell",
+              "url": "http://127.0.0.1:5383",
+              "status": 200
+            },
+            {
+              "role": "runner",
+              "url": "http://127.0.0.1:5384",
+              "status": 200
+            },
+            {
+              "role": "simulator",
+              "url": "http://127.0.0.1:5385",
+              "status": 200
+            },
+            {
+              "role": "language",
+              "url": "http://127.0.0.1:5386",
+              "status": 200
+            },
+            {
+              "role": "scene3d",
+              "url": "http://127.0.0.1:5391",
+              "status": 200
+            },
+            {
+              "role": "webapp",
+              "url": "http://127.0.0.1:5392",
+              "status": 200
+            }
+          ],
+          "objectsPanelPresent": true
+        }
+      ],
+      "windowsShellHealth": {
+        "pilot": "shell",
+        "full": "shell",
+        "verified": true
+      },
+      "buildEvidence": "preview-build.log",
+      "oldIdentityEvidence": "preview-old-identity.log",
+      "authorizedOldPids": [
+        619672,
+        619673
+      ],
+      "buildCommit": "dfc3f8e8f3f128ea070b1d66adfb1e9d4a8047a2",
+      "productionSourceEquivalentTo": "fb4215f06e5d22e06cb9977324079f2de4758f08"
+    },
+    "retained": {
+      "branch": true,
+      "reason": "Active previews and durable verification evidence",
+      "worktree": true
+    },
+    "documentationClosure": "Consult the authoritative integration-record for the separately recorded final documentary commit/review; not precomputed here."
   }
 }

@@ -2,7 +2,7 @@
 
 **Corte verificado: e51b2d39bab871c693b2dabae0e7ac300d638fea, 30/10/2026.
 Task 8 cerrada con revisión de bloqueantes y puerta afectada nombrada aprobadas.
-Revisión documental final, integración local y hash congelado pendientes.**
+Integración local inicial, hashes congelados y previews verificados según el registro final.**
 
 ## Resultado y límites del producto
 
@@ -103,10 +103,36 @@ y los fallos originales están preservados en el informe final.
 
 Selección automática full; el inventario completo tiene **50 specs**.
 La puerta aprobada es nombrada, no full; OpenSpec **4.2 permanece abierta** hasta
-una full decidida por el usuario. No hay baseline avanzada ni integración aún.
-Hash provisional observado gg.sprites@0.3.0:
-1702532cb4cb424ab8a6ebf8a8813e9fe567a5255ebe45d5c558eb51e7b87cfc.
-El coordinador debe registrar commit de integración y congelación, sin anticiparlos.
+una full decidida por el usuario. No hay baseline avanzada.
+
+### Integración local, hash congelado y previews
+
+El [registro final](../../artifacts/stabilization-2d/e2-multisprite/final-record/integration-record.json)
+confirma el fast-forward local de main desde 9473f03762c191de3c1e5ed6e1563ffe56534bb6
+al **integrationCommit dfc3f8e8f3f128ea070b1d66adfb1e9d4a8047a2**.
+Es la integración inicial; el registro identifica aparte el cierre documental.
+Después, npm test por defecto en main aprobó 624/624, sin fallos/cancelados/skipped,
+exit 0, 119.256927981 s ([log](../../artifacts/stabilization-2d/e2-multisprite/final-record/main-node.log)).
+No hubo push ni publicación remota.
+
+Los [hashes verificados](../../artifacts/stabilization-2d/e2-multisprite/final-record/pack-hashes.json)
+conservan 0.1.0 y 0.2.0 idénticos. gg.sprites@0.3.0 queda congelado tras integrar:
+**1702532cb4cb424ab8a6ebf8a8813e9fe567a5255ebe45d5c558eb51e7b87cfc**.
+
+El build incremental de previews aprobó, exit 0. Se comprobó identidad de los
+PIDs autorizados 619672/619673 antes de detenerlos; las previews nuevas son:
+
+| Perfil | Dirección | PID | Cohort |
+| --- | --- | --- | --- |
+| Full | [5283](http://127.0.0.1:5283) | 1352411 | c0b5d2dfc5a38af58e52b8443a6870f0e47de283dc45cda19470690add52853a |
+| Piloto 2D/Texto | [5383](http://127.0.0.1:5383) | 1352412 | 4edb9265990bd179e7e80963c5d7fbbba861257ea04e64c02bfa45472c59fd29 |
+
+[Health de previews](../../artifacts/stabilization-2d/e2-multisprite/final-record/preview-health.json)
+registra los doce roles con HTTP 200 y panel de objetos presente en ambos perfiles.
+Las comprobaciones de shell desde Windows aprobaron para ambos. El piloto fija
+contexts 2d/text. Rama y worktree se conservan para previews/evidencia; solo el
+workspace SDD se elimina después de su respaldo. La integración y estas health
+checks no convierten la puerta nombrada en full ni acreditan un piloto humano.
 
 ## Evidencia previa, docencia y deuda
 
