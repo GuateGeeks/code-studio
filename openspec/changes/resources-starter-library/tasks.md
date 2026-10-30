@@ -30,5 +30,5 @@
 ## Workflow follow-up
 
 - Puerta full conjunta (coordinador), incluida `offline-recovery` en partición 0.
-- Confirmación del usuario sobre la licencia CC0-1.0 de la biblioteca.
+- ~~Confirmación del usuario sobre la licencia CC0-1.0 de la biblioteca.~~ Confirmada el 29/10/2026.
 - Archivar el cambio tras la puerta y la confirmación.

@@ -31,7 +31,7 @@ La hoja (HTML → Chromium de Playwright) incluye los disfraces a ×1,2, los fon
 ## Decisiones
 
 1. **Obra original generada por código.** Ningún medio procede de Scratch, MakeCode ni Code.org. Los SVG usan solo el subconjunto pasivo admitido (`rect`, `circle`, `ellipse`, `path`, `polygon`, `line`, `g`) y se publican ya normalizados por `sanitizeSvg`; los WAV se escriben con la misma cabecera canónica que `editWavPcm16`. Así el ID del recurso en el proyecto **es** el SHA-256 declarado y el worker lo comprueba al añadir.
-2. **Licencia CC0-1.0**, igual que el corpus SB3 propio. Los medios acaban dentro de proyectos y SB3 exportados por estudiantes; CC0 no les impone condiciones (AGPL-3.0-only sigue cubriendo el código, incluido el generador). Declarada en el índice, el bloqueo, `THIRD_PARTY_NOTICES` y `SBOM.json → ownedContent`. **Pendiente de confirmación del usuario.**
+2. **Licencia CC0-1.0**, igual que el corpus SB3 propio. Los medios acaban dentro de proyectos y SB3 exportados por estudiantes; CC0 no les impone condiciones (AGPL-3.0-only sigue cubriendo el código, incluido el generador). Declarada en el índice, el bloqueo, `THIRD_PARTY_NOTICES` y `SBOM.json → ownedContent`. **Confirmada por el usuario el 29/10/2026.**
 3. **Un paquete en el origen del estudio.** `starter-library.json` vive solo en el rol shell (no se replica en los seis roles como `app/`) y entra en el paquete offline `studio-core`. Se resuelve con `new URL('../../starter-library.json', import.meta.url)`, válido en desarrollo y bajo `/releases/<cohorte>/` sin reescritura.
 4. **Carga bajo demanda.** Nada se descarga al arrancar el estudio: el paquete se pide al abrir «Biblioteca» (no toca el arranque que investiga la otra pista). Se verifica el SHA-256 de las 38 entradas antes de mostrarlas.
 5. **IDs legibles.** El descriptor usa el ID de la entrada (`gato`, `sonido-salto`) porque aparece en las vistas JavaScript/Python (`hero.setCostume("gato")`); si choca se añade `-2…`. Añadir dos veces no duplica.
@@ -113,7 +113,7 @@ En el lote A, `GG-F7-RUNNER: semantic target … independent javascript document
 
 ## Pendientes
 
-- Confirmar la licencia CC0-1.0 de la biblioteca.
+- ~~Confirmar la licencia CC0-1.0 de la biblioteca.~~ Confirmada el 29/10/2026.
 - Revisión humana de los dibujos y sonidos con docentes/estudiantes (la hoja no mide comprensión ni agrado).
 - E2: destinos por objeto y varios fondos; E1: «siguiente disfraz» aprovechará los pares.
 - Eliminar recursos de un proyecto (hoy solo reemplazar).

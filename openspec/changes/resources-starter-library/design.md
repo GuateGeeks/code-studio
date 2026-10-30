@@ -22,7 +22,7 @@
 4. **Contrato inerte `src/contracts/starter-library.mjs`.** Valida el paquete (esquema cerrado, IDs, nombres, tipos, dimensiones, licencia, base64 canónico, SHA-256) y aplica una entrada a recursos v1 de forma pura: disfraz/sonido → `put-asset` + descriptor `hero` con ID legible (`gato`, sufijo `-2…` si choca); fondo → reemplaza el medio del primer disfraz `stage` conservando su ID. La UI sigue usando el worker (`prepare-media`) y exige que el ID preparado sea el SHA declarado. Mensajes de cuota en español antes de llegar a los límites técnicos.
 5. **IDs legibles.** El ID del descriptor aparece en las vistas JavaScript/Python (`hero.setCostume("gato")`), por eso se usa el identificador ASCII de la entrada en vez de un UUID.
 6. **Volver al fondo inicial** toma el fondo del catálogo del proyecto (`promoteLegacyResources(catalog)`), no de la biblioteca: el fondo de cuadrícula conserva su licencia y procedencia actuales.
-7. **Licencia CC0-1.0**, como el corpus SB3 propio. Los medios terminan dentro de proyectos y exportaciones SB3 de estudiantes; CC0 no impone condiciones a esas obras. Se declara en el índice, en `THIRD_PARTY_NOTICES` y en una entrada `ownedContent` del SBOM. *Decisión a confirmar por el usuario* (ver acta).
+7. **Licencia CC0-1.0**, como el corpus SB3 propio. Los medios terminan dentro de proyectos y exportaciones SB3 de estudiantes; CC0 no impone condiciones a esas obras. Se declara en el índice, en `THIRD_PARTY_NOTICES` y en una entrada `ownedContent` del SBOM. **Confirmada por el usuario el 29/10/2026.**
 8. **UI.** `<details id="starter-library">` dentro de Recursos con filtro de radios nativo (`.mode-switch`), lista de tarjetas con miniatura, nombre y botones «Añadir»/«Usar de fondo»/«Escuchar», estado `aria-live`. El módulo `src/studio/starter-library-ui.mjs` solo renderiza y emite intenciones; `resources-ui.mjs` ejecuta la transacción con su `working()`/`replace()` existentes (cancelación, época y mensajes compartidos).
 9. **Estética.** Paleta derivada de `DESIGN.md` y del `hero` de demostración (coral, azul, verdes, crema, tinta para contornos y ojos), contorno de 3 px redondeado, formas grandes y caras amables. Personajes 96×96, objetos 64×64, fondos 480×360 con tonos suaves para que los objetos destaquen. Revisión con hoja de contacto HTML capturada con Playwright.
 
@@ -32,7 +32,7 @@
 - [Determinismo de `Math.sin/exp` entre versiones de Node] → la toolchain está fijada (`release/source-lock.json`); el bloqueo detecta cualquier deriva y se regenera explícitamente.
 - [Cuotas por proyecto: 16 sonidos, 32 assets] → mensajes previos claros; no se añade nada parcial.
 - [Fondo como sustitución del disfraz del escenario] → coherente con «Reemplazar» actual; E2 añadirá varios fondos y bloque de cambio. Documentado como límite.
-- [Licencia elegida por el agente] → coherente con el precedente CC0 del corpus SB3; queda señalada para confirmación.
+- [Licencia elegida por el agente] → coherente con el precedente CC0 del corpus SB3; confirmada por el usuario el 29/10/2026.
 
 ## Migration Plan
 
