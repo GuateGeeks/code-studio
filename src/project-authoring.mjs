@@ -1,6 +1,6 @@
 import {validateCapabilities,resolveResourcePolicy,selectCapabilityLocksForContext,validateCapabilityReferences} from './contracts/packs.mjs';
 import {scene2DObjectsOf,scene2DAuthoringFromBlockly} from './project-format.mjs';
-import {composeScene2DProgram, validateProgram} from './contracts/program-contract.mjs';
+import {composeScene2DProgram, validateProgram, programLimits} from './contracts/program-contract.mjs';
 import {eachWorkspaceBlock, scene2DObjectRules, scene2DGlobalVariableIds} from './contracts/scene2d-object-edits.mjs';
 import {scene2DStageName} from './contracts/scene2d-objects.mjs';
 
@@ -119,16 +119,28 @@ export function createProjectAuthoring({editor,textDocuments,codeViews,source,ca
   if(objects.mounted!=='stage')delete scene.sprites[objects.mounted];
   return scene2DGlobalVariableIds(scene,captureCapabilities());
  }
- function variables({targetIds=null,localsOnly=false}={}) {
+ function variables({targetIds=null,localsOnly=false,omitOverBudget=false}={}) {
   const capabilities=captureCapabilities(),rules=scene2DObjectRules(capabilities).globals;
   const inherited=new Set(objects?scene2DGlobalVariableIds(capture().scene2d,capabilities):[]);
   function models(state) {
    const globalIds=new Set();
    eachWorkspaceBlock(state,block=>{const field=rules.get(block.type);if(field){const value=block.fields?.[field];globalIds.add(value?.id??value);}});
-   return (state.variables??[]).filter(model=>!localsOnly||!globalIds.has(model.id)&&!inherited.has(model.id)).map(model=>{
+   const result=(state.variables??[]).filter(model=>!localsOnly||!globalIds.has(model.id)&&!inherited.has(model.id)).map(model=>{
     if(model.type!==''&&model.type!==undefined)throw new Error('Only numeric scalar variables are supported');
     return {id:model.id,name:model.name,initialValue:0,...(globalIds.has(model.id)||inherited.has(model.id)?{scope:'global'}:{})};
    });
+   if(omitOverBudget&&result.length>programLimits.variables){
+    // Independent API1 can start without an unavailable owner group. Validate
+    // every other model constraint first; never expose a partial first sixteen.
+    const seen=new Map();
+    for(const model of result){
+     validateProgram({version:0,variables:[model],scripts:[]});
+     if(seen.has(model.id))validateProgram({version:0,variables:[seen.get(model.id),model],scripts:[]});
+     seen.set(model.id,model);
+    }
+    return [];
+   }
+   return result;
   }
   const live=editor.save();
   if(!objects)return validateProgram({version:0,variables:models(live),scripts:[]}).variables;

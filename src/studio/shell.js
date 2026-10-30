@@ -470,7 +470,7 @@ async function runTextDocument() {
   // Legacy top-level GG documents may use the project's numeric locals.
   // Copied event programs configure their own declarations; invalid blocks
   // must not prevent an independent textual program from running.
-  const variables = document.runtime?.api === 'api3' ? [] : authoring.variables({targetIds:['hero'],localsOnly:true});
+  const variables = document.runtime?.api === 'api3' ? [] : authoring.variables({targetIds:['hero'],localsOnly:true,omitOverBudget:true});
   const key = authoringKey();
   const capabilities = authoring.captureExecutionCapabilities('scratch-2d');
   // gg.sprites 0.3.0: the document runs in the scene of the project, with every

@@ -298,3 +298,28 @@ test('MS-RESIDUAL-R1: UI sprite rename invalidates rollback and stays saved afte
   expect((await capture(page)).capabilities.config['gg.sprites'].sprites[0].name).toBe('Protagonista');
   expect((await settled(snapshot,page)).threads).toBe(0);
 });
+
+for(const use of ['api1','api3','unavailable variable'])for(const selected of ['Ana','Cesta'])test('MS-OWNER-BUDGET: '+use+' with hero draft17, selected '+selected,async({page})=>{
+  await open(page);await scene(page);
+  await page.evaluate(async use=>{
+    const model=JSON.parse(await studioProbe.project.export());
+    model.authoring.scene2d.sprites.hero={variables:Array.from({length:17},(_,i)=>({id:'hero-draft-'+i,name:'draft'+i,type:''}))};
+    model.authoring.scene2d.sprites.cesta={};
+    await studioProbe.project.open(JSON.stringify(model));
+    studioProbe.textDocuments.add({language:'javascript',name:'Owner budget',...(use==='api3'?{api:'api3',targetIds:{ana:'hero'}}:{}),
+      source:use==='api3'?'onStart(() => { ana.move(1); });':(use==='unavailable variable'?'await GG.variables.set("hero-draft-0",42);\n':'')+'await GG.sprite.move("hero",1);'});
+  },use);
+  await pick(page,selected);expect((await settled(snapshot,page)).threads).toBe(0);
+  await selectContext(page,'text');await clickVisible(page,page.locator('#run-document'));
+  if(use==='unavailable variable'){
+    await expect(page.locator('#status')).toHaveText('Error de ejecución de texto');
+    await expect(page.locator('#console-entries')).toContainText(/Unknown GG numeric variable|no declarado: variables\.set/);
+    expect((await settled(snapshot,page)).sprites.find(sprite=>sprite.id==='hero').x).toBe(0);
+  }else{
+    await expect(page.locator('#status')).toHaveText(use==='api3'?'Documento activo · eventos disponibles':'Documento terminado');
+    await expect.poll(async()=>(await settled(snapshot,page)).sprites.find(sprite=>sprite.id==='hero').x).toBe(1);
+  }
+  await clickVisible(page,page.locator('#stop-result'));await selectContext(page,'2d');await clickVisible(page,page.locator('#run-editor'));
+  await expect(page.locator('#editor-error')).toContainText('variable limit');
+  expect((await capture(page)).scene2d.sprites.hero.variables).toHaveLength(17);
+});

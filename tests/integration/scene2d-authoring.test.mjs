@@ -371,3 +371,25 @@ test('MS-RESIDUAL-R3: independent owner variables ignore another object draft bu
   assert.deepEqual(authoring.variables({targetIds:['hero'],localsOnly:true}),expected);
   assert.throws(()=>authoring.variables(),/variable limit/,'full scene validation still enforces 17 locals');
 });
+
+test('MS-OWNER-BUDGET: independent availability omits an entire over-budget owner, preserves valid locals and other errors',async()=>{
+  const profile=sprites('0.3.0',[hero,cesta]);
+  const states={stage:{},sprites:{hero:{variables:Array.from({length:17},(_,i)=>({id:'owner-'+i,name:'draft'+i,type:''}))},cesta:{}}};
+  let live={};
+  const editor={save:()=>live,captureCapabilities:()=>profile,prepare:state=>({state}),commit:candidate=>{live=candidate.state;}};
+  const authoring=createProjectAuthoring({editor,source:{value:''},initialCapabilities:profile});
+  authoring.commit(authoring.prepare(await createProject({name:'Owner budget',scene2d:states,deviceSource:'',catalog,capabilities:profile})));
+  const options={targetIds:['hero'],localsOnly:true,omitOverBudget:true};
+  assert.deepEqual(authoring.variables(options),[],'no partial first-sixteen group is made available');
+  assert.throws(()=>authoring.variables({targetIds:['hero'],localsOnly:true}),/variable limit/,'strict reader keeps the native limit');
+  live.variables[0].name='';
+  assert.throws(()=>authoring.variables(options),/invalid identifier\/name/,'over-budget groups still validate model structure');
+  live.variables[0].name='draft0';
+  live.variables[1].id='owner-0';
+  assert.throws(()=>authoring.variables(options),/duplicate variable/,'over-budget groups still validate identity');
+  live.variables[1].id='owner-1';
+  live.variables=live.variables.slice(0,1);
+  assert.deepEqual(authoring.variables(options),[{id:'owner-0',name:'draft0',initialValue:0,targetId:'hero'}]);
+  live.variables[0].type='unsupported';
+  assert.throws(()=>authoring.variables(options),/numeric scalar/,'unrelated validation errors propagate');
+});
