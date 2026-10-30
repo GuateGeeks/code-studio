@@ -421,6 +421,7 @@ test('MS-BROWSER-041: at real browser zoom 200 and 400 % the row of nine objects
       await page.waitForTimeout(400);
       const reading=await noOverflow(page);
       await page.screenshot({path:artifactPath('objects-zoom-'+factor*100+'.png')});
+      expect(await page.evaluate(()=>new Set([...document.querySelectorAll('#objects-list [role=option]')].map(node=>Math.round(node.getBoundingClientRect().top))).size),'one row').toBe(1);
       expect(reading.scroll,JSON.stringify(reading)).toBeLessThanOrEqual(reading.viewport+1);
       // The keyboard reaches a tile off the row; the row scrolls, not the page.
       const list=page.locator('#objects-list');

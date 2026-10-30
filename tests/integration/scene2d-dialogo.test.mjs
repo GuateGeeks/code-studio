@@ -320,13 +320,17 @@ test('MS-066: in text mode the scene resolves identifiers and backdrop names, an
   const vm = await createScratchSession(fixture2.project);
   const invocations = [];
   const adapter = createTextProgram({getVM: () => vm, getRevision: () => 1, onInvocation: event => invocations.push(event),
-    getScene: () => ({objects: fixture2.objects, backdrops: objectsContract.scene2DBackdrops?.(view) ?? []})});
+    getScene: () => ({objects: [{id: 'hero', name: 'Ana María'}, {id: 'cesta', name: 'Cesta'}], backdrops: objectsContract.scene2DBackdrops?.(view) ?? []})});
   t.after(() => { adapter.dispose(); vm.quit(); });
   const call = (method, args) => adapter.call('program.' + method, args, 1);
   call('start', [{variables: [], handlers: [{id: 'c', event: 'start', targetId: 'cesta'}, {id: 's', event: 'start', targetId: 'stage'}]}]);
   for (let i = 0; i < 100 && invocations.length < 2; i++) await delay(5);
   const [fromCesta, fromStage] = [invocations.find(item => item.handlerId === 'c').invocationId, invocations.find(item => item.handlerId === 's').invocationId];
   const cesta = vm.runtime.getSpriteTargetByName('cesta'), stage = vm.runtime.getTargetForStage();
+  // By the identifier text writes, and by the ID API1 writes.
+  call('goToObject', [fromCesta, 'ana_maria']);
+  assert.deepEqual([cesta.x, cesta.y], [-120, 0]);
+  cesta.setXY(5, 5);
   call('goToObject', [fromCesta, 'hero']);
   assert.deepEqual([cesta.x, cesta.y], [-120, 0]);
   assert.throws(() => call('goToObject', [fromCesta, 'fantasma']), /«fantasma»/);
