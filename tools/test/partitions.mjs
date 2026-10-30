@@ -18,9 +18,18 @@ export const exclusiveSuites = Object.freeze([
 
 // Port literals forbidden in browser/quick specs and helpers. An exception
 // covers only its own file and the literals it lists, never other ports.
-export const portLiteralPatterns = Object.freeze([/127\.0\.0\.1:\d{4}/g, /\[\s*41\d\d\s*,/g, /location\.port\s*[!=]==\s*'\d/g]);
+export const portLiteralPatterns = Object.freeze([
+  /127\.0\.0\.1:\d{4}/g, // http://127.0.0.1:4174
+  /localhost:\d{4}/g, // http://localhost:4174
+  /['"`]:\d{4}\//g, // ':4174/'
+  /:['"`]\s*\+\s*\d{4}/g, // 'http://127.0.0.1:' + 4174
+  /\.port\s*[!=]==?\s*['"`]\d{4}/g, // new URL(u).port === '4175'
+  /GG_[A-Z0-9]+_PORT['"]?\s*[:=]\s*['"`]?\d{4}/g, // {GG_SHELL_PORT: '4177'}
+  /\?\?\s*['"`]\d{4}['"`]/g, // process.env.X ?? '4174'
+  /\[\s*['"]?4\d{3}['"]?\s*,/g // [4211, … or ['4211', …
+]);
 export const portLiteralExceptions = Object.freeze([
-  {file: 'tests/browser/standalone-contexts.spec.mjs', literals: ['127.0.0.1:4211', '127.0.0.1:4212', '127.0.0.1:4213'],
+  {file: 'tests/browser/standalone-contexts.spec.mjs', literals: ['127.0.0.1:4211', '127.0.0.1:4212', '127.0.0.1:4213', "['4211',"],
     reason: 'puertos de serve.mjs fijados por el formato de exportación (src/export/export-context.mjs, tools/export/serve.template.mjs); la suite es exclusiva'}
 ].map(item => Object.freeze(item)));
 export function findPortLiterals(root = '.', {directories = ['tests/browser', 'tests/quick'], exceptions = portLiteralExceptions} = {}) {

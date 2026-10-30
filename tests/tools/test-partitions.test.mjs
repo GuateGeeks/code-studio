@@ -34,9 +34,9 @@ test('TEST-PARTITION: every browser suite runs exactly once and exclusive suites
 });
 
 test('TEST-PARTITION: partition ports, with their suites\' own servers, are distinct and avoid package and preview ports', () => {
-  // 4211–4216: exported packages (serve.mjs, deployment.json); 5083/5183/5283/5383: the user's previews.
+  // 4211–4216: exported packages (serve.mjs, deployment.json); 5083/5183/5283/5383: the user's previews; 4183/4202: manual and performance servers.
   const reserved = new Set();
-  for (const [from, to] of [[4211, 4216], [5083, 5092], [5183, 5192], [5283, 5292], [5383, 5392]]) for (let port = from; port <= to; port++) reserved.add(port);
+  for (const [from, to] of [[4211, 4216], [5083, 5092], [5183, 5192], [5283, 5292], [5383, 5392], [4183, 4183], [4202, 4202]]) for (let port = from; port <= to; port++) reserved.add(port);
   const used = new Set();
   assert.equal(partitionEnv(0).GG_SHELL_PORT, undefined, 'partition 0 keeps the defaults');
   for (let index = 0; index <= 8; index++) {
@@ -76,6 +76,28 @@ test('TEST-PARTITION: browser specs and test helpers carry no port literals', ()
     assert.deepEqual(findPortLiterals(folder, {exceptions}).map(item => item.file), ['tests/quick/smoke.spec.mjs', 'tests/quick/smoke.spec.mjs']);
     writeFileSync(resolve(folder, 'tests/browser/helper.mjs'), "export const shell = 'http://127.0.0.1:4211/';\nexport const runner = 'http://127.0.0.1:4174';\n");
     assert.deepEqual(findPortLiterals(folder, {exceptions}).filter(item => item.file === 'tests/browser/helper.mjs').map(item => item.text), ['127.0.0.1:4174']);
+    // Every spelling of a fixed port is caught: quote styles, bare hosts, env maps, fallbacks and port lists.
+    const forms = {
+      "export const a = ':4174/';": "':4174/",
+      "if (new URL(u).port === '4175') throw 0;": ".port === '4175",
+      'if (url.port !== "4175") throw 0;': '.port !== "4175',
+      "env({GG_SHELL_PORT:'4177'});": "GG_SHELL_PORT:'4177",
+      "process.env.GG_RUNNER_PORT = '4178';": "GG_RUNNER_PORT = '4178",
+      "const u = 'http://127.0.0.1:' + 4174;": ":' + 4174",
+      'const u = "http://127.0.0.1:" + 4174;': ':" + 4174',
+      'const u = `localhost:4174`;': 'localhost:4174',
+      'const u = "http://localhost:4174";': 'localhost:4174',
+      'for (const port of [4211, 4212]) {}': '[4211,',
+      "for (const port of ['4211', '4212']) {}": "['4211',",
+      "const port = process.env.GG_RUNNER_PORT ?? '4174';": "?? '4174'"
+    };
+    rmSync(resolve(folder, 'tests/browser/helper.mjs')); rmSync(resolve(folder, 'tests/quick/smoke.spec.mjs'));
+    for (const [index, [source, text]] of Object.entries(forms).entries()) {
+      writeFileSync(resolve(folder, `tests/browser/form-${String(index).padStart(2, '0')}.mjs`), `${source}\n`);
+      const hits = findPortLiterals(folder, {exceptions: []}).filter(item => item.file.endsWith(`form-${String(index).padStart(2, '0')}.mjs`));
+      assert.ok(hits.length >= 1, `not detected: ${source}`);
+      assert.ok(hits.some(item => item.text === text), `${source} -> ${hits.map(item => item.text).join(' | ')}`);
+    }
   } finally { rmSync(folder, {recursive: true, force: true}); }
 });
 

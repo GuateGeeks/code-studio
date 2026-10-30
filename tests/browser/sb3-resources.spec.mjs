@@ -6,6 +6,7 @@ import {createHash} from 'node:crypto';
 import {deflateSync} from 'node:zlib';
 import JSZip from 'jszip';
 import {artifactPath} from './artifacts.mjs';
+import {ports} from './origins.mjs';
 import {crc32} from '../../src/contracts/sb3-archive.mjs';
 import {inspectWavPcm16} from '../../src/contracts/media-wav.mjs';
 import {decodeResourceAsset} from '../../src/contracts/resources.mjs';
@@ -284,7 +285,7 @@ test('GG-SB3-003: a genuinely suspended AudioContext defers start, Stop revokes 
       }
       return post.call(this,data,...rest);
     };
-  }, process.env.GG_RUNNER_PORT ?? '4174');
+  }, String(ports.runner));
   try {
     const page=await context.newPage();await open(page);await importFixture(page,manifest.fixtures.find(item=>item.id==='09-sound'));
     await runScratch(page);

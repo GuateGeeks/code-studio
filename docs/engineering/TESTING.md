@@ -114,7 +114,7 @@ La segunda visita fría también importa/decodifica un SB3 con PNG mediante el w
 
 ## F3: prueba offline con cierre real
 
-La regresión incluye packs/lecciones y una prueba offline con perfil Chromium persistente y servidor propio. Desde el 29/10/2026 sus cuatro puertos se derivan de la base configurada (+50 sobre el puerto del shell; con la base 4173, 4223–4226), no son 4177–4180 fijos como en esta entrega. No ocupa los puertos normales ni los manuales o de rendimiento. La prueba cierra todos los procesos que ella crea, reinicia Chromium y verifica que los cuatro servidores estén apagados antes de la segunda visita. Los snapshots y copias de build de prueba quedan en artifacts; no modifica fuentes para fabricar la actualización.
+La regresión incluye packs/lecciones y una prueba offline con perfil Chromium persistente y servidor propio. Desde el 29/10/2026 sus seis puertos se derivan de la base configurada (+50 sobre el puerto del shell; con la base 4173, 4223–4226 y 4231–4232), no son 4177–4180 fijos como en esta entrega. No ocupa los puertos normales ni los manuales o de rendimiento. La prueba cierra todos los procesos que ella crea, reinicia Chromium y verifica que los cuatro servidores estén apagados antes de la segunda visita. Los snapshots y copias de build de prueba quedan en artifacts; no modifica fuentes para fabricar la actualización.
 
 ## Pruebas F7 de zoom y distribución
 
@@ -133,7 +133,7 @@ Rige desde el 29/10/2026 y sustituye a «full al cerrar cada tarea».
 - **Hecho, por tarea:** las pruebas nuevas específicas de la tarea y la selección de `test:affected` en verde. Nada más es obligatorio.
 - **La full se sugiere, no se exige.** Se propone al usuario cuando `test:affected --list` da `selection: full`, cuando cambian runner, servidor, build o configuración, y antes de entregar el piloto a un docente. Decide el usuario.
 - **Particiones:** la full reparte por defecto en 2 con memoria y carga suficientes (`--partitions auto`); en otro caso corre en serie.
-- **Cualquier agente puede ejecutar su selección affected completa en su propio worktree**, con su propia base de puertos separada de las demás en 100 (p. ej. `GG_SHELL_PORT=5700` o `5800`, con los seis orígenes de `tests/browser/origins.mjs` en esa centena). Las pruebas no fijan puertos, así que ya no compiten por 4173.
+- **Cualquier agente puede ejecutar su selección affected completa en su propio worktree**, con su propia base de puertos separada de las demás en 100 (fijando las seis variables `GG_*_PORT`, p. ej. `GG_SHELL_PORT=5800 GG_RUNNER_PORT=5801 GG_SIMULATOR_PORT=5802 GG_LANGUAGE_PORT=5803 GG_SCENE3D_PORT=5808 GG_WEBAPP_PORT=5809`, y sus informes en una ruta propia con `GG_TEST_OUTPUT_DIR` y `GG_BROWSER_REPORT`). Las pruebas no fijan puertos, así que ya no compiten por 4173, salvo `standalone-contexts` (exclusiva, véase abajo).
 - **Carga:** no ejecutes suites mientras corre una full. Como máximo 2–3 corridas de navegador simultáneas, según `uptime` (la política medida está en las particiones, abajo).
 - **Suites exclusivas:** nunca ejecutes una `exclusiveSuite` (`standalone-contexts`) en dos corridas a la vez, p. ej. en dos worktrees.
 
