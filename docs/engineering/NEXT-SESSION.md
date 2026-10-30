@@ -1,5 +1,7 @@
 # Estado y continuación
 
+**Relevo vigente, 30/10/2026:** E2 multi-sprite detenido por el usuario con la tarea 8 sin cerrar. Continuar por [el relevo E2](E2-RELEVO-2026-10-30.md).
+
 **Criterio de pruebas vigente, 29/10/2026:** una tarea está hecha con pruebas nuevas + `test:affected` en verde; la full se sugiere por impacto y las pruebas ya no dependen de puertos fijos, salvo `standalone-contexts` (exclusiva) ([criterio](TESTING.md#criterio-de-hecho-y-full-sugerida)).
 
 **Pistas paralelas en curso, 29/10/2026 (tarde):** tres agentes trabajan en worktrees hermanos, cada uno en su rama y sus puertos: `../gcs-e1-vocabulary` (`stab/e1-vocabulary`, E1 vocabulario 2D, puertos 5400–5409), `../gcs-e4-resources` (`stab/e4-resources`, E4 biblioteca de recursos, 5500–5509) y `../gcs-startup-hang` (`stab/startup-hang`, causa del arranque bloqueado intermitente, 5600–5609). No escribir en esos worktrees. El coordinador integra las ramas en `main` y ejecuta una puerta full conjunta, que también cierra la puerta pendiente de E0 ([acta](STABILIZATION-E0-RESULTS.md)).

@@ -1,5 +1,7 @@
 # Prompt de continuación de Code Studio
 
+> **Relevo vigente, 30/10/2026:** continuar por [el relevo E2](E2-RELEVO-2026-10-30.md).
+
 > **Sustituido en su orden de trabajo el 29/10/2026.** El usuario decidió estabilizar 2D antes de ampliar: rige el [plan de estabilización 2D](../product/STABILIZATION-PLAN-2D.md). La sección 4 (micro:bit) y el punto 4.3 de la sección 5 (3D/web) quedan trasladados a `synced-code-views-capability-contexts` y no se ejecutan. Se mantienen las invariantes, la operación y la verificación.
 
 Preparado el 29/10/2026, Guatemala. Copia el encargo siguiente a un agente con acceso al **workspace actual y sus cambios sin commit**. Un clon que solo tenga HEAD no contiene todo el corte 2D. Este archivo prepara la delegación; no inicia otra sesión ni implementa por sí mismo.
