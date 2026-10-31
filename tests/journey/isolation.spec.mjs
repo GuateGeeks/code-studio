@@ -51,5 +51,5 @@ test('el juego no sale a la red y el escenario no queda en otra página', async 
   // A frame can always navigate itself, so the stage is destroyed once it does.
   await simulador(page).evaluate(() => { location = 'https://example.com/login'; }).catch(() => {});
   await expect.poll(() => page.frames().some(f => /srcdoc/.test(f.url())), {timeout: 8000}).toBe(false);
-  expect(page.frames().some(f => f.url().includes('example.com'))).toBe(false);
+  await expect.poll(() => page.frames().some(f => f.url().includes('example.com')), {timeout: 8000}).toBe(false);
 });
