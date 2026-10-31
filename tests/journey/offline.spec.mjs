@@ -4,7 +4,7 @@ import {mkdirSync, mkdtempSync, readdirSync, readFileSync, symlinkSync, writeFil
 import {tmpdir} from 'node:os';
 import {join, resolve} from 'node:path';
 import {createServer} from '../../tools/serve.mjs';
-import {ejecutar, editorDe, entrarComo, registros} from './helpers.mjs';
+import {ejecutar, editorDe, entrarComo, estadoJuego, pulsar, registros, verCopia} from './helpers.mjs';
 
 const PORT = 5320;
 const ORIGIN = `http://127.0.0.1:${PORT}`;
@@ -82,6 +82,35 @@ const instalada = page => expect.poll(() => page.evaluate(async () => {
   const {installing, waiting} = await navigator.serviceWorker.getRegistration();
   return (installing ?? waiting)?.state;
 }), {timeout: 60000}).toBe('installed');
+
+test('sin red, abre un juego y crea su copia', {tag: '@recorrido'}, async ({page, context}) => {
+  test.setTimeout(150000);
+  let server = await iniciar(resolve('dist/site'));
+  try {
+    await page.goto(`${ORIGIN}/code-studio/`);
+    await listo(page);
+    await entrarComo(page, 'Ana', ORIGIN);
+    // Both the server and the browser's network go away: the first is stronger, the second is what the design asks for.
+    await detener(server);
+    server = null;
+    await context.setOffline(true);
+
+    const fallos = [];
+    page.on('requestfailed', request => { if (request.url().startsWith(ORIGIN)) fallos.push(request.url()); });
+    await page.locator('#open-catalog').click();
+    await page.locator('#catalog').getByRole('button', {name: /Rescate en el plano/}).click();
+    await page.locator('body[data-estado=jugando]').waitFor({state: 'attached', timeout: 30000});
+    const antes = Number((await estadoJuego(page)).paso);
+    await pulsar(page, 'A');
+    await expect.poll(async () => Number((await estadoJuego(page)).paso)).toBeGreaterThan(antes);
+
+    await verCopia(page);
+    expect(await registros(page, 'Ana')).toHaveLength(1);
+    expect(fallos).toEqual([]);
+  } finally {
+    if (server) await detener(server);
+  }
+});
 
 test('una publicación nueva no mezcla archivos en una pestaña abierta y baja solo lo que cambió', async ({page, context}) => {
   test.setTimeout(120000);
