@@ -6,5 +6,5 @@ Si encuentras una vulnerabilidad en GuateGeeks Code Studio, no abras un issue p�
 
 - Los proyectos y nombres de estudiantes se guardan en el navegador de cada equipo; no hay cuentas ni servidor.
 - La selección de estudiante evita mezclas, pero no es un control de acceso.
-- Los juegos se ejecutan en un iframe de origen opaco, sin acceso al almacenamiento ni al editor.
+- Los juegos se ejecutan en un iframe de origen opaco, sin acceso al almacenamiento y sin control del editor.
 - Las fallas de PXT o del simulador deben reportarse también en sus proyectos de origen.

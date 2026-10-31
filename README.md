@@ -2,7 +2,7 @@
 
 Estudio de creación de videojuegos 2D para estudiantes de 10 a 12 años, con docente y en computadoras compartidas. Es un fork del target [`pxt-arcade`](https://github.com/microsoft/pxt-arcade) con portada, misión guiada y marca propias.
 
-Se publica en <https://guategeeks.com/code-studio/>. Tras la primera visita funciona sin internet.
+Se publica en <https://guategeeks.com/code-studio/>. Tras la primera visita con internet, cuando la portada dice que está listo, funciona sin conexión.
 
 ## Desarrollo
 

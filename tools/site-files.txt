@@ -10,5 +10,6 @@ runnerembed.js
 react-common-authcode.css
 react-common-multiplayer.css
 react-common-skillmap.css
+release.manifest
 sw.js
 sw-manifest.json

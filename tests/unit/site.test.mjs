@@ -57,3 +57,17 @@ test('sustituye el icono de licencia comercial del simulador y no toca lo demás
   assert.match(limpio, /^const a = 1;\nconst icon = `<svg [^`]+<\/svg>`;\nconst b = 2;$/);
   assert.equal(replaceProIcon(limpio), limpio);
 });
+test('retira imágenes de marcas ajenas y sustituye el favicon heredado', () => {
+  const site = mkdtempSync(join(tmpdir(), 'gg-site-'));
+  mkdirSync(join(site, 'images'));
+  mkdirSync(join(site, 'docs/static/identity'), {recursive: true});
+  mkdirSync(join(site, 'docs/static/icons'), {recursive: true});
+  writeFileSync(join(site, 'images/windowsstorebag.png'), 'x');
+  writeFileSync(join(site, 'images/newvisualstudiocode.png'), 'x');
+  writeFileSync(join(site, 'docs/static/identity/logo.png'), 'x');
+  writeFileSync(join(site, 'favicon.ico'), 'ajeno');
+  writeFileSync(join(site, 'docs/static/icons/favicon.ico'), 'propio');
+  pruneSite(site);
+  for (const path of ['images/windowsstorebag.png', 'images/newvisualstudiocode.png', 'docs/static/identity']) assert.ok(!existsSync(join(site, path)), path);
+  assert.equal(readFileSync(join(site, 'favicon.ico'), 'utf8'), 'propio');
+});

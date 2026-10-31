@@ -13,7 +13,7 @@
 ## Global Constraints
 
 - Repositorio `GuateGeeks/code-studio`, rama huérfana `arcade`; `main` no se toca y `arcade` no pasa a ser la rama por defecto hasta el MVP.
-- Commits locales en cada tarea. **Sin push** hasta que el usuario lo pida al cerrar un hito,. El repositorio es público: nada de datos de estudiantes.
+- Commits locales en cada tarea. **Sin push** hasta que el usuario lo pida al cerrar un hito. El repositorio es público: nada de datos de estudiantes.
 - No modificar `pxt-core`. Si una tarea parece exigirlo, parar y consultar.
 - Target y `sim.js` de la misma versión publicada: etiqueta `v4.2.1` (`2d7d59b`), tarball npm `pxt-arcade-4.2.1.tgz`, sha256 empieza por `d403926da1c96dd71a69`.
 - `sim.js` y las traducciones se descargan al compilar y no se versionan hasta revisar su licencia.
@@ -73,7 +73,7 @@
 **Interfaces:**
 - Produces: `npm run build` genera `dist/site/code-studio/`; `tools/build.mjs` exporta `async function build({skipTarget?: boolean}): Promise<void>`.
 
-- [ ] **Step 1:** Clonar `https://github.com/GuateGeeks/code-studio.git` en `/home/adawolfs/projects/makecode/code-studio` y ejecutar `git switch --orphan arcade`.
+- [ ] **Step 1:** Clonar `https://github.com/GuateGeeks/code-studio.git` en `../code-studio` y ejecutar `git switch --orphan arcade`.
 - [ ] **Step 2:** Exportar el árbol de la etiqueta con `git archive v4.2.1` de `microsoft/pxt-arcade`, conservando `LICENSE` y `ThirdPartyNotice`. `UPSTREAM.md` registra repositorio, etiqueta y commit.
 - [ ] **Step 3:** Fijar en `package.json` `pxt-core` 13.2.1 y `pxt-common-packages` 14.1.4 exactos, quitar la dependencia opcional `pxt-arcade-sim`, y confirmar el lockfile.
 - [ ] **Step 4:** Implementar `build()`: descargar el tarball, verificar su sha256 y copiar `built/sim.js` y `built/sim-strings.json`; crear `public/`; ejecutar `pxt staticpkg --route code-studio --output dist/site`. Si el hash no coincide, falla sin compilar.

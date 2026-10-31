@@ -2,6 +2,7 @@ import {exportBackup, mergeRecords, parseBackup} from './backup.mjs';
 import {createHost} from './host.mjs';
 import {generateId, readId} from './identity.mjs';
 import {findMission, missionFilter, watchMission} from './mission.mjs';
+import {prepareOffline} from './offline.mjs';
 import {newProject} from './project.mjs';
 import {openStore} from './store.mjs';
 import {addStudent} from './students.mjs';
@@ -224,24 +225,11 @@ function wireScreens() {
   $('student-backup').addEventListener('click', guard(async () => download(await store.list($('student-backup').dataset.student), 'copia-estudiante'), 'No pudimos crear tu copia.'));
 }
 
-// Offline is a bonus: if any of this fails the studio still works online, it just never says it's ready.
-async function prepareOffline() {
-  if (!('serviceWorker' in navigator)) return;
-  navigator.storage?.persist?.().catch(() => {});
-  try {
-    await navigator.serviceWorker.register('sw.js');
-    await navigator.serviceWorker.ready;
-    $('offline-status').textContent = 'Listo para usar sin internet en esta computadora.';
-  } catch {
-    $('offline-status').textContent = '';
-  }
-}
-
 try {
   store = await openStore();
   wireScreens();
   await showStudents();
-  prepareOffline();
+  prepareOffline({status: $('offline-status'), update: $('update-studio'), storage: $('storage-status')});
 } catch {
   $('students').hidden = true;
   alertUser('Este navegador no permite guardar proyectos. Avísale a tu docente.');

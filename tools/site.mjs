@@ -1,10 +1,10 @@
-import {cpSync, existsSync, readdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync} from 'node:fs';
+import {copyFileSync, cpSync, existsSync, readdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync} from 'node:fs';
 import {join, relative, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {siteVersion, swManifest} from './sw-manifest.mjs';
+import {fileDetails, siteVersion, swManifest} from './sw-manifest.mjs';
 
 // staticpkg copies every pxt-core tool and page, whatever the target asks for.
-const UNUSED = ['kiosk', 'kiosk.html', 'skillmap', 'skillmap.html', 'teachertool', 'teachertool.html', 'tutorialtool', 'tutorialtool.html', 'multiplayer', 'multiplayer.html', 'authcode', 'authcode.html', 'codeembed.html', 'rendertest.html', 'runnertest.html', 'multi.html', 'docs.html', 'hexcache', 'docfiles', 'ai.2.min.js', 'siminstructions.html', 'oauth-redirect.html', 'asseteditor.html', 'pxtasseteditor.js', 'run.html'];
+const UNUSED = ['images/windowsstorebag.png', 'images/newvisualstudiocode.png', 'docs/static/configurations', 'docs/static/identity', 'kiosk', 'kiosk.html', 'skillmap', 'skillmap.html', 'teachertool', 'teachertool.html', 'tutorialtool', 'tutorialtool.html', 'multiplayer', 'multiplayer.html', 'authcode', 'authcode.html', 'codeembed.html', 'rendertest.html', 'runnertest.html', 'multi.html', 'docs.html', 'hexcache', 'docfiles', 'ai.2.min.js', 'siminstructions.html', 'oauth-redirect.html', 'asseteditor.html', 'pxtasseteditor.js', 'run.html'];
 const STUDIO = resolve(fileURLToPath(new URL('../studio', import.meta.url)));
 const TEXT = /\.(html|webmanifest)$/;
 const FOREIGN = /microsoft|makecode/i;
@@ -21,6 +21,8 @@ export function pruneSite(site) {
   const docs = join(site, 'docs');
   if (existsSync(docs)) for (const name of readdirSync(docs)) if (name !== 'static') rmSync(join(docs, name), {recursive: true});
   rmSync(join(docs, 'static/logo'), {recursive: true, force: true});
+  const icon = join(docs, 'static/icons/favicon.ico');
+  if (existsSync(icon)) copyFileSync(icon, join(site, 'favicon.ico'));
   const index = join(site, 'index.html');
   if (existsSync(index)) writeFileSync(index, readFileSync(index, 'utf8')
     .replace(/@cdnUrl@\/blob\/[0-9a-z]+\//g, '/code-studio/docs/')
@@ -52,9 +54,19 @@ function publishPortal(site, studio) {
 function publishOffline(site) {
   const {files} = swManifest(walk(site).map(path => relative(site, path)).sort(), '');
   const version = siteVersion(site, files);
-  writeFileSync(join(site, 'sw-manifest.json'), JSON.stringify({version, files}));
+  writeFileSync(join(site, 'sw-manifest.json'), JSON.stringify({version, files, ...fileDetails(site, files)}));
   const worker = join(site, 'sw.js');
   if (existsSync(worker)) writeFileSync(worker, readFileSync(worker, 'utf8').replace('__GG_VERSION__', version));
+}
+
+const REQUIRED = ['index.html', 'editor.html', 'simulator.html', 'sim-inner.html', 'pxtsim.js', 'sim.js', 'project-template.json', 'missions/atrapa-la-fruta.md', 'sw.js', 'sw-manifest.json'];
+
+// Last gate before publishing: a bad service worker is much harder to take back than a bad page.
+export function checkSite(site) {
+  for (const file of REQUIRED) if (!existsSync(join(site, file))) throw new Error(`Falta ${file}`);
+  if (readFileSync(join(site, 'sw.js'), 'utf8').includes('__GG_VERSION__')) throw new Error('sw.js sin sellar');
+  if (readFileSync(join(site, 'sim.js'), 'utf8').includes('Font Awesome Pro')) throw new Error('sim.js conserva el icono de Font Awesome Pro');
+  if (!JSON.parse(readFileSync(join(site, 'sw-manifest.json'), 'utf8')).files.length) throw new Error('El manifiesto está vacío');
 }
 
 export function finishSite(site, studio = STUDIO) {
