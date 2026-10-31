@@ -68,7 +68,7 @@ function publishOffline(site) {
   if (existsSync(worker)) writeFileSync(worker, readFileSync(worker, 'utf8').replace('__GG_VERSION__', version));
 }
 
-const REQUIRED = ['index.html', 'editor.html', 'simulator.html', 'sim-inner.html', 'pxtsim.js', 'sim.js', 'project-template.json', 'missions/atrapa-la-fruta.md', 'sw.js', 'sw-manifest.json'];
+const REQUIRED = ['index.html', 'editor.html', 'simulator.html', 'sim-inner.html', 'pxtsim.js', 'sim.js', 'project-template.json', 'missions/atrapa-la-fruta.md', 'games/catalogo.json', 'sw.js', 'sw-manifest.json'];
 
 // Last gate before publishing: a bad service worker is much harder to take back than a bad page.
 export function checkSite(site) {
@@ -76,6 +76,9 @@ export function checkSite(site) {
   if (readFileSync(join(site, 'sw.js'), 'utf8').includes('__GG_VERSION__')) throw new Error('sw.js sin sellar');
   if (readFileSync(join(site, 'sim.js'), 'utf8').includes('Font Awesome Pro')) throw new Error('sim.js conserva el icono de Font Awesome Pro');
   if (!JSON.parse(readFileSync(join(site, 'sw-manifest.json'), 'utf8')).files.length) throw new Error('El manifiesto está vacío');
+  for (const {id} of JSON.parse(readFileSync(join(site, 'games/catalogo.json'), 'utf8'))) {
+    for (const file of [`games/${id}.js`, `games/${id}.ts`]) if (!existsSync(join(site, file))) throw new Error(`Falta ${file}`);
+  }
 }
 
 export function finishSite(site, studio = STUDIO) {

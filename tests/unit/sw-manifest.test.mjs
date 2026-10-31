@@ -48,7 +48,8 @@ test('el acabado sella sw.js con la versión del manifiesto, también al repetir
 const sitio = (extra = {}) => {
   const site = mkdtempSync(join(tmpdir(), 'gg-check-'));
   mkdirSync(join(site, 'missions'));
-  const base = {'index.html': 'portada', 'editor.html': 'editor', 'simulator.html': 's', 'sim-inner.html': 'i', 'pxtsim.js': 'p', 'sim.js': 'x', 'project-template.json': '{}', 'missions/atrapa-la-fruta.md': '# M', 'sw.js': "const VERSION = 'abc';", 'sw-manifest.json': '{"version":"abc","files":["index.html"],"sha":{"index.html":"1"},"bytes":1}'};
+  mkdirSync(join(site, 'games'));
+  const base = {'index.html': 'portada', 'editor.html': 'editor', 'simulator.html': 's', 'sim-inner.html': 'i', 'pxtsim.js': 'p', 'sim.js': 'x', 'project-template.json': '{}', 'missions/atrapa-la-fruta.md': '# M', 'games/catalogo.json': '[]', 'sw.js': "const VERSION = 'abc';", 'sw-manifest.json': '{"version":"abc","files":["index.html"],"sha":{"index.html":"1"},"bytes":1}'};
   for (const [name, text] of Object.entries({...base, ...extra})) if (text !== null) writeFileSync(join(site, name), text);
   return site;
 };

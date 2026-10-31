@@ -4,6 +4,7 @@ import {cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync} fro
 import {tmpdir} from 'node:os';
 import {join, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {publishGames} from './games.mjs';
 import {fetchLocales, injectLocales} from './locales.mjs';
 import {checkSite, finishSite} from './site.mjs';
 
@@ -31,7 +32,22 @@ async function fetchSimulator() {
   rmSync(dir, {recursive: true});
 }
 
-export async function build({skipTarget = false} = {}) {
+export function parseJuego(argv) {
+  const at = argv.indexOf('--juego');
+  if (at < 0) return null;
+  if (!argv[at + 1] || argv[at + 1].startsWith('--')) throw new Error('--juego necesita el id del juego');
+  return argv[at + 1];
+}
+
+export async function build({skipTarget = false, juego = null} = {}) {
+  // One game: the rest of the site is already built, so only that game and the finishing are redone.
+  if (juego) {
+    const site = join(ROOT, 'dist/site/code-studio');
+    publishGames(ROOT, site, {only: [juego]});
+    finishSite(site);
+    checkSite(site);
+    return;
+  }
   await fetchSimulator();
   if (skipTarget) return;
   mkdirSync(join(ROOT, 'public'), {recursive: true});
@@ -42,8 +58,9 @@ export async function build({skipTarget = false} = {}) {
   // "---" marks hardware variants, which share the strings of their base package.
   await fetchLocales(LANG, Object.keys(bundledpkgs).filter(name => !name.includes('---')), join(ROOT, 'locales'));
   injectLocales(site, LANG, join(ROOT, 'locales'));
+  publishGames(ROOT, site);
   finishSite(site);
   checkSite(site);
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) await build();
+if (process.argv[1] === fileURLToPath(import.meta.url)) await build({juego: parseJuego(process.argv)});

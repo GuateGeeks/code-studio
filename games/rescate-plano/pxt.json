@@ -1,0 +1,10 @@
+{
+    "name": "rescate-plano",
+    "description": "",
+    "dependencies": {
+        "device": "file:../../libs/device",
+        "gg-studio": "file:../../libs/gg-studio"
+    },
+    "files": ["main.ts"],
+    "preferredEditor": "tsprj"
+}

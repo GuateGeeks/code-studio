@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {finishSite, foreignBrand, pruneSite, replaceProIcon} from '../../tools/site.mjs';
+import {checkSite, finishSite, foreignBrand, pruneSite, replaceProIcon} from '../../tools/site.mjs';
 
 const sitio = files => {
   const dir = mkdtempSync(join(tmpdir(), 'gg-site-'));
@@ -84,4 +84,13 @@ test('el editor publicado solo carga scripts propios, también al repetir el aca
   const editor = readFileSync(join(site, 'editor.html'), 'utf8');
   assert.equal(editor.match(/Content-Security-Policy/g).length, 1);
   assert.match(editor, /<head><meta http-equiv="Content-Security-Policy" content="script-src 'self'/);
+});
+test('checkSite rechaza un juego del catálogo sin su .js o sin su .ts', () => {
+  const completo = {'index.html': 'x', 'editor.html': 'x', 'simulator.html': 'x', 'sim-inner.html': 'x', 'pxtsim.js': 'x', 'sim.js': 'x', 'project-template.json': '{}', 'missions/atrapa-la-fruta.md': 'x', 'sw.js': 'x', 'sw-manifest.json': JSON.stringify({files: ['index.html']}), 'games/catalogo.json': JSON.stringify([{id: 'x'}])};
+  assert.throws(() => checkSite(sitio(completo)), /Falta games\/x\.js/);
+  assert.throws(() => checkSite(sitio({...completo, 'games/x.js': 'x'})), /Falta games\/x\.ts/);
+  assert.doesNotThrow(() => checkSite(sitio({...completo, 'games/x.js': 'x', 'games/x.ts': 'x'})));
+  const sinCatalogo = {...completo};
+  delete sinCatalogo['games/catalogo.json'];
+  assert.throws(() => checkSite(sitio(sinCatalogo)), /Falta games\/catalogo\.json/);
 });
