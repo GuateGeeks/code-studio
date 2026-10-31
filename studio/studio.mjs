@@ -1,3 +1,4 @@
+import {exportBackup, mergeRecords, parseBackup} from './backup.mjs';
 import {createHost} from './host.mjs';
 import {generateId} from './identity.mjs';
 import {newProject} from './project.mjs';
@@ -35,6 +36,7 @@ async function showProjects(student) {
   $('projects-title').textContent = `Hola, ${student}`;
   const records = (await store.list(student)).filter(record => !record.project.header.isDeleted).sort((a, b) => b.at - a.at);
   $('project-list').replaceChildren(...records.map(record => button(record.project.header.name, () => openEditor(student, record.project.header.id), 'project')));
+  $('student-backup').dataset.student = student;
   $('new-project').onclick = () => createProject(student);
   $('import-png').onchange = event => importPng(student, event.target.files[0]);
   $('change-from-projects').onclick = showStudents;
@@ -113,6 +115,30 @@ addEventListener('message', event => {
   session.host.handle(event);
 });
 
+function download(records, name) {
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(new Blob([exportBackup(records)], {type: 'application/json'}));
+  link.download = `${name}-${new Date().toISOString().slice(0, 10)}.json`;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+}
+
+async function restoreBackup(file) {
+  const parsed = parseBackup(await file.text());
+  if (!parsed.ok) { $('class-status').textContent = parsed.reason; return; }
+  const {records, skipped} = mergeRecords(await store.all(), parsed.records);
+  for (const record of records) {
+    await store.addStudent(record.student);
+    await store.put(record);
+  }
+  for (const student of new Set(parsed.records.map(record => record.student))) await store.addStudent(student);
+  await showStudents();
+  $('class-status').textContent = `Restaurados: ${records.length}. Conservados por ser más recientes: ${skipped}.`;
+}
+
+$('class-backup').addEventListener('click', async () => download(await store.all(), 'copia-clase'));
+$('class-restore').addEventListener('change', event => { if (event.target.files[0]) restoreBackup(event.target.files[0]); event.target.value = ''; });
+$('student-backup').addEventListener('click', async () => download(await store.list($('student-backup').dataset.student), 'copia-estudiante'));
 $('student-form').addEventListener('submit', async event => {
   event.preventDefault();
   const result = addStudent($('student-name').value, await store.students());
