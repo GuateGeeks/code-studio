@@ -1,6 +1,6 @@
 # Experiencias CNB: diseño
 
-31 de octubre de 2026. Estado: pendiente de aprobación.
+31 de octubre de 2026. Estado: aprobado.
 
 ## Intención
 

@@ -1,0 +1,152 @@
+[
+  {
+    "id": "rescate-plano",
+    "titulo": "Rescate en el plano",
+    "area": "mat",
+    "contenidos": [
+      "mat:1.5.3"
+    ],
+    "situacion": "Tras un aguacero, la brigada de la aldea busca animales dispersos. La radio dicta pares ordenados.",
+    "mecanica": "moverse",
+    "resultado": "Mapa con cada rescate y su coordenada; aciertos de 5.",
+    "repiteSocrates": true
+  },
+  {
+    "id": "cuentas-mayas",
+    "titulo": "Cuentas mayas en el mercado",
+    "area": "mat",
+    "contenidos": [
+      "mat:4.1.5",
+      "mat:4.1.7"
+    ],
+    "situacion": "Un puesto del mercado anota sus ventas con numerales mayas.",
+    "mecanica": "ordenar",
+    "resultado": "Cuenta del día en maya y en decimal.",
+    "repiteSocrates": true
+  },
+  {
+    "id": "ladera-viva",
+    "titulo": "La ladera viva",
+    "area": "cnt",
+    "contenidos": [
+      "cnt:6.3.1",
+      "cnt:6.3.3"
+    ],
+    "situacion": "Una comunidad reforesta la ladera sobre su nacimiento de agua.",
+    "mecanica": "decidir",
+    "resultado": "Ladera final con suelo, agua y animales; avisa que es un modelo."
+  },
+  {
+    "id": "vecinos-bosque",
+    "titulo": "Vecinos del bosque",
+    "area": "cnt",
+    "contenidos": [
+      "cnt:1.5.1",
+      "cnt:1.5.4",
+      "cnt:1.5.6",
+      "cnt:1.5.7"
+    ],
+    "situacion": "Una guardarrecursos enseña un bosque nuboso de Baja Verapaz.",
+    "mecanica": "clasificar",
+    "resultado": "Cuaderno de campo: relaciones halladas y quién gana."
+  },
+  {
+    "id": "vuelta-mundo",
+    "titulo": "Vuelta al mundo",
+    "area": "ccss",
+    "contenidos": [
+      "ccss:1.2.1",
+      "ccss:1.2.2"
+    ],
+    "situacion": "Geeky sale de Guatemala con pistas de latitud, longitud y altitud.",
+    "mecanica": "moverse",
+    "resultado": "Pasaporte con las zonas climáticas visitadas."
+  },
+  {
+    "id": "comunidad-preparada",
+    "titulo": "Comunidad preparada",
+    "area": "ccss",
+    "contenidos": [
+      "ccss:1.3.1",
+      "ccss:1.3.2",
+      "ccss:1.3.3"
+    ],
+    "situacion": "El comité escolar compara fenómenos de Guatemala y del mundo.",
+    "mecanica": "decidir",
+    "resultado": "Plan: fenómeno, lugar de peligro y quién ayuda."
+  },
+  {
+    "id": "detective-noticias",
+    "titulo": "Detective de noticias",
+    "area": "l1",
+    "contenidos": [
+      "l1:4.3.2"
+    ],
+    "situacion": "Al periódico mural de la escuela llegan noticias ficticias.",
+    "mecanica": "clasificar",
+    "resultado": "Mural publicado con cada frase marcada; aciertos de 5."
+  },
+  {
+    "id": "follow-geeky",
+    "titulo": "Follow Geeky (inglés)",
+    "area": "l3",
+    "contenidos": [
+      "l3:3.3.1",
+      "l3:3.3.3"
+    ],
+    "situacion": "Búsqueda en la feria escolar con instrucciones escritas en inglés (first, then, last).",
+    "mecanica": "moverse",
+    "resultado": "Ruta recorrida; instrucciones cumplidas de 5."
+  },
+  {
+    "id": "lee-marimba",
+    "titulo": "Lee la marimba",
+    "area": "art",
+    "contenidos": [
+      "art:1.1.1",
+      "art:1.1.2"
+    ],
+    "situacion": "El conjunto de marimba de la escuela ensaya una pieza original.",
+    "mecanica": "leer",
+    "resultado": "Partitura completa con aciertos por compás."
+  },
+  {
+    "id": "recreo-activo",
+    "titulo": "Recreo activo",
+    "area": "ef",
+    "contenidos": [
+      "ef:3.1.1",
+      "ef:3.1.3",
+      "ef:3.2.1"
+    ],
+    "situacion": "Una jornada larga en el aula, con refacción y recreo.",
+    "mecanica": "clasificar",
+    "resultado": "Plan de recreo: tres pausas, agua y aseo."
+  },
+  {
+    "id": "mediacion-recreo",
+    "titulo": "Mediación en el recreo",
+    "area": "fc",
+    "contenidos": [
+      "fc:4.3.1",
+      "fc:4.3.2"
+    ],
+    "situacion": "Dos grupos quieren la cancha al mismo tiempo.",
+    "mecanica": "decidir",
+    "resultado": "Acuerdo escrito y efecto de cada forma de afrontar el conflicto.",
+    "cobertura": {
+      "fc:4.3.2": "parcial"
+    }
+  },
+  {
+    "id": "puesto-feria",
+    "titulo": "Mi puesto en la feria",
+    "area": "pyd",
+    "contenidos": [
+      "pyd:4.3.1"
+    ],
+    "situacion": "Preparas un puesto para la feria escolar, con dinero de juego.",
+    "mecanica": "decidir",
+    "resultado": "Informe: costo, ingreso, ganancia y una mejora."
+  }
+]
