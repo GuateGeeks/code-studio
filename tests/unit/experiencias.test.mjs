@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {CANAL, clearEstado, gameById, parseEstado, playerUrl, reflectEstado} from '../../studio/experiencias.mjs';
+import {CANAL, clearEstado, gameById, groupByArea, loadCatalog, parseEntry, parseEstado, playerUrl, recallStudent, reflectEstado, rememberStudent} from '../../studio/experiencias.mjs';
 
 const bytes = value => new TextEncoder().encode(typeof value === 'string' ? value : JSON.stringify(value));
 const elemento = () => ({dataset: {}});
@@ -49,4 +49,61 @@ test('gameById no acepta un id fuera del catálogo', () => {
 
 test('playerUrl lleva el id', () => {
   assert.equal(playerUrl('rescate-plano'), 'player.html?juego=rescate-plano');
+});
+
+const juego = (id, area) => ({id, titulo: id, area});
+
+test('groupByArea sigue el orden del CNB, agrupa y omite las áreas sin juegos', () => {
+  const grupos = groupByArea([juego('b', 'pyd'), juego('a', 'mat'), juego('c', 'l3'), juego('d', 'mat'), juego('e', 'ccss')]);
+  assert.deepEqual(grupos.map(grupo => grupo.area), ['mat', 'ccss', 'l3', 'pyd']);
+  assert.deepEqual(grupos[0].juegos.map(entrada => entrada.id), ['a', 'd']);
+  assert.deepEqual(grupos.map(grupo => grupo.nombre), ['Matemáticas', 'Ciencias Sociales', 'Comunicación y Lenguaje L 3', 'Productividad y Desarrollo']);
+});
+
+test('groupByArea con el catálogo completo da las 9 áreas del orden fijo', () => {
+  const todas = ['pyd', 'fc', 'ef', 'art', 'l3', 'l1', 'ccss', 'cnt', 'mat'].map(area => juego(area, area));
+  assert.deepEqual(groupByArea(todas).map(grupo => grupo.area), ['mat', 'cnt', 'ccss', 'l1', 'l3', 'art', 'ef', 'fc', 'pyd']);
+  assert.deepEqual(groupByArea(todas).map(grupo => grupo.nombre), ['Matemáticas', 'Ciencias Naturales y Tecnología', 'Ciencias Sociales', 'Comunicación y Lenguaje L 1', 'Comunicación y Lenguaje L 3', 'Expresión Artística', 'Educación Física', 'Formación Ciudadana', 'Productividad y Desarrollo']);
+});
+
+test('groupByArea no pierde un juego de un área desconocida', () => {
+  assert.equal(groupByArea([juego('x', 'otra')]).flatMap(grupo => grupo.juegos).length, 1);
+});
+
+test('loadCatalog lee el catálogo y falla si la respuesta no es buena', async () => {
+  const bueno = async url => ({ok: true, json: async () => [{id: url}]});
+  assert.deepEqual(await loadCatalog(bueno), [{id: 'games/catalogo.json'}]);
+  await assert.rejects(loadCatalog(async () => ({ok: false, status: 404})), /404/);
+});
+
+test('rememberStudent y recallStudent guardan en la clave gg-estudiante', () => {
+  const guardado = {};
+  const storage = {setItem: (clave, valor) => { guardado[clave] = valor; }, getItem: clave => guardado[clave] ?? null};
+  rememberStudent(storage, 'Ana');
+  assert.deepEqual(guardado, {'gg-estudiante': 'Ana'});
+  assert.equal(recallStudent(storage, ['Ana', 'Beto']), 'Ana');
+});
+
+test('recallStudent solo devuelve un estudiante conocido', () => {
+  const storage = {getItem: () => 'Ana'};
+  assert.equal(recallStudent(storage, ['Beto']), null);
+  assert.equal(recallStudent({getItem: () => null}, ['Beto']), null);
+});
+
+test('rememberStudent y recallStudent no lanzan si storage falla', () => {
+  const roto = {setItem: () => { throw new Error('lleno'); }, getItem: () => { throw new Error('bloqueado'); }};
+  assert.doesNotThrow(() => rememberStudent(roto, 'Ana'));
+  assert.equal(recallStudent(roto, ['Ana']), null);
+  assert.doesNotThrow(() => rememberStudent(undefined, 'Ana'));
+  assert.equal(recallStudent(undefined, ['Ana']), null);
+});
+
+test('parseEntry lee ver y pantalla e ignora lo demás', () => {
+  assert.deepEqual(parseEntry('?ver=rescate-plano'), {ver: 'rescate-plano'});
+  assert.deepEqual(parseEntry('?pantalla=experiencias'), {pantalla: 'experiencias'});
+  assert.deepEqual(parseEntry('?pantalla=otra&x=1'), {});
+  assert.deepEqual(parseEntry(''), {});
+  assert.deepEqual(parseEntry('?ver=../../x'), {});
+  assert.deepEqual(parseEntry('?ver=A%20B'), {});
+  assert.deepEqual(parseEntry('?ver=rescate-plano&pantalla=experiencias'), {ver: 'rescate-plano', pantalla: 'experiencias'});
 });

@@ -41,3 +41,51 @@ export function reflectEstado(element, estado) {
 export function clearEstado(element) {
   for (const campo of CAMPOS) delete element.dataset[campo];
 }
+
+// CNB areas in the order the catalog shows them, with the names the curriculum gives them.
+const AREAS = [
+  ['mat', 'Matemáticas'], ['cnt', 'Ciencias Naturales y Tecnología'], ['ccss', 'Ciencias Sociales'],
+  ['l1', 'Comunicación y Lenguaje L 1'], ['l3', 'Comunicación y Lenguaje L 3'], ['art', 'Expresión Artística'],
+  ['ef', 'Educación Física'], ['fc', 'Formación Ciudadana'], ['pyd', 'Productividad y Desarrollo']
+];
+
+export async function loadCatalog(get = fetch) {
+  const response = await get('games/catalogo.json');
+  if (!response.ok) throw new Error(`Catálogo: ${response.status}`);
+  return response.json();
+}
+
+export function groupByArea(catalog) {
+  const known = AREAS.map(([area, nombre]) => ({area, nombre, juegos: catalog.filter(entry => entry.area === area)}));
+  // A game of an area this list does not know must still be offered, not lost.
+  const strays = catalog.filter(entry => !AREAS.some(([area]) => area === entry.area));
+  const groups = known.filter(group => group.juegos.length);
+  return strays.length ? [...groups, {area: 'otras', nombre: 'Otras', juegos: strays}] : groups;
+}
+
+const STUDENT_KEY = 'gg-estudiante';
+
+export function rememberStudent(storage, name) {
+  try {
+    storage.setItem(STUDENT_KEY, name);
+  } catch { /* without storage, the student picks again from the list */ }
+}
+
+export function recallStudent(storage, known) {
+  try {
+    const name = storage.getItem(STUDENT_KEY);
+    return known.includes(name) ? name : null;
+  } catch {
+    return null;
+  }
+}
+
+// The address comes from outside, so only values of the expected shape survive.
+export function parseEntry(search) {
+  const params = new URLSearchParams(search);
+  const entry = {};
+  if (params.get('pantalla') === 'experiencias') entry.pantalla = 'experiencias';
+  const ver = params.get('ver');
+  if (ver && /^[a-z0-9-]+$/.test(ver)) entry.ver = ver;
+  return entry;
+}

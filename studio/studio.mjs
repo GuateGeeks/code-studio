@@ -1,5 +1,6 @@
 import {exportBackup, mergeRecords, parseBackup} from './backup.mjs';
 import {createHost} from './host.mjs';
+import {groupByArea, loadCatalog, parseEntry, playerUrl, recallStudent, rememberStudent} from './experiencias.mjs';
 import {generateId, readId} from './identity.mjs';
 import {findMission, missionFilter, watchMission} from './mission.mjs';
 import {prepareOffline} from './offline.mjs';
@@ -13,7 +14,7 @@ let store;
 let session = null;
 
 function show(screen) {
-  for (const id of ['students', 'projects', 'workspace']) $(id).hidden = id !== screen;
+  for (const id of ['students', 'projects', 'catalog', 'workspace']) $(id).hidden = id !== screen;
 }
 
 const alertUser = message => { $('alert').textContent = message; };
@@ -53,8 +54,49 @@ async function showProjects(student) {
   $('student-backup').dataset.student = student;
   $('new-project').onclick = guard(() => createProject(student), 'No pudimos crear el proyecto. Avísale a tu docente.');
   $('start-mission').onclick = guard(() => startMission(student, 'atrapa-la-fruta'), 'No pudimos abrir la misión. Avísale a tu docente.');
+  $('open-catalog').onclick = guard(() => showCatalog(student), 'No pudimos abrir las experiencias. Avísale a tu docente.');
   $('import-png').onchange = guard(event => importPng(student, event.target.files[0]), 'No pudimos abrir ese archivo.');
   show('projects');
+}
+
+function gameCard(student, juego) {
+  const card = button('', () => {
+    // The player is another page: the student travels in sessionStorage so the copy lands in their projects.
+    rememberStudent(sessionStorage, student);
+    location.assign(playerUrl(juego.id));
+  }, 'game');
+  const title = document.createElement('span');
+  title.className = 'title';
+  title.textContent = juego.titulo;
+  const situation = document.createElement('span');
+  situation.className = 'situation';
+  situation.textContent = juego.situacion;
+  card.append(title, situation);
+  if (juego.repiteSocrates) {
+    const tag = document.createElement('span');
+    tag.className = 'tag';
+    tag.textContent = 'Repite un tema de Sócrates';
+    card.append(tag);
+  }
+  return card;
+}
+
+// The catalog is read before the screen changes, so a failure leaves the student where they were.
+async function showCatalog(student) {
+  const groups = groupByArea(await loadCatalog());
+  $('catalog-areas').replaceChildren(...groups.map(({nombre, juegos}) => {
+    const section = document.createElement('section');
+    const heading = document.createElement('h2');
+    heading.textContent = nombre;
+    const list = document.createElement('div');
+    list.className = 'list';
+    list.replaceChildren(...juegos.map(juego => gameCard(student, juego)));
+    section.append(heading, list);
+    return section;
+  }));
+  rememberStudent(sessionStorage, student);
+  $('catalog-back').onclick = guard(() => showProjects(student), 'No pudimos volver a tus proyectos.');
+  show('catalog');
 }
 
 async function loadTemplate() {
@@ -225,10 +267,23 @@ function wireScreens() {
   $('student-backup').addEventListener('click', guard(async () => download(await store.list($('student-backup').dataset.student), 'copia-estudiante'), 'No pudimos crear tu copia.'));
 }
 
+// The player and the copy button send the student back here by address. Anything that does not
+// resolve to a known student shows the list and creates nothing.
+async function routeEntry() {
+  const {pantalla, ver} = parseEntry(location.search);
+  if (pantalla || ver) history.replaceState(null, '', location.pathname.replace(/index\.html$/, ''));
+  await showStudents();
+  if (!pantalla && !ver) return;
+  const student = recallStudent(sessionStorage, await store.students());
+  if (!student) return;
+  if (pantalla === 'experiencias') await guard(() => showCatalog(student), 'No pudimos abrir las experiencias. Avísale a tu docente.')();
+  else await guard(() => showProjects(student), 'No pudimos abrir tus proyectos.')();
+}
+
 try {
   store = await openStore();
   wireScreens();
-  await showStudents();
+  await routeEntry();
   prepareOffline({status: $('offline-status'), update: $('update-studio'), storage: $('storage-status')});
 } catch {
   $('students').hidden = true;

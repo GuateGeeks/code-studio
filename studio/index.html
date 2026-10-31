@@ -38,11 +38,19 @@
   <div id="project-list" class="list"></div>
   <div class="row">
     <button type="button" id="start-mission" class="primary">Misión: Atrapa la fruta</button>
+    <button type="button" id="open-catalog">Experiencias</button>
     <button type="button" id="new-project">Nuevo proyecto</button>
     <label class="file">Abrir un PNG<input id="import-png" type="file" accept=".png,image/png"></label>
     <button type="button" id="student-backup">Copia de mis proyectos</button>
     <button type="button" id="change-from-projects">Cambiar de estudiante</button>
   </div>
+</main>
+<main id="catalog" class="screen" hidden>
+  <img class="geeky" src="assets/geeky-ojos.png" alt="">
+  <h1>Experiencias</h1>
+  <p class="intro">Juegos para aprender. Elige uno y juega.</p>
+  <div id="catalog-areas"></div>
+  <div class="row"><button type="button" id="catalog-back">Volver a mis proyectos</button></div>
 </main>
 <div id="workspace" hidden>
   <header><img src="assets/logo.png" alt="GuateGeeks"><span id="workspace-title"></span><button type="button" id="change-student">Cambiar de estudiante</button></header>
