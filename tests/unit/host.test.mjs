@@ -156,3 +156,11 @@ test('adopt descarta lo que no pertenece a la sesión y transforma lo demás', a
   assert.equal(store.records[0].project.header.name, 'Misión');
   assert.equal(host.latest().header.name, 'Misión');
 });
+test('un fallo de adopt avisa como cualquier guardado fallido', async () => {
+  const target = ventana();
+  let avisos = 0;
+  const host = createHost({store: memoria(), student: 'ana', target, onSaveError: () => avisos++, adopt: () => { throw new Error('pxt.json inválido'); }});
+  await guardar(host, target, proyecto('a'));
+  assert.equal(avisos, 1);
+  assert.deepEqual(await host.flushed(), {ok: false});
+});

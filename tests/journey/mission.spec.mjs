@@ -74,6 +74,19 @@ test('la misión también arranca si el estudiante ya tiene proyectos', async ({
   await expect.poll(async () => (await registros(page, 'Eva')).map(r => r.project.header.name).sort(), {timeout: 20000}).toEqual(['Atrapa la fruta', 'Mi juego 1']);
 });
 
+test('si la misión no se puede abrir, avisa y vuelve a los proyectos', async ({page}) => {
+  test.setTimeout(90000);
+  await page.route('**/missions/*.md', route => route.fulfill({contentType: 'text/markdown', body: '# Rota\n'}));
+  await entrarComo(page, 'Rosa');
+  await iniciarMision(page);
+  // PXT stays silent on this markdown, so the failed answer comes from the editor frame itself.
+  await expect.poll(() => page.frames().some(f => /ws=iframe/.test(f.url()))).toBe(true);
+  await page.frames().find(f => /ws=iframe/.test(f.url())).evaluate(() => window.parent.postMessage({type: 'pxteditor', id: 'mission', success: false}, '*'));
+  await expect(page.locator('#alert')).toContainText('No pudimos abrir la misión');
+  await expect(page.getByRole('button', {name: 'Nuevo proyecto'})).toBeVisible();
+  expect(await registros(page, 'Rosa')).toHaveLength(0);
+});
+
 test('la plantilla usa 320×240 sin bloque gris', async ({page}) => {
   test.setTimeout(90000);
   await page.goto(portada(LOCAL));
@@ -84,6 +97,8 @@ test('la plantilla usa 320×240 sin bloque gris', async ({page}) => {
   const editor = editorDe(page);
   await editor.locator('.blocklyDraggable').first().waitFor({state: 'attached', timeout: 60000});
   await expect(editor.locator('.blocklyDraggable[data-category="grey"], g[data-shapes="grey"]')).toHaveCount(0);
+  const editorFrame = page.frames().find(f => /ws=iframe/.test(f.url()));
+  expect(await editorFrame.evaluate(() => pxt.appTarget.runtime.screenSize)).toEqual({width: 320, height: 240});
   await ejecutar(page, editor);
   const ancho = await page.frames().find(f => /srcdoc/.test(f.url())).evaluate(() => document.getElementById('game-screen').width);
   expect(ancho).toBe(320);

@@ -1,7 +1,8 @@
 import {exportBackup, mergeRecords, parseBackup} from './backup.mjs';
 import {createHost} from './host.mjs';
 import {generateId, readId} from './identity.mjs';
-import {newProject, renameProject} from './project.mjs';
+import {findMission, missionFilter, watchMission} from './mission.mjs';
+import {newProject} from './project.mjs';
 import {openStore} from './store.mjs';
 import {addStudent} from './students.mjs';
 
@@ -76,14 +77,24 @@ async function startMission(student, id) {
   if (!response.ok) throw new Error(`Misión: ${response.status}`);
   const markdown = await response.text();
   const title = markdown.match(/^# (.+)$/m)[1];
-  const open = (await store.list(student)).find(({project: {header}}) => header.tutorial && header.name === title && !header.isDeleted);
-  if (open) return openEditor(student, openHeader(open.project.header.id));
-  // PXT opens a blank project of its own first; only the mission reaches the student's list.
-  const adopt = project => (project.header.tutorial || project.header.tutorialCompleted ? renameProject(project, title) : null);
-  openEditor(student, null, () => post(session.frame, {action: 'importtutorial', markdown}), {adopt});
+  const records = await store.list(student);
+  const mission = findMission(records, title);
+  if (mission) return openEditor(student, openHeader(mission.project.header.id));
+  const adopt = missionFilter(title, new Set(records.map(record => record.project.header.id)));
+  openEditor(student, null, () => post(session.frame, {id: 'mission', action: 'importtutorial', markdown, response: true}), {adopt});
+  const answer = watchMission({onFailed: guard(async () => {
+    closeEditor();
+    await showProjects(student);
+    alertUser('No pudimos abrir la misión. Avísale a tu docente.');
+  }, 'No pudimos abrir la misión. Avísale a tu docente.')});
+  session.settleMission = ok => {
+    session.settleMission = null;
+    answer(ok);
+  };
 }
 
 function closeEditor() {
+  session?.settleMission?.(true);
   $('editor').replaceChildren();
   session = null;
 }
@@ -128,6 +139,11 @@ async function importPng(student, file) {
 async function leaveEditor() {
   if (!session || session.leaving) return;
   const current = session;
+  // Nothing was saved yet, so there is nothing to wait for or warn about.
+  if (current.settleMission) {
+    closeEditor();
+    return showStudents();
+  }
   const label = $('change-student').textContent;
   current.leaving = true;
   $('change-student').disabled = true;
@@ -171,6 +187,7 @@ async function restoreBackup(file) {
 
 addEventListener('message', event => {
   if (!session || event.source !== session.frame.contentWindow) return;
+  if (event.data?.id === 'mission') return session.settleMission?.(event.data.success !== false);
   if (event.data?.action === 'editorcontentloaded' && session.afterLoad) {
     const run = session.afterLoad;
     session.afterLoad = null;

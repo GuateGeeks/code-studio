@@ -8,5 +8,9 @@
     "dependencies": {
         "device": "file:../device"
     },
-    "public": true
+    "public": true,
+    "screenSize": {
+        "width": 320,
+        "height": 240
+    }
 }

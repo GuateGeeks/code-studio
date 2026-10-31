@@ -28,7 +28,12 @@ export function createHost({store, student, target, onSaveError = () => {}, onSa
   }
 
   function enqueue(project) {
-    saves = saves.then(() => save(project)).then(() => { failed = false; onSaved(); }, error => { failed = true; onSaveError(error); });
+    saves = saves.then(() => {
+      const adopted = adopt(project);
+      if (!adopted) return;
+      latest = adopted;
+      return save(adopted);
+    }).then(() => { failed = false; onSaved(); }, error => { failed = true; onSaveError(error); });
     return saves;
   }
 
@@ -58,12 +63,8 @@ export function createHost({store, student, target, onSaveError = () => {}, onSa
       case 'workspaceloaded':
         reply(data);
         return onLoaded();
-      case 'workspacesave': {
-        const project = adopt(data.project);
-        if (!project) return;
-        latest = project;
-        return enqueue(project);
-      }
+      case 'workspacesave':
+        return enqueue(data.project);
       default:
         if (data.response) reply(data);
     }
