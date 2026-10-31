@@ -1,0 +1,14 @@
+# Lo que no se guarda para usar sin red: un prefijo por línea, relativo al sitio.
+# Todo lo demás se guarda, para que un archivo nuevo de PXT no rompa el uso sin red.
+# Una línea con ! vuelve a incluir ese prefijo.
+docs/
+!docs/static/gg-
+!docs/static/icons/
+rtl
+pxtembed.js
+runnerembed.js
+react-common-authcode.css
+react-common-multiplayer.css
+react-common-skillmap.css
+sw.js
+sw-manifest.json

@@ -37,6 +37,13 @@
 
 ---
 
+## Cambios durante la ejecución
+
+- El sitio publica la portada como `index.html` y el editor pasa a `editor.html`.
+- El simulador usa CSP por `<meta>` dentro de `srcdoc`, porque Pages no permite cabeceras.
+- La misión usa categorías filtradas, no `flyoutOnly`, que rompe Blockly en `pxt-core` 13.2.1.
+- `tools/site-files.txt` lista lo que no se guarda sin red, no lo que se guarda.
+
 ## Mapa de archivos
 
 | Ruta | Responsabilidad |

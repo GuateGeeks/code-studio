@@ -1,6 +1,7 @@
 import {cpSync, existsSync, readdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync} from 'node:fs';
 import {join, relative, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {siteVersion, swManifest} from './sw-manifest.mjs';
 
 // staticpkg copies every pxt-core tool and page, whatever the target asks for.
 const UNUSED = ['kiosk', 'kiosk.html', 'skillmap', 'skillmap.html', 'teachertool', 'teachertool.html', 'tutorialtool', 'tutorialtool.html', 'multiplayer', 'multiplayer.html', 'authcode', 'authcode.html', 'codeembed.html', 'rendertest.html', 'runnertest.html', 'multi.html', 'docs.html', 'hexcache', 'docfiles', 'ai.2.min.js', 'siminstructions.html', 'oauth-redirect.html', 'asseteditor.html', 'pxtasseteditor.js', 'run.html'];
@@ -47,11 +48,21 @@ function publishPortal(site, studio) {
   writeFileSync(join(site, 'project-template.json'), JSON.stringify({config, files, targetVersion: target.versions.target}));
 }
 
+// The service worker carries the version, so any change to the site reaches the browser as an update.
+function publishOffline(site) {
+  const {files} = swManifest(walk(site).map(path => relative(site, path)).sort(), '');
+  const version = siteVersion(site, files);
+  writeFileSync(join(site, 'sw-manifest.json'), JSON.stringify({version, files}));
+  const worker = join(site, 'sw.js');
+  if (existsSync(worker)) writeFileSync(worker, readFileSync(worker, 'utf8').replace('__GG_VERSION__', version));
+}
+
 export function finishSite(site, studio = STUDIO) {
   pruneSite(site);
   const sim = join(site, 'sim.js');
   if (existsSync(sim)) writeFileSync(sim, replaceProIcon(readFileSync(sim, 'utf8')));
   publishPortal(site, studio);
+  publishOffline(site);
   const hits = foreignBrand(site);
   if (hits.length) throw new Error(`Marcas ajenas en lo publicado: ${hits.join(', ')}`);
 }

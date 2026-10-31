@@ -9,6 +9,8 @@ Fork del target `pxt-arcade`. Diseño: `docs/superpowers/specs/2026-10-30-code-s
 - Compilar con `pxt staticpkg --route code-studio`. **Nunca `--githubpages`:** intenta publicar en `origin`.
 - Sin datos de estudiantes en el repositorio. Sin marcas Microsoft o MakeCode en lo publicado.
 - Sin push salvo petición expresa del usuario.
+- El service worker sirve el sitio desde caché: tras cambiar algo, cierra todas las pestañas del estudio para ver la versión nueva.
+- Cada archivo nuevo del sitio se guarda sin red salvo que `tools/site-files.txt` lo excluya.
 
 ## Pruebas
 
