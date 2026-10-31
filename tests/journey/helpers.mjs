@@ -3,7 +3,7 @@ export const REMOTE = 'http://gg-class.test:5310';
 
 // Minimal host for tests before the real portal exists; answers the workspace protocol.
 const HOST = `<!doctype html><title>host</title><script>window.saves = [];</script><style>html,body,iframe{margin:0;width:100%;height:100%;border:0}</style>
-<iframe id="e" src="/code-studio/index.html?nosandbox=1&ws=iframe&editorlayout=ide"></iframe><script>
+<iframe id="e" src="/code-studio/editor.html?nosandbox=1&ws=iframe&editorlayout=ide"></iframe><script>
 addEventListener('message', ({data: m}) => {
   if (!m || m.type !== 'pxthost') return;
   const reply = extra => e.contentWindow.postMessage({...m, success: true, ...extra}, '*');
@@ -56,3 +56,32 @@ export async function ejecutar(page, editor) {
   }
   throw new Error('El juego no arrancó');
 }
+
+
+export const portada = origin => `${origin}/code-studio/`;
+export const editorDe = page => page.frameLocator('#editor-frame');
+
+export async function entrarComo(page, nombre, origin = LOCAL) {
+  if (!page.url().includes('/code-studio/')) await page.goto(portada(origin));
+  const boton = page.getByRole('button', {name: nombre, exact: true});
+  await page.waitForTimeout(300);
+  if (await boton.count()) await boton.click();
+  else {
+    await page.getByLabel('Tu nombre').fill(nombre);
+    await page.getByRole('button', {name: 'Entrar'}).click();
+  }
+}
+
+export async function abrirProyecto(page) {
+  const existente = page.locator('.project');
+  await page.waitForTimeout(300);
+  if (await existente.count()) await existente.first().click();
+  else await page.getByRole('button', {name: 'Nuevo proyecto'}).click();
+  const editor = editorDe(page);
+  // A project reopens in the view the student left it in.
+  await editor.locator('.blocklyDraggable, .monaco-editor').first().waitFor({state: 'attached', timeout: 45000});
+  await page.waitForTimeout(1500);
+  return editor;
+}
+
+export const leerCodigo = page => page.frames().find(f => /ws=iframe/.test(f.url())).evaluate(() => window.monaco.editor.getModels().find(m => /main\.ts/.test(m.uri.path)).getValue());

@@ -1,9 +1,10 @@
-import {existsSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync} from 'node:fs';
-import {join, relative} from 'node:path';
+import {cpSync, existsSync, readdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync} from 'node:fs';
+import {join, relative, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 // staticpkg copies every pxt-core tool and page, whatever the target asks for.
 const UNUSED = ['kiosk', 'kiosk.html', 'skillmap', 'skillmap.html', 'teachertool', 'teachertool.html', 'tutorialtool', 'tutorialtool.html', 'multiplayer', 'multiplayer.html', 'authcode', 'authcode.html', 'codeembed.html', 'rendertest.html', 'runnertest.html', 'multi.html', 'docs.html', 'hexcache', 'docfiles', 'ai.2.min.js', 'siminstructions.html', 'oauth-redirect.html', 'asseteditor.html', 'pxtasseteditor.js', 'run.html'];
+const STUDIO = resolve(fileURLToPath(new URL('../studio', import.meta.url)));
 const TEXT = /\.(html|webmanifest)$/;
 const FOREIGN = /microsoft|makecode/i;
 
@@ -30,8 +31,18 @@ export function foreignBrand(site) {
   return walk(site).map(path => relative(site, path)).filter(path => FOREIGN.test(path) || (TEXT.test(path) && FOREIGN.test(readFileSync(join(site, path), 'utf8'))));
 }
 
-export function finishSite(site) {
+// The portal takes the site root, so PXT's own page moves aside.
+function publishPortal(site, studio) {
+  if (!existsSync(join(site, 'editor.html'))) renameSync(join(site, 'index.html'), join(site, 'editor.html'));
+  cpSync(studio, site, {recursive: true});
+  const target = JSON.parse(readFileSync(join(site, 'target.json'), 'utf8'));
+  const {config, files} = target.blocksprj;
+  writeFileSync(join(site, 'project-template.json'), JSON.stringify({config, files, targetVersion: target.versions.target}));
+}
+
+export function finishSite(site, studio = STUDIO) {
   pruneSite(site);
+  publishPortal(site, studio);
   const hits = foreignBrand(site);
   if (hits.length) throw new Error(`Marcas ajenas en lo publicado: ${hits.join(', ')}`);
 }

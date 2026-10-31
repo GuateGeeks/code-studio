@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GuateGeeks Code Studio</title>
+<link rel="icon" href="docs/static/gg-favicon.png">
+<link rel="stylesheet" href="studio.css">
+</head>
+<body>
+<main id="students" class="screen">
+  <img class="logo" src="assets/logo.png" alt="GuateGeeks">
+  <img class="geeky" src="assets/geeky-ojos.png" alt="">
+  <h1>¿Quién va a crear hoy?</h1>
+  <div id="student-list" class="list"></div>
+  <form id="student-form">
+    <label for="student-name">Tu nombre</label>
+    <div class="row"><input id="student-name" autocomplete="off" maxlength="60"><button type="submit" class="primary">Entrar</button></div>
+    <p id="student-error" role="alert"></p>
+  </form>
+  <details class="class-tools">
+    <summary>Herramientas de la clase</summary>
+    <div class="row">
+      <button type="button" id="class-backup">Copia de la clase</button>
+      <label class="file">Restaurar copia<input id="class-restore" type="file" accept=".json"></label>
+    </div>
+    <p id="class-status" role="status"></p>
+  </details>
+</main>
+<main id="projects" class="screen" hidden>
+  <img class="geeky" src="assets/geeky-ojos.png" alt="">
+  <h1 id="projects-title"></h1>
+  <div id="project-list" class="list"></div>
+  <div class="row">
+    <button type="button" id="new-project" class="primary">Nuevo proyecto</button>
+    <label class="file">Abrir un PNG<input id="import-png" type="file" accept=".png,image/png"></label>
+    <button type="button" id="change-from-projects">Cambiar de estudiante</button>
+  </div>
+</main>
+<div id="workspace" hidden>
+  <header><img src="assets/logo.png" alt="GuateGeeks"><span id="workspace-title"></span><button type="button" id="change-student">Cambiar de estudiante</button></header>
+  <p id="save-warning" role="alert" hidden>No pudimos guardar tu trabajo. Avísale a tu docente antes de cerrar.</p>
+  <div id="editor"></div>
+</div>
+<script type="module" src="studio.mjs"></script>
+</body>
+</html>

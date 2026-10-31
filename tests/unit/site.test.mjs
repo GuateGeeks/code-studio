@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {foreignBrand, pruneSite} from '../../tools/site.mjs';
+import {finishSite, foreignBrand, pruneSite} from '../../tools/site.mjs';
 
 const sitio = files => {
   const dir = mkdtempSync(join(tmpdir(), 'gg-site-'));
@@ -34,4 +34,19 @@ test('quita el script de traducción en contexto de Crowdin', () => {
 test('detecta marcas ajenas en páginas y nombres de archivo, no en bundles', () => {
   const dir = sitio({'index.html': 'Microsoft MakeCode', 'main.js': 'MakeCode', 'docs/static/makecode.png': 'x', 'ok.html': 'hola'});
   assert.deepEqual(foreignBrand(dir).sort(), ['docs/static/makecode.png', 'index.html']);
+});
+test('publica la portada como index y mueve el editor', () => {
+  const dir = sitio({'index.html': 'editor', 'target.json': JSON.stringify({versions: {target: '4.2.1'}, blocksprj: {config: {name: 'x'}, files: {'main.ts': ''}}})});
+  const studio = sitio({'index.html': 'portada', 'studio.mjs': 'x'});
+  finishSite(dir, studio);
+  assert.equal(readFileSync(join(dir, 'index.html'), 'utf8'), 'portada');
+  assert.equal(readFileSync(join(dir, 'editor.html'), 'utf8'), 'editor');
+  assert.deepEqual(JSON.parse(readFileSync(join(dir, 'project-template.json'), 'utf8')), {config: {name: 'x'}, files: {'main.ts': ''}, targetVersion: '4.2.1'});
+});
+test('repetir el acabado no pisa el editor', () => {
+  const dir = sitio({'index.html': 'editor', 'target.json': JSON.stringify({versions: {target: '1'}, blocksprj: {config: {}, files: {}}})});
+  const studio = sitio({'index.html': 'portada'});
+  finishSite(dir, studio);
+  finishSite(dir, studio);
+  assert.equal(readFileSync(join(dir, 'editor.html'), 'utf8'), 'editor');
 });
