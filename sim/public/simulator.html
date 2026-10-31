@@ -16,7 +16,11 @@ const stage = document.getElementById('stage');
 const allowed = data => !/^(pxteditor|pxthost|pxtpkgext|iframeclient)/.test(data?.type ?? '') && !(data?.type === 'simulator' && data.command === 'modal');
 addEventListener('message', event => {
   if (event.source === stage.contentWindow) { if (allowed(event.data)) parent.postMessage(event.data, '*'); }
-  else if (event.source === parent) stage.contentWindow.postMessage(event.data, '*');
+  else if (event.source === parent) {
+    // The page that embeds the simulator can ask for the keyboard: focusing this frame is not enough to reach the opaque one inside.
+    if (event.data?.type === 'gg-focus') { stage.focus(); stage.contentWindow.focus(); }
+    else stage.contentWindow.postMessage(event.data, '*');
+  }
 });
 addEventListener('focus', () => stage.focus());
 // CSP cannot stop a frame navigating itself, so a second load means it tried to leave.

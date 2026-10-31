@@ -68,7 +68,7 @@ function publishOffline(site) {
   if (existsSync(worker)) writeFileSync(worker, readFileSync(worker, 'utf8').replace('__GG_VERSION__', version));
 }
 
-const REQUIRED = ['index.html', 'editor.html', 'simulator.html', 'sim-inner.html', 'pxtsim.js', 'sim.js', 'project-template.json', 'missions/atrapa-la-fruta.md', 'games/catalogo.json', 'sw.js', 'sw-manifest.json'];
+const REQUIRED = ['index.html', 'editor.html', 'simulator.html', 'sim-inner.html', 'pxtsim.js', 'sim.js', 'project-template.json', 'player.html', 'player.mjs', 'missions/atrapa-la-fruta.md', 'games/catalogo.json', 'sw.js', 'sw-manifest.json'];
 
 // Last gate before publishing: a bad service worker is much harder to take back than a bad page.
 export function checkSite(site) {

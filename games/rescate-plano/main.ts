@@ -1,2 +1,13 @@
+let paso = 0
 let geeky = sprites.create(sprites.gg.geeky, SpriteKind.Player)
-game.showLongText("Rescate en el plano", DialogLayout.Bottom)
+
+function emitir() {
+    paso += 1
+    control.simmessages.send("gg-experiencia", Buffer.fromUTF8("{\"fase\":\"explorar\",\"paso\":" + paso + "}"), true)
+}
+
+controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
+    emitir()
+})
+geeky.sayText("Rescate en el plano")
+emitir()

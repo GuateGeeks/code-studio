@@ -95,3 +95,22 @@ export const registros = (page, estudiante) => page.evaluate(async nombre => {
   const {openStore} = await import('./store.mjs');
   return (await openStore()).list(nombre);
 }, estudiante);
+
+const TECLAS = {A: 'Space', der: 'ArrowRight', izq: 'ArrowLeft', arr: 'ArrowUp', aba: 'ArrowDown'};
+
+// Opens a game on its own page and waits for the game itself to report that it runs.
+export async function abrirJuego(page, id, origin = LOCAL) {
+  await page.goto(`${origin}/code-studio/player.html?juego=${id}`);
+  await page.locator('body[data-estado=jugando]').waitFor({state: 'attached', timeout: 30000});
+}
+
+export const estadoJuego = page => page.evaluate(() => ({...document.body.dataset}));
+
+// A press shorter than the game's polling is lost, so the key stays down a human-like moment.
+export async function pulsar(page, tecla) {
+  const codigo = TECLAS[tecla] ?? tecla;
+  await page.keyboard.down(codigo);
+  await page.waitForTimeout(120);
+  await page.keyboard.up(codigo);
+  await page.waitForTimeout(80);
+}
