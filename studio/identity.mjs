@@ -8,6 +8,14 @@ export function readId(project) {
   }
 }
 
+export function readDerivedFrom(project) {
+  try {
+    return JSON.parse(project.text[CONFIG]).ggProject?.derivedFrom;
+  } catch {
+    return undefined;
+  }
+}
+
 export function stampIdentity(project, id, derivedFrom) {
   const config = JSON.parse(project.text[CONFIG]);
   config.ggProject = {id, v: 1, ...(derivedFrom ? {derivedFrom} : {})};

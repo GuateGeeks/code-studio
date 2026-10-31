@@ -1,2 +1,4 @@
 /* Sin hardware en el estudio: guardar PNG sustituye a «Descargar». */
 .download-button, .download-button-full, #downloadArea { display: none !important; }
+/* La portada ya muestra la marca encima del editor. */
+#mainmenu .brand, .menubar .brand, .menubar .logo { display: none !important; }

@@ -782,7 +782,6 @@
         "githubUrl": "https://github.com/GuateGeeks/code-studio",
         "boardName": "Escenario",
         "addNewTypeScriptFile": true,
-        "docMenu": [],
         "coloredToolbox": true,
         "monacoToolbox": true,
         "selectLanguage": false,

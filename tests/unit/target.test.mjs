@@ -10,7 +10,7 @@ test('la configuración visible no nombra marcas ajenas', () => {
     assert.doesNotMatch(String(target[key] ?? appTheme[key] ?? ''), /microsoft|makecode/i, key);
 });
 test('sin menú de documentación ajena, VS Code ni extensiones', () => {
-  assert.deepEqual(target.appTheme.docMenu, []);
+  assert.equal(target.appTheme.docMenu, undefined);
   assert.equal(target.appTheme.showOpenInVscode, false);
   assert.equal(target.appTheme.allowPackageExtensions, false);
 });

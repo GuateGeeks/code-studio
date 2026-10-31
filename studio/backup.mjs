@@ -20,7 +20,8 @@ export function parseBackup(text) {
 }
 
 export function mergeRecords(existing, incoming) {
-  const newest = new Map(existing.map(record => [record.key, record.at]));
+  // A deleted record never blocks recovering the live copy.
+  const newest = new Map(existing.filter(record => !record.project.header.isDeleted).map(record => [record.key, record.at]));
   const records = incoming.filter(record => !(newest.get(record.key) > record.at));
   return {records, skipped: incoming.length - records.length};
 }

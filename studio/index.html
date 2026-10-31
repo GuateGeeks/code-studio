@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="studio.css">
 </head>
 <body>
+<p id="alert" role="alert"></p>
 <main id="students" class="screen">
   <img class="logo" src="assets/logo.png" alt="GuateGeeks">
   <img class="geeky" src="assets/geeky-ojos.png" alt="">
@@ -40,7 +41,14 @@
 </main>
 <div id="workspace" hidden>
   <header><img src="assets/logo.png" alt="GuateGeeks"><span id="workspace-title"></span><button type="button" id="change-student">Cambiar de estudiante</button></header>
-  <p id="save-warning" role="alert" hidden>No pudimos guardar tu trabajo. Avísale a tu docente antes de cerrar.</p>
+  <div id="save-warning" role="alert" hidden>
+    <p>No pudimos guardar tu trabajo. Avísale a tu docente antes de salir.</p>
+    <div class="row">
+      <button type="button" id="save-retry" class="primary">Reintentar</button>
+      <button type="button" id="save-download">Descargar mi trabajo</button>
+      <button type="button" id="save-leave">Salir sin guardar</button>
+    </div>
+  </div>
   <div id="editor"></div>
 </div>
 <script type="module" src="studio.mjs"></script>

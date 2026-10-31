@@ -1,19 +1,30 @@
 import {exportBackup, mergeRecords, parseBackup} from './backup.mjs';
 import {createHost} from './host.mjs';
-import {generateId} from './identity.mjs';
+import {generateId, readId} from './identity.mjs';
 import {newProject} from './project.mjs';
 import {openStore} from './store.mjs';
 import {addStudent} from './students.mjs';
 
 const EDITOR_URL = 'editor.html?nosandbox=1&ws=iframe&editorlayout=ide';
-const SAVE_TIMEOUT = 3000;
 const $ = id => document.getElementById(id);
-const store = await openStore();
+let store;
 let session = null;
 
 function show(screen) {
   for (const id of ['students', 'projects', 'workspace']) $(id).hidden = id !== screen;
 }
+
+const alertUser = message => { $('alert').textContent = message; };
+
+// Every action reports its failure: a silent button is the worst outcome for a student.
+const guard = (action, message) => async (...args) => {
+  alertUser('');
+  try {
+    return await action(...args);
+  } catch {
+    alertUser(message);
+  }
+};
 
 function button(label, onClick, className) {
   const element = document.createElement('button');
@@ -25,31 +36,43 @@ function button(label, onClick, className) {
 }
 
 async function showStudents() {
-  show('students');
   const names = await store.students();
-  $('student-list').replaceChildren(...names.map(name => button(name, () => showProjects(name))));
+  $('student-list').replaceChildren(...names.map(name => button(name, guard(() => showProjects(name), 'No pudimos abrir tus proyectos.'))));
+  $('project-list').replaceChildren();
   $('student-name').value = '';
+  show('students');
 }
 
+// Reads first and swaps in one step, so a student never sees another student's buttons.
 async function showProjects(student) {
-  show('projects');
-  $('projects-title').textContent = `Hola, ${student}`;
   const records = (await store.list(student)).filter(record => !record.project.header.isDeleted).sort((a, b) => b.at - a.at);
+  $('projects-title').textContent = `Hola, ${student}`;
   $('project-list').replaceChildren(...records.map(record => button(record.project.header.name, () => openEditor(student, record.project.header.id), 'project')));
   $('student-backup').dataset.student = student;
-  $('new-project').onclick = () => createProject(student);
-  $('import-png').onchange = event => importPng(student, event.target.files[0]);
-  $('change-from-projects').onclick = showStudents;
+  $('new-project').onclick = guard(() => createProject(student), 'No pudimos crear el proyecto. Avísale a tu docente.');
+  $('import-png').onchange = guard(event => importPng(student, event.target.files[0]), 'No pudimos abrir ese archivo.');
+  show('projects');
+}
+
+async function loadTemplate() {
+  const response = await fetch('project-template.json');
+  if (!response.ok) throw new Error(`Plantilla: ${response.status}`);
+  return response.json();
 }
 
 async function createProject(student) {
+  const template = await loadTemplate();
   const count = (await store.list(student)).length + 1;
-  const template = await fetch('project-template.json').then(response => response.json());
   const headerId = generateId().slice(3);
   const id = generateId();
   const project = newProject(template, {name: `Mi juego ${count}`, id, headerId, now: Math.floor(Date.now() / 1000)});
   await store.put({key: `${student}/${headerId}`, student, ggId: id, project, at: Date.now()});
   openEditor(student, headerId);
+}
+
+function closeEditor() {
+  $('editor').replaceChildren();
+  session = null;
 }
 
 function openEditor(student, headerId, afterLoad) {
@@ -64,14 +87,16 @@ function openEditor(student, headerId, afterLoad) {
   const host = createHost({
     store, student, target: frame.contentWindow,
     onSaveError: () => { $('save-warning').hidden = false; },
-    onLoaded: () => frame.contentWindow.postMessage({type: 'pxteditor', id: 'open', action: 'openheader', headerId}, '*')
+    onSaved: () => { $('save-warning').hidden = true; },
+    onLoaded: () => frame.contentWindow.postMessage({type: 'pxteditor', id: 'open', action: 'openheader', headerId}, '*'),
+    onDeleted: guard(async () => { closeEditor(); await showProjects(student); }, 'No pudimos volver a tus proyectos.')
   });
-  session = {student, frame, host, afterLoad, pending: null};
+  session = {student, frame, host, afterLoad, leaving: false};
 }
 
 async function importPng(student, file) {
   if (!file) return;
-  const records = (await store.list(student)).sort((a, b) => b.at - a.at);
+  const records = (await store.list(student)).filter(record => !record.project.header.isDeleted).sort((a, b) => b.at - a.at);
   const drop = () => {
     const data = new DataTransfer();
     data.items.add(file);
@@ -84,36 +109,25 @@ async function importPng(student, file) {
   }
 }
 
-// Ask the editor to save, so a student who leaves right after typing keeps the change.
-function saveNow({frame, host}) {
-  return new Promise(resolve => {
-    const id = generateId();
-    const timer = setTimeout(resolve, SAVE_TIMEOUT);
-    session.pending = {id, finish: () => { clearTimeout(timer); resolve(); }};
-    frame.contentWindow.postMessage({type: 'pxteditor', id, action: 'saveproject', response: true}, '*');
-  }).then(() => host.flushed());
-}
-
 async function leaveEditor() {
-  const {student} = session;
-  await saveNow(session);
-  $('editor').replaceChildren();
-  session = null;
-  await showProjects(student);
+  if (!session || session.leaving) return;
+  const current = session;
+  const label = $('change-student').textContent;
+  current.leaving = true;
+  $('change-student').disabled = true;
+  $('change-student').textContent = 'Guardando…';
+  const {ok} = await current.host.requestSave();
+  $('change-student').disabled = false;
+  $('change-student').textContent = label;
+  current.leaving = false;
+  if (session !== current) return;
+  if (!ok) {
+    $('save-warning').hidden = false;
+    return;
+  }
+  closeEditor();
   await showStudents();
 }
-
-addEventListener('message', event => {
-  if (!session || event.source !== session.frame.contentWindow) return;
-  const {data} = event;
-  if (data?.type === 'pxteditor' && data.id === session.pending?.id) return session.pending.finish();
-  if (data?.action === 'editorcontentloaded' && session.afterLoad) {
-    const run = session.afterLoad;
-    session.afterLoad = null;
-    return run();
-  }
-  session.host.handle(event);
-});
 
 function download(records, name) {
   const link = document.createElement('a');
@@ -123,31 +137,65 @@ function download(records, name) {
   setTimeout(() => URL.revokeObjectURL(link.href), 1000);
 }
 
+function downloadCurrentWork() {
+  const project = session?.host.latest();
+  if (!project) return;
+  download([{key: `${session.student}/${project.header.id}`, student: session.student, ggId: readId(project) ?? generateId(), project, at: Date.now()}], 'trabajo-sin-guardar');
+}
+
 async function restoreBackup(file) {
+  $('class-status').textContent = 'Restaurando…';
   const parsed = parseBackup(await file.text());
   if (!parsed.ok) { $('class-status').textContent = parsed.reason; return; }
   const {records, skipped} = mergeRecords(await store.all(), parsed.records);
-  for (const record of records) {
-    await store.addStudent(record.student);
-    await store.put(record);
-  }
-  for (const student of new Set(parsed.records.map(record => record.student))) await store.addStudent(student);
+  await store.restore(records, [...new Set(parsed.records.map(record => record.student))]);
   await showStudents();
   $('class-status').textContent = `Restaurados: ${records.length}. Conservados por ser más recientes: ${skipped}.`;
 }
 
-$('class-backup').addEventListener('click', async () => download(await store.all(), 'copia-clase'));
-$('class-restore').addEventListener('change', event => { if (event.target.files[0]) restoreBackup(event.target.files[0]); event.target.value = ''; });
-$('student-backup').addEventListener('click', async () => download(await store.list($('student-backup').dataset.student), 'copia-estudiante'));
-$('student-form').addEventListener('submit', async event => {
-  event.preventDefault();
-  const result = addStudent($('student-name').value, await store.students());
-  $('student-error').textContent = result.ok ? '' : result.reason;
-  if (!result.ok) return;
-  await store.addStudent(result.name);
-  await showStudents();
-  await showProjects(result.name);
+addEventListener('message', event => {
+  if (!session || event.source !== session.frame.contentWindow) return;
+  if (event.data?.action === 'editorcontentloaded' && session.afterLoad) {
+    const run = session.afterLoad;
+    session.afterLoad = null;
+    return run();
+  }
+  session.host.handle(event);
 });
-$('change-student').addEventListener('click', leaveEditor);
 
-await showStudents();
+function wireScreens() {
+  $('student-form').addEventListener('submit', guard(async event => {
+    event.preventDefault();
+    const result = addStudent($('student-name').value, await store.students());
+    $('student-error').textContent = result.ok ? '' : result.reason;
+    if (!result.ok) return;
+    await store.addStudent(result.name);
+    await showStudents();
+    await showProjects(result.name);
+  }, 'No pudimos guardar tu nombre. Avísale a tu docente.'));
+  $('change-student').addEventListener('click', leaveEditor);
+  $('change-from-projects').addEventListener('click', guard(showStudents, 'No pudimos volver a la lista.'));
+  $('save-retry').addEventListener('click', leaveEditor);
+  $('save-download').addEventListener('click', downloadCurrentWork);
+  $('save-leave').addEventListener('click', guard(async () => {
+    if (!confirm('Si sales ahora perderás los últimos cambios. ¿Salir de todos modos?')) return;
+    closeEditor();
+    await showStudents();
+  }, 'No pudimos volver a la lista.'));
+  $('class-backup').addEventListener('click', guard(async () => download(await store.all(), 'copia-clase'), 'No pudimos crear la copia de la clase.'));
+  $('class-restore').addEventListener('change', event => {
+    const file = event.target.files[0];
+    event.target.value = '';
+    if (file) restoreBackup(file).catch(() => { $('class-status').textContent = 'No se restauró nada: no hubo espacio o el archivo falló. Inténtalo de nuevo.'; });
+  });
+  $('student-backup').addEventListener('click', guard(async () => download(await store.list($('student-backup').dataset.student), 'copia-estudiante'), 'No pudimos crear tu copia.'));
+}
+
+try {
+  store = await openStore();
+  wireScreens();
+  await showStudents();
+} catch {
+  $('students').hidden = true;
+  alertUser('Este navegador no permite guardar proyectos. Avísale a tu docente.');
+}

@@ -30,3 +30,8 @@ test('restaurar recupera lo que falta o es más antiguo', () => {
   assert.equal(mergeRecords([], [registro(3)]).records.length, 1);
   assert.equal(mergeRecords([registro(1)], [registro(3)]).records.length, 1);
 });
+test('una copia viva gana a un registro eliminado', () => {
+  const eliminado = registro(9);
+  eliminado.project.header.isDeleted = true;
+  assert.equal(mergeRecords([eliminado], [registro(3)]).records.length, 1);
+});

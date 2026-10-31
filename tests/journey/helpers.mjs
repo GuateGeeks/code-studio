@@ -33,11 +33,16 @@ export async function abrirEditor(page, origin = LOCAL) {
   return editor;
 }
 
-export async function escribir(page, editor, code) {
-  await editor.locator('.javascript-menuitem').first().click();
+export async function escribirSinEsperar(page, editor, code) {
+  const vista = editor.locator('.javascript-menuitem').first();
+  if (!(await vista.getAttribute('class')).includes('active')) await vista.click();
   await page.waitForTimeout(4000);
   const frame = page.frames().find(f => /ws=iframe/.test(f.url()));
   await frame.evaluate(text => window.monaco.editor.getModels().find(m => /main\.ts/.test(m.uri.path)).setValue(text), code);
+}
+
+export async function escribir(page, editor, code) {
+  await escribirSinEsperar(page, editor, code);
   await page.waitForTimeout(3500);
 }
 
@@ -85,3 +90,8 @@ export async function abrirProyecto(page) {
 }
 
 export const leerCodigo = page => page.frames().find(f => /ws=iframe/.test(f.url())).evaluate(() => window.monaco.editor.getModels().find(m => /main\.ts/.test(m.uri.path)).getValue());
+
+export const registros = (page, estudiante) => page.evaluate(async nombre => {
+  const {openStore} = await import('./store.mjs');
+  return (await openStore()).list(nombre);
+}, estudiante);
