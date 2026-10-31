@@ -1,0 +1,22 @@
+{
+  "Corgio.addToScript|block": "teach %corgio(myCorg) the word %input",
+  "Corgio.addToScript|param|input|defl": "bark",
+  "Corgio.bark|block": "make %corgio(myCorg) bark!",
+  "Corgio.cameraFollow|block": "make camera follow %corgio(myCorg) left and right || %on=toggleOnOff",
+  "Corgio.decelerationRate|block": "rate horizontal movement is slowed",
+  "Corgio.gravity|block": "gravity",
+  "Corgio.horizontalMovement|block": "make %corgio(myCorg) move left and right with arrow keys || %on=toggleOnOff",
+  "Corgio.jumpVelocity|block": "jump speed",
+  "Corgio.maxJump|block": "max jumps in a row",
+  "Corgio.maxMoveVelocity|block": "horizontal speed",
+  "Corgio.sprite|block": "%corgio(myCorg) sprite",
+  "Corgio.updateSprite|block": "change image when %corgio(myCorg) is moving || %on=toggleOnOff",
+  "Corgio.verticalMovement|block": "make %corgio(myCorg) jump if up arrow key is pressed || %on=toggleOnOff",
+  "corgio.create|block": "corgi of kind %kind=spritekind || at x %x y %y",
+  "corgio|block": "corgio",
+  "{id:category}Corgio": "Corgio",
+  "{id:group}Create": "Create",
+  "{id:group}Movement": "Movement",
+  "{id:group}Properties": "Properties",
+  "{id:group}Speak": "Speak"
+}

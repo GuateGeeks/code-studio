@@ -1,0 +1,3 @@
+{
+  "gdk.readP0Adc": "Blocking single-shot ADC read of P0 (P0.02 / AIN0). Returns 0..1023 (same\nscale as pins.analogReadPin), or -1 on hardware timeout.\n* Absolute internal 0.6V reference + gain 1/6 => full scale 3.6V (VDD-independent,\nso the reading stays correct as the battery/VDD drains). 40us acquisition suits\nthe on-board ~82k divider.\n* Owns the SAADC exclusively for the ~50us the conversion takes, then fully\ndisables it. It does NOT touch PPI/timers/IRQs, so it cannot disturb the\ndisplay or audio. The complete manual sequence is:\nENABLE -> START -> (STARTED) -> SAMPLE -> (END) -> STOP -> (STOPPED) -> DISABLE\nThe SAMPLE task is the critical step the previous version was missing."
+}

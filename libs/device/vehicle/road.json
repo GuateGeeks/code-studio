@@ -1,0 +1,16 @@
+{
+    "frames": [
+        "Turn1",
+        "Turn2",
+        "Intersection1",
+        "Intersection2",
+        "Turn3",
+        "Turn4",
+        "Intersection3",
+        "Intersection4",
+        "Vertical",
+        "Horizontal"
+    ],
+    "tags": "tile misc",
+    "blockIdentity": "images._tile"
+}

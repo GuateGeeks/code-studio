@@ -1,0 +1,17 @@
+{
+  "scene": "Control the background, tiles and camera",
+  "scene.getTile": "Get the tile at a position in the tile map",
+  "scene.getTilesByType": "Get all tiles in the tile map with the given index.",
+  "scene.getTile|param|col": "@param row",
+  "scene.onHitTile": "Run code when a certain kind of sprite hits a tile",
+  "scene.place": "Center the given sprite on this tile",
+  "scene.placeOnRandomTile": "Center the given sprite on a random tile that is the given color",
+  "scene.placeOnRandomTile|param|sprite": "@param color",
+  "scene.setTile": "Set an image as a tile at the given index. Tiles should be a 16x16 image",
+  "scene.setTileAt": "Set a tile at the given index",
+  "scene.setTileAt|param|tile": "@param index",
+  "scene.setTileMap": "Package for color-coded tilemap blocks, to support existing curriculum.\n\nSet the map for placing tiles in the scene",
+  "scene.setTileMap|param|map": "@param scale",
+  "scene.setTile|param|index": "@param img",
+  "scene.tileHitFrom": "Get the obstacle sprite in a given direction if any"
+}

@@ -1,0 +1,23 @@
+{
+  "Dart.angleRate|block": "angle adjust rate",
+  "Dart.angle|block": "angle",
+  "Dart.controlWithArrowKeys|block": "control %dart(myDart) with arrow keys || %on=toggleOnOff",
+  "Dart.gravity|block": "gravity",
+  "Dart.iter|block": "tracing time (seconds)",
+  "Dart.powerRate|block": "power adjust rate",
+  "Dart.pow|block": "power",
+  "Dart.setTrace|block": "trace %dart(myDart) path estimate || %on=toggleOnOff",
+  "Dart.sprite|block": "%dart(myDart) sprite",
+  "Dart.stopDart|block": "stop %dart(myDart)",
+  "Dart.throwDart|block": "throw %dart(myDart)",
+  "Dart.traceColor|block": "trace color",
+  "Dart.updateBackground|block": "change %dart(myDart) background to image %img=background_image_picker",
+  "Dart.wind|block": "wind",
+  "darts.create|block": "dart %img=screen_image_picker of kind %kind=spritekind || at x %x y %y",
+  "darts|block": "darts",
+  "{id:category}Dart": "Dart",
+  "{id:category}Darts": "Darts",
+  "{id:group}Actions": "Actions",
+  "{id:group}Create": "Create",
+  "{id:group}Properties": "Properties"
+}

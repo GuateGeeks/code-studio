@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "target": "es2017",
+        "noImplicitAny": true,
+        "noImplicitReturns": true,
+        "declaration": true,
+        "outFile": "../built/editor.js",
+        "rootDir": ".",
+        "newLine": "LF",
+        "types": [],
+        "sourceMap": false
+    }
+}

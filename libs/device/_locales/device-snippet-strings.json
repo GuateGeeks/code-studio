@@ -1,0 +1,13 @@
+{
+  "Create a sprite...": "Create a sprite...",
+  "Do you want to control your player with direction buttons?": "Do you want to control your player with direction buttons?",
+  "Draw your sprite": "Draw your sprite",
+  "If you choose \"Yes\", the direction buttons or \"D-Pad\" will move your player left, right, up and down respectively.": "If you choose \"Yes\", the direction buttons or \"D-Pad\" will move your player left, right, up and down respectively.",
+  "Name your sprite": "Name your sprite",
+  "Naming sprites is important because you can use the name to refer to your sprite elsewhere in your program.": "Naming sprites is important because you can use the name to refer to your sprite elsewhere in your program.",
+  "Sprites are 2D characters and objects used in all MakeCode Arcade games. Click and drag to draw your own sprite.": "Sprites are 2D characters and objects used in all MakeCode Arcade games. Click and drag to draw your own sprite.",
+  "The kind of sprite is used when two sprites overlap.\n\nIf none of the kinds match your sprite, just select \"Player\".": "The kind of sprite is used when two sprites overlap.\n\nIf none of the kinds match your sprite, just select \"Player\".",
+  "This location is where your sprite will be when the game begins. 0 for X means the left of the screen, 0 for Y means the top of the screen.": "This location is where your sprite will be when the game begins. 0 for X means the left of the screen, 0 for Y means the top of the screen.",
+  "What kind of sprite is this?": "What kind of sprite is this?",
+  "Where should your sprite appear?": "Where should your sprite appear?"
+}

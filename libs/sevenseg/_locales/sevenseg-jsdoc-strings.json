@@ -1,0 +1,21 @@
+{
+  "DigitCounter.addDigit": "Add a digit to the counter",
+  "DigitCounter.setDigitColor": "Set the counter display digit color",
+  "DigitCounter.setDigitColor|param|color": "of the digit display, eg: 2",
+  "SevenSegDigit.setDigitAlpha": "Set the display value to a digit character: '0'- '9'",
+  "SevenSegDigit.setDigitAlpha|param|alphaChar": "the display value, eg: \"0\"",
+  "SevenSegDigit.setDigitColor": "Set the display digit color",
+  "SevenSegDigit.setDigitColor|param|color": "of the digit display, eg: 2",
+  "SevenSegDigit.setRadix": "Set the display radix of the digit",
+  "SevenSegDigit.setRadix|param|radix": "of the digit display, eg: DigitRadix.Decimal",
+  "SevenSegDigit.setScale": "Set the display digit size",
+  "SevenSegDigit.setScale|param|scale": "of the digit display, eg: SegmentScale.Full",
+  "sevenseg": "Seven segment display digits and gizmos",
+  "sevenseg.createCounter": "Create a seven segment counter display",
+  "sevenseg.createCounter|param|numDigits": "the number of digits displayed, eg: 1",
+  "sevenseg.createCounter|param|scale": "the size of the segments, eg: SegmentScale.Full",
+  "sevenseg.createCounter|param|thickness": "the width of the segments, eg: SegmentStyle.Thick",
+  "sevenseg.createDigit": "Create a seven segment display digit",
+  "sevenseg.createDigit|param|thickness": "the width of the segments, eg: SegmentStyle.Thick",
+  "sevenseg.createDigit|param|value": "optional initial display value, eg: 0"
+}

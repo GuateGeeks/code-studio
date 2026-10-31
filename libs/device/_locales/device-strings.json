@@ -1,0 +1,9 @@
+{
+  "game.reset|block": "reset game",
+  "game|block": "game",
+  "{id:category}Gallerytilemaps": "Gallerytilemaps",
+  "{id:category}Game": "Game",
+  "{id:category}Sprites": "Sprites",
+  "{id:category}StorySprites": "StorySprites",
+  "{id:group}Gameplay": "Gameplay"
+}

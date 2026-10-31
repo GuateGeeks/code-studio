@@ -1,0 +1,179 @@
+/* Import all components */
+@import 'pxt';
+@import 'blockly-toolbox';
+@import 'themes/default/globals/site.variables';
+@import 'themes/pxt/globals/site.variables';
+@import 'site/globals/site.variables';
+@import 'pxtsemantic';
+
+/* Reference import */
+@import (reference) "semantic.less";
+
+/*******************************
+    Add your custom CSS here
+*******************************/
+
+.simtoolbar .ui.button,
+.ui.button.play-button,
+.ui.button.restart-button,
+.ui.button.debug-button,
+.ui.button.collapse-button,
+.ui.button.collapsed-button {
+    &:extend(.ui.grey.button all);
+}
+
+.menubar .ui.menu.fixed .item.editor-menuitem .ui.grid,
+.menubar .ui.menu.fixed .ui.item.editor-menuitem .item {
+    border-radius: 0.2rem !important;
+}
+
+.projectsdialog .getting-started-segment {
+    background-position-y: center;
+}
+
+.projectsdialog .ui.card:hover {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+}
+
+#simulators .ui.embed .icon.xicon::after {
+    border-radius: 12px;
+}
+
+#simulators .ui.embed .icon.xicon::before {
+    top: 33%
+}
+
+.ui.primary.button.download-button {
+    background-color: var(--pxt-primary-background);
+    color: var(--pxt-primary-foreground);
+}
+
+.simtoolbar .ui.button.icon, #editortools .ui.button.editortools-btn {
+    background-color: var(--pxt-secondary-background);
+    color: var(--pxt-secondary-foreground);
+
+    &:hover {
+        background-color: var(--pxt-secondary-background-hover);
+        color: var(--pxt-secondary-foreground-hover);
+    }
+}
+
+.main:not(.hc) {
+    .simtoolbar .ui.button.icon, #editortools .ui.button.editortools-btn {
+        &:hover {
+            filter: none;
+        }
+    }
+}
+
+#editortools .ui.button.hw-button {
+    background-color: var(--pxt-primary-accent);
+    color: var(--pxt-primary-foreground);
+}
+
+#simulator .ui.button.play-button .icon.play {
+    color: var(--pxt-secondary-foreground)!important;
+}
+
+
+#homemenu .ui.item, #mainmenu .ui.item {
+    color: var(--pxt-header-foreground);
+}
+
+.common-radio-group.common-radio-buttons .common-radio-choice.selected {
+    color: var(--pxt-primary-background);
+}
+
+.draggable-graph-path {
+    stroke: var(--pxt-primary-background);
+}
+
+.carouselarrow {
+    color: var(--pxt-secondary-background);
+}
+
+.projectsdialog .detailview .ui.grid.stackable .actions .card-action .button.approve {
+    background-color: var(--pxt-primary-background);
+    color: var(--pxt-primary-foreground);
+}
+
+.extensions-browser {
+    .extension-tag.selected {
+        background-color: var(--pxt-primary-background);
+        border-color: var(--pxt-primary-background);
+        color: var(--pxt-primary-foreground);
+    }
+}
+
+#blocklySearchInput i {
+    color: var(--pxt-neutral-foreground1);
+    opacity: 1;
+}
+
+span.blocklyTreeLabel {
+    font-weight: 500;
+}
+
+/* Mobile */
+@media only screen and (max-width: @largestMobileScreen) {
+}
+
+/* Tablet */
+@media only screen and (min-width: @tabletBreakpoint) and (max-width: @largestTabletScreen) {
+}
+
+/* Small Monitor */
+@media only screen and (min-width: @computerBreakpoint) and (max-width: @largestSmallMonitor) {
+    // Display short logo ("MakeCode") instead of "MakeCode Arcade"
+    .ui.item.logo .name {
+        display: none;
+    }
+    .ui.item.logo .name-short {
+        display: block;
+    }
+}
+
+/* Small Monitor + Tablet */
+@media only screen and (min-width: @tabletBreakpoint) and (max-width: @largestSmallMonitor) {
+    // Hide Help menu in small desktop view)
+    .help-dropdown-menuitem.ui.item.dropdown {
+        display: none;
+    }
+
+    .more-dropdown-menuitem .setting-docs-item.ui.mobile.only {
+        display: block !important;
+    }
+}
+
+/* Large Monitor */
+@media only screen and (min-width: @largeMonitorBreakpoint) {
+}
+
+@media only screen and (max-width: @largestTabletScreen) {
+    .simView #boardview {
+        padding-left: 0;
+        padding-right: 0;
+        padding-bottom: 0;
+    }
+
+    #simulators .ui.embed .icon.xicon::before {
+        top: 50%
+    }
+}
+
+.hero .hero-banner-contents .action .button {
+    background-color: var(--pxt-tertiary-background);
+    color: var(--pxt-tertiary-foreground);
+}
+
+.script-content {
+    .ui.mini.link.list {
+        .ui.item.no-select {
+            color: #736f66;
+        }
+    }
+
+    #abuse {
+        color: #324a61;
+    }
+}

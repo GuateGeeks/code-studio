@@ -1,0 +1,4 @@
+{
+  "game": "Game transitions and dialog",
+  "game.reset": "Reset the current game. This is usually equivalent to pressing\nthe reset button to restart the current program"
+}

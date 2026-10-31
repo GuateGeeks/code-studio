@@ -1,0 +1,6 @@
+{
+  "animation.Animation.addAnimationFrame": "Add an image frame to an animation",
+  "animation.attachAnimation": "Attach an animation to a sprite",
+  "animation.createAnimation": "Create an animation",
+  "animation.setAction": "Set an animation action to a sprite"
+}

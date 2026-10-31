@@ -1,0 +1,9 @@
+{
+    "width": 16,
+    "height": 32,
+    "frames": [
+        "Light",
+        "Dark"
+    ],
+    "tags": "dungeon"
+}

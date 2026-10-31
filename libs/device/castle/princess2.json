@@ -1,0 +1,35 @@
+{
+    "width": 16,
+    "height": 16,
+    "frames": [
+        "Front",
+        "WalkFront1",
+        "WalkFront2",
+        "WalkFront3",
+        "Back",
+        "WalkBack1",
+        "WalkBack2",
+        "WalkBack3",
+        "Left1",
+        "Left2",
+        "Right1",
+        "Right2"
+    ],
+    "animations": [{
+        "name": "princess2WalkFront",
+        "frames": [0, 1, 2, 3]
+    },
+    {
+        "name": "princess2WalkLeft",
+        "frames": [8, 9]
+    },
+    {
+        "name": "princess2WalkRight",
+        "frames": [10, 11]
+    },
+    {
+        "name": "princess2WalkBack",
+        "frames": [4, 5, 6, 7]
+    }],
+    "tags": "people"
+}

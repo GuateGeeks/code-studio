@@ -1,0 +1,16 @@
+{
+  "scene.getTilesByType|block": "array of all %index=colorindexpicker tiles",
+  "scene.getTile|block": "tile col %col row %row",
+  "scene.onHitTile|block": "on $sprite of kind $kind=spritekind hits wall $tile=colorindexpicker",
+  "scene.onHitTile|handlerParam|sprite": "sprite",
+  "scene.placeOnRandomTile|block": "place %sprite=variables_get(mySprite) on top of random $color tile",
+  "scene.place|block": "on top of %tile=variables_get(myTile) place %sprite=variables_get(mySprite)",
+  "scene.setTileAt|block": "set %tile=gamegettile to %index=colorindexpicker",
+  "scene.setTileMap|block": "set tile map to %map=tilemap_image_picker || with %scale pixel tiles",
+  "scene.setTile|block": "set tile %index=colorindexpicker to %img=tile_image_picker with wall %wall=toggleOnOff",
+  "scene.tileHitFrom|block": "%sprite=variables_get(mySprite) wall hit on %direction",
+  "scene|block": "scene",
+  "{id:category}Scene": "Scene",
+  "{id:category}Tiles": "Tiles",
+  "{id:group}Color-coded Tilemap": "Color-coded Tilemap"
+}

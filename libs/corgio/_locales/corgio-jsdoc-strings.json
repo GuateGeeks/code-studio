@@ -1,0 +1,16 @@
+{
+  "Corgio": "A Corgi Platformer",
+  "Corgio.addToScript": "Add new phrase for the character to bark",
+  "Corgio.addToScript|param|input": "phrase to add to script, eg: \"bark\"",
+  "Corgio.bark": "Have the character say one of the phrases in the script at random",
+  "Corgio.cameraFollow": "Set camera to follow corgio horizontally, while keeping the screen centered vertically.",
+  "Corgio.horizontalMovement": "Make the character move in the direction indicated by the left and right arrow keys.",
+  "Corgio.sprite": "Get the Corgio's sprite",
+  "Corgio.updateSprite": "Make the character change sprite images when moving.",
+  "Corgio.verticalMovement": "Make the character jump when the up arrow key is pressed, and grab onto the wall when falling.",
+  "corgio": "Sprite Wrapper for a Corgi Platformer",
+  "corgio.create": "Creates a new corgi from an image and kind",
+  "corgio.create|param|kind": "the kind to make the corgi",
+  "corgio.create|param|x": "optional initial x position, eg: 10",
+  "corgio.create|param|y": "optional initial y position, eg: 70"
+}

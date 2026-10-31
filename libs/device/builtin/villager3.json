@@ -1,0 +1,35 @@
+{
+    "width": 12,
+    "height": 16,
+    "frames": [
+        "WalkFront1",
+        "WalkFront2",
+        "WalkFront3",
+        "WalkBack1",
+        "WalkBack2",
+        "WalkBack3",
+        "WalkLeft1",
+        "WalkLeft2",
+        "WalkLeft3",
+        "WalkRight1",
+        "WalkRight2",
+        "WalkRight3"
+    ],
+    "animations": [{
+        "name": "villager3WalkFront",
+        "frames": [0, 1, 2]
+    },
+    {
+        "name": "villager3WalkBack",
+        "frames": [3, 4, 5]
+    },
+    {
+        "name": "villager3WalkLeft",
+        "frames": [6, 7, 8]
+    },
+    {
+        "name": "villager3WalkRight",
+        "frames": [9, 10, 11]
+    }],
+    "tags": "people"
+}

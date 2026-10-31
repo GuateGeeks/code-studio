@@ -1,0 +1,69 @@
+/*******************************
+     User Global Variables
+*******************************/
+
+/*-------------------
+     Fonts
+--------------------*/
+
+@headerFont        : 'Segoe UI', 'Segoe UI Web (West European)', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif;
+@pageFont          : 'Segoe UI', 'Segoe UI Web (West European)', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif;
+
+@docsHeaderFont: 'Segoe UI', 'Segoe UI Web (West European)', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif;
+@docsPageFont: 'Segoe UI', 'Segoe UI Web (West European)', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif;
+
+@importGoogleFonts: false;
+@fontName: "Segoe UI";
+
+/*-------------------
+      Site Colors
+--------------------*/
+
+/*---  Colors  ---*/
+@black            : #34495e;
+@green            : #2ecc71;
+@grey             : #7f8c8d;
+@orange           : #F76820;
+@pink             : #E91E63;
+@teal             : #116E79;
+@yellow           : #f1c40f;
+
+/* 32 colors */
+@purple           : #5D4FBA;
+@blue             : #116e79;
+
+@lightGrey        : #F8FAFC;
+
+
+/*******************************
+     PXT Variables
+*******************************/
+
+@loaderImageUrl: "../docs/static/Micorsoft_logo_rgb_W-white_D-square.png";
+@loaderImageSize: 80%;
+
+/*-------------------
+   Layout
+--------------------*/
+
+@sideBarWidth: 22rem;
+@simulatorWidth: @sideBarWidth;
+@simulatorWidthSmall: @sideBarWidth;
+
+/*-------------------
+   Blockly
+--------------------*/
+
+@blocklyFont: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+
+/*-------------------
+   Greenscreen
+--------------------*/
+
+@greenScreenBlockColor: #20BF6B;
+
+/*-------------------
+   Field Editors
+--------------------*/
+
+@soundEffectHeaderColor: #E30FC0; // Matches block color

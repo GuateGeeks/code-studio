@@ -1,0 +1,24 @@
+{
+    "width": 16,
+    "height": 16,
+    "frames": [
+        "Left1",
+        "Left2",
+        "Left3",
+        "Left4",
+        "Right4",
+        "Right3",
+        "Right2",
+        "Right1"
+    ]
+    ,
+    "animations": [{
+        "name": "heroWalkShieldLeft",
+        "frames": [3, 2, 1, 0]
+    },
+    {
+        "name": "heroWalkShieldRight",
+        "frames": [7, 6, 5, 4]
+    }],
+    "tags": "people"
+}

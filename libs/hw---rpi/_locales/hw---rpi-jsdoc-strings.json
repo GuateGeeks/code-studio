@@ -1,0 +1,5 @@
+{
+  "control": "Program controls and events.",
+  "control.deleteProgram": "Deletes a user program",
+  "control.runProgram": "Run specified user program."
+}

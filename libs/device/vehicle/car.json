@@ -1,0 +1,19 @@
+{
+    "xSpacing": 1,
+    "ySpacing": 1,
+    "frames": [
+        "RedLeft",
+        "RedRight",
+        "RedBack",
+        "RedFront",
+        "BlueLeft",
+        "BlueRight",
+        "BlueBack",
+        "BlueFront",
+        "PinkLeft",
+        "PinkRight",
+        "PinkBack",
+        "PinkFront"
+    ],
+    "tags": "transportation"
+}

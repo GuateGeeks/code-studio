@@ -1,0 +1,10 @@
+{
+  "animation.Animation.addAnimationFrame|block": "add frame $frame=screen_image_picker to $this=variables_get(anim)",
+  "animation._actionEnumShim|block": "%arg",
+  "animation.attachAnimation|block": "attach animation $set=variables_get(anim) to sprite $sprite=variables_get(mySprite)",
+  "animation.createAnimation|block": "create animation of $action=action_enum_shim with interval $interval ms",
+  "animation.setAction|block": "activate animation $action=action_enum_shim on $sprite=variables_get(mySprite)",
+  "animation|block": "Animation",
+  "{id:category}Animation": "Animation",
+  "{id:group}Advanced": "Advanced"
+}
