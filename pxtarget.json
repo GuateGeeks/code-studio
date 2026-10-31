@@ -3,51 +3,19 @@
     "name": "arcade",
     "nickname": "arcade",
     "thumbnailName": "MakeCode Arcade",
-    "title": "Microsoft MakeCode Arcade",
-    "description": "Develop your programming skills by quickly creating and modding retro arcade games with Blocks and JavaScript in the MakeCode editor",
+    "title": "GuateGeeks Code Studio",
+    "description": "Crea juegos 2D con bloques, TypeScript y Python.",
     "corepkg": "device",
     "cloud": {
         "workspace": false,
-        "sharing": true,
-        "thumbnails": true,
-        "importing": true,
-        "packages": true,
-        "publishing": true,
-        "githubPackages": true,
-        "showBadges": true,
-        "cloudProviders": {
-            "github": {
-                "id": "github",
-                "name": "GitHub",
-                "icon": "/static/providers/github-mark.png",
-                "identity": false,
-                "order": 4
-            },
-            "microsoft": {
-                "id": "microsoft",
-                "name": "Microsoft",
-                "icon": "/static/providers/microsoft-logo.svg",
-                "identity": true,
-                "redirect": true,
-                "order": 1
-            },
-            "google": {
-                "id": "google",
-                "name": "Google",
-                "icon": "/static/providers/google-logo.svg",
-                "identity": true,
-                "redirect": true,
-                "order": 2
-            },
-            "clever": {
-                "id": "clever",
-                "name": "Clever",
-                "icon": "/static/providers/clever-logo.png",
-                "identity": true,
-                "redirect": true,
-                "order": 3
-            }
-        }
+        "sharing": false,
+        "thumbnails": false,
+        "importing": false,
+        "packages": false,
+        "publishing": false,
+        "githubPackages": false,
+        "showBadges": false,
+        "cloudProviders": {}
     },
     "bundleddirs": [
         "libs/animation",
@@ -516,10 +484,10 @@
         ]
     },
     "simulator": {
-        "autoRun": true,
+        "autoRun": false,
         "autoRunLight": false,
         "emptyRunCode": "pxsim.pxtcore.updateScreen(new pxsim.RefImage(160, 120, 4))",
-        "aspectRatio": 0.85,
+        "aspectRatio": 1.33,
         "dynamicBoardDefinition": true,
         "keymap": true,
         "themeLayouts": [
@@ -796,25 +764,23 @@
         ]
     },
     "appTheme": {
-        "logoUrl": "https://makecode.com/org",
-        "logo": "/static/logo.svg",
-        "docsLogo": "/static/logo.svg",
-        "cardLogo": "/static/logo.png",
+        "logoUrl": "/code-studio/",
+        "logo": "/static/gg-logo.png",
+        "docsLogo": "/static/gg-logo.png",
+        "cardLogo": "/static/gg-logo.png",
         "appLogo": "/static/icons/favicon.ico",
-        "portraitLogo": "/static/logo.svg",
-        "footerLogo": "/static/logo.svg",
-        "organization": "Microsoft MakeCode",
-        "organizationText": "MakeCode Arcade",
+        "portraitLogo": "/static/gg-logo.png",
+        "footerLogo": "/static/gg-logo.png",
+        "organization": "GuateGeeks",
+        "organizationText": "GuateGeeks",
         "organizationShortText": "MakeCode",
-        "organizationUrl": "https://makecode.com/org",
-        "organizationLogo": "/static/Micorsoft_logo_rgb_W-white_D-square.png",
-        "organizationWideLogo": "/static/Micorsoft_logo_rgb_W-white_D.png",
-        "homeUrl": "https://arcade.makecode.com/",
+        "organizationUrl": "https://guategeeks.com",
+        "organizationLogo": "/static/gg-logo.png",
+        "organizationWideLogo": "/static/gg-logo.png",
+        "homeUrl": "/code-studio/",
         "embedUrl": "https://arcade.makecode.com/",
-        "privacyUrl": "https://go.microsoft.com/fwlink/?LinkId=521839",
-        "termsOfUseUrl": "https://go.microsoft.com/fwlink/?LinkID=206977",
         "githubUrl": "https://github.com/microsoft/pxt-arcade",
-        "boardName": "Arcade",
+        "boardName": "Escenario",
         "addNewTypeScriptFile": true,
         "docMenu": [
             {
@@ -834,22 +800,10 @@
         ],
         "coloredToolbox": true,
         "monacoToolbox": true,
-        "selectLanguage": true,
+        "selectLanguage": false,
         "availableLocales": [
-            "en",
-            "ar",
-            "de",
-            "es-ES",
             "es-MX",
-            "fr",
-            "ga-IE",
-            "it",
-            "ja",
-            "ko",
-            "ru",
-            "zh-CN",
-            "zh-TW",
-            "nl"
+            "en"
         ],
         "invertedMenu": true,
         "showHomeScreen": true,
@@ -859,21 +813,7 @@
         "print": true,
         "hasAudio": true,
         "allowPackageExtensions": true,
-        "homeScreenHero": {
-            "imageUrl": "/static/hero-gallery/skillmap.png",
-            "name": "Start Coding",
-            "url": "/tutorials/intro",
-            "buttonLabel": "Start Coding",
-            "description": "New? Start here!",
-            "cardType": "tutorial"
-        },
-        "homeScreenHeroGallery": "/hero-banner",
-        "socialOptions": {
-            "orgTwitterHandle": "MSMakeCode",
-            "hashtags": "MakeCode",
-            "discourse": "https://forum.makecode.com/",
-            "discourseCategory": "Arcade"
-        },
+        "socialOptions": {},
         "blocklyOptions": {
             "grid": {
                 "spacing": 30,
@@ -895,7 +835,6 @@
         "highContrastColorTheme": "pxt-high-contrast",
         "simAnimationEnter": "fly right in",
         "simAnimationExit": "fly right out",
-        "crowdinProject": "makecode",
         "monacoColors": {
             "editor.background": "#F8FAFC"
         },
@@ -911,8 +850,7 @@
         "showProjectSettings": true,
         "importExtensionFiles": true,
         "enabledFeatures": {
-            "blocksErrorList": {},
-            "aiErrorHelp": {}
+            "blocksErrorList": {}
         },
         "supportedExperiences": [
             "code-eval"
@@ -940,7 +878,7 @@
         "qrCode": true,
         "shareFinishedTutorials": true,
         "nameProjectFirst": true,
-        "githubEditor": true,
+        "githubEditor": false,
         "githubCompiledJs": true,
         "chooseLanguageRestrictionOnNewProject": true,
         "openProjectNewTab": true,
@@ -958,8 +896,8 @@
         "showOpenInVscode": true,
         "hideReplaceMyCode": true,
         "timeMachine": true,
-        "timeMachineDiffInterval": 600000,
-        "timeMachineSnapshotInterval": 1800000,
+        "timeMachineDiffInterval": 300000,
+        "timeMachineSnapshotInterval": 600000,
         "feedbackEnabled": true,
         "ocvAppId": 50315,
         "ocvFrameUrl": "https://admin-ignite.microsoft.com",
@@ -971,7 +909,14 @@
             }
         ],
         "showProjectDescription": true,
-        "shareHomepageContent": true
+        "shareHomepageContent": true,
+        "name": "Code Studio",
+        "title": "GuateGeeks Code Studio",
+        "description": "Crea juegos 2D con bloques, TypeScript y Python.",
+        "disableLiveTranslations": true,
+        "defaultLocale": "es-MX",
+        "allowParentController": true,
+        "lockedEditor": true
     },
     "queryVariants": {
         "skillmap=1": {
@@ -1009,47 +954,47 @@
         {
             "id": "skillmap-completion-save the forest",
             "type": "skillmap-completion",
-            "image": "/static/badges/badge-forest.png",
-            "lockedImage": "/static/badges/badge-forest-locked.png",
+            "image": "/static/gg-logo.png",
+            "lockedImage": "/static/gg-logo.png",
             "sourceURL": "https://www.makecode.com/api/md/arcade/skillmap/forest",
             "title": "Save the Forest"
         },
         {
             "id": "skillmap-completion-zookeeper",
             "type": "skillmap-completion",
-            "image": "/static/badges/badge-zoo.png",
-            "lockedImage": "/static/badges/badge-zoo-locked.png",
+            "image": "/static/gg-logo.png",
+            "lockedImage": "/static/gg-logo.png",
             "sourceURL": "https://www.makecode.com/api/md/arcade/skillmap/zoo",
             "title": "Zookeeper"
         },
         {
             "id": "skillmap-completion-rockstar",
-            "image": "/static/badges/badge-rockstar.png",
-            "lockedImage": "/static/badges/badge-rockstar-locked.png",
+            "image": "/static/gg-logo.png",
+            "lockedImage": "/static/gg-logo.png",
             "sourceURL": "https://www.makecode.com/api/md/arcade/skillmap/rockstar",
             "type": "skillmap-completion",
             "title": "80's Rockstar"
         },
         {
             "id": "skillmap-completion-build a platformer game!",
-            "image": "/static/badges/badge-jungle.png",
-            "lockedImage": "/static/badges/badge-jungle-locked.png",
+            "image": "/static/gg-logo.png",
+            "lockedImage": "/static/gg-logo.png",
             "sourceURL": "https://www.makecode.com/api/md/arcade/skillmap/jungle",
             "type": "skillmap-completion",
             "title": "Jungle Jump"
         },
         {
             "id": "skillmap-completion-space",
-            "image": "/static/badges/badge-space.png",
-            "lockedImage": "/static/badges/badge-space-locked.png",
+            "image": "/static/gg-logo.png",
+            "lockedImage": "/static/gg-logo.png",
             "sourceURL": "https://www.makecode.com/api/md/arcade/skillmap/space",
             "type": "skillmap-completion",
             "title": "Space Explorer"
         },
         {
             "id": "skillmap-completion-shark",
-            "image": "/static/badges/badge-shark.png",
-            "lockedImage": "/static/badges/badge-shark-locked.png",
+            "image": "/static/gg-logo.png",
+            "lockedImage": "/static/gg-logo.png",
             "sourceURL": "https://www.makecode.com/api/md/arcade/skillmap/shark",
             "type": "skillmap-completion",
             "title": "Shark Splash"

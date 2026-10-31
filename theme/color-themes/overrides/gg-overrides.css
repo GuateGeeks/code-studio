@@ -1,0 +1,2 @@
+/* Sin hardware en el estudio: guardar PNG sustituye a «Descargar». */
+.download-button, .download-button-full, #downloadArea { display: none !important; }

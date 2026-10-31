@@ -17,7 +17,9 @@
     },
     "scripts": {
         "build": "node tools/build.mjs",
-        "test": "node --test \"tests/unit/*.test.mjs\""
+        "test": "node --test \"tests/unit/*.test.mjs\"",
+        "journey": "playwright test",
+        "start": "node tools/serve.mjs"
     },
     "private": true,
     "type": "commonjs"

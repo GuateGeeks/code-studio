@@ -1,10 +1,12 @@
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
-import {cpSync, mkdirSync, mkdtempSync, rmSync, writeFileSync} from 'node:fs';
+import {cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {fetchLocales, injectLocales} from './locales.mjs';
 
+const LANG = 'es-MX';
 export const SIM_URL = 'https://registry.npmjs.org/pxt-arcade/-/pxt-arcade-4.2.1.tgz';
 export const SIM_SHA256 = 'd403926da1c96dd71a696f0182dbdd82b97babb9d0de9281b8e2a6b67c57cf32';
 const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
@@ -34,6 +36,11 @@ export async function build({skipTarget = false} = {}) {
   mkdirSync(join(ROOT, 'public'), {recursive: true});
   rmSync(join(ROOT, 'dist/site'), {recursive: true, force: true});
   execFileSync('node', ['node_modules/pxt-core/built/pxt.js', 'staticpkg', '--route', 'code-studio', '--output', 'dist/site'], {cwd: ROOT, stdio: 'inherit'});
+  const site = join(ROOT, 'dist/site/code-studio');
+  const {bundledpkgs} = JSON.parse(readFileSync(join(site, 'target.json'), 'utf8'));
+  // "---" marks hardware variants, which share the strings of their base package.
+  await fetchLocales(LANG, Object.keys(bundledpkgs).filter(name => !name.includes('---')), join(ROOT, 'locales'));
+  injectLocales(site, LANG, join(ROOT, 'locales'));
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) await build();
