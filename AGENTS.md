@@ -17,3 +17,4 @@ Fork del target `pxt-arcade`. Diseño: `docs/superpowers/specs/2026-10-30-code-s
 - Antes de una clase: batería corta de menos de 10 minutos, si el usuario la autoriza.
 - No probar PXT, solo lo que añadimos. Una revisión por hito, sin acta por tarea.
 - Guardar, reabrir y recuperar siempre se prueban.
+- En este WSL, inicia `npm start` antes de `npm run journey`: el sondeo de puerto de Playwright puede colgarse con el puerto cerrado.
