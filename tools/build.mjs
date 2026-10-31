@@ -5,6 +5,7 @@ import {tmpdir} from 'node:os';
 import {join, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {fetchLocales, injectLocales} from './locales.mjs';
+import {finishSite} from './site.mjs';
 
 const LANG = 'es-MX';
 export const SIM_URL = 'https://registry.npmjs.org/pxt-arcade/-/pxt-arcade-4.2.1.tgz';
@@ -41,6 +42,7 @@ export async function build({skipTarget = false} = {}) {
   // "---" marks hardware variants, which share the strings of their base package.
   await fetchLocales(LANG, Object.keys(bundledpkgs).filter(name => !name.includes('---')), join(ROOT, 'locales'));
   injectLocales(site, LANG, join(ROOT, 'locales'));
+  finishSite(site);
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) await build();

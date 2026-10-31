@@ -2,7 +2,7 @@
     "id": "arcade",
     "name": "arcade",
     "nickname": "arcade",
-    "thumbnailName": "MakeCode Arcade",
+    "thumbnailName": "Code Studio",
     "title": "GuateGeeks Code Studio",
     "description": "Crea juegos 2D con bloques, TypeScript y Python.",
     "corepkg": "device",
@@ -773,31 +773,16 @@
         "footerLogo": "/static/gg-logo.png",
         "organization": "GuateGeeks",
         "organizationText": "GuateGeeks",
-        "organizationShortText": "MakeCode",
+        "organizationShortText": "Code Studio",
         "organizationUrl": "https://guategeeks.com",
         "organizationLogo": "/static/gg-logo.png",
         "organizationWideLogo": "/static/gg-logo.png",
-        "homeUrl": "/code-studio/",
-        "embedUrl": "https://arcade.makecode.com/",
-        "githubUrl": "https://github.com/microsoft/pxt-arcade",
+        "homeUrl": "https://guategeeks.com/code-studio/",
+        "embedUrl": "https://guategeeks.com/code-studio/",
+        "githubUrl": "https://github.com/GuateGeeks/code-studio",
         "boardName": "Escenario",
         "addNewTypeScriptFile": true,
-        "docMenu": [
-            {
-                "name": "Docs",
-                "path": "/docs",
-                "popout": true
-            },
-            {
-                "name": "Hardware",
-                "path": "/hardware",
-                "popout": true
-            },
-            {
-                "name": "Forum",
-                "path": "https://forum.makecode.com"
-            }
-        ],
+        "docMenu": [],
         "coloredToolbox": true,
         "monacoToolbox": true,
         "selectLanguage": false,
@@ -812,7 +797,7 @@
         "greenScreen": true,
         "print": true,
         "hasAudio": true,
-        "allowPackageExtensions": true,
+        "allowPackageExtensions": false,
         "socialOptions": {},
         "blocklyOptions": {
             "grid": {
@@ -893,7 +878,7 @@
         "tours": {
             "editor": "/tours/editor-tour"
         },
-        "showOpenInVscode": true,
+        "showOpenInVscode": false,
         "hideReplaceMyCode": true,
         "timeMachine": true,
         "timeMachineDiffInterval": 300000,

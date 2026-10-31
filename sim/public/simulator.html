@@ -11,18 +11,24 @@
 // Student code runs only in the opaque inner frame. It is built inline because
 // sandboxed frames bypass the service worker and could not load offline otherwise.
 const stage = document.getElementById('stage');
+// Everything the game sends is untrusted: only simulator traffic goes up.
+const allowed = data => !/^(pxteditor|pxthost|pxtpkgext|iframeclient)/.test(data?.type ?? '') && !(data?.type === 'simulator' && data.command === 'modal');
 addEventListener('message', event => {
-  if (event.source === stage.contentWindow) parent.postMessage(event.data, '*');
+  if (event.source === stage.contentWindow) { if (allowed(event.data)) parent.postMessage(event.data, '*'); }
   else if (event.source === parent) stage.contentWindow.postMessage(event.data, '*');
 });
 addEventListener('focus', () => stage.focus());
+// CSP cannot stop a frame navigating itself, so a second load means it tried to leave.
+let loads = 0;
+stage.addEventListener('load', () => { if (++loads > 1) stage.remove(); });
+const policy = "default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval'; style-src 'unsafe-inline'; img-src data: blob:; media-src data: blob:; font-src data:";
 const read = file => fetch(new URL(file, location.href)).then(response => response.text());
 const inline = code => '<script>' + code.replace(/<\/script/gi, '<\\/script') + '</' + 'script>';
 Promise.all([read('sim-inner.html'), read('pxtsim.js'), read('sim.js')]).then(([html, runtime, game]) => {
   stage.srcdoc = html
     .replace('<script src="pxtsim.js"></' + 'script>', () => inline(runtime))
     .replace('<script src="sim.js"></' + 'script>', () => inline(game))
-    .replace('<head>', () => '<head>' + inline('location.hash=' + JSON.stringify(location.hash)));
+    .replace('<head>', () => '<head><meta http-equiv="Content-Security-Policy" content="' + policy + '">' + inline('location.hash=' + JSON.stringify(location.hash)));
 });
 </script>
 </body>

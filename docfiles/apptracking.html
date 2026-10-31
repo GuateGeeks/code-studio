@@ -1,1 +1,10 @@
-<script type="text/javascript">window.loadAppInsights = function () {};</script>
+<script type="text/javascript">
+    window.loadAppInsights = function () {};
+    // The editor trusts these messages from any window, so only the portal may send them.
+    addEventListener('message', function (event) {
+        var type = event.data && event.data.type;
+        if (/^(pxteditor|pxthost|pxtpkgext|iframeclient)/.test(type || '') && event.source !== window.parent) {
+            event.stopImmediatePropagation();
+        }
+    }, true);
+</script>

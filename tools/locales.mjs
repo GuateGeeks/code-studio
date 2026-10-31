@@ -1,8 +1,10 @@
-import {cpSync, existsSync, mkdirSync, readFileSync, writeFileSync} from 'node:fs';
+import {cpSync, existsSync, mkdirSync, readFileSync, renameSync, writeFileSync} from 'node:fs';
 import {join} from 'node:path';
 
 const API = 'https://makecode.com/api/translations';
 const SHARED = ['strings.json', 'arcade/target-strings.json'];
+// The API answers 200 {} for anything it lacks, so emptiness is the only failure signal.
+const ESSENTIAL = /^(strings|target-strings|game-strings)\.json$/;
 
 export function rebrand(strings) {
   const clean = value => value.replace(/Microsoft MakeCode Arcade|MakeCode Arcade|Microsoft MakeCode|MakeCode/g, 'Code Studio').replace(/Microsoft/g, 'GuateGeeks');
@@ -18,20 +20,25 @@ export function addLocale(pkg, lang, file, strings) {
   pkg['pxt.json'] = JSON.stringify(config);
 }
 
-async function download(lang, filename) {
+async function download(lang, filename, get) {
   const url = `${API}?${new URLSearchParams({lang, filename, approved: 'true'})}`;
-  const response = await fetch(url);
+  const response = await get(url);
   if (!response.ok) throw new Error(`No se pudo descargar ${filename}: ${response.status}`);
   return response.json();
 }
 
 // Translations stay out of git until their license is reviewed.
-export async function fetchLocales(lang, packages, dir) {
+export async function fetchLocales(lang, packages, dir, get = fetch) {
   mkdirSync(join(dir, lang), {recursive: true});
   const files = [...SHARED, ...packages.flatMap(name => [`arcade/${name}-strings.json`, `arcade/${name}-jsdoc-strings.json`])];
   for (const file of files) {
-    const target = join(dir, lang, file.split('/').pop());
-    if (!existsSync(target)) writeFileSync(target, JSON.stringify(rebrand(await download(lang, file))));
+    const name = file.split('/').pop();
+    const target = join(dir, lang, name);
+    if (existsSync(target)) continue;
+    const strings = rebrand(await download(lang, file, get));
+    if (ESSENTIAL.test(name) && !Object.keys(strings).length) throw new Error(`Traducción vacía: ${name}`);
+    writeFileSync(`${target}.tmp`, JSON.stringify(strings));
+    renameSync(`${target}.tmp`, target);
   }
 }
 
