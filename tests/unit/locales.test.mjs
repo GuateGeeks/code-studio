@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {existsSync, mkdtempSync, readFileSync} from 'node:fs';
+import {existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {addLocale, fetchLocales, rebrand} from '../../tools/locales.mjs';
+import {addLocale, fetchLocales, injectLocales, rebrand} from '../../tools/locales.mjs';
 
 const servidor = respuestas => async url => ({ok: true, json: async () => respuestas(new URL(url).searchParams.get('filename'))});
 
@@ -30,4 +30,15 @@ test('acepta paquetes secundarios vacíos y reescribe la marca al guardar', asyn
   const dir = mkdtempSync(join(tmpdir(), 'gg-loc-'));
   await fetchLocales('es-MX', ['game', 'otro'], dir, servidor(f => /otro/.test(f) || /jsdoc/.test(f) ? {} : {a: 'MakeCode'}));
   assert.deepEqual(JSON.parse(readFileSync(join(dir, 'es-MX/game-strings.json'), 'utf8')), {a: 'Code Studio'});
+});
+test('las traducciones propias completan y corrigen las descargadas', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'gg-locales-'));
+  mkdirSync(join(dir, 'site'));
+  mkdirSync(join(dir, 'src', 'es-MX'), {recursive: true});
+  writeFileSync(join(dir, 'site', 'target.json'), JSON.stringify({bundledpkgs: {game: {'pxt.json': '{"files":[]}'}}}));
+  for (const name of ['strings.json', 'target-strings.json']) writeFileSync(join(dir, 'src', 'es-MX', name), '{}');
+  writeFileSync(join(dir, 'src', 'es-MX', 'game-strings.json'), '{"a":"uno","b":"dos"}');
+  injectLocales(join(dir, 'site'), 'es-MX', join(dir, 'src'), {game: {b: 'propia', c: 'nueva'}});
+  const {game} = JSON.parse(readFileSync(join(dir, 'site', 'target.json'), 'utf8')).bundledpkgs;
+  assert.deepEqual(JSON.parse(game['_locales/es-MX/game-strings.json']), {a: 'uno', b: 'propia', c: 'nueva'});
 });

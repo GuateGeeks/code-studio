@@ -1,0 +1,12 @@
+{
+    "name": "gg-studio",
+    "description": "Pantalla y sprites de GuateGeeks Code Studio",
+    "files": [
+        "gg.ts",
+        "gg.jres"
+    ],
+    "dependencies": {
+        "device": "file:../device"
+    },
+    "public": true
+}

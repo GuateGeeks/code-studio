@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {addStudent} from '../../studio/students.mjs';
-import {newProject} from '../../studio/project.mjs';
+import {newProject, renameProject} from '../../studio/project.mjs';
 
 test('acepta un nombre y quita espacios sobrantes', () => {
   assert.deepEqual(addStudent('  Ana   María ', []), {ok: true, name: 'Ana María'});
@@ -26,4 +26,11 @@ test('un proyecto nuevo nace con nombre e identidad', () => {
   assert.equal(config.name, 'Mi juego');
   assert.deepEqual(config.ggProject, {id: 'gg-1', v: 1});
   assert.equal(text['main.ts'], '');
+});
+test('renameProject cambia cabecera y pxt.json, y tolera un guardado parcial', () => {
+  const project = {header: {id: 'a', name: 'untitled'}, text: {'pxt.json': '{"name":"untitled","x":1}'}};
+  const renamed = renameProject(project, 'Atrapa la fruta');
+  assert.equal(renamed.header.name, 'Atrapa la fruta');
+  assert.deepEqual(JSON.parse(renamed.text['pxt.json']), {name: 'Atrapa la fruta', x: 1});
+  assert.deepEqual(renameProject({header: {}, text: {'main.ts': 'x'}}, 'M').text, {'main.ts': 'x'});
 });

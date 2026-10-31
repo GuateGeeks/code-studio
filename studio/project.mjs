@@ -6,3 +6,9 @@ export function newProject(template, {name, id, headerId, now}) {
     text: {...template.files, 'pxt.json': JSON.stringify(config, null, 4)}
   };
 }
+
+export function renameProject(project, name) {
+  const config = project.text['pxt.json'];
+  const text = config ? {...project.text, 'pxt.json': JSON.stringify({...JSON.parse(config), name}, null, 4)} : project.text;
+  return {...project, header: {...project.header, name}, text};
+}

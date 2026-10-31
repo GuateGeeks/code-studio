@@ -1,7 +1,10 @@
 import {cpSync, existsSync, mkdirSync, readFileSync, renameSync, writeFileSync} from 'node:fs';
-import {join} from 'node:path';
+import {dirname, join} from 'node:path';
+import {fileURLToPath} from 'node:url';
 
 const API = 'https://makecode.com/api/translations';
+// Blocks the published translation leaves in English, by package.
+const OVERRIDES = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'es-MX-overrides.json'), 'utf8'));
 const SHARED = ['strings.json', 'arcade/target-strings.json'];
 // The API answers 200 {} for anything it lacks, so emptiness is the only failure signal.
 const ESSENTIAL = /^(strings|target-strings|game-strings)\.json$/;
@@ -42,7 +45,7 @@ export async function fetchLocales(lang, packages, dir, get = fetch) {
   }
 }
 
-export function injectLocales(siteDir, lang, dir) {
+export function injectLocales(siteDir, lang, dir, overrides = OVERRIDES) {
   const source = join(dir, lang);
   mkdirSync(join(siteDir, 'locales', lang), {recursive: true});
   for (const file of ['strings.json', 'target-strings.json']) cpSync(join(source, file), join(siteDir, 'locales', lang, file));
@@ -52,7 +55,9 @@ export function injectLocales(siteDir, lang, dir) {
   for (const [name, pkg] of Object.entries(target.bundledpkgs)) {
     for (const file of [`${name}-strings.json`, `${name}-jsdoc-strings.json`]) {
       const path = join(source, file);
-      if (existsSync(path) && pkg['pxt.json']) addLocale(pkg, lang, file, JSON.parse(readFileSync(path, 'utf8')));
+      if (!existsSync(path) || !pkg['pxt.json']) continue;
+      const own = file === `${name}-strings.json` ? overrides[name] : {};
+      addLocale(pkg, lang, file, {...JSON.parse(readFileSync(path, 'utf8')), ...own});
     }
   }
   writeFileSync(join(siteDir, 'target.json'), JSON.stringify(target));

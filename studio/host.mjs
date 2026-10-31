@@ -3,7 +3,7 @@ import {generateId, readDerivedFrom, resolveIdentity, stampIdentity} from './ide
 const SAVE_TIMEOUT = 8000;
 
 // One host per editor iframe: its student stays fixed even if the portal moves on.
-export function createHost({store, student, target, onSaveError = () => {}, onSaved = () => {}, onLoaded = () => {}, onDeleted = () => {}, newId = generateId, saveTimeout = SAVE_TIMEOUT}) {
+export function createHost({store, student, target, onSaveError = () => {}, onSaved = () => {}, onLoaded = () => {}, onDeleted = () => {}, adopt = project => project, newId = generateId, saveTimeout = SAVE_TIMEOUT}) {
   const reply = (message, extra) => target.postMessage({...message, success: true, ...extra}, '*');
   let saves = Promise.resolve();
   let failed = false;
@@ -58,9 +58,12 @@ export function createHost({store, student, target, onSaveError = () => {}, onSa
       case 'workspaceloaded':
         reply(data);
         return onLoaded();
-      case 'workspacesave':
-        latest = data.project;
-        return enqueue(data.project);
+      case 'workspacesave': {
+        const project = adopt(data.project);
+        if (!project) return;
+        latest = project;
+        return enqueue(project);
+      }
       default:
         if (data.response) reply(data);
     }

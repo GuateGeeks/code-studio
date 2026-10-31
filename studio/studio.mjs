@@ -1,7 +1,7 @@
 import {exportBackup, mergeRecords, parseBackup} from './backup.mjs';
 import {createHost} from './host.mjs';
 import {generateId, readId} from './identity.mjs';
-import {newProject} from './project.mjs';
+import {newProject, renameProject} from './project.mjs';
 import {openStore} from './store.mjs';
 import {addStudent} from './students.mjs';
 
@@ -47,9 +47,10 @@ async function showStudents() {
 async function showProjects(student) {
   const records = (await store.list(student)).filter(record => !record.project.header.isDeleted).sort((a, b) => b.at - a.at);
   $('projects-title').textContent = `Hola, ${student}`;
-  $('project-list').replaceChildren(...records.map(record => button(record.project.header.name, () => openEditor(student, record.project.header.id), 'project')));
+  $('project-list').replaceChildren(...records.map(record => button(record.project.header.name, () => openEditor(student, openHeader(record.project.header.id)), 'project')));
   $('student-backup').dataset.student = student;
   $('new-project').onclick = guard(() => createProject(student), 'No pudimos crear el proyecto. Avísale a tu docente.');
+  $('start-mission').onclick = guard(() => startMission(student, 'atrapa-la-fruta'), 'No pudimos abrir la misión. Avísale a tu docente.');
   $('import-png').onchange = guard(event => importPng(student, event.target.files[0]), 'No pudimos abrir ese archivo.');
   show('projects');
 }
@@ -67,7 +68,19 @@ async function createProject(student) {
   const id = generateId();
   const project = newProject(template, {name: `Mi juego ${count}`, id, headerId, now: Math.floor(Date.now() / 1000)});
   await store.put({key: `${student}/${headerId}`, student, ggId: id, project, at: Date.now()});
-  openEditor(student, headerId);
+  openEditor(student, openHeader(headerId));
+}
+
+async function startMission(student, id) {
+  const response = await fetch(`missions/${id}.md`);
+  if (!response.ok) throw new Error(`Misión: ${response.status}`);
+  const markdown = await response.text();
+  const title = markdown.match(/^# (.+)$/m)[1];
+  const open = (await store.list(student)).find(({project: {header}}) => header.tutorial && header.name === title && !header.isDeleted);
+  if (open) return openEditor(student, openHeader(open.project.header.id));
+  // PXT opens a blank project of its own first; only the mission reaches the student's list.
+  const adopt = project => (project.header.tutorial || project.header.tutorialCompleted ? renameProject(project, title) : null);
+  openEditor(student, null, () => post(session.frame, {action: 'importtutorial', markdown}), {adopt});
 }
 
 function closeEditor() {
@@ -75,7 +88,10 @@ function closeEditor() {
   session = null;
 }
 
-function openEditor(student, headerId, afterLoad) {
+const post = (frame, message) => frame.contentWindow.postMessage({type: 'pxteditor', id: 'open', ...message}, '*');
+const openHeader = headerId => ({action: 'openheader', headerId});
+
+function openEditor(student, firstMessage, afterLoad, hostOptions) {
   show('workspace');
   $('workspace-title').textContent = student;
   $('save-warning').hidden = true;
@@ -85,10 +101,10 @@ function openEditor(student, headerId, afterLoad) {
   frame.src = EDITOR_URL;
   $('editor').replaceChildren(frame);
   const host = createHost({
-    store, student, target: frame.contentWindow,
+    store, student, target: frame.contentWindow, ...hostOptions,
     onSaveError: () => { $('save-warning').hidden = false; },
     onSaved: () => { $('save-warning').hidden = true; },
-    onLoaded: () => frame.contentWindow.postMessage({type: 'pxteditor', id: 'open', action: 'openheader', headerId}, '*'),
+    onLoaded: () => firstMessage && post(frame, firstMessage),
     onDeleted: guard(async () => { closeEditor(); await showProjects(student); }, 'No pudimos volver a tus proyectos.')
   });
   session = {student, frame, host, afterLoad, leaving: false};
@@ -102,7 +118,7 @@ async function importPng(student, file) {
     data.items.add(file);
     session.frame.contentDocument.body.dispatchEvent(new DragEvent('drop', {bubbles: true, cancelable: true, dataTransfer: data}));
   };
-  if (records.length) openEditor(student, records[0].project.header.id, drop);
+  if (records.length) openEditor(student, openHeader(records[0].project.header.id), drop);
   else {
     await createProject(student);
     session.afterLoad = drop;

@@ -143,3 +143,16 @@ test('un PNG pasado a otro estudiante del equipo recibe un ID nuevo', async () =
   await guardar(host, target, conId('gg-1', 'b'));
   assert.equal(store.records[1].ggId, 'gg-2');
 });
+test('adopt descarta lo que no pertenece a la sesión y transforma lo demás', async () => {
+  const store = memoria();
+  const target = ventana();
+  const adopt = project => (project.header.tutorial ? {...project, header: {...project.header, name: 'Misión'}} : null);
+  const host = createHost({store, student: 'ana', target, adopt});
+  await guardar(host, target, proyecto('vacío'));
+  await host.flushed();
+  assert.equal(store.records.length, 0);
+  assert.equal(host.latest(), null);
+  await guardar(host, target, {...proyecto('m'), header: {id: 'm', tutorial: {}}});
+  assert.equal(store.records[0].project.header.name, 'Misión');
+  assert.equal(host.latest().header.name, 'Misión');
+});

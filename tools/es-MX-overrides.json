@@ -1,0 +1,6 @@
+{
+    "game": {
+        "sprites.createProjectileFromSide|block": "proyectil %img=screen_image_picker desde el lado con vx %vx vy %vy",
+        "sprites.destroy|block": "destruir $sprite || con efecto $effect durante $duration ms"
+    }
+}
