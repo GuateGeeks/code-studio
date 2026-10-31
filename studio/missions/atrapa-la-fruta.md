@@ -24,7 +24,7 @@ scene.setBackgroundColor(9)
 
 Primero necesito entrar al juego.
 
-En **Sprites**, busca **establecer mySprite como** y ponlo debajo del bloque anterior. Después haz clic en el cuadro gris, abre **Galería** y búscame: soy las gafas.
+En **Sprites**, busca **establecer mySprite como** y ponlo debajo del bloque anterior. Después haz clic en el cuadro gris y abre **Galería**. Pulsa **Filtro**, marca **Gg** y búscame: soy las gafas.
 
 #### ~ tutorialhint
 
@@ -52,7 +52,7 @@ mySprite.setStayInScreen(true)
 
 Ahora vienen las frutas.
 
-En **Juego**, arrastra **actualizar juego cada** al área de trabajo. Mete dentro **establecer projectile como proyectil**, de **Sprites**. Elige una fruta en la **Galería**, pon **vx** en `0` y **vy** en `80` para que caiga.
+En **Juego**, arrastra **actualizar juego cada** al área de trabajo. Mete dentro **establecer projectile como proyectil**, de **Sprites**. Elige una fruta en la **Galería**, con el filtro **Gg**. Pon **vx** en `0` y **vy** en `80` para que caiga.
 
 #### ~ tutorialhint
 
