@@ -1,0 +1,11 @@
+{
+    "name": "gg-experiencias",
+    "description": "Fases, diálogos y evaluación de las experiencias de GuateGeeks Code Studio",
+    "files": [
+        "experiencias.ts"
+    ],
+    "dependencies": {
+        "device": "file:../device"
+    },
+    "public": true
+}

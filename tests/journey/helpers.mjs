@@ -114,3 +114,58 @@ export async function pulsar(page, tecla) {
   await page.keyboard.up(codigo);
   await page.waitForTimeout(80);
 }
+
+const ENTRADAS = ['eleccion', 'confirmar', 'final'];
+
+// Presses A through dialogs until the game waits for the student. `despuesDe` is the step of the
+// previous wait: a state older than that is the one just answered, not the next one.
+export async function pasarDialogos(page, despuesDe = -1) {
+  const limite = Date.now() + 15000;
+  let ultimo = {paso: -1, hora: 0};
+  while (Date.now() < limite) {
+    const estado = await estadoJuego(page);
+    const paso = Number(estado.paso);
+    if (paso > despuesDe && ENTRADAS.includes(estado.espera)) return estado;
+    // A long text has several pages under the same step, so the same dialog may need another A.
+    if (paso > despuesDe && estado.espera === 'dialogo' && (paso !== ultimo.paso || Date.now() - ultimo.hora > 700)) {
+      ultimo = {paso, hora: Date.now()};
+      await pulsar(page, 'A');
+      continue;
+    }
+    await page.waitForTimeout(50);
+  }
+  throw new Error(`El juego no llegó a una entrada: ${JSON.stringify(await estadoJuego(page))}`);
+}
+
+// Plays the rounds of a solution file: each round is the keys for one moment the game waits for the student.
+export async function jugar(page, rondas) {
+  let paso = -1;
+  for (const teclas of rondas) {
+    const estado = await pasarDialogos(page, paso);
+    paso = Number(estado.paso);
+    for (const tecla of teclas) await pulsar(page, tecla);
+  }
+  return pasarDialogos(page, paso);
+}
+
+export const todosLosRegistros = page => page.evaluate(async () => {
+  const {openStore} = await import('./store.mjs');
+  return (await openStore()).all();
+});
+
+// «Ver cómo está hecho»: from the player to the editor, in blocks.
+export async function verCopia(page) {
+  await page.locator('#player-code').click();
+  await editorDe(page).locator('.blocklyDraggable').first().waitFor({state: 'attached', timeout: 60000});
+  await page.waitForTimeout(1500);
+}
+
+// Student -> catalog -> game: the way a student gets to the player.
+export async function abrirJuegoDesdePortada(page, estudiante, titulo) {
+  await entrarComo(page, estudiante);
+  await page.locator('#open-catalog').click();
+  await page.locator('#catalog').getByRole('button', {name: titulo}).click();
+  await page.locator('body[data-estado=jugando]').waitFor({state: 'attached', timeout: 30000});
+}
+
+export const bloquesDe = page => editorDe(page).locator('.blocklyDraggable').count();

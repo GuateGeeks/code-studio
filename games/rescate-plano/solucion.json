@@ -1,0 +1,37 @@
+{
+  "rondas": [
+    ["der", "der", "arr", "A"],
+    ["der", "der", "arr", "arr", "arr", "A"],
+    ["izq", "izq", "izq", "arr", "arr", "A"],
+    ["der", "der", "der", "aba", "aba", "A"],
+    ["der", "der", "der", "arr", "arr", "A"],
+    ["izq", "izq", "izq", "izq", "arr", "arr", "arr", "A"],
+    ["izq", "izq", "aba", "aba", "A"],
+    ["der", "der", "der", "der", "der", "aba", "A"],
+    ["arr", "arr", "arr", "A"],
+    ["aba", "A"]
+  ],
+  "erradas": [
+    ["der", "der", "arr", "A"],
+    ["A"],
+    ["der", "der", "arr", "arr", "arr", "A"],
+    ["izq", "izq", "izq", "arr", "arr", "A"],
+    ["der", "der", "der", "aba", "aba", "A"],
+    ["A"],
+    ["A"],
+    ["A"],
+    ["A"],
+    ["A"]
+  ],
+  "serieB": [
+    ["der", "der", "arr", "arr", "arr", "A"],
+    ["izq", "izq", "izq", "arr", "arr", "A"],
+    ["der", "der", "der", "aba", "aba", "A"],
+    ["der", "der", "der", "der", "der", "der", "arr", "arr", "arr", "arr", "A"],
+    ["izq", "izq", "izq", "izq", "izq", "arr", "arr", "A"],
+    ["izq", "izq", "izq", "aba", "aba", "A"],
+    ["der", "der", "aba", "aba", "A"],
+    ["izq", "izq", "izq", "izq", "izq", "izq", "A"],
+    ["aba", "A"]
+  ]
+}

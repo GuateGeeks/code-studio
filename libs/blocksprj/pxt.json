@@ -2,7 +2,8 @@
     "name": "{0}",
     "dependencies": {
         "device": "file:../device",
-        "gg-studio": "file:../gg-studio"
+        "gg-studio": "file:../gg-studio",
+        "gg-experiencias": "file:../gg-experiencias"
     },
     "description": "",
     "files": [

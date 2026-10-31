@@ -3,7 +3,8 @@
     "description": "",
     "dependencies": {
         "device": "file:../../libs/device",
-        "gg-studio": "file:../../libs/gg-studio"
+        "gg-studio": "file:../../libs/gg-studio",
+        "gg-experiencias": "file:../../libs/gg-experiencias"
     },
     "files": ["main.ts"],
     "preferredEditor": "tsprj"
