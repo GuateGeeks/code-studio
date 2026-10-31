@@ -1,6 +1,6 @@
 # Estado y continuación
 
-**Relevo vigente, 30/10/2026:** E2 multi-sprite detenido por el usuario con la tarea 8 sin cerrar. Continuar por [el relevo E2](E2-RELEVO-2026-10-30.md).
+**Relevo vigente, cierre local 30/10/2026:** E2 integrado en main local (`73f9b7a`); tareas 8 y 9 completas. Continuar por [el relevo de cierre E2](E2-RELEVO-CIERRE-2026-10-30.md). Full pendiente de autorización; conservar previews y evidencia.
 
 **Criterio de pruebas vigente, 29/10/2026:** una tarea está hecha con pruebas nuevas + `test:affected` en verde; la full se sugiere por impacto y las pruebas ya no dependen de puertos fijos, salvo `standalone-contexts` (exclusiva) ([criterio](TESTING.md#criterio-de-hecho-y-full-sugerida)).
 
