@@ -1,5 +1,5 @@
 import {test, expect} from '@playwright/test';
-import {REMOTE, abrirEditor, ejecutar, escribir, simulador, vigilarRed} from './helpers.mjs';
+import {REMOTE, abrirEditor, editorDe, ejecutar, entrarComo, escribir, simulador, vigilarRed} from './helpers.mjs';
 
 test('el juego corre en origen opaco en un dominio real', {tag: '@recorrido'}, async ({page}) => {
   const editor = await abrirEditor(page, REMOTE);
@@ -52,4 +52,25 @@ test('el juego no sale a la red y el escenario no queda en otra página', async 
   await simulador(page).evaluate(() => { location = 'https://example.com/login'; }).catch(() => {});
   await expect.poll(() => page.frames().some(f => /srcdoc/.test(f.url())), {timeout: 8000}).toBe(false);
   await expect.poll(() => page.frames().some(f => f.url().includes('example.com')), {timeout: 8000}).toBe(false);
+});
+
+test('un script externo inyectado por el CDN no llega a cargarse', async ({page}) => {
+  test.setTimeout(90000);
+  // Playwright reports a request even when the policy stops it, so what counts is whether it loaded.
+  const cargados = [];
+  page.on('requestfinished', request => { if (request.url().includes('cloudflareinsights')) cargados.push(request.url()); });
+  await page.route('**/beacon.min.js', route => route.fulfill({contentType: 'text/javascript', body: ''}));
+  const inyectar = async route => {
+    const response = await route.fetch();
+    await route.fulfill({response, body: (await response.text()).replace('</head>', '<script defer src="https://static.cloudflareinsights.com/beacon.min.js"></script></head>')});
+  };
+  await page.route('**/code-studio/', inyectar);
+  await page.route('**/editor.html*', inyectar);
+  await page.route('**/simulator.html*', inyectar);
+  await entrarComo(page, 'Lía');
+  await page.getByRole('button', {name: 'Nuevo proyecto'}).click();
+  const editor = editorDe(page);
+  await editor.locator('.blocklyDraggable').first().waitFor({state: 'attached', timeout: 60000});
+  await ejecutar(page, editor);
+  expect(cargados).toEqual([]);
 });

@@ -41,9 +41,18 @@ export function replaceProIcon(text) {
   return text.replace(/<svg[^>]*><!-- Font Awesome Pro[\s\S]*?<\/svg>/, MUTED_ICON);
 }
 
+// Cloudflare injects its analytics into every HTML page of the domain; this stops it from loading.
+const EDITOR_POLICY = `<meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:">`;
+
+function protectEditor(file) {
+  const page = readFileSync(file, 'utf8');
+  if (!page.includes('Content-Security-Policy')) writeFileSync(file, page.replace('<head>', `<head>${EDITOR_POLICY}`));
+}
+
 // The portal takes the site root, so PXT's own page moves aside.
 function publishPortal(site, studio) {
   if (!existsSync(join(site, 'editor.html'))) renameSync(join(site, 'index.html'), join(site, 'editor.html'));
+  protectEditor(join(site, 'editor.html'));
   cpSync(studio, site, {recursive: true});
   const target = JSON.parse(readFileSync(join(site, 'target.json'), 'utf8'));
   const {config, files} = target.blocksprj;

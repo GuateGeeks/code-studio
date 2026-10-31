@@ -71,3 +71,17 @@ test('retira imágenes de marcas ajenas y sustituye el favicon heredado', () => 
   for (const path of ['images/windowsstorebag.png', 'images/newvisualstudiocode.png', 'docs/static/identity']) assert.ok(!existsSync(join(site, path)), path);
   assert.equal(readFileSync(join(site, 'favicon.ico'), 'utf8'), 'propio');
 });
+test('el editor publicado solo carga scripts propios, también al repetir el acabado', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'gg-site-'));
+  const site = join(dir, 'site'), studio = join(dir, 'studio');
+  mkdirSync(site);
+  mkdirSync(studio);
+  writeFileSync(join(site, 'index.html'), '<html><head><title>x</title></head></html>');
+  writeFileSync(join(site, 'target.json'), JSON.stringify({blocksprj: {config: {}, files: {}}, versions: {target: '1'}}));
+  writeFileSync(join(studio, 'index.html'), 'portada');
+  finishSite(site, studio);
+  finishSite(site, studio);
+  const editor = readFileSync(join(site, 'editor.html'), 'utf8');
+  assert.equal(editor.match(/Content-Security-Policy/g).length, 1);
+  assert.match(editor, /<head><meta http-equiv="Content-Security-Policy" content="script-src 'self'/);
+});
