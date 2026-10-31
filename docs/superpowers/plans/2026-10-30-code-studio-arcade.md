@@ -13,7 +13,7 @@
 ## Global Constraints
 
 - Repositorio `GuateGeeks/code-studio`, rama huérfana `arcade`; `main` no se toca y `arcade` no pasa a ser la rama por defecto hasta el MVP.
-- Commits locales en cada tarea. **Sin push** hasta que el usuario lo pida al cerrar un hito, con el token de `~/.ssh/token` solo para ese comando. El repositorio es público: nada de datos de estudiantes.
+- Commits locales en cada tarea. **Sin push** hasta que el usuario lo pida al cerrar un hito,. El repositorio es público: nada de datos de estudiantes.
 - No modificar `pxt-core`. Si una tarea parece exigirlo, parar y consultar.
 - Target y `sim.js` de la misma versión publicada: etiqueta `v4.2.1` (`2d7d59b`), tarball npm `pxt-arcade-4.2.1.tgz`, sha256 empieza por `d403926da1c96dd71a69`.
 - `sim.js` y las traducciones se descargan al compilar y no se versionan hasta revisar su licencia.
