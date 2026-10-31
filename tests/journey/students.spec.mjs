@@ -3,7 +3,7 @@ import {LOCAL, abrirProyecto, editorDe, entrarComo, escribir, escribirSinEsperar
 
 const volver = page => page.getByRole('button', {name: 'Cambiar de estudiante'}).click();
 
-test('dos estudiantes no se mezclan y reabren su trabajo', async ({page}) => {
+test('dos estudiantes no se mezclan y reabren su trabajo', {tag: '@recorrido'}, async ({page}) => {
   const externos = vigilarRed(page, LOCAL);
   await entrarComo(page, 'Ana');
   await escribir(page, await abrirProyecto(page), 'info.setScore(11)\n');
@@ -23,7 +23,7 @@ async function editorJs(page) {
   await page.waitForTimeout(3000);
 }
 
-test('salir justo después de editar conserva el cambio', async ({page}) => {
+test('salir justo después de editar conserva el cambio', {tag: '@recorrido'}, async ({page}) => {
   await entrarComo(page, 'Marta');
   const editor = await abrirProyecto(page);
   await escribirSinEsperar(page, editor, 'info.setScore(33)\n');
@@ -43,7 +43,7 @@ test('un nombre vacío se rechaza y el HTML se muestra como texto', async ({page
   expect(await page.evaluate(() => window.pwn)).toBeUndefined();
 });
 
-test('el PNG lleva la identidad y se abre en otro perfil', async ({page, browser}) => {
+test('el PNG lleva la identidad y se abre en otro perfil', {tag: '@recorrido'}, async ({page, browser}) => {
   await entrarComo(page, 'Ana');
   const editor = await abrirProyecto(page);
   await escribir(page, editor, 'info.setScore(44)\n');

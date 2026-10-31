@@ -12,7 +12,7 @@ const avanzar = async (page, editor, pasos) => {
 };
 const conMision = (records) => records.filter(r => r.project.header.tutorial || r.project.header.tutorialCompleted);
 
-test('la misión filtra los bloques, se guarda con el estudiante y se retoma', async ({page}) => {
+test('la misión filtra los bloques, se guarda con el estudiante y se retoma', {tag: '@recorrido'}, async ({page}) => {
   test.setTimeout(150000);
   const salidas = vigilarRed(page, LOCAL);
   await entrarComo(page, 'Ana');

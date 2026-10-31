@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {finishSite, foreignBrand, pruneSite} from '../../tools/site.mjs';
+import {finishSite, foreignBrand, pruneSite, replaceProIcon} from '../../tools/site.mjs';
 
 const sitio = files => {
   const dir = mkdtempSync(join(tmpdir(), 'gg-site-'));
@@ -49,4 +49,11 @@ test('repetir el acabado no pisa el editor', () => {
   finishSite(dir, studio);
   finishSite(dir, studio);
   assert.equal(readFileSync(join(dir, 'editor.html'), 'utf8'), 'editor');
+});
+test('sustituye el icono de licencia comercial del simulador y no toca lo demás', () => {
+  const sim = 'const a = 1;\nconst icon = `<svg viewBox="0 0 512 512"><!-- Font Awesome Pro 5.15.4 (Commercial License) --><path d="M1"/></svg>`;\nconst b = 2;';
+  const limpio = replaceProIcon(sim);
+  assert.doesNotMatch(limpio, /Font Awesome|M1/);
+  assert.match(limpio, /^const a = 1;\nconst icon = `<svg [^`]+<\/svg>`;\nconst b = 2;$/);
+  assert.equal(replaceProIcon(limpio), limpio);
 });

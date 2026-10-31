@@ -13,7 +13,8 @@ Fork del target `pxt-arcade`. Diseño: `docs/superpowers/specs/2026-10-30-code-s
 ## Pruebas
 
 - Mientras se programa: compilación y la prueba de lo que cambió, en menos de 1 minuto.
-- Al cerrar una función: un recorrido de crear, ejecutar, detener, guardar y reabrir, en menos de 3 minutos.
+- Al cerrar una función: `npm run recorrido`, en menos de 3 minutos.
+- Al cerrar un hito o antes de una clase: `npm run journey` completo.
 - Antes de una clase: batería corta de menos de 10 minutos, si el usuario la autoriza.
 - No probar PXT, solo lo que añadimos. Una revisión por hito, sin acta por tarea.
 - Guardar, reabrir y recuperar siempre se prueban.

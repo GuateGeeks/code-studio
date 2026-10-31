@@ -31,6 +31,13 @@ export function foreignBrand(site) {
   return walk(site).map(path => relative(site, path)).filter(path => FOREIGN.test(path) || (TEXT.test(path) && FOREIGN.test(readFileSync(join(site, path), 'utf8'))));
 }
 
+// sim.js ships a muted-speaker icon under a paid Font Awesome license; ours is drawn in the same place.
+const MUTED_ICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 26 24"><path d="M3 9h4l5-4v14l-5-4H3z"/><path d="m15 9 1-1 3 3 3-3 1 1-3 3 3 3-1 1-3-3-3 3-1-1 3-3z"/></svg>';
+
+export function replaceProIcon(text) {
+  return text.replace(/<svg[^>]*><!-- Font Awesome Pro[\s\S]*?<\/svg>/, MUTED_ICON);
+}
+
 // The portal takes the site root, so PXT's own page moves aside.
 function publishPortal(site, studio) {
   if (!existsSync(join(site, 'editor.html'))) renameSync(join(site, 'index.html'), join(site, 'editor.html'));
@@ -42,6 +49,8 @@ function publishPortal(site, studio) {
 
 export function finishSite(site, studio = STUDIO) {
   pruneSite(site);
+  const sim = join(site, 'sim.js');
+  if (existsSync(sim)) writeFileSync(sim, replaceProIcon(readFileSync(sim, 'utf8')));
   publishPortal(site, studio);
   const hits = foreignBrand(site);
   if (hits.length) throw new Error(`Marcas ajenas en lo publicado: ${hits.join(', ')}`);

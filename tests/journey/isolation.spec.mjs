@@ -1,7 +1,7 @@
 import {test, expect} from '@playwright/test';
 import {REMOTE, abrirEditor, ejecutar, escribir, simulador, vigilarRed} from './helpers.mjs';
 
-test('el juego corre en origen opaco en un dominio real', async ({page}) => {
+test('el juego corre en origen opaco en un dominio real', {tag: '@recorrido'}, async ({page}) => {
   const editor = await abrirEditor(page, REMOTE);
   await escribir(page, editor, 'info.setScore(7)\n');
   await ejecutar(page, editor);

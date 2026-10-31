@@ -10,7 +10,7 @@ const copiar = async page => {
 };
 const restaurar = (page, name, buffer) => page.locator('#class-restore').setInputFiles({name, mimeType: 'application/json', buffer});
 
-test('la copia de la clase devuelve proyecto e historial tras borrar los datos', async ({page}) => {
+test('la copia de la clase devuelve proyecto e historial tras borrar los datos', {tag: '@recorrido'}, async ({page}) => {
   await entrarComo(page, 'Ana');
   await escribir(page, await abrirProyecto(page), 'info.setScore(55)\n');
   await page.getByRole('button', {name: 'Cambiar de estudiante'}).click();
