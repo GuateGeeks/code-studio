@@ -2,3 +2,6 @@
 .download-button, .download-button-full, #downloadArea { display: none !important; }
 /* La portada ya muestra la marca encima del editor. */
 #mainmenu .brand, .menubar .brand, .menubar .logo { display: none !important; }
+/* pxt-core imprime la longitud de docMenu vacío como texto suelto en este menú. */
+.menubar .right.menu { font-size: 0; }
+.menubar .right.menu > * { font-size: 1rem; }

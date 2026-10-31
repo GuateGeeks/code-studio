@@ -15,6 +15,8 @@ test('el editor no muestra marcas ajenas ni sale a la red', async ({page}) => {
   expect(await textoVisible(editor)).not.toMatch(AJENO);
   await expect(editor.locator('.download-button:visible')).toHaveCount(0);
   await expect(editor.locator('[aria-label="Guardar el proyecto"]')).toBeVisible();
+  // docMenu must exist for the build, and PXT prints its empty length in this menu.
+  await expect(editor.locator('.menubar .right.menu')).toHaveCSS('font-size', '0px');
   expect(externos).toEqual([]);
   expect(rotos).toEqual([]);
 });

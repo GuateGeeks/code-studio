@@ -900,7 +900,8 @@
         "disableLiveTranslations": true,
         "defaultLocale": "es-MX",
         "allowParentController": true,
-        "lockedEditor": true
+        "lockedEditor": true,
+        "docMenu": []
     },
     "queryVariants": {
         "skillmap=1": {
