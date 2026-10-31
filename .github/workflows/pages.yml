@@ -3,6 +3,7 @@ name: Publicar en Pages
 on:
   push:
     branches: [arcade]
+    # A push that only touches these leaves the published site as it is.
     paths-ignore:
       - '**.md'
       - 'docs/**'
