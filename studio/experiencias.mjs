@@ -1,3 +1,5 @@
+import {readExperiencia} from './identity.mjs';
+
 // Pure logic of the experiences. What a game sends is untrusted: only known fields and values pass.
 export const CANAL = 'gg-experiencia';
 
@@ -88,4 +90,12 @@ export function parseEntry(search) {
   const ver = params.get('ver');
   if (ver && /^[a-z0-9-]+$/.test(ver)) entry.ver = ver;
   return entry;
+}
+
+// The copy of an experience is the newest undeleted project carrying its mark. The name is the
+// student's to change, and a mission or another project may share it.
+export function findCopy(records, id) {
+  return records
+    .filter(record => !record.project.header.isDeleted && readExperiencia(record.project) === id)
+    .sort((a, b) => b.at - a.at)[0];
 }

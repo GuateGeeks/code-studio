@@ -153,10 +153,11 @@ export const todosLosRegistros = page => page.evaluate(async () => {
   return (await openStore()).all();
 });
 
-// «Ver cómo está hecho»: from the player to the editor, in blocks.
-export async function verCopia(page) {
+// «Ver cómo está hecho»: from the player to the editor. A first copy is shown in blocks; one reopened
+// reopens in the view the student left it in, so `bloques: false` accepts either editor.
+export async function verCopia(page, {bloques = true} = {}) {
   await page.locator('#player-code').click();
-  await editorDe(page).locator('.blocklyDraggable').first().waitFor({state: 'attached', timeout: 60000});
+  await editorDe(page).locator(bloques ? '.blocklyDraggable' : '.blocklyDraggable, .monaco-editor').first().waitFor({state: 'attached', timeout: 60000});
   await page.waitForTimeout(1500);
 }
 

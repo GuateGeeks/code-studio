@@ -1,6 +1,6 @@
 import {exportBackup, mergeRecords, parseBackup} from './backup.mjs';
 import {createHost} from './host.mjs';
-import {groupByArea, loadCatalog, parseEntry, playerUrl, recallStudent, rememberStudent} from './experiencias.mjs';
+import {findCopy, gameById, groupByArea, loadCatalog, parseEntry, playerUrl, recallStudent, rememberStudent} from './experiencias.mjs';
 import {generateId, readId} from './identity.mjs';
 import {findMission, missionFilter, watchMission} from './mission.mjs';
 import {prepareOffline} from './offline.mjs';
@@ -115,6 +115,39 @@ async function createProject(student) {
   openEditor(student, openHeader(headerId));
 }
 
+// «Ver cómo está hecho»: the first press makes the student's copy of the game, later presses reopen it.
+// Playing always runs the original, so a copy is never overwritten and never duplicated.
+async function openCopy(student, id) {
+  const juego = gameById(await loadCatalog(), id);
+  if (!juego) throw new Error(`Experiencia desconocida: ${id}`);
+  const existing = findCopy(await store.list(student), id);
+  let project = existing?.project;
+  if (!project) {
+    const response = await fetch(`games/${id}.ts`);
+    if (!response.ok) throw new Error(`Código: ${response.status}`);
+    const code = await response.text();
+    const headerId = generateId().slice(3);
+    const ggId = generateId();
+    // main.blocks stays empty so PXT decompiles main.ts when the project opens in blocks.
+    project = newProject(await loadTemplate(), {name: juego.titulo, id: ggId, headerId, now: Math.floor(Date.now() / 1000), experiencia: id, files: {'main.ts': code, 'main.blocks': ''}});
+    await store.put({key: `${student}/${headerId}`, student, ggId, project, at: Date.now()});
+  }
+  // A copy never opened in blocks has no blocks yet, and the editor opens it in JavaScript.
+  openEditor(student, openHeader(project.header.id));
+  if (!project.text['main.blocks']) session.afterOpen = () => showBlocks(session.frame);
+}
+
+// The editor ignores switchblocks until the project has loaded, and says nothing when it does, so the
+// request is repeated until the blocks tab is the active one. Leaving the editor stops it.
+function showBlocks(frame) {
+  let tries = 0;
+  const timer = setInterval(() => {
+    const active = frame.contentDocument?.querySelector('.blocks-menuitem.active');
+    if (active || ++tries > 60 || session?.frame !== frame) return clearInterval(timer);
+    post(frame, {action: 'switchblocks'});
+  }, 500);
+}
+
 async function startMission(student, id) {
   const response = await fetch(`missions/${id}.md`);
   if (!response.ok) throw new Error(`Misión: ${response.status}`);
@@ -158,7 +191,8 @@ function openEditor(student, firstMessage, afterLoad, hostOptions) {
     store, student, target: frame.contentWindow, ...hostOptions,
     onSaveError: () => { $('save-warning').hidden = false; },
     onSaved: () => { $('save-warning').hidden = true; },
-    onLoaded: () => firstMessage && post(frame, firstMessage),
+    // The editor answers openheader when the project is open, and that answer is what afterOpen waits for.
+    onLoaded: () => firstMessage && post(frame, {...firstMessage, response: true}),
     onDeleted: guard(async () => { closeEditor(); await showProjects(student); }, 'No pudimos volver a tus proyectos.')
   });
   session = {student, frame, host, afterLoad, leaving: false};
@@ -231,6 +265,11 @@ async function restoreBackup(file) {
 addEventListener('message', event => {
   if (!session || event.source !== session.frame.contentWindow) return;
   if (event.data?.id === 'mission') return session.settleMission?.(event.data.success !== false);
+  if (event.data?.id === 'open' && event.data.success !== undefined && session.afterOpen) {
+    const run = session.afterOpen;
+    session.afterOpen = null;
+    return run();
+  }
   if (event.data?.action === 'editorcontentloaded' && session.afterLoad) {
     const run = session.afterLoad;
     session.afterLoad = null;
@@ -277,7 +316,12 @@ async function routeEntry() {
   const student = recallStudent(sessionStorage, await store.students());
   if (!student) return;
   if (pantalla === 'experiencias') await guard(() => showCatalog(student), 'No pudimos abrir las experiencias. Avísale a tu docente.')();
-  else await guard(() => showProjects(student), 'No pudimos abrir tus proyectos.')();
+  else if (ver) {
+    // A copy that cannot open leaves the student on the catalog, not on a blank screen.
+    await guard(() => openCopy(student, ver), 'No pudimos abrir el código de este juego. Avísale a tu docente.')();
+    // Called directly, not through guard: guard would erase the warning the failed copy just raised.
+    if (!session) await showCatalog(student).catch(() => {});
+  } else await guard(() => showProjects(student), 'No pudimos abrir tus proyectos.')();
 }
 
 try {

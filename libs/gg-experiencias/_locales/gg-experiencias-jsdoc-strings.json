@@ -1,0 +1,13 @@
+{
+  "experiencias.aciertos": "Aciertos de la comprobación.",
+  "experiencias.anotar": "Anota un ítem de la comprobación.",
+  "experiencias.cerrarComprobacion": "Cierra la comprobación: se supera con el 70 %. Si no, cambia de serie.",
+  "experiencias.comprobar": "Empieza la comprobación: cinco ítems sin pista.",
+  "experiencias.confirmar": "Espera a que se pulse A. Sirve para confirmar una posición o una respuesta.",
+  "experiencias.decir": "Muestra un mensaje y espera a que se pulse A.",
+  "experiencias.elegir": "Muestra una pregunta con opciones y devuelve la que elige el estudiante (0 es la primera).",
+  "experiencias.fase": "Marca la fase en la que está el estudiante.",
+  "experiencias.final": "Muestra el resultado y termina. No regresa: para jugar otra vez se reinicia el juego.",
+  "experiencias.serieActual": "Serie de la comprobación: 0 es la A y 1 es la B.",
+  "experiencias.todaviaNo": "Avisa que todavía no es correcto y da el siguiente paso."
+}

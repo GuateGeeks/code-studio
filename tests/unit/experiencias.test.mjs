@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {CANAL, clearEstado, gameById, groupByArea, loadCatalog, parseEntry, parseEstado, playerUrl, recallStudent, reflectEstado, rememberStudent} from '../../studio/experiencias.mjs';
+import {CANAL, clearEstado, findCopy, gameById, groupByArea, loadCatalog, parseEntry, parseEstado, playerUrl, recallStudent, reflectEstado, rememberStudent} from '../../studio/experiencias.mjs';
 
 const bytes = value => new TextEncoder().encode(typeof value === 'string' ? value : JSON.stringify(value));
 const elemento = () => ({dataset: {}});
@@ -106,4 +106,30 @@ test('parseEntry lee ver y pantalla e ignora lo demás', () => {
   assert.deepEqual(parseEntry('?ver=../../x'), {});
   assert.deepEqual(parseEntry('?ver=A%20B'), {});
   assert.deepEqual(parseEntry('?ver=rescate-plano&pantalla=experiencias'), {ver: 'rescate-plano', pantalla: 'experiencias'});
+});
+
+const registro = (header, experiencia, at, nombre = 'Rescate en el plano') => ({at, project: {header: {name: nombre, ...header}, text: {'pxt.json': JSON.stringify({name: nombre, ggProject: {id: `gg-${header.id}`, v: 1, ...(experiencia ? {experiencia} : {})}})}}});
+
+test('findCopy encuentra por marca, no por nombre', () => {
+  const homonimo = registro({id: 'a'}, undefined, 5);
+  assert.equal(findCopy([homonimo], 'rescate-plano'), undefined);
+  const renombrada = registro({id: 'b'}, 'rescate-plano', 3, 'Mi versión');
+  assert.equal(findCopy([homonimo, renombrada], 'rescate-plano'), renombrada);
+});
+
+test('findCopy ignora una copia borrada', () => {
+  assert.equal(findCopy([registro({id: 'a', isDeleted: true}, 'rescate-plano', 5)], 'rescate-plano'), undefined);
+});
+
+test('findCopy distingue juegos y elige la más reciente', () => {
+  const vieja = registro({id: 'a'}, 'rescate-plano', 1);
+  const nueva = registro({id: 'b'}, 'rescate-plano', 9);
+  const otra = registro({id: 'c'}, 'cuentas-mayas', 20);
+  assert.equal(findCopy([vieja, nueva, otra], 'rescate-plano'), nueva);
+  assert.equal(findCopy([vieja, nueva, otra], 'cuentas-mayas'), otra);
+});
+
+test('findCopy no confunde la misión ni un proyecto de misión con una copia', () => {
+  const mision = {at: 9, project: {header: {id: 'm', name: 'Rescate en el plano', tutorial: {}}, text: {'pxt.json': '{"name":"x"}'}}};
+  assert.equal(findCopy([mision], 'rescate-plano'), undefined);
 });

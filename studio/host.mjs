@@ -1,4 +1,4 @@
-import {generateId, readDerivedFrom, resolveIdentity, stampIdentity} from './identity.mjs';
+import {generateId, readDerivedFrom, readExperiencia, resolveIdentity, stampIdentity} from './identity.mjs';
 
 const SAVE_TIMEOUT = 8000;
 
@@ -24,7 +24,9 @@ export function createHost({store, student, target, onSaveError = () => {}, onSa
     const source = own?.project ?? merged;
     const {id, derivedFrom} = resolveIdentity(source, known, newId);
     latest = merged;
-    await store.put({key, student, ggId: id, project: stampIdentity(merged, id, derivedFrom ?? readDerivedFrom(source)), at: Date.now()});
+    // The editor's pxt.json need not carry ggProject, so the mark is read from what was stored.
+    const experiencia = readExperiencia(source) ?? readExperiencia(merged);
+    await store.put({key, student, ggId: id, project: stampIdentity(merged, id, derivedFrom ?? readDerivedFrom(source), experiencia), at: Date.now()});
   }
 
   function enqueue(project) {

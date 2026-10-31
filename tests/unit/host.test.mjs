@@ -164,3 +164,19 @@ test('un fallo de adopt avisa como cualquier guardado fallido', async () => {
   assert.equal(avisos, 1);
   assert.deepEqual(await host.flushed(), {ok: false});
 });
+test('un guardado cuyo pxt.json no trae ggProject conserva la experiencia', async () => {
+  const marcado = {header: {id: 'a'}, text: {'pxt.json': JSON.stringify({name: 'n', ggProject: {id: 'gg-1', v: 1, experiencia: 'rescate-plano'}}), 'main.ts': 'uno'}};
+  const store = memoria([{key: 'ana/a', student: 'ana', ggId: 'gg-1', project: marcado}]);
+  const target = ventana();
+  const host = createHost({store, student: 'ana', target});
+  await guardar(host, target, proyecto('a', 'dos'));
+  const guardado = JSON.parse(store.records[0].project.text['pxt.json']);
+  assert.deepEqual(guardado.ggProject, {id: 'gg-1', v: 1, experiencia: 'rescate-plano'});
+  assert.equal(store.records[0].project.text['main.ts'], 'dos');
+});
+test('un proyecto sin experiencia no la gana al guardar', async () => {
+  const store = memoria();
+  const target = ventana();
+  await guardar(createHost({store, student: 'ana', target, newId: () => 'gg-1'}), target, proyecto('a'));
+  assert.equal('experiencia' in JSON.parse(store.records[0].project.text['pxt.json']).ggProject, false);
+});

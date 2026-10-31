@@ -16,9 +16,18 @@ export function readDerivedFrom(project) {
   }
 }
 
-export function stampIdentity(project, id, derivedFrom) {
+// The mark of a copy made from an experience: the copy is found by it, never by its name.
+export function readExperiencia(project) {
+  try {
+    return JSON.parse(project.text[CONFIG]).ggProject?.experiencia;
+  } catch {
+    return undefined;
+  }
+}
+
+export function stampIdentity(project, id, derivedFrom, experiencia) {
   const config = JSON.parse(project.text[CONFIG]);
-  config.ggProject = {id, v: 1, ...(derivedFrom ? {derivedFrom} : {})};
+  config.ggProject = {id, v: 1, ...(derivedFrom ? {derivedFrom} : {}), ...(experiencia ? {experiencia} : {})};
   return {...project, text: {...project.text, [CONFIG]: JSON.stringify(config, null, 4)}};
 }
 
