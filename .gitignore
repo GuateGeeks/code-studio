@@ -1,8 +1,8 @@
 node_modules/
 built/
-dist/
-public/
-locales/
+/dist/
+/public/
+/locales/
 projects/
 pxt_modules/
 .superpowers/

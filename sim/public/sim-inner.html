@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="es" data-framework="typescript">
+<head>
+<meta charset="utf-8">
+<title>Escenario</title>
+<style>
+html,body{margin:0;height:100%;background:#321853;overflow:hidden}
+#wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+.game-player,.game-embed{width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+#game-screen{width:100%;height:100%;object-fit:contain;image-rendering:pixelated;outline:0}
+.hidden,.gg-hidden{display:none!important}
+</style>
+<script src="pxtsim.js"></script>
+<script src="sim.js"></script>
+</head>
+<body id="root">
+<div id="wrap"><div class="game-player">
+<div id="safari-enable-game" class="gg-hidden"></div>
+<div id="debug-stats"></div>
+<div class="game-embed"><canvas id="game-screen" class="hidden" tabindex="0" role="application" aria-label="Escenario"></canvas></div>
+<div class="gg-hidden">
+<button class="game-sys-button game-menu-button">Menú</button><button class="game-sys-button game-reset-button">Reiniciar</button>
+<div id="game-buttons-container"><svg class="game-button-svg" viewBox="0 0 40 40"><circle class="button-a" cx="28" cy="12" r="9"/><circle class="button-b" cx="13" cy="28" r="9"/><text class="label-a">A</text><text class="label-b">B</text></svg></div>
+<div id="joystick-container"><svg class="game-joystick-svg" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18"/><path class="retro-direction-arrow"/></svg></div>
+<div class="game-player-msft"></div>
+</div>
+</div></div>
+</body>
+</html>
