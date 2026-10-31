@@ -107,7 +107,7 @@ test('el editor no muestra marcas ajenas ni sale a la red', async ({page}) => {
 ```
 
 - [ ] **Step 2:** Ejecutar `npx playwright test tests/journey/brand.spec.mjs`. Esperado: falla por `Microsoft`.
-- [ ] **Step 3:** Configurar `pxtarget.json`: `title`, `organization`, `allowParentController: true`, `lockedEditor: true`, `disableLiveTranslations: true`, `defaultLocale: es-MX`, `selectLanguage: false`, `githubEditor: false`, sin `homeScreenHero`; `cloud` con `sharing`, `thumbnails`, `publishing`, `packages`, `githubPackages` en `false` y `cloudProviders: {}`; `simulator.autoRun: false`; `timeMachineDiffInterval: 300000`, `timeMachineSnapshotInterval: 600000`.
+- [ ] **Step 3:** Configurar `pxtarget.json`: `title`, `organization`, `allowParentController: true`, `lockedEditor: true`, `disableLiveTranslations: true`, `defaultLocale: es-MX`, `selectLanguage: false`, `githubEditor: false`, sin `homeScreenHero`; `cloud` con `sharing`, `thumbnails`, `publishing`, `packages`, `githubPackages` en `false` y `cloudProviders: {}`; `simulator.autoRun: true`; `timeMachineDiffInterval: 300000`, `timeMachineSnapshotInterval: 600000`.
 - [ ] **Step 4:** Aplicar la paleta y ocultar con `gg-overrides.css` el botón «Descargar» y «Explicar con IA». Mantener el botón de guardar PNG.
 - [ ] **Step 5:** Vaciar solo la carga de App Insights. **Conservar `pxtweb.js`:** define `pxt.setInteractiveConsent` y `pxt.initAnalyticsAsync`.
 - [ ] **Step 6:** Implementar `tools/locales.mjs` desde `https://makecode.com/api/translations` e integrarlo en `build()`. `locales/` queda en `.gitignore`.

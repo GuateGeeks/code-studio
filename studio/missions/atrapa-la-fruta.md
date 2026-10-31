@@ -38,7 +38,7 @@ Quiero moverme con las flechas del teclado.
 
 En **Controles**, toma **mover mySprite con los botones** y ponlo debajo del bloque anterior. Después agrega **establecer mySprite permanecer en pantalla**, de **Sprites**, para que no me salga del juego.
 
-Prueba el juego en la pantallita: ¿me muevo?
+Haz clic en la pantallita y prueba las flechas: ¿me muevo?
 
 #### ~ tutorialhint
 
@@ -115,6 +115,8 @@ info.startCountdown(30)
 
 ## {¡Lo lograste! @showdialog}
 
-¡Tu juego está listo! Juega una partida y mira cuántas frutas atrapas en 30 segundos.
+¡Tu juego está listo! Haz clic en la pantallita, juega una partida y mira cuántas frutas atrapas en 30 segundos.
 
 ¿Quieres un reto? Haz que caigan más rápido, cambia la fruta o intenta atrapar más de 20.
+
+Cuando termines, pulsa **Terminar el tutorial**.

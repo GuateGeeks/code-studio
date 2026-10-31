@@ -10,6 +10,18 @@ const avanzar = async (page, editor, pasos) => {
     await page.waitForTimeout(300);
   }
 };
+// Drags the first block of a category into "al inicio", the way a student does.
+const arrastrar = async (page, editor, categoria) => {
+  await editor.locator('.blocklyTreeRow', {hasText: categoria}).click();
+  await page.waitForTimeout(1000);
+  const bloque = await editor.locator('.blocklyFlyout .blocklyDraggable').first().boundingBox();
+  const inicio = await editor.locator('.blocklyWorkspace > .blocklyBlockCanvas > .blocklyDraggable').first().boundingBox();
+  await page.mouse.move(bloque.x + 12, bloque.y + 14);
+  await page.mouse.down();
+  await page.mouse.move(inicio.x + 28, inicio.y + 60, {steps: 10});
+  await page.waitForTimeout(300);
+  await page.mouse.up();
+};
 const conMision = (records) => records.filter(r => r.project.header.tutorial || r.project.header.tutorialCompleted);
 
 test('la misión filtra los bloques, se guarda con el estudiante y se retoma', {tag: '@recorrido'}, async ({page}) => {
@@ -55,6 +67,28 @@ test('la misión filtra los bloques, se guarda con el estudiante y se retoma', {
   await ejecutar(page, editor);
   expect(await registros(page, 'Ana')).toHaveLength(1);
   expect(salidas).toEqual([]);
+});
+
+test('la pantallita ejecuta el juego después de cada cambio', async ({page}) => {
+  test.setTimeout(90000);
+  await page.addInitScript(() => addEventListener('message', ({data}) => {
+    if (data?.type === 'run' && location.pathname.endsWith('simulator.html')) console.log('gg-run');
+  }));
+  let corridas = 0;
+  page.on('console', mensaje => { if (mensaje.text() === 'gg-run') corridas++; });
+  await entrarComo(page, 'Mia');
+  await iniciarMision(page);
+  const editor = editorDe(page);
+  await enMision(editor);
+  await editor.getByRole('button', {name: 'Aceptar'}).click();
+  await page.waitForTimeout(1500);
+  await avanzar(page, editor, 1);
+
+  for (const categoria of ['Sprites', 'Controles']) {
+    const antes = corridas;
+    await arrastrar(page, editor, categoria);
+    await expect.poll(() => corridas, {timeout: 15000, message: `tras el bloque de ${categoria}`}).toBeGreaterThan(antes);
+  }
 });
 
 test('la misión también arranca si el estudiante ya tiene proyectos', async ({page}) => {
