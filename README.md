@@ -4,6 +4,11 @@ Estudio de creación de videojuegos 2D para estudiantes de 10 a 12 años, con do
 
 Se publica en <https://guategeeks.com/code-studio/>. Tras la primera visita con internet, cuando la portada dice que está listo, funciona sin conexión.
 
+## Para docentes
+
+- [Guía docente](docs/GUIA-DOCENTE.md): preparar las computadoras, dar la clase, hacer copias y qué hacer si algo falla.
+- [Guion de observación](docs/OBSERVACION.md): probar un equipo escolar y observar la primera clase.
+
 ## Desarrollo
 
 Requiere Node 22.
