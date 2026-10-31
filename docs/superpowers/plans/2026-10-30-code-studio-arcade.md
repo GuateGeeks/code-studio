@@ -265,7 +265,7 @@ test('rechaza JSON roto, otro formato y registros sin project', () => { /* tres 
 - [ ] **Step 5:** Ejecutar la prueba. Esperado: pasa. Si `flyoutOnly` no funciona en modo IDE, parar y consultar.
 - [ ] **Step 6:** Commit `Misión Atrapa la fruta`.
 
-**Cierre de M2:** revisión del hito, con el usuario jugando la misión. Revisar aquí licencias de traducciones y del icono Font Awesome Pro de `sim.js`, en `docs/LICENCIAS.md`, porque bloquean la publicación.
+**Cierre de M2:** revisión del hito, con el usuario jugando la misión. Revisar aquí licencias de traducciones y del icono Font Awesome Pro de `sim.js`, porque bloquean la publicación.
 
 ---
 

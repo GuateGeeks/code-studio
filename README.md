@@ -34,6 +34,6 @@ Versiones fijadas y procedencia en [UPSTREAM.md](UPSTREAM.md). Diseño en [docs/
 
 ## Licencias
 
-El código heredado conserva su licencia MIT y sus avisos en [LICENSE](LICENSE) y [ThirdPartyNotice](ThirdPartyNotice). Lo que se publica y su estado están en [docs/LICENCIAS.md](docs/LICENCIAS.md).
+El código heredado conserva su licencia MIT y sus avisos en [LICENSE](LICENSE) y [ThirdPartyNotice](ThirdPartyNotice).
 
 Este proyecto no está afiliado a Microsoft ni cuenta con su respaldo.
