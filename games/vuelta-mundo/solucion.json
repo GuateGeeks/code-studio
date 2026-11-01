@@ -1,0 +1,50 @@
+{
+  "rondas": [
+    ["der", "arr", "A"],
+    ["der", "aba", "aba", "aba", "A"],
+    ["A"],
+    ["A"],
+    ["der", "der", "der", "der", "der", "der", "der", "der", "der", "der", "der", "der", "arr", "arr", "arr", "A"],
+    ["der", "A"],
+    ["aba", "aba", "aba", "aba", "A"],
+    ["izq", "arr", "A"],
+    ["der", "aba", "aba", "aba", "aba", "aba", "A"],
+    ["arr", "arr", "arr", "arr", "arr", "arr", "arr", "arr", "arr", "arr", "arr", "A"],
+    ["aba", "aba", "aba", "aba", "aba", "aba", "aba", "aba", "A"],
+    ["A"],
+    ["aba", "A"]
+  ],
+  "erradas": [
+    ["A"],
+    ["A"],
+    ["der", "aba", "aba", "aba", "A"],
+    ["der", "A"],
+    ["A"],
+    ["aba", "A"],
+    ["A"],
+    ["A"],
+    ["der", "der", "der", "der", "der", "der", "der", "der", "der", "der", "der", "der", "arr", "arr", "arr", "A"],
+    ["der", "A"],
+    ["A"],
+    ["aba", "aba", "aba", "aba", "A"],
+    ["A"],
+    ["A"],
+    ["A"],
+    ["A"],
+    ["aba", "A"]
+  ],
+  "serieB": [
+    ["der", "aba", "aba", "aba", "A"],
+    ["A"],
+    ["A"],
+    ["der", "der", "der", "der", "der", "der", "der", "der", "der", "der", "der", "der", "arr", "arr", "arr", "A"],
+    ["der", "A"],
+    ["aba", "aba", "aba", "aba", "A"],
+    ["der", "der", "der", "aba", "aba", "aba", "aba", "aba", "aba", "aba", "aba", "aba", "aba", "A"],
+    ["der", "der", "der", "der", "der", "der", "der", "der", "der", "arr", "arr", "arr", "arr", "arr", "arr", "arr", "A"],
+    ["arr", "arr", "A"],
+    ["aba", "aba", "aba", "aba", "aba", "aba", "aba", "aba", "aba", "aba", "aba", "aba", "aba", "aba", "aba", "aba", "aba", "A"],
+    ["aba", "A"],
+    ["aba", "A"]
+  ]
+}
