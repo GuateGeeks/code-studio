@@ -79,7 +79,7 @@ Si un estudiante tiene que cambiar de computadora, restaura allí la copia de la
 | **No pudimos guardar tu trabajo** | Pulsa **Reintentar**. Si sigue, pulsa **Descargar mi trabajo** antes de salir y guarda el archivo |
 | **No pudimos abrir la misión** | Vuelve a pulsar la misión. Si sigue, recarga la página |
 | La pantallita sigue cargando después de 30 segundos | Sal con **Cambiar de estudiante** y vuelve a entrar. Nada se pierde |
-| La pantallita sigue girando y **Play** no responde | Pulsa **Bloques** y vuelve a **JavaScript**. Tu código sigue guardado |
+| La pantallita sigue girando y **Play** no responde | Pulsa **Bloques** y vuelve a **JavaScript**, o sal y abre el proyecto otra vez. Puede que no se arregle, pero tu código sigue guardado |
 | Se cerró la ventana sin querer | Vuelve a entrar y elige el nombre. Puede faltar lo último que hizo |
 | Falta un nombre o un proyecto | Abre **Herramientas de la clase**, pulsa **Restaurar copia** y elige el archivo de esa computadora. Se conserva la versión más reciente de cada proyecto |
 | Aparece **Actualizar a la versión nueva** | Púlsalo fuera de la clase, cuando nadie esté trabajando |

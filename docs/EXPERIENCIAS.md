@@ -254,6 +254,50 @@ Ninguno pendiente.
 - Todo el modelo de clientes y costos es inventado, y el juego lo dice. Revisa si 6, 10 y 14 frutas, y 2, 3 y 5 monedas, son buenas cifras para tu clase.
 - Los nombres «común», «buena» y «especial» son del juego.
 
+## Revisión humana pendiente
+
+Esto lo tiene que revisar una persona. Falta hacerlo antes de publicar.
+
+### Pertinencia cultural
+
+- Revisa si Cuentas mayas en el mercado, Lee la marimba y Mediación en el recreo son pertinentes para tu contexto cultural.
+- Falta un ejemplo de una cultura, con su fuente, para `fc:4.3.2`.
+
+### Datos de Ciencias y Sociales
+
+- Revisa la lista «Datos por revisar», en las fichas de Ciencias y de Sociales.
+- Sin fuente leída: que el Pacaya y el Santiaguito estén activos, y que Egipto y Uruguay no tengan volcanes activos. El catálogo mundial de volcanes bloqueó la lectura y el boletín del INSIVUMEH no se encontró.
+- Sin fuente leída: las coordenadas y la altitud de Quito.
+- Nada indica que estos datos sean falsos, pero nadie los comprobó en una fuente.
+
+### Cobertura
+
+- `pyd:4.3.1`, en Mi puesto en la feria, está marcado `no cubre`. El juego solo prepara: confirma que así te sirve. La feria real la organizas y decides tú.
+
+### Una clase real
+
+- Mide si cada juego toma 10 a 15 minutos sin ayuda.
+- Observa si se entienden los textos.
+- Prueba el foco con un teclado real y con la ventana recién abierta. El foco sin clic solo se vio en pruebas automáticas.
+
+### Equipos escolares
+
+- Prueba el sonido. Afecta sobre todo a Lee la marimba.
+- Prueba Edge y Firefox.
+- Mide el tamaño de la caché en un equipo escolar. En la lista de archivos son unos 71 MB.
+- Observa qué pasa con un almacenamiento lento. Al forzar un retraso en las pruebas, la lista de estudiantes se vio vacía y el formulario no respondió unos segundos, hasta que abrió el almacén.
+
+### Pendientes sin causa
+
+- La pantallita gira con Play deshabilitado en JavaScript al pegar código: sin causa conocida. Un error de tipos simple no la reproduce: Play sigue habilitado y «Problemas» sube a 1.
+- Un fallo parecido sí se reprodujo: en un proyecto nuevo, al escribir entre 3,3 y 3,9 segundos después de pasar a JavaScript, 4 de 4 veces. No se localizó el origen en el código, y no se sabe si es el mismo fallo. El código se guardó, y se salió pasando por Bloques o reabriendo.
+- La compilación por línea de comandos y la del editor no se compararon byte a byte.
+
+### Publicación
+
+- Publica solo con pedido expreso del usuario, después de lo anterior.
+- Después de publicar, vuelve a medir la descarga real. Los unos 16 MB son una inferencia, no una medida: cuando se midió, el sitio publicado no tenía los 12 juegos.
+
 ## Crédito
 
 Los contenidos del CNB de cada ficha son de CNB Guatemala / Ministerio de Educación de Guatemala. Se usan con licencia [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/deed.es) (Creative Commons Atribución-CompartirIgual 4.0). El texto viene de la dosificación de los aprendizajes de sexto grado, publicada en cnbguatemala.org.
