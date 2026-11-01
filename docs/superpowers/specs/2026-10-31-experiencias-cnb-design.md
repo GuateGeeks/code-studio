@@ -201,7 +201,7 @@ Las pruebas deben demostrar el efecto, no solo que no hubo error:
 - Sonido no probado en equipos escolares; afecta a Lee la marimba.
 - Sin probar Edge, Firefox ni teclado real. El foco sin clic solo se vio en Playwright.
 - La CLI y el editor no se compararon byte a byte.
-- La vista JavaScript mostró la pantallita cargando al pegar código, sin causa hallada.
+- La pantallita se queda girando con Play deshabilitado si se escribe ~3,3–3,9 s después de pasar a JavaScript. No pierde código. Se sale pasando por Bloques o reabriendo. Está fuera de `studio/`: no se corrige.
 - `askForString` sin probar con acentos y ñ. Fin de juego y reinicio sin probar en el reproductor.
 - Copia sin probar: el spike pegó código en un proyecto nuevo. Si un proyecto sin `main.blocks` no abre en Bloques, se genera ese archivo al compilar.
 - Las fuentes de arcade pueden no mostrar bien Á, É, Í, Ó, Ú, Ñ, ¿ o ¡.

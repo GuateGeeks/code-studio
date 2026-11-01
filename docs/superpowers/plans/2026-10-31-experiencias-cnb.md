@@ -19,9 +19,9 @@
 - Antes de cualquier orden de Node: `source /home/adawolfs/projects/makecode/scripts/env.sh; unset -f node npm npx`. Antes de Playwright: `npm start` en segundo plano (puerto 5310). Para ver cambios, el sitio debe estar reconstruido en `dist/site/`.
 - Presupuesto: mientras se programa, compilación y prueba de lo que cambió en menos de 1 minuto; al cerrar una función, `npm run recorrido` en menos de 3; al cerrar un hito (Tareas 8, 18 y 22), `npm test` y `npm run journey`, en segundo plano. Si una prueba rebasa su tope, se recorta o se reescribe.
 - **Toda prueba demuestra el efecto.** Prohibido `force`. Prohibido localizar por un texto que también aparezca fuera del juego (misión, portada): se acota con un contenedor (`#catalog`, `#player-bar`). Cada tecla se mantiene ~120 ms con `pulsar`. Los aciertos y las fases se leen de los `data-` del reproductor, nunca de una captura.
-- Reglas de `main.ts`: solo `for (let i = 0; i < n; i++)`; sin rangos negativos (se calcula `x = i - 7`); sin `if` de una línea con llamadas anidadas; todo en `main.ts`; sin `drawLine`, `askForString` ni `game.over`.
+- Reglas de `main.ts`: solo `for (let i = 0; i < n; i++)`; sin rangos negativos (se calcula `x = i - 7`); sin `if` de una línea con llamadas anidadas; todo en `main.ts`; sin `drawLine`, `askForString`, `game.over`, `.charAt` ni `.onButtonEvent`.
 - Los bloques de `gg-experiencias`, una vez cerrada la Tarea 8, **solo se añaden; nunca se renombran ni se quitan**.
-- Texto: tuteo, una idea por oración, tildes en mayúsculas, frases cortas en 320×240 (53 caracteres por línea con `font8`), sin depender solo del color o del sonido. Primero la experiencia, después el nombre. Lo simulado se declara: «Es un modelo en la pantalla.»
+- Texto: tuteo, una idea por oración, tildes en mayúsculas, frases cortas en 320×240 (53 caracteres por línea con `font8`), sin depender solo del color o del sonido. Primero la experiencia, después el nombre. Lo simulado se declara: «Es un modelo en la pantalla.» Sin `Í` mayúscula en textos visibles ni textos todo en mayúsculas: con `font8`, Í se lee como “f”. Opciones verticales de `elegir` de hasta 44 caracteres.
 - Temas evitados: conflicto armado, sexualidad, Cholq'ij, vocabulario maya inventado. Sin datos, personas ni medios inventados que parezcan reales.
 - Commits en español, en imperativo y con un título por tarea, terminados en `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`. `git add` por ruta exacta.
 
@@ -659,7 +659,7 @@ Límite: esos 5 fondos más `fondoPlano`, porque cada uno añade ~51 KB a `targe
   - `navigator.storage.estimate().usage` tras «Listo para usar», con perfil limpio (diseño: ~28 MB más por computadora).
   - Si es accesible, tamaño comprimido real con `curl --compressed` sobre el sitio publicado actual. Solo lectura y sin publicar. Si no, se declara inferido.
 
-- [ ] **Step 2: Corregir la Guía:** sustituir «unos 40 MB» por la cifra de descarga y añadir lo que ocupa en la computadora. Añadir una sección breve de Experiencias: cómo abrirlas y que el resultado no llega a la docente.
+- [ ] **Step 2: Corregir la Guía:** sustituir «unos 40 MB» por la cifra de descarga y añadir lo que ocupa en la computadora. Añadir una sección breve de Experiencias: cómo abrirlas y que el resultado no llega a la docente. La Guía docente dice: si la pantallita se queda girando y Play no responde, pulsa Bloques y vuelve a JavaScript; el código sigue guardado. Actualiza el tamaño: ≈ 69 MB sin red con 12 juegos.
 
 - [ ] **Step 3: En `DESPLIEGUE.md`:** el service worker instala la lista completa por publicación, así que conviene agrupar publicaciones y hacerlas fuera de clase; plan B si falla en un equipo escolar: `.js.gz` y `DecompressionStream` en `player.mjs`. No implementar el plan B.
 
