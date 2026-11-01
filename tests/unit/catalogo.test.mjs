@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readFileSync} from 'node:fs';
+import {existsSync, readFileSync} from 'node:fs';
 
 const catalogo = JSON.parse(readFileSync('games/catalogo.json', 'utf8'));
 const cnb = new Set(JSON.parse(readFileSync('tests/fixtures/cnb-sexto-ids.json', 'utf8')));
@@ -63,4 +63,10 @@ test('la cobertura parcial de fc:4.3.2 está declarada', () => {
   const mediacion = catalogo.find(juego => juego.id === 'mediacion-recreo');
   assert.deepEqual(mediacion.cobertura, {'fc:4.3.2': 'parcial'});
   assert.equal(catalogo.filter(juego => juego.cobertura).length, 1);
+});
+
+test('cada entrada tiene su carpeta y su solución', () => {
+  for (const {id} of catalogo) {
+    for (const archivo of ['main.ts', 'pxt.json', 'solucion.json']) assert.ok(existsSync(`games/${id}/${archivo}`), `games/${id}/${archivo}`);
+  }
 });

@@ -10,6 +10,8 @@ Fork del target `pxt-arcade`. Diseño: `docs/superpowers/specs/2026-10-30-code-s
 - Sin datos de estudiantes en el repositorio. Sin marcas Microsoft o MakeCode en lo publicado.
 - Sin push salvo petición expresa del usuario.
 - El service worker sirve el sitio desde caché: tras cambiar algo, cierra todas las pestañas del estudio para ver la versión nueva.
+- `games/<id>/main.ts`: todo en un solo archivo; solo `for (let i = 0; i < n; i++)`, sin rangos negativos ni `if` de una línea con llamadas; sin `drawLine`, `askForString`, `game.over`, `.charAt`, `.onButtonEvent` ni `sayText` con tiempo (PXT borra la burbuja siguiente); sin `Í` ni textos en mayúsculas; opciones verticales de `elegir` de hasta 44 caracteres. `fuente.test` lo hace cumplir.
+- Los bloques de `libs/gg-experiencias` solo se añaden: nunca se renombran ni se quitan.
 - Cada archivo nuevo del sitio se guarda sin red salvo que `tools/site-files.txt` lo excluya.
 
 ## Pruebas
