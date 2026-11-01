@@ -55,20 +55,14 @@ test('pulsar otra vez abre la misma, con sus cambios, aunque esté renombrada', 
   const editor = editorDe(page);
   await editor.locator('#fileNameInput2').fill('Mi versión del rescate');
   await editor.locator('#fileNameInput2').press('Enter');
-  // The code is read after the editor shows JavaScript: before that, the text it holds is not the copy's.
-  await editor.locator('.javascript-menuitem').first().click();
+  const javascript = editor.locator('.javascript-menuitem').first();
+  await javascript.click();
   await page.waitForTimeout(4000);
-  // In a full run the first write sometimes goes to a Monaco model the editor no longer shows (seen once in
-  // four runs, cause not found), so it is repeated until it reaches the store. The attempts are recorded.
+  // `escribir` presses the tab again if it is not active, which would hide the view jumping back.
+  await expect(javascript).toHaveClass(/active/);
   const cambio = 'let miContador = 7';
-  let intentos = 0;
-  for (; intentos < 3; intentos++) {
-    await escribir(page, editor, `${await leerCodigo(page)}\n${cambio}\n`);
-    const llego = await expect.poll(async () => (await registros(page, 'Beto'))[0].project.text['main.ts'], {timeout: 8000}).toContain(cambio).then(() => true, () => false);
-    if (llego) break;
-  }
-  test.info().annotations.push({type: 'intentos de escritura', description: String(intentos + 1)});
-  expect(intentos).toBeLessThan(3);
+  await escribir(page, editor, `${await leerCodigo(page)}\n${cambio}\n`);
+  await expect.poll(async () => (await registros(page, 'Beto'))[0].project.text['main.ts'], {timeout: 8000}).toContain(cambio);
   await salir(page);
 
   await abrirJuegoDesdePortada(page, 'Beto', JUEGO);
@@ -81,6 +75,29 @@ test('pulsar otra vez abre la misma, con sus cambios, aunque esté renombrada', 
   expect(registrosBeto[0].project.text['main.ts']).toContain('let miContador = 7');
   expect(config(registrosBeto[0]).ggProject.experiencia).toBe('rescate-plano');
   expect(await leerCodigo(page)).toContain('let miContador = 7');
+});
+
+test('pasar a JavaScript nada más ver los bloques no devuelve a Bloques ni pierde lo escrito', async ({page}) => {
+  test.setTimeout(120000);
+  await abrirJuegoDesdePortada(page, 'Beto', JUEGO);
+  await page.locator('#player-code').click();
+  const editor = editorDe(page);
+  await expect(editor.locator('.blocks-menuitem').first()).toHaveClass(/active/, {timeout: 60000});
+
+  const javascript = editor.locator('.javascript-menuitem').first();
+  await javascript.click();
+  // A late conversion pulled the view back seconds after this click, so the tab must stay.
+  for (let i = 0; i < 16; i++) {
+    await expect(javascript).toHaveClass(/active/);
+    await page.waitForTimeout(500);
+  }
+
+  await editor.locator('.monaco-editor .view-lines').first().click();
+  await page.keyboard.press('Control+End');
+  await page.keyboard.type('\n// mi cambio\n', {delay: 40});
+  await expect.poll(async () => (await registros(page, 'Beto'))[0].project.text['main.ts'], {timeout: 10000}).toContain('// mi cambio');
+  await salir(page);
+  expect((await registros(page, 'Beto'))[0].project.text['main.ts']).toContain('// mi cambio');
 });
 
 test('una copia borrada no se reabre: se crea otra', async ({page}) => {

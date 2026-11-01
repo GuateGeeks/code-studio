@@ -137,15 +137,18 @@ async function openCopy(student, id) {
   if (!project.text['main.blocks']) session.afterOpen = () => showBlocks(session.frame);
 }
 
-// The editor ignores switchblocks until the project has loaded, and says nothing when it does, so the
-// request is repeated until the blocks tab is the active one. Leaving the editor stops it.
+// The editor ignores switchblocks while it loads, and says nothing when it can take it. A request that
+// lands starts a conversion, and a second request starts another one that later pulls the student back
+// to Blocks, losing what they typed. So nothing is sent while the editor shows it is busy, and the
+// interval is longer than the 700 ms the editor takes to show that. Leaving the editor stops it.
 function showBlocks(frame) {
   let tries = 0;
   const timer = setInterval(() => {
-    const active = frame.contentDocument?.querySelector('.blocks-menuitem.active');
-    if (active || ++tries > 60 || session?.frame !== frame) return clearInterval(timer);
+    const doc = frame.contentDocument;
+    if (doc?.querySelector('.blocks-menuitem.active') || ++tries > 40 || session?.frame !== frame) return clearInterval(timer);
+    if (doc?.querySelector('.ui.loader.main.msg')) return;
     post(frame, {action: 'switchblocks'});
-  }, 500);
+  }, 1500);
 }
 
 async function startMission(student, id) {
