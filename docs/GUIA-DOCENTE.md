@@ -94,11 +94,13 @@ Si un estudiante tiene que cambiar de computadora, restaura allí la copia de la
 
 ## Experiencias de contenidos
 
-Además de la misión, el estudio tiene 12 experiencias de Matemáticas, Ciencias, Comunicación, Arte, Educación Física, Formación Ciudadana y Productividad. Cada una tiene su ficha, con el tiempo, los contenidos del CNB, cómo usarla y qué le falta: [EXPERIENCIAS.md](EXPERIENCIAS.md).
+Además de la misión, el estudio tiene 12 experiencias de Matemáticas, Ciencias Naturales, Ciencias Sociales, Comunicación y Lenguaje, Expresión Artística, Educación Física, Formación Ciudadana y Productividad. Cada una tiene su ficha, con el tiempo, los contenidos del CNB, cómo usarla y qué le falta: [EXPERIENCIAS.md](EXPERIENCIAS.md).
+
+No todas cubren su contenido completo. Antes de planificar con una, lee la línea «Cobertura» de su ficha.
 
 ### Cómo abrirlas
 
-1. El estudiante entra con su nombre.
+1. Cada estudiante entra con su nombre.
 2. Pulsa **Experiencias** y elige un juego.
 3. Juega con el teclado: flechas para elegir y la tecla A para confirmar.
 4. Para volver, pulsa **Volver a Experiencias**.
@@ -107,4 +109,4 @@ Funcionan sin internet, igual que la misión.
 
 ### Qué ves de su resultado
 
-El resultado no te llega. El estudiante lo ve en la pantalla final del juego y no se guarda. Si quieres saber cómo le fue, pídele que te muestre esa pantalla.
+El resultado no te llega. Cada estudiante lo ve en la pantalla final del juego y no se guarda. Si quieres saber cómo le fue, pide que te muestre esa pantalla.

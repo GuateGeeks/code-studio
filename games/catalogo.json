@@ -22,7 +22,11 @@
     "situacion": "Un puesto del mercado anota sus ventas con numerales mayas.",
     "mecanica": "ordenar",
     "resultado": "Cuenta del día en maya y en decimal.",
-    "repiteSocrates": true
+    "repiteSocrates": true,
+    "cobertura": {
+      "mat:4.1.5": "parcial",
+      "mat:4.1.7": "parcial"
+    }
   },
   {
     "id": "ladera-viva",
@@ -48,7 +52,10 @@
     ],
     "situacion": "Una guardarrecursos enseña un bosque nuboso de Baja Verapaz.",
     "mecanica": "clasificar",
-    "resultado": "Cuaderno de campo: relaciones halladas y quién gana."
+    "resultado": "Cuaderno de campo: relaciones halladas y quién gana.",
+    "cobertura": {
+      "cnt:1.5.7": "parcial"
+    }
   },
   {
     "id": "vuelta-mundo",
@@ -73,7 +80,11 @@
     ],
     "situacion": "El comité escolar compara fenómenos de Guatemala y del mundo.",
     "mecanica": "decidir",
-    "resultado": "Plan: fenómeno, lugar de peligro y quién ayuda."
+    "resultado": "Plan: fenómeno, lugar de peligro y quién ayuda.",
+    "cobertura": {
+      "ccss:1.3.1": "parcial",
+      "ccss:1.3.2": "parcial"
+    }
   },
   {
     "id": "detective-noticias",
@@ -84,7 +95,10 @@
     ],
     "situacion": "Al periódico mural de la escuela llegan noticias ficticias.",
     "mecanica": "clasificar",
-    "resultado": "Mural publicado con cada frase marcada; aciertos de 5."
+    "resultado": "Mural publicado con cada frase marcada; aciertos de 5.",
+    "cobertura": {
+      "l1:4.3.2": "parcial"
+    }
   },
   {
     "id": "follow-geeky",
@@ -108,7 +122,11 @@
     ],
     "situacion": "El conjunto de marimba de la escuela ensaya una pieza original.",
     "mecanica": "leer",
-    "resultado": "Partitura completa con aciertos por compás."
+    "resultado": "Partitura completa con aciertos por compás.",
+    "cobertura": {
+      "art:1.1.1": "parcial",
+      "art:1.1.2": "parcial"
+    }
   },
   {
     "id": "recreo-activo",
@@ -135,6 +153,7 @@
     "mecanica": "decidir",
     "resultado": "Acuerdo escrito y efecto de cada forma de afrontar el conflicto.",
     "cobertura": {
+      "fc:4.3.1": "parcial",
       "fc:4.3.2": "parcial"
     }
   },
@@ -147,6 +166,9 @@
     ],
     "situacion": "Preparas un puesto para la feria escolar, con dinero de juego.",
     "mecanica": "decidir",
-    "resultado": "Informe: costo, ingreso, ganancia y una mejora."
+    "resultado": "Informe: costo, ingreso, ganancia y una mejora.",
+    "cobertura": {
+      "pyd:4.3.1": "no cubre"
+    }
   }
 ]

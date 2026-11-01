@@ -59,10 +59,45 @@ test('las mecánicas cubren 1,5,8 / 2 / 4,7,10 / 3,6,11,12 / 9', () => {
   assert.deepEqual(de('leer'), [9]);
 });
 
-test('la cobertura parcial de fc:4.3.2 está declarada', () => {
-  const mediacion = catalogo.find(juego => juego.id === 'mediacion-recreo');
-  assert.deepEqual(mediacion.cobertura, {'fc:4.3.2': 'parcial'});
-  assert.equal(catalogo.filter(juego => juego.cobertura).length, 1);
+// Result of reading each game against the text of its contents. A content left out is fully covered.
+const COBERTURA = {
+  'cuentas-mayas': {'mat:4.1.5': 'parcial', 'mat:4.1.7': 'parcial'},
+  'vecinos-bosque': {'cnt:1.5.7': 'parcial'},
+  'comunidad-preparada': {'ccss:1.3.1': 'parcial', 'ccss:1.3.2': 'parcial'},
+  'detective-noticias': {'l1:4.3.2': 'parcial'},
+  'lee-marimba': {'art:1.1.1': 'parcial', 'art:1.1.2': 'parcial'},
+  'mediacion-recreo': {'fc:4.3.1': 'parcial', 'fc:4.3.2': 'parcial'},
+  'puesto-feria': {'pyd:4.3.1': 'no cubre'},
+};
+
+test('el catálogo declara la cobertura que dio el cotejo con el CNB', () => {
+  const declarada = Object.fromEntries(catalogo.filter(juego => juego.cobertura).map(juego => [juego.id, juego.cobertura]));
+  assert.deepEqual(declarada, COBERTURA);
+});
+
+test('cada cobertura nombra un contenido del juego', () => {
+  for (const juego of catalogo) {
+    for (const [id, valor] of Object.entries(juego.cobertura ?? {})) {
+      assert.ok(juego.contenidos.includes(id), `${juego.id} ${id}`);
+      assert.ok(['parcial', 'no cubre'].includes(valor), `${juego.id} ${id}`);
+    }
+  }
+});
+
+test('la ficha dice la misma cobertura que el catálogo', () => {
+  const fichas = readFileSync('docs/EXPERIENCIAS.md', 'utf8').split(/^## /m);
+  for (const juego of catalogo) {
+    const ficha = fichas.find(parte => parte.split('\n')[0].endsWith(`. ${juego.titulo}`));
+    assert.ok(ficha, juego.titulo);
+    const linea = ficha.split('\n').find(texto => texto.startsWith('- **Cobertura:**'));
+    assert.ok(linea, `${juego.id} no tiene línea de cobertura`);
+    if (!juego.cobertura) assert.ok(linea.startsWith('- **Cobertura:** Completa.'), `${juego.id}: ${linea}`);
+    for (const id of juego.contenidos) {
+      const valor = juego.cobertura?.[id];
+      if (valor) assert.ok(linea.includes(`\`${id}\`: ${valor}.`), `${juego.id} ${id}: ${linea}`);
+      else assert.ok(!linea.includes(`\`${id}\`: `), `${juego.id} ${id}: ${linea}`);
+    }
+  }
 });
 
 test('cada entrada tiene su carpeta y su solución', () => {
