@@ -12,7 +12,7 @@ Hazlo una vez en cada computadora, con internet y de preferencia el día anterio
 
 1. Abre Chrome, sin modo invitado ni modo incógnito.
 2. Entra a <https://guategeeks.com/code-studio/>, con la barra final.
-3. Espera hasta que la portada diga **Listo para usar sin internet en esta computadora**. Se descargan unos 40 MB.
+3. Espera hasta que la portada diga **Listo para usar sin internet en esta computadora**. Se descargan unos 16 MB y ocupan unos 71 MB en la computadora. Con una conexión lenta puede tardar varios minutos.
 4. Abre **Herramientas de la clase**. Si aparece el aviso de que el navegador podría borrar los datos, haz la copia de la clase al terminar cada sesión (ver [Al terminar la clase](#al-terminar-la-clase)).
 5. Comprueba que el equipo conserva los datos: escribe tu nombre, entra, cierra el navegador, ábrelo otra vez y mira si tu nombre sigue en la lista. Tu nombre quedará en la lista.
 
@@ -79,6 +79,7 @@ Si un estudiante tiene que cambiar de computadora, restaura allí la copia de la
 | **No pudimos guardar tu trabajo** | Pulsa **Reintentar**. Si sigue, pulsa **Descargar mi trabajo** antes de salir y guarda el archivo |
 | **No pudimos abrir la misión** | Vuelve a pulsar la misión. Si sigue, recarga la página |
 | La pantallita sigue cargando después de 30 segundos | Sal con **Cambiar de estudiante** y vuelve a entrar. Nada se pierde |
+| La pantallita sigue girando y **Play** no responde | Pulsa **Bloques** y vuelve a **JavaScript**. Tu código sigue guardado |
 | Se cerró la ventana sin querer | Vuelve a entrar y elige el nombre. Puede faltar lo último que hizo |
 | Falta un nombre o un proyecto | Abre **Herramientas de la clase**, pulsa **Restaurar copia** y elige el archivo de esa computadora. Se conserva la versión más reciente de cada proyecto |
 | Aparece **Actualizar a la versión nueva** | Púlsalo fuera de la clase, cuando nadie esté trabajando |
@@ -94,3 +95,16 @@ Si un estudiante tiene que cambiar de computadora, restaura allí la copia de la
 ## Experiencias de contenidos
 
 Además de la misión, el estudio tiene 12 experiencias de Matemáticas, Ciencias, Comunicación, Arte, Educación Física, Formación Ciudadana y Productividad. Cada una tiene su ficha, con el tiempo, los contenidos del CNB, cómo usarla y qué le falta: [EXPERIENCIAS.md](EXPERIENCIAS.md).
+
+### Cómo abrirlas
+
+1. El estudiante entra con su nombre.
+2. Pulsa **Experiencias** y elige un juego.
+3. Juega con el teclado: flechas para elegir y la tecla A para confirmar.
+4. Para volver, pulsa **Volver a Experiencias**.
+
+Funcionan sin internet, igual que la misión.
+
+### Qué ves de su resultado
+
+El resultado no te llega. El estudiante lo ve en la pantalla final del juego y no se guarda. Si quieres saber cómo le fue, pídele que te muestre esa pantalla.
