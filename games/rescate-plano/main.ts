@@ -157,7 +157,7 @@ function comprobar() {
         if (acierto) {
             rescatados.push([x, y])
         }
-        brigada.sayText("Anotado", 700, false)
+        brigada.sayText("Anotado")
         pause(700)
     }
 }

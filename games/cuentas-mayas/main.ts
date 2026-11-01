@@ -219,7 +219,9 @@ function componer(meta: string, esperado: number[]): boolean {
             let mensaje = colocar()
             dibujar()
             if (mensaje != "") {
-                cursor.sayText(mensaje, 2500, false)
+                cursor.sayText(mensaje)
+            } else {
+                ponerCursor()
             }
         }
     }
@@ -262,7 +264,9 @@ function explorar() {
             let mensaje = colocar()
             dibujar()
             if (mensaje != "") {
-                cursor.sayText(mensaje, 2500, false)
+                cursor.sayText(mensaje)
+            } else {
+                ponerCursor()
             }
         }
     }

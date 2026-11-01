@@ -4,6 +4,35 @@ import {readdirSync, readFileSync, statSync} from 'node:fs';
 
 const juegos = readdirSync('games').filter(nombre => statSync(`games/${nombre}`).isDirectory());
 const leer = (id, archivo) => readFileSync(`games/${id}/${archivo}`, 'utf8');
+// Arguments of every call to `nombre(`, split at the top level (strings and nested calls respected).
+function llamadas(codigo, nombre) {
+  const encontradas = [];
+  for (let desde = codigo.indexOf(nombre); desde !== -1; desde = codigo.indexOf(nombre, desde + 1)) {
+    let profundidad = 1;
+    let cadena = false;
+    let argumentos = [''];
+    for (let i = desde + nombre.length; i < codigo.length && profundidad > 0; i++) {
+      const c = codigo[i];
+      if (cadena) {
+        if (c === '\\') argumentos[argumentos.length - 1] += c + codigo[++i];
+        else {
+          if (c === '"') cadena = false;
+          argumentos[argumentos.length - 1] += c;
+        }
+        continue;
+      }
+      if (c === '"') cadena = true;
+      else if (c === '(' || c === '[') profundidad++;
+      else if (c === ')' || c === ']') profundidad--;
+      if (profundidad === 0) break;
+      if (c === ',' && profundidad === 1) argumentos.push('');
+      else argumentos[argumentos.length - 1] += c;
+    }
+    encontradas.push(argumentos.map(a => a.trim()));
+  }
+  return encontradas;
+}
+
 const plantilla = JSON.parse(readFileSync('libs/blocksprj/pxt.json', 'utf8'));
 
 test('hay al menos un juego con carpeta', () => {
@@ -34,6 +63,11 @@ for (const id of juegos) {
         for (const palabra of opciones.flatMap(opcion => opcion.split(' '))) assert.ok(palabra.length <= ancho, `Palabra larga: ${palabra}`);
       }
     }
+  });
+
+  test(`${id}: sayText sin tiempo`, () => {
+    // PXT keeps sayEndTime when a later sayText has no time, so the next bubble is erased on its first frame.
+    for (const argumentos of llamadas(codigo, '.sayText(')) assert.equal(argumentos.length, 1, `sayText con tiempo: ${argumentos.join(', ')}`);
   });
 
   test(`${id}: todo for tiene la forma permitida`, () => {
