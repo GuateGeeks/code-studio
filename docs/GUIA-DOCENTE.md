@@ -90,3 +90,7 @@ Si un estudiante tiene que cambiar de computadora, restaura allí la copia de la
 - **Datos:** los nombres y los juegos se quedan en la computadora y en las copias que hagas. El estudio no los envía a ningún servidor.
 - **Borrar los datos del navegador** borra también los proyectos. Haz antes una copia de la clase.
 - **Una pestaña que nunca se cierra** no recibe actualizaciones. Basta con cerrar el navegador al terminar el día.
+
+## Experiencias de contenidos
+
+Además de la misión, el estudio tiene 12 experiencias de Matemáticas, Ciencias, Comunicación, Arte, Educación Física, Formación Ciudadana y Productividad. Cada una tiene su ficha, con el tiempo, los contenidos del CNB, cómo usarla y qué le falta: [EXPERIENCIAS.md](EXPERIENCIAS.md).

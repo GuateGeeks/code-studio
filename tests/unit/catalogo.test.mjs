@@ -70,3 +70,12 @@ test('cada entrada tiene su carpeta y su solución', () => {
     for (const archivo of ['main.ts', 'pxt.json', 'solucion.json']) assert.ok(existsSync(`games/${id}/${archivo}`), `games/${id}/${archivo}`);
   }
 });
+
+test('cada juego tiene ficha con sus contenidos', () => {
+  const ficha = readFileSync('docs/EXPERIENCIAS.md', 'utf8');
+  for (const juego of catalogo) {
+    assert.ok(ficha.includes(juego.titulo), juego.titulo);
+    for (const id of juego.contenidos) assert.ok(ficha.includes(id), `${juego.id} ${id}`);
+  }
+  assert.ok(ficha.includes('CC BY-SA 4.0'), 'CC BY-SA 4.0');
+});
