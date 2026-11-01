@@ -121,4 +121,19 @@ namespace sprites.gg {
     //% fixedInstance jres whenUsed blockIdentity=images._image
     //% tags="gg-experiencia"
     export const cancha = image.ofBuffer(hex``);
+    //% fixedInstance jres whenUsed blockIdentity=images._image
+    //% tags="gg-experiencia"
+    export const pauta = image.ofBuffer(hex``);
+    //% fixedInstance jres whenUsed blockIdentity=images._image
+    //% tags="gg-experiencia"
+    export const compas = image.ofBuffer(hex``);
+    //% fixedInstance jres whenUsed blockIdentity=images._image
+    //% tags="gg-experiencia"
+    export const negra = image.ofBuffer(hex``);
+    //% fixedInstance jres whenUsed blockIdentity=images._image
+    //% tags="gg-experiencia"
+    export const blanca = image.ofBuffer(hex``);
+    //% fixedInstance jres whenUsed blockIdentity=images._image
+    //% tags="gg-experiencia"
+    export const tecla = image.ofBuffer(hex``);
 }

@@ -462,10 +462,44 @@ function cancha() {
   return rows;
 }
 
+// Staff pieces and a marimba bar for Lee la marimba. The staff tile has five lines 6 px apart (y = 4, 10, 16, 22, 28);
+// a note head sits at column 4, row 19 of its sprite, with the stem going up. The half note is hollow: it differs by shape.
+function pauta() {
+  const rows = blank(32, 32);
+  for (let k = 0; k < 5; k++) box(rows, 0, 4 + 6 * k, 32, 1, BLACK);
+  return rows;
+}
+
+function compas() {
+  const rows = blank(2, 25);
+  box(rows, 0, 0, 2, 25, BLACK);
+  return rows;
+}
+
+function notaMusical(hollow) {
+  const rows = blank(12, 24);
+  ellipse(rows, 4, 19, 4.4, 3.4, BLACK);
+  if (hollow) ellipse(rows, 4, 19, 2.7, 1.8, WHITE);
+  box(rows, 7, 2, 2, 17, BLACK);
+  return rows;
+}
+
+function tecla() {
+  const rows = blank(28, 32);
+  box(rows, 0, 0, 28, 32, BLACK);
+  box(rows, 1, 1, 26, 30, 14);
+  box(rows, 1, 1, 26, 2, 4);
+  box(rows, 1, 1, 2, 30, 4);
+  box(rows, 13, 5, 2, 2, BLACK);
+  box(rows, 13, 25, 2, 2, BLACK);
+  return rows;
+}
+
 export const SPRITES = {geeky: geeky(), manzana, banano, mango, mira: mira(), pollito: pollito(), perro: perro(), cabra: cabra(),
   punto: punto(), barra: barra(), cero: cero(), flecha: flecha(), casilla: casilla(), arbol: arbol(), brote: brote(), gota: gota(), huella: huella(),
   carta: carta(), moneda: moneda(), nota: nota(), colibri: colibri(), abeja: abeja(), flor: flor(), bromelia: bromelia(), hongo: hongo(),
-  garrapata: garrapata(), lombriz: lombriz(), persona: persona(), lomaVerde: loma(false), lomaDesnuda: loma(true), tierra: tierra(), sol: sol(), cancha: cancha()};
+  garrapata: garrapata(), lombriz: lombriz(), persona: persona(), lomaVerde: loma(false), lomaDesnuda: loma(true), tierra: tierra(), sol: sol(), cancha: cancha(),
+  pauta: pauta(), compas: compas(), negra: notaMusical(false), blanca: notaMusical(true), tecla: tecla()};
 
 // 3x5 glyphs for the axis labels, drawn double size so a 10-year-old can read them on a classroom screen.
 const GLYPHS = {

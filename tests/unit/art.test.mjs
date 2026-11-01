@@ -25,7 +25,7 @@ const NOMBRES_FONDOS = ['fondoBosque', 'fondoEscuela', 'fondoMarimba', 'fondoMer
 // Shared sprites for the games of wave 2; the first four are the numerals of the maya counting game.
 const NOMBRES_COMPARTIDOS = ['punto', 'barra', 'cero', 'flecha', 'casilla', 'arbol', 'brote', 'gota', 'huella', 'carta', 'moneda', 'nota',
   'colibri', 'abeja', 'flor', 'bromelia', 'hongo', 'garrapata', 'lombriz', 'persona',
-  'lomaVerde', 'lomaDesnuda', 'tierra', 'sol', 'cancha'];
+  'lomaVerde', 'lomaDesnuda', 'tierra', 'sol', 'cancha', 'pauta', 'compas', 'negra', 'blanca', 'tecla'];
 
 test('cada fondo mide 320×240 y usa la paleta', () => {
   assert.deepEqual(Object.keys(FONDOS).sort(), NOMBRES_FONDOS);
@@ -124,4 +124,15 @@ test('cada imagen de gg.jres se declara en gg.ts, sin entrar en la galería de l
       assert.doesNotMatch(declaracion[1], /tags="gg( |")/, name);
     }
   }
+});
+
+test('la pauta, las notas y la tecla de la marimba se distinguen por su forma', () => {
+  // Five lines 6 px apart, a hollow half note against a filled quarter note, and a bar line as tall as the staff.
+  for (const k of [0, 1, 2, 3, 4]) assert.ok(SPRITES.pauta[4 + 6 * k].every(color => color === 15), `línea ${k}`);
+  assert.ok(SPRITES.pauta[7].every(color => color === 0), 'entre líneas no se dibuja nada');
+  assert.equal(SPRITES.negra[19][4], 15, 'la negra es llena');
+  assert.equal(SPRITES.blanca[19][4], 1, 'la blanca es hueca');
+  assert.equal(SPRITES.negra[5][7], 15, 'la plica sube desde la cabeza');
+  assert.equal(SPRITES.compas.length, 25);
+  assert.ok(SPRITES.tecla.length >= 32 && SPRITES.tecla[0].length > 24, 'la tecla es grande');
 });
