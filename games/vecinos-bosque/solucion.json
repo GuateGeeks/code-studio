@@ -1,0 +1,46 @@
+{
+  "rondas": [
+    ["der","der","A"],
+    ["der","A"],
+    ["der","der","A"],
+    ["A"],
+    ["A"],
+    ["der","A"],
+    ["A"],
+    ["A"],
+    ["der","der","A"],
+    ["A"],
+    ["der","A"],
+    ["der","A"],
+    ["der","A"]
+  ],
+  "erradas": [
+    ["der","der","A"],
+    ["der","der","A"],
+    ["der","A"],
+    ["A"],
+    ["der","der","A"],
+    ["A"],
+    ["der","A"],
+    ["A"],
+    ["der","der","A"],
+    ["der","A"],
+    ["A"],
+    ["der","A"],
+    ["der","der","A"]
+  ],
+  "serieB": [
+    ["der","A"],
+    ["der","der","A"],
+    ["A"],
+    ["A"],
+    ["der","A"],
+    ["A"],
+    ["A"],
+    ["der","der","A"],
+    ["A"],
+    ["der","A"],
+    ["der","A"],
+    ["der","A"]
+  ]
+}
