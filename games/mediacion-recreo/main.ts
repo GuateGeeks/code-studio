@@ -40,6 +40,7 @@ const C_OK = [1, 0, 2, 0, 1, 1, 0, 2, 1, 2]
 const SERIE_A = [0, 1, 2, 3, 4]
 const SERIE_B = [5, 6, 7, 8, 9]
 let reparto = 0
+let hecho = false
 
 scene.setBackgroundImage(sprites.gg.fondoEscuela)
 
@@ -120,7 +121,7 @@ function aplicar() {
     experiencias.fase(FaseExperiencia.Aplicar)
     colocar(96, 200, "Fútbol", "Voleibol")
     experiencias.decir("Ahora tú ayudas a los dos grupos. Si te equivocas, tendrás una pista.")
-    let hecho = false
+    hecho = false
     while (!hecho) {
         let forma = experiencias.elegir("Paso 1. Los dos grupos quieren la cancha. ¿Cómo afrontan el conflicto?", [FORMA_OPCION[0], FORMA_OPCION[1], FORMA_OPCION[2], FORMA_OPCION[3]], EjeEleccion.Vertical)
         mostrarForma(forma)

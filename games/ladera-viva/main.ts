@@ -39,6 +39,7 @@ const SERIE_A = [0, 1, 2, 3, 4]
 const SERIE_B = [5, 6, 7, 8, 9]
 let nivel = 0
 let probo = false
+let hecho = false
 
 scene.setBackgroundImage(sprites.gg.fondoBosque)
 
@@ -165,7 +166,7 @@ function aplicar() {
     experiencias.fase(FaseExperiencia.Aplicar)
     dibujar(0, 0, false)
     experiencias.decir("Ahora decide tú qué hace la comunidad con la ladera. Si te equivocas, tendrás una pista.")
-    let hecho = false
+    hecho = false
     while (!hecho) {
         let opcion = experiencias.elegir("Paso 1. ¿Qué decide la comunidad para la ladera?", ["Sembrar muchos árboles", "Sembrar pocos árboles", "No sembrar nada"], EjeEleccion.Vertical)
         nivel = NIVEL_DE_OPCION[opcion]

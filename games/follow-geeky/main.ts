@@ -28,6 +28,9 @@ for (let i = 0; i < 6; i++) {
     puesto.y = FILA_Y[Math.idiv(i, 3)] - 30
 }
 let geeky = sprites.create(sprites.gg.geeky, SpriteKind.Player)
+let listo = false
+let ruta = ""
+let pedido = ""
 
 function puestoAqui(): number {
     if (cy == 2) {
@@ -120,8 +123,7 @@ function irA(destinoX: number, destinoY: number) {
 }
 
 function pistaPaso(item: number[], paso: number): string {
-    let palabra = PALABRA[item[0]][paso]
-    return "Ahora toca el paso que dice «" + palabra + "» (" + PALABRA_ES[item[0]][paso] + "). Búscalo en las notas y lee a dónde ir. Inténtalo otra vez."
+    return "Ahora toca el paso que dice «" + PALABRA[item[0]][paso] + "» (" + PALABRA_ES[item[0]][paso] + "). Búscalo en las notas y lee a dónde ir. Inténtalo otra vez."
 }
 
 function explorar() {
@@ -164,7 +166,7 @@ function aplicar() {
         ponerNotas(item)
         for (let paso = 0; paso < 3; paso++) {
             libre = true
-            let listo = false
+            listo = false
             while (!listo) {
                 experiencias.confirmar()
                 if (puestoAqui() == item[1 + paso]) {
@@ -196,8 +198,8 @@ function comprobar() {
         let item = preguntas[i]
         irAEntrada()
         ponerNotas(item)
-        let ruta = ""
-        let pedido = ""
+        ruta = ""
+        pedido = ""
         let todos = true
         for (let paso = 0; paso < 3; paso++) {
             libre = true

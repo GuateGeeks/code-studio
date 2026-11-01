@@ -26,6 +26,7 @@ const SERIE_A = [6, 7, 8, 9, 10]
 const SERIE_B = [11, 12, 13, 14, 15]
 let jugadas: number[] = []
 let marcadas: number[] = []
+let correcto = false
 
 scene.setBackgroundImage(sprites.gg.fondoEscuela)
 
@@ -82,7 +83,7 @@ function aplicar() {
     for (let i = 0; i < PRACTICA.length; i++) {
         let n = PRACTICA[i]
         mostrarNoticia(i + 1)
-        let correcto = false
+        correcto = false
         while (!correcto) {
             correcto = clasificar(n) == TIPO[n]
             if (!correcto) {

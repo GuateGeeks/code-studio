@@ -30,6 +30,7 @@ const SERIE_A = [7, 8, 9, 10, 11]
 const SERIE_B = [12, 13, 14, 15, 16]
 const PRACTICA = [4, 5, 6]
 let halladas: number[] = []
+let correcto = false
 
 scene.setBackgroundImage(sprites.gg.fondoBosque)
 
@@ -45,8 +46,8 @@ function mostrarPar(n: number) {
     }
 }
 
-function clasificar(texto: string): number {
-    return experiencias.elegir(texto + " ¿Qué relación es?", ["Parasitismo", "Mutualismo", "Comensalismo"], EjeEleccion.Horizontal)
+function clasificar(frase: string): number {
+    return experiencias.elegir(frase + " ¿Qué relación es?", ["Parasitismo", "Mutualismo", "Comensalismo"], EjeEleccion.Horizontal)
 }
 
 function tipoDeParasito(): number {
@@ -98,7 +99,7 @@ function aplicar() {
     for (let i = 0; i < PRACTICA.length; i++) {
         let n = PRACTICA[i]
         mostrarPar(n)
-        let correcto = false
+        correcto = false
         while (!correcto) {
             let respuesta = clasificar(TEXTO[n])
             correcto = respuesta == TIPO[n]
@@ -109,8 +110,8 @@ function aplicar() {
         if (TIPO[n] == 0) {
             correcto = false
             while (!correcto) {
-                let tipo = tipoDeParasito()
-                correcto = tipo == EXTERNO[n]
+                let relacion = tipoDeParasito()
+                correcto = relacion == EXTERNO[n]
                 if (!correcto) {
                     experiencias.todaviaNo("El parásito externo vive fuera del cuerpo. El interno vive dentro. Inténtalo otra vez.")
                 }

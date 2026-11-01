@@ -35,6 +35,7 @@ let vendidos = 0
 let costo = 0
 let ingreso = 0
 let ganancia = 0
+let hecho = false
 
 scene.setBackgroundImage(sprites.gg.fondoMercado)
 
@@ -149,7 +150,7 @@ function aplicar() {
     experiencias.fase(FaseExperiencia.Aplicar)
     mostrarVendedor("Mi puesto")
     experiencias.decir("Arma tu puesto en tres pasos. Si no ganas monedas, tendrás una pista.")
-    let hecho = false
+    hecho = false
     while (!hecho) {
         calidad = experiencias.elegir("Paso 1. ¿Qué fruta compras? Eso fija el costo.", ["Común: cuesta 2 monedas cada una", "Buena: cuesta 3 monedas cada una", "Especial: cuesta 5 monedas cada una"], EjeEleccion.Vertical)
         precioOpcion = experiencias.elegir("Paso 2. ¿A qué precio vendes cada fruta?", ["3 monedas", "5 monedas", "8 monedas"], EjeEleccion.Vertical)

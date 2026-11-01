@@ -126,6 +126,26 @@ for (const id of juegos) {
     assert.doesNotMatch(codigo, /^\s*if \(.+\) [^{\s].*\)\s*$/m);
   });
 
+  test(`${id}: sin variables que difieran solo en mayúsculas`, () => {
+    // Blockly does not tell variables apart by case, so the copy turned to Blocks would merge them: `tipo` and `TIPO` become one.
+    const nombres = new Set([
+      ...[...codigo.matchAll(/\b(?:let|const) (\w+)/g)].map(m => m[1]),
+      ...[...codigo.matchAll(/\bfunction \w*\(([^)]*)\)/g)].flatMap(m => m[1].split(',').map(parametro => parametro.split(':')[0].trim()).filter(Boolean))
+    ]);
+    const porMinuscula = Map.groupBy([...nombres], nombre => nombre.toLowerCase());
+    const choques = [...porMinuscula.values()].filter(grupo => grupo.length > 1);
+    assert.deepEqual(choques, []);
+  });
+
+  test(`${id}: sin let local con valor por defecto`, () => {
+    // The decompiler lifts locals to globals and drops `= false`, `= 0`, `= ""` and `= []`. The copy would then keep
+    // the value of the last visit. A global declared once, and `x = false` written inside the function, survive.
+    const perdidas = codigo.split('\n').map((linea, i) => ({linea, numero: i + 1}))
+      .filter(({linea}) => /^\s+let \w+(?:: [^=]+)? = (?:false|0|""|\[\])\s*$/.test(linea))
+      .map(({linea, numero}) => `${numero}: ${linea.trim()}`);
+    assert.deepEqual(perdidas, []);
+  });
+
   test(`${id}: dependencias iguales a la plantilla`, () => {
     const dependencias = JSON.parse(leer(id, 'pxt.json')).dependencies;
     assert.deepEqual(Object.keys(dependencias).sort(), Object.keys(plantilla.dependencies).sort());

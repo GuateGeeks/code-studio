@@ -21,6 +21,10 @@ let cursor = sprites.create(sprites.gg.mira, SpriteKind.Player)
 cursor.z = 10
 let tablillaMeta = sprites.create(sprites.gg.casilla, SpriteKind.Player)
 let tablillaValor = sprites.create(sprites.gg.casilla, SpriteKind.Player)
+let mensaje = ""
+let encontrada = false
+let listo = false
+let correcto = false
 tablillaMeta.setPosition(240, 60)
 tablillaValor.setPosition(240, 132)
 for (let i = 0; i < 3; i++) {
@@ -145,7 +149,7 @@ controller.down.onEvent(ControllerButtonEvent.Pressed, function () {
 })
 
 function colocar(): string {
-    let mensaje = ""
+    mensaje = ""
     let v = Math.max(tablero[fila], 0)
     if (simbolo == 0) {
         if (puntosSueltos(v) >= 4) {
@@ -181,7 +185,7 @@ function coincide(esperado: number[]): boolean {
 
 function pistaDe(esperado: number[]): string {
     let pista = "Revisa cada posición. Un punto vale 1 y una barra vale 5. Arma el numeral otra vez."
-    let encontrada = false
+    encontrada = false
     for (let i = 0; i < 3; i++) {
         let r = 2 - i
         if (!encontrada && esperado[r] >= 0 && tablero[r] != esperado[r]) {
@@ -210,7 +214,7 @@ function componer(meta: string, esperado: number[]): boolean {
     activo = true
     dibujar()
     ponerCursor()
-    let listo = false
+    listo = false
     while (!listo) {
         experiencias.confirmar()
         if (simbolo == 3) {
@@ -255,7 +259,7 @@ function explorar() {
     activo = true
     dibujar()
     ponerCursor()
-    let listo = false
+    listo = false
     while (!listo) {
         experiencias.confirmar()
         if (simbolo == 3) {
@@ -313,7 +317,7 @@ function construir() {
 function aplicar() {
     experiencias.fase(FaseExperiencia.Aplicar)
     experiencias.decir("Ahora practica. Si te equivocas, tendrás una pista.")
-    let correcto = false
+    correcto = false
     experiencias.decir("Anota la venta de 26 panes. Arma el numeral.")
     while (!correcto) {
         correcto = componer("Venta: 26 panes", [-1, 1, 6])

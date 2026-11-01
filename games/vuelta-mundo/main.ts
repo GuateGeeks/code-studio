@@ -53,6 +53,10 @@ let selloCx: number[] = []
 
 scene.setBackgroundImage(sprites.gg.fondoMundo)
 let geeky = sprites.create(sprites.gg.geeky, SpriteKind.Player)
+let texto = ""
+let hecho = false
+let listo = false
+let acierto = false
 
 function coord(y: number, x: number): string {
     let lat = Math.abs(y) * 5 + "°"
@@ -185,7 +189,7 @@ function unir(lista: string[]): string {
     if (lista.length == 1) {
         return lista[0]
     }
-    let texto = ""
+    texto = ""
     for (let i = 0; i < lista.length - 1; i++) {
         if (i > 0) {
             texto = texto + ", "
@@ -197,7 +201,7 @@ function unir(lista: string[]): string {
 
 // Pregunta la zona de un lugar al que ya llegaste y repite con pista hasta acertar.
 function preguntarZona(nombre: string) {
-    let hecho = false
+    hecho = false
     while (!hecho) {
         let enunciado = "¿En qué zona climática está " + nombre + "?"
         let respuesta = experiencias.elegir(enunciado, ["Cálida", "Templada", "Polar"], EjeEleccion.Horizontal)
@@ -257,7 +261,7 @@ function aplicar() {
         destino = textoDestino(tipo, ref)
         irASalida()
         libre = true
-        let listo = false
+        listo = false
         while (!listo) {
             experiencias.confirmar()
             if (correcto(tipo, ref)) {
@@ -278,7 +282,7 @@ function aplicar() {
             experiencias.decir("Llegaste a " + coord(cy, cx) + ": zona " + ZONA[zona(cy)] + ".")
         }
         if (i == 0) {
-            let hecho = false
+            hecho = false
             while (!hecho) {
                 let respuesta = experiencias.elegir(ALT_PREGUNTA[0], [ALT_UNO[0], ALT_DOS[0]], EjeEleccion.Vertical)
                 hecho = respuesta == ALT_OK[0]
@@ -303,7 +307,7 @@ function comprobar() {
     for (let i = 0; i < preguntas.length; i++) {
         let tipo = preguntas[i][0]
         let ref = preguntas[i][1]
-        let acierto = false
+        acierto = false
         if (tipo == 2) {
             destino = ""
             geeky.sayText("")

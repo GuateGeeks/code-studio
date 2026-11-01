@@ -49,6 +49,7 @@ const SERIE_A = [0, 1, 2, 3, 4]
 const SERIE_B = [5, 6, 7, 8, 9]
 let fenomeno = 0
 let ayuda = 0
+let correcto = false
 
 scene.setBackgroundImage(sprites.gg.fondoEscuela)
 
@@ -91,7 +92,7 @@ function aplicar() {
     mostrarComite()
     fenomeno = experiencias.elegir("Paso 1. ¿Qué fenómeno de Guatemala estudia el comité?", ["Un sismo (la tierra se mueve)", "Lluvias muy fuertes", "Un volcán activo"], EjeEleccion.Vertical)
     experiencias.decir("Elegiste " + FEN_NOMBRE[fenomeno] + ". " + FEN_TEXTO[fenomeno])
-    let correcto = false
+    correcto = false
     while (!correcto) {
         let lugar = experiencias.elegir(LUG_PREG[fenomeno], [LUG_UNO[fenomeno], LUG_DOS[fenomeno], LUG_TRES[fenomeno]], EjeEleccion.Vertical)
         correcto = lugar == LUG_OK[fenomeno]

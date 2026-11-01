@@ -14,6 +14,7 @@ let verCoordenada = false
 
 scene.setBackgroundImage(sprites.gg.fondoPlano)
 let brigada = sprites.create(sprites.gg.mira, SpriteKind.Player)
+let listo = false
 
 function colocar() {
     brigada.x = OX + cx * CELDA
@@ -118,7 +119,7 @@ function aplicar() {
         irAlOrigen()
         dictar(x, y)
         libre = true
-        let listo = false
+        listo = false
         while (!listo) {
             experiencias.confirmar()
             if (cx == x && cy == y) {

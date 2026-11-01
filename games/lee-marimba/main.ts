@@ -36,6 +36,10 @@ for (let i = 0; i < 5; i++) {
     tecla.sayText(NOM[i])
 }
 let geeky = sprites.create(sprites.gg.geeky, SpriteKind.Player)
+let texto = ""
+let inicio = 0
+let listo = false
+let tocadas: number[] = []
 geeky.y = 186
 
 function textoDuracion(d: number): string {
@@ -50,7 +54,7 @@ function textoNota(n: number, d: number): string {
 }
 
 function textoCompas(compas: number[]): string {
-    let texto = ""
+    texto = ""
     let n = Math.idiv(compas.length, 2)
     for (let i = 0; i < n; i++) {
         if (i > 0) {
@@ -108,7 +112,7 @@ function sonar() {
 
 // Pulso en el que empieza la nota k del compás.
 function inicioDe(compas: number[], k: number): number {
-    let inicio = 0
+    inicio = 0
     for (let i = 0; i < k; i++) {
         inicio += compas[2 * i + 1]
     }
@@ -124,11 +128,12 @@ function mostrarCompas(compas: number[], conNombres: boolean) {
         if (compas[2 * k + 1] == 2) {
             imagen = sprites.gg.blanca
         }
+        let cual = compas[2 * k]
         let figura = sprites.create(imagen, SpriteKind.Projectile)
         figura.x = 82 + 44 * inicioDe(compas, k)
-        figura.y = CABEZA_Y[compas[2 * k]] - 7
+        figura.y = CABEZA_Y[cual] - 7
         if (conNombres) {
-            figura.sayText(NOM[compas[2 * k]])
+            figura.sayText(NOM[cual])
         }
     }
 }
@@ -202,7 +207,7 @@ function aplicar() {
             let d = compas[2 * k + 1]
             centrar()
             libre = true
-            let listo = false
+            listo = false
             while (!listo) {
                 experiencias.confirmar()
                 sonar()
@@ -236,7 +241,7 @@ function comprobar() {
         mostrarCompas(compas, false)
         let n = Math.idiv(compas.length, 2)
         let todas = true
-        let tocadas: number[] = []
+        tocadas = []
         for (let k = 0; k < n; k++) {
             anillo(compas, k)
             centrar()

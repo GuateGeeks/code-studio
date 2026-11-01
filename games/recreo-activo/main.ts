@@ -32,6 +32,7 @@ const SENTADO = ["Con la espalda recta, estira los brazos al frente y luego haci
 const DETENTE = "Detente al terminar o antes, si algo te duele, te mareas o te falta el aire."
 let variante: number[] = [0, 0, 0]
 let jugadas: number[] = []
+let correcto = false
 
 scene.setBackgroundImage(sprites.gg.fondoEscuela)
 
@@ -115,7 +116,7 @@ function aplicar() {
     mostrarEstudiante()
     for (let i = 0; i < PRACTICA.length; i++) {
         let n = PRACTICA[i]
-        let correcto = false
+        correcto = false
         while (!correcto) {
             correcto = clasificar(n) == TIPO[n]
             if (!correcto) {
