@@ -424,10 +424,39 @@ function persona() {
   return rows;
 }
 
+// Hillside pieces for La ladera viva. The surface goes down 4 pixels along each piece, so seven side by side,
+// each 4 pixels lower than the one before, make a slope. `tierra` fills what is under them.
+function loma(bare) {
+  const rows = blank(32, 32);
+  for (let x = 0; x < 32; x++) {
+    const top = 2 + (x >> 3);
+    for (let y = top; y < 32; y++) rows[y][x] = y < top + 4 ? (bare ? 13 : y < top + 2 ? 7 : 6) : 14;
+  }
+  for (let x = 0; x < 32; x++) for (let y = 0; y < 32; y++) if (rows[y][x] === 14 && (x * 7 + y * 3) % 11 === 0) rows[y][x] = 12;
+  if (bare) for (const [x, y] of [[3, 5], [10, 6], [18, 7], [26, 8], [7, 7]]) rows[y][x] = 11;
+  else for (const [x, y] of [[4, 1], [12, 2], [21, 3], [29, 4]]) rows[y][x] = 7;
+  return rows;
+}
+
+function tierra() {
+  const rows = blank(32, 32);
+  box(rows, 0, 0, 32, 32, 14);
+  for (let x = 0; x < 32; x++) for (let y = 0; y < 32; y++) if ((x * 7 + y * 3) % 11 === 0) rows[y][x] = 12;
+  return rows;
+}
+
+function sol() {
+  const rows = blank(16, 16);
+  disc(rows, 7.5, 7.5, 4.6, 5);
+  disc(rows, 7.5, 7.5, 3, 4);
+  for (const [x0, y0, x1, y1] of [[7, 0, 7, 2], [7, 13, 7, 15], [0, 7, 2, 7], [13, 7, 15, 7], [2, 2, 3, 3], [12, 2, 11, 3], [2, 12, 3, 11], [12, 12, 11, 11]]) stroke(rows, x0, y0, x1, y1, 5);
+  return rows;
+}
+
 export const SPRITES = {geeky: geeky(), manzana, banano, mango, mira: mira(), pollito: pollito(), perro: perro(), cabra: cabra(),
   punto: punto(), barra: barra(), cero: cero(), flecha: flecha(), casilla: casilla(), arbol: arbol(), brote: brote(), gota: gota(), huella: huella(),
   carta: carta(), moneda: moneda(), nota: nota(), colibri: colibri(), abeja: abeja(), flor: flor(), bromelia: bromelia(), hongo: hongo(),
-  garrapata: garrapata(), lombriz: lombriz(), persona: persona()};
+  garrapata: garrapata(), lombriz: lombriz(), persona: persona(), lomaVerde: loma(false), lomaDesnuda: loma(true), tierra: tierra(), sol: sol()};
 
 // 3x5 glyphs for the axis labels, drawn double size so a 10-year-old can read them on a classroom screen.
 const GLYPHS = {

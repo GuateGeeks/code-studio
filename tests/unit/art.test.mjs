@@ -24,7 +24,8 @@ test('gg.jres es lo que produce el dibujo', () => {
 const NOMBRES_FONDOS = ['fondoBosque', 'fondoEscuela', 'fondoMarimba', 'fondoMercado', 'fondoMundo', 'fondoPlano'];
 // Shared sprites for the games of wave 2; the first four are the numerals of the maya counting game.
 const NOMBRES_COMPARTIDOS = ['punto', 'barra', 'cero', 'flecha', 'casilla', 'arbol', 'brote', 'gota', 'huella', 'carta', 'moneda', 'nota',
-  'colibri', 'abeja', 'flor', 'bromelia', 'hongo', 'garrapata', 'lombriz', 'persona'];
+  'colibri', 'abeja', 'flor', 'bromelia', 'hongo', 'garrapata', 'lombriz', 'persona',
+  'lomaVerde', 'lomaDesnuda', 'tierra', 'sol'];
 
 test('cada fondo mide 320×240 y usa la paleta', () => {
   assert.deepEqual(Object.keys(FONDOS).sort(), NOMBRES_FONDOS);

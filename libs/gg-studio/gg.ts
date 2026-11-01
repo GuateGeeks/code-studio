@@ -106,4 +106,16 @@ namespace sprites.gg {
     //% fixedInstance jres whenUsed blockIdentity=images._image
     //% tags="gg-experiencia"
     export const persona = image.ofBuffer(hex``);
+    //% fixedInstance jres whenUsed blockIdentity=images._image
+    //% tags="gg-experiencia"
+    export const lomaVerde = image.ofBuffer(hex``);
+    //% fixedInstance jres whenUsed blockIdentity=images._image
+    //% tags="gg-experiencia"
+    export const lomaDesnuda = image.ofBuffer(hex``);
+    //% fixedInstance jres whenUsed blockIdentity=images._image
+    //% tags="gg-experiencia"
+    export const tierra = image.ofBuffer(hex``);
+    //% fixedInstance jres whenUsed blockIdentity=images._image
+    //% tags="gg-experiencia"
+    export const sol = image.ofBuffer(hex``);
 }
