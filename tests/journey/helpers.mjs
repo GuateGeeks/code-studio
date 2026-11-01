@@ -1,3 +1,5 @@
+import {expect} from '@playwright/test';
+
 export const LOCAL = 'http://127.0.0.1:5310';
 export const REMOTE = 'http://gg-class.test:5310';
 
@@ -75,6 +77,8 @@ export async function entrarComo(page, nombre, origin = LOCAL) {
     await page.getByLabel('Tu nombre').fill(nombre);
     await page.getByRole('button', {name: 'Entrar'}).click();
   }
+  // Saving the student and opening the projects screen are one step in the studio: leaving earlier aborts the write.
+  await expect(page.locator('#projects-title')).toHaveText(`Hola, ${nombre}`);
 }
 
 export async function abrirProyecto(page) {
