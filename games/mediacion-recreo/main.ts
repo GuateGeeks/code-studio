@@ -23,7 +23,7 @@ const REPARTO_OPCION = ["Cada grupo usa la mitad de la cancha", "Turnos: hoy uno
 const REPARTO_FINAL = ["Cada grupo usa la mitad de la cancha.", "Hoy juega un grupo y mañana el otro."]
 const C_SIT = [
     "Un grupo grita para quedarse con la cancha. ¿Qué efecto tiene?",
-    "Nadie habla del problema y todos se alejan. ¿Qué pasa después?",
+    "Nadie habla del problema y los grupos se alejan. ¿Qué pasa después?",
     "¿Cuál es una propuesta para construir paz en el recreo?",
     "Un grupo deja toda la cancha al otro y no juega. ¿Qué efecto puede tener?",
     "¿Qué es dialogar?",
@@ -113,7 +113,7 @@ function construir() {
     mostrarForma(2)
     experiencias.decir(FORMA_EFECTO[2])
     experiencias.decir("Una propuesta es una idea para resolver el conflicto. Un acuerdo es lo que los dos grupos aceptan y escriben.")
-    experiencias.decir("La cultura de paz busca resolver los conflictos escuchando y respetando a todas las personas.")
+    experiencias.decir("La cultura de paz es una forma de vivir: respetar a todas las personas y resolver los conflictos con diálogo, sin violencia.")
 }
 
 function aplicar() {
@@ -132,7 +132,7 @@ function aplicar() {
     }
     hecho = false
     while (!hecho) {
-        reparto = experiencias.elegir("Paso 2. Escribe el acuerdo: ¿cómo usan la cancha?", [REPARTO_OPCION[0], REPARTO_OPCION[1], REPARTO_OPCION[2]], EjeEleccion.Vertical)
+        reparto = experiencias.elegir("Paso 2. Elige el acuerdo: ¿cómo usan la cancha?", [REPARTO_OPCION[0], REPARTO_OPCION[1], REPARTO_OPCION[2]], EjeEleccion.Vertical)
         hecho = reparto < 2
         if (hecho) {
             mostrarAcuerdo(reparto)
@@ -143,7 +143,7 @@ function aplicar() {
     }
     hecho = false
     while (!hecho) {
-        let cumplir = experiencias.elegir("Paso 3. ¿Qué proponen para que el acuerdo se cumpla?", ["Cada grupo elige quién recuerda el acuerdo", "Quien tenga el balón decide por todos", "Nadie revisa si se cumple"], EjeEleccion.Vertical)
+        let cumplir = experiencias.elegir("Paso 3. ¿Qué proponen para que el acuerdo se cumpla?", ["Cada grupo elige quién recuerda el acuerdo", "Quien tenga el balón decide por el grupo", "Nadie revisa si se cumple"], EjeEleccion.Vertical)
         hecho = cumplir == 0
         if (hecho) {
             experiencias.decir("Así es. Si cada grupo tiene quién recuerde el acuerdo, es más fácil cumplirlo.")

@@ -150,7 +150,7 @@ function construir() {
     irA(1, 0)
     experiencias.decir("Then: banana stand, el puesto de bananos.")
     irA(2, 0)
-    experiencias.decir("Last: mango stand, el puesto de mangos. ¡Cumpliste la instrucción!")
+    experiencias.decir("Last: mango stand, el puesto de mangos. Geeky cumplió la instrucción.")
     quitarNotas()
     experiencias.decir("Ojo: a veces los pasos no están escritos en orden. Haz primero el que dice First, luego el que dice Then o Second, y al final el que dice Last o Third.")
 }

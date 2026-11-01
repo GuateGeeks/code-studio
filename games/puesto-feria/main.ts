@@ -148,7 +148,7 @@ function construir() {
 function aplicar() {
     experiencias.fase(FaseExperiencia.Aplicar)
     mostrarVendedor("Mi puesto")
-    experiencias.decir("Arma tu puesto en tres pasos. Si pierdes dinero, tendrás una pista.")
+    experiencias.decir("Arma tu puesto en tres pasos. Si no ganas monedas, tendrás una pista.")
     let hecho = false
     while (!hecho) {
         calidad = experiencias.elegir("Paso 1. ¿Qué fruta compras? Eso fija el costo.", ["Común: cuesta 2 monedas cada una", "Buena: cuesta 3 monedas cada una", "Especial: cuesta 5 monedas cada una"], EjeEleccion.Vertical)
@@ -206,7 +206,7 @@ reflexionar()
 mostrarPuesto(cantidad, vendidos)
 let lineas: string[] = ["Acertaste " + experiencias.aciertos() + " de 5. Este es el informe de tu puesto:"]
 lineas.push("Fruta de calidad " + CALIDAD_NOMBRE[calidad] + ": costó " + COSTO_UNIDAD[calidad] + " monedas cada una.")
-lineas.push("Compraste " + cantidad + " y las vendiste a " + precio + " monedas.")
+lineas.push("Compraste " + cantidad + " y vendiste cada una a " + precio + " monedas.")
 lineas.push("Llegaron " + clientes + " clientes y vendiste " + vendidos + ".")
 lineas.push("Costo: " + cantidad + " por " + COSTO_UNIDAD[calidad] + " = " + costo + " monedas.")
 lineas.push("Ingreso: " + vendidos + " por " + precio + " = " + ingreso + " monedas.")

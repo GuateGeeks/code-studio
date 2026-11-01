@@ -3,23 +3,23 @@
 const CLASES = ["Higiene", "Movimiento", "Agua", "Comida"]
 const EXPLICA = ["Cuida la limpieza de tu cuerpo.", "Mueve tu cuerpo.", "Es tomar la bebida que tu cuerpo necesita.", "Es parte de lo que comes cada día."]
 const HABITOS = [
-    "Me lavo las manos con agua y jabón antes de comer.",
+    "Después de jugar, me lavo las manos y la cara con agua y jabón.",
     "Salto la cuerda en el recreo.",
     "Llevo mi botella con agua a la escuela.",
     "Llevo una fruta de refacción.",
-    "Me cepillo los dientes después de comer.",
+    "Antes de jugar, me pongo ropa limpia y cómoda.",
     "Tomo agua cuando hace calor.",
     "Juego a la pelota con mis compañeros y compañeras.",
     "Como verduras en el almuerzo.",
-    "Me lavo las manos después de ir al baño.",
+    "Durante el partido, me seco el sudor con mi toalla.",
     "Me levanto y camino un rato entre clases.",
     "Tomo agua durante la mañana.",
     "Desayuno antes de salir de casa.",
     "Lleno mi botella de agua antes de salir al recreo.",
-    "Me cubro la boca con el codo cuando toso.",
+    "Antes de correr, reviso que mi ropa esté limpia.",
     "Almuerzo frijoles con tortilla.",
     "Bailo con mis compañeros y compañeras en el recreo.",
-    "Me baño y me pongo ropa limpia."
+    "Después de hacer ejercicio, me baño y me pongo ropa limpia."
 ]
 const TIPO = [0, 1, 2, 3, 0, 2, 1, 3, 0, 1, 2, 3, 2, 0, 3, 1, 0]
 const PRACTICA = [4, 5, 6]
@@ -67,11 +67,11 @@ function pistaDe(n: number): string {
 function pausa(i: number) {
     mostrarEstudiante()
     experiencias.decir("Pausa " + (i + 1) + ", " + MOMENTO[i] + ". Es un ratito para mover el cuerpo. Puedes hacerla o solo leerla.")
-    variante[i] = experiencias.elegir("¿Cómo haces la pausa " + (i + 1) + "?", ["De pie", "Sentado"], EjeEleccion.Horizontal)
+    variante[i] = experiencias.elegir("¿Cómo haces la pausa " + (i + 1) + "?", ["De pie", "En una silla"], EjeEleccion.Horizontal)
     if (variante[i] == 0) {
         experiencias.decir("De pie: " + DE_PIE[i] + " " + DETENTE + " Pulsa A cuando termines.")
     } else {
-        experiencias.decir("Sentado: " + SENTADO[i] + " " + DETENTE + " Pulsa A cuando termines.")
+        experiencias.decir("En una silla: " + SENTADO[i] + " " + DETENTE + " Pulsa A cuando termines.")
     }
 }
 
@@ -80,7 +80,7 @@ function explorar() {
     experiencias.decir("Llevas horas en el aula. Hoy armas tu plan de recreo.")
     experiencias.decir("Es un modelo en la pantalla: nadie te pide moverte de verdad para aprobar.")
     mostrarEstudiante()
-    let idea = experiencias.elegir("Sin miedo a equivocarte. Llevas mucho rato sentado. ¿Qué te ayudaría?", ["Moverme", "Tomar agua", "Lavarme las manos"], EjeEleccion.Horizontal)
+    let idea = experiencias.elegir("Sin miedo a equivocarte. Llevas mucho rato en tu silla. ¿Qué te ayudaría?", ["Moverme", "Tomar agua", "Lavarme las manos"], EjeEleccion.Horizontal)
     if (idea >= 0) {
         experiencias.decir("Cualquier idea sirve para empezar. Un buen recreo tiene un poco de todo.")
     }
@@ -90,7 +90,9 @@ function construir() {
     experiencias.fase(FaseExperiencia.Construir)
     experiencias.decir("Un buen recreo tiene cuatro partes: higiene, movimiento, agua y comida.")
     mostrarIcono(0)
-    experiencias.decir("Higiene: cuidar la limpieza de tu cuerpo. Ejemplo: " + HABITOS[0])
+    experiencias.decir("Higiene: cuidar la limpieza de tu cuerpo antes, durante y después de moverte.")
+    experiencias.decir("Antes: ropa limpia y cómoda. Durante: sécate el sudor. Después: lávate las manos y la cara.")
+    experiencias.decir("Ejemplo: " + HABITOS[0])
     mostrarIcono(1)
     experiencias.decir("Movimiento: mover tu cuerpo, como caminar, saltar o estirarte. Ejemplo: " + HABITOS[1])
     mostrarIcono(2)
@@ -99,7 +101,7 @@ function construir() {
     mostrarIcono(3)
     experiencias.decir("Comida: lo que comes cada día. Una buena refacción incluye fruta. Ejemplo: " + HABITOS[3])
     mostrarEstudiante()
-    experiencias.decir("Pasar mucho tiempo sentado sin moverte se llama sedentarismo. Para evitarlo, haz pausas activas.")
+    experiencias.decir("Pasar mucho tiempo sin mover el cuerpo se llama sedentarismo. Es un hábito que daña la salud. Para evitarlo, haz pausas activas.")
     experiencias.decir("Una pausa activa dura un ratito y mueve el cuerpo. Arma tres pausas para tu jornada.")
     for (let i = 0; i < 3; i++) {
         pausa(i)
@@ -141,11 +143,11 @@ function comprobar() {
 function reflexionar() {
     experiencias.fase(FaseExperiencia.Reflexionar)
     sprites.destroyAllSpritesOfKind(SpriteKind.Food)
-    let respuesta = experiencias.elegir("Pasar mucho tiempo sentado sin moverte se llama...", ["Higiene", "Sedentarismo", "Refacción"], EjeEleccion.Horizontal)
+    let respuesta = experiencias.elegir("Pasar mucho tiempo sin mover el cuerpo se llama...", ["Higiene", "Sedentarismo", "Refacción"], EjeEleccion.Horizontal)
     if (respuesta == 1) {
         experiencias.decir("Así es. Las pausas activas ayudan a evitar el sedentarismo.")
     } else {
-        experiencias.todaviaNo("Pasar mucho tiempo sentado sin moverte se llama sedentarismo.")
+        experiencias.todaviaNo("Pasar mucho tiempo sin mover el cuerpo se llama sedentarismo.")
     }
 }
 
@@ -163,11 +165,13 @@ let lineas: string[] = ["Acertaste " + experiencias.aciertos() + " de 5 hábitos
 for (let i = 0; i < 3; i++) {
     let como = "de pie: " + DE_PIE[i]
     if (variante[i] == 1) {
-        como = "sentado: " + SENTADO[i]
+        como = "en una silla: " + SENTADO[i]
     }
     lineas.push("Pausa " + (i + 1) + ", " + MOMENTO[i] + ", " + como)
 }
-lineas.push("Agua: toma agua durante la mañana y cuando hace calor.")
-lineas.push("Aseo: lávate las manos con agua y jabón antes de comer y después de ir al baño.")
+lineas.push("Agua: toma agua en la mañana y cuando hace calor.")
+lineas.push("Aseo antes de jugar: ropa limpia y cómoda.")
+lineas.push("Aseo durante el juego: sécate el sudor.")
+lineas.push("Aseo después: lávate las manos y la cara.")
 lineas.push("En una pausa, detente si algo te duele, te mareas o te falta el aire.")
 experiencias.final("Plan de recreo", lineas)

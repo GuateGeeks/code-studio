@@ -2,7 +2,7 @@
 // Fenómenos: 0 sismo, 1 lluvias muy fuertes, 2 volcán activo. Quién ayuda: 0 Cruz Roja, 1 Médicos Sin Fronteras.
 const FEN_NOMBRE = ["sismo", "lluvias muy fuertes", "volcán activo"]
 const FEN_TEXTO = [
-    "Los sismos no se pueden predecir, así que el plan necesita una ruta de salida y un punto de reunión. Ocurren sobre todo donde se encuentran placas de la corteza de la Tierra, como en Guatemala y en Japón.",
+    "Los sismos no se pueden predecir, así que el plan necesita una ruta de salida y un punto de reunión. La corteza de la Tierra está partida en placas. Los sismos ocurren sobre todo en los bordes de esas placas, como en Guatemala y en Japón.",
     "En Guatemala, las lluvias más fuertes llegan en la época de lluvias, más o menos de mayo a octubre. Los ríos pueden crecer y las laderas pueden moverse. En el mundo, el sur de Asia tiene lluvias de monzón y el mar Caribe tiene huracanes.",
     "Guatemala tiene volcanes activos, como el Pacaya y el Santiaguito. Hay instituciones que los vigilan y dan avisos. En el mundo también hay volcanes activos, por ejemplo en Japón e Indonesia."
 ]
@@ -41,7 +41,7 @@ const C_SIT = [
     "Hay un sismo. ¿Cuál es el lugar de peligro?",
     "Algunos huracanes y tormentas tropicales traen lluvias a Guatemala. ¿Qué necesita un huracán para formarse?"
 ]
-const C_UNO = ["Egipto", "La orilla del río", "A un club de fútbol", "Donde se encuentran placas de la corteza", "Una cancha plana", "Una zona de reunión marcada", "Uruguay", "A Médicos Sin Fronteras", "Una zona de reunión marcada", "Aguas cálidas del mar"]
+const C_UNO = ["Egipto", "La orilla del río", "A un club de fútbol", "En los bordes de las placas de la corteza", "Una cancha plana", "Una zona de reunión marcada", "Uruguay", "A Médicos Sin Fronteras", "Una zona de reunión marcada", "Aguas cálidas del mar"]
 const C_DOS = ["Japón", "Una zona alta y firme", "A una tienda de ropa", "Solo en los desiertos", "Una ladera muy inclinada", "Cerca del cráter y de las barrancas", "Egipto", "A una tienda de ropa", "Un patio abierto, lejos de los muros", "Un desierto seco"]
 const C_TRES = ["Uruguay", "Un salón con techo firme", "A la Cruz Roja", "Solo en las ciudades grandes", "Un patio techado", "Un patio lejos de las barrancas", "Indonesia", "A un club de fútbol", "Junto a una ventana o un muro agrietado", "Un glaciar"]
 const C_OK = [1, 0, 2, 0, 1, 1, 2, 0, 2, 0]
@@ -78,11 +78,11 @@ function construir() {
     experiencias.fase(FaseExperiencia.Construir)
     mostrarComite()
     experiencias.decir("Un plan dice tres cosas: qué fenómeno puede ocurrir, dónde está el peligro y quién ayuda.")
-    experiencias.decir("Un fenómeno natural es algo que pasa en la naturaleza, como un sismo, una lluvia muy fuerte o la actividad de un volcán.")
+    experiencias.decir("Un fenómeno natural es algo que pasa en la naturaleza, como un sismo, una lluvia muy fuerte o la actividad de un volcán. A un sismo fuerte también se le llama terremoto.")
     experiencias.decir("En Guatemala hay sismos, lluvias muy fuertes y volcanes activos. Otros países tienen fenómenos parecidos: hay sismos y volcanes activos en Japón, y huracanes que se forman sobre aguas cálidas del mar.")
     experiencias.decir("Un lugar de peligro es un sitio donde un fenómeno puede ser peligroso para las personas. Por ejemplo, la orilla de un río cuando llueve mucho.")
     experiencias.decir("Quién ayuda: la Cruz Roja da primeros auxilios y ayuda humanitaria. Médicos Sin Fronteras da atención médica en emergencias. Las vecinas y los vecinos también ayudan.")
-    experiencias.decir("Cada decisión tiene una consecuencia. En el plan la verás después de elegir.")
+    experiencias.decir("Al armar el plan, cada decisión muestra su consecuencia.")
 }
 
 function aplicar() {
@@ -115,7 +115,7 @@ function aplicar() {
 
 function comprobar() {
     experiencias.comprobar()
-    experiencias.decir("Ahora, sin pistas: cinco decisiones del comité. Necesitas 4 aciertos.")
+    experiencias.decir("Ahora, sin pistas: cinco preguntas del comité. Necesitas 4 aciertos.")
     let serie = SERIE_A
     if (experiencias.serieActual() == 1) {
         serie = SERIE_B

@@ -55,7 +55,7 @@ function explorar() {
     experiencias.fase(FaseExperiencia.Explorar)
     experiencias.decir("Eres parte del periódico mural de la escuela. Hoy llegan noticias.")
     experiencias.decir("Todas las noticias de este juego son inventadas. Es un modelo en la pantalla.")
-    experiencias.decir("Un buen detective lee cada frase y se pregunta: ¿cómo lo sé?")
+    experiencias.decir("Quien investiga lee cada frase y se pregunta: ¿cómo lo sé?")
     mostrarNoticia(1)
     let enunciado = "Sin miedo a equivocarte. Frase: " + FRASES[0] + " ¿Se puede comprobar con un dato?"
     let idea = experiencias.elegir(enunciado, ["Sí", "No", "No sé"], EjeEleccion.Horizontal)
@@ -66,7 +66,7 @@ function explorar() {
 
 function construir() {
     experiencias.fase(FaseExperiencia.Construir)
-    experiencias.decir("Hay tres clases de frases. Se distinguen por cómo se pueden revisar.")
+    experiencias.decir("Hoy separas las frases en tres clases. Se distinguen por cómo se pueden revisar.")
     mostrarNoticia(1)
     experiencias.decir("Hecho: se puede comprobar con un dato, como un registro, un conteo o un horario. Ejemplo: " + FRASES[1])
     mostrarNoticia(2)

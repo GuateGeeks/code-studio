@@ -180,20 +180,20 @@ function coincide(esperado: number[]): boolean {
 }
 
 function pistaDe(esperado: number[]): string {
-    let pista = "Revisa cada posición. Un punto vale 1 y una barra vale 5. Inténtalo otra vez desde cero."
+    let pista = "Revisa cada posición. Un punto vale 1 y una barra vale 5. Arma el numeral otra vez."
     let encontrada = false
     for (let i = 0; i < 3; i++) {
         let r = 2 - i
         if (!encontrada && esperado[r] >= 0 && tablero[r] != esperado[r]) {
             encontrada = true
             if (tablero[r] < 0) {
-                pista = "Falta la posición " + NOMBRES_FILA[r] + ". Si no hay unidades, ahí va el cero. Inténtalo otra vez desde cero."
+                pista = "Falta la posición " + NOMBRES_FILA[r] + ". Si no hay unidades, ahí va el cero. Arma el numeral otra vez."
             } else {
-                pista = "Revisa la posición " + NOMBRES_FILA[r] + ": ahí necesitas símbolos que sumen " + esperado[r] + ". Una barra vale 5 y un punto vale 1. Inténtalo otra vez desde cero."
+                pista = "Revisa la posición " + NOMBRES_FILA[r] + ": ahí necesitas símbolos que sumen " + esperado[r] + ". Una barra vale 5 y un punto vale 1. Arma el numeral otra vez."
             }
         } else if (!encontrada && esperado[r] < 0 && tablero[r] > 0) {
             encontrada = true
-            pista = "En la posición " + NOMBRES_FILA[r] + " no va nada. Inténtalo otra vez desde cero."
+            pista = "En la posición " + NOMBRES_FILA[r] + " no va nada. Arma el numeral otra vez."
         }
     }
     return pista
@@ -243,7 +243,7 @@ function explorar() {
     experiencias.fase(FaseExperiencia.Explorar)
     experiencias.decir("Tienes un puesto en el mercado. Hoy anotas las ventas con numerales mayas.")
     experiencias.decir("Es un modelo en la pantalla: las ventas son inventadas.")
-    experiencias.decir("Los mayas escribían números con puntos, barras y el cero. Pruébalos sin riesgo.")
+    experiencias.decir("Los numerales mayas usan puntos, barras y un signo para el cero. Pruébalos sin riesgo.")
     experiencias.decir("Arriba y abajo eligen la posición. Izquierda y derecha eligen el símbolo. A lo coloca.")
     experiencias.decir("Cuando termines, elige la flecha «Seguir» y pulsa A.")
     tablero = [-1, -1, -1]
@@ -295,7 +295,7 @@ function construir() {
     mostrar(1, 0, 0)
     experiencias.decir("La tercera posición vale 400. Un punto arriba vale 400.")
     experiencias.decir("Un numeral se lee de arriba hacia abajo, sumando el valor de cada posición.")
-    experiencias.decir("Ahora las series. En la de 20 en 20, arriba sube un punto cada vez.")
+    experiencias.decir("Ahora las series. En la de 20 en 20, la posición del medio gana un punto cada vez.")
     for (let i = 0; i < 3; i++) {
         mostrar(-1, i + 1, 0)
         pause(900)
@@ -327,7 +327,7 @@ function aplicar() {
         let respuesta = experiencias.elegir("Lee el numeral. ¿Qué número es?", ["14", "33", "63"], EjeEleccion.Vertical)
         correcto = respuesta == 1
         if (!correcto) {
-            experiencias.todaviaNo("Abajo suma las barras y los puntos: son 13. Arriba, el punto vale 20. Inténtalo otra vez.")
+            experiencias.todaviaNo("Abajo suma las barras y los puntos: son 13. En el medio, el punto vale 20. Inténtalo otra vez.")
         }
     }
     correcto = false

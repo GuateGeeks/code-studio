@@ -161,7 +161,7 @@ function explorar() {
         libre = false
         sonar()
     }
-    experiencias.decir("¡Muy bien! Así se toca cada nota: tecla, duración y A.")
+    experiencias.decir("Tocaste tres notas. Así se toca cada una: tecla, duración y A.")
 }
 
 function construir() {
@@ -174,8 +174,8 @@ function construir() {
     experiencias.decir("Mira este compás: La, Sol y Sol. Sol está en la segunda línea, contando desde abajo. La, en el segundo espacio.")
     experiencias.decir("Si va en la tercera línea. Do, en el tercer espacio. Re, en la cuarta línea.")
     experiencias.decir("La forma de la nota dice cuánto dura. La negra es llena y dura 1 pulso. La blanca es hueca y dura 2 pulsos.")
-    experiencias.decir("Un compás junta 4 pulsos. Aquí: 1 + 1 + 2 = 4.")
-    experiencias.decir("El ritmo es cuánto dura cada nota. La melodía es qué notas suenan, una tras otra. Mira y escucha el compás.")
+    experiencias.decir("En esta pieza, cada compás junta 4 pulsos. Aquí: 1 + 1 + 2 = 4.")
+    experiencias.decir("El ritmo es cuánto dura cada nota. La melodía es qué notas suenan, una tras otra. Mira el compás. Si tienes sonido, escúchalo.")
     let n = Math.idiv(EJEMPLO.length, 2)
     for (let k = 0; k < n; k++) {
         anillo(EJEMPLO, k)
@@ -191,7 +191,7 @@ function construir() {
 
 function aplicar() {
     experiencias.fase(FaseExperiencia.Aplicar)
-    experiencias.decir("El anillo rojo marca la nota que sigue. Elige la tecla y la duración, y pulsa A. Si te equivocas, tendrás una pista.")
+    experiencias.decir("El anillo marca la nota que sigue. Elige la tecla y la duración, y pulsa A. Si te equivocas, tendrás una pista.")
     for (let i = 0; i < APLICAR_COMPASES.length; i++) {
         let compas = APLICAR_COMPASES[i]
         mostrarCompas(compas, true)

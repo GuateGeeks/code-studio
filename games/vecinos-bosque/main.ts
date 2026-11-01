@@ -4,20 +4,20 @@ const ICONOS: Image[] = [sprites.gg.colibri, sprites.gg.abeja, sprites.gg.flor, 
 const NOMBRE = ["Colibrí y flor", "Bromelia y árbol", "Garrapata y perro", "Lombriz y persona", "Abeja y flor", "Musgo y tronco", "Pulga y perro", "Hongo y raíces", "Garrapata y persona", "Helecho y rama", "Lombriz y perro", "Murciélago y flor", "Ave y frutos", "Pulga y gato", "Orquídea y árbol", "Tenia y persona", "Liquen"]
 const TEXTO = [
     "Un colibrí toma néctar de una flor y lleva su polen a otras flores.",
-    "Una bromelia crece sobre la rama de un árbol. Gana un lugar con luz. Al árbol no le pasa nada.",
+    "Una bromelia crece sobre la rama de un árbol. Gana un lugar con luz. Por lo general, no daña al árbol.",
     "Una garrapata se pega a la piel de un perro y se alimenta de su sangre.",
     "Una lombriz vive dentro del intestino de una persona y se alimenta de lo que ella come.",
     "Una abeja toma néctar de una flor y lleva su polen a otras flores.",
-    "Un musgo crece sobre el tronco de un árbol. Gana un lugar donde vivir. Al árbol no le pasa nada.",
+    "Un musgo crece sobre el tronco de un árbol. Gana un lugar donde vivir. Por lo general, no daña al árbol.",
     "Una pulga vive entre el pelo de un perro y se alimenta de su sangre.",
     "Un hongo vive en las raíces de un árbol. Ayuda a la raíz a tomar agua y recibe alimento del árbol.",
     "Una garrapata se pega a la piel de una persona que camina por el monte y se alimenta de su sangre.",
-    "Un helecho crece sobre la rama de un árbol. Gana un lugar con luz. Al árbol no le pasa nada.",
+    "Un helecho crece sobre la rama de un árbol. Gana un lugar con luz. Por lo general, no daña al árbol.",
     "Una lombriz vive dentro del intestino de un perro y se alimenta de lo que él come.",
     "Un murciélago toma néctar de flores de noche y lleva polen de una flor a otra.",
     "Un ave come frutos y deja las semillas en otros sitios. El ave se alimenta y la planta se esparce.",
     "Una pulga vive entre el pelo de un gato y se alimenta de su sangre.",
-    "Una orquídea crece sobre el tronco de un árbol. Gana un lugar con luz. Al árbol no le pasa nada.",
+    "Una orquídea crece sobre el tronco de un árbol. Gana un lugar con luz. Por lo general, no daña al árbol.",
     "Una tenia vive dentro del intestino de una persona y se alimenta de lo que ella come.",
     "Un liquen es un hongo y un alga que viven juntos. El alga hace alimento con la luz y el hongo la protege."
 ]
@@ -78,17 +78,18 @@ function explorar() {
 
 function construir() {
     experiencias.fase(FaseExperiencia.Construir)
-    experiencias.decir("Hay tres clases de relaciones. Se distinguen por quién gana.")
+    experiencias.decir("Hoy verás tres clases de relaciones. Se distinguen por quién gana.")
     mostrarPar(0)
     experiencias.decir("Mutualismo: ganan los dos. El colibrí toma néctar y la flor recibe polen de otras flores.")
+    experiencias.decir("Esa ventaja les ayuda a sobrevivir: el colibrí se alimenta y la flor puede formar semillas.")
     mostrarPar(1)
-    experiencias.decir("Comensalismo: gana uno y al otro no le pasa nada. La bromelia gana un lugar con luz. Al árbol no le hace daño.")
+    experiencias.decir("Comensalismo: gana uno y al otro no le pasa nada. La bromelia gana un lugar con luz. Por lo general, no daña al árbol.")
     mostrarPar(2)
     experiencias.decir("Parasitismo: gana el parásito y el otro sale perdiendo. La garrapata es el parásito y el perro es el hospedero.")
     experiencias.decir("Un parásito externo vive fuera del cuerpo, como la garrapata.")
     mostrarPar(3)
     experiencias.decir("Un parásito interno vive dentro del cuerpo, como la lombriz del intestino.")
-    experiencias.decir("Las personas también tenemos parásitos. Lavarte las manos ayuda a prevenir las lombrices.")
+    experiencias.decir("Las personas también podemos tener parásitos. Lavarte las manos ayuda a prevenir las lombrices.")
 }
 
 function aplicar() {
@@ -146,7 +147,7 @@ function reflexionar() {
     sprites.destroyAllSpritesOfKind(SpriteKind.Food)
     let respuesta = experiencias.elegir("En el mutualismo, ¿quién gana?", ["Solo uno", "Los dos", "Ninguno"], EjeEleccion.Horizontal)
     if (respuesta == 1) {
-        experiencias.decir("Así es. En el mutualismo ganan los dos.")
+        experiencias.decir("Así es. En el mutualismo ganan los dos, y esa ventaja les ayuda a sobrevivir.")
     } else {
         experiencias.todaviaNo("En el mutualismo ganan los dos seres vivos.")
     }

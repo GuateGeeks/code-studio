@@ -171,12 +171,12 @@ function pista(tipo: number, ref: number): string {
     let x = LUGAR_CX[ref]
     if (cy != y) {
         if ((cy > 0 && y < 0) || (cy < 0 && y > 0)) {
-            return "Revisa el signo de la latitud: N está arriba del ecuador y S abajo. Inténtalo otra vez."
+            return "Revisa la letra de la latitud: N está arriba del ecuador y S abajo. Inténtalo otra vez."
         }
         return "Revisa la latitud: es la distancia al ecuador. Cada paso son 5°. Inténtalo otra vez."
     }
     if ((cx > 0 && x < 0) || (cx < 0 && x > 0)) {
-        return "Revisa el signo de la longitud: E está a la derecha del meridiano 0 y O a la izquierda. Inténtalo otra vez."
+        return "Revisa la letra de la longitud: E está a la derecha del meridiano 0 y O a la izquierda. Inténtalo otra vez."
     }
     return "Revisa la longitud: es la distancia al meridiano 0. Cada paso son 10°. Inténtalo otra vez."
 }
@@ -226,19 +226,19 @@ function construir() {
     verZona = false
     irASalida()
     destino = ""
-    experiencias.decir("Geeky sale de Guatemala, a 15°N y 90°O. El norte está arriba y el este, a la derecha.")
-    experiencias.decir("Vamos a Quito, en Ecuador. Primero la latitud: es la distancia al ecuador, medida en grados. Quito está a 0°.")
+    experiencias.decir("Geeky sale de Guatemala, cerca de 15°N y 90°O. En este mapa, las coordenadas están redondeadas. El norte está arriba y el este, a la derecha.")
+    experiencias.decir("Vamos a Quito, en Ecuador. Primero la latitud: es la distancia al ecuador, medida en grados. Quito está muy cerca del ecuador: aquí, a 0°.")
     for (let i = 0; i < 3; i++) {
         cy -= 1
         colocar()
         pause(500)
     }
-    experiencias.decir("Ahora la longitud: es la distancia al meridiano 0, que pasa por Greenwich. Quito está a 80° al oeste.")
+    experiencias.decir("Ahora la longitud: es la distancia al meridiano 0, que pasa por Greenwich. Quito está cerca de 80° al oeste.")
     cx += 1
     colocar()
     pause(500)
     marcar()
-    experiencias.decir("Llegaste a Quito: 0°, 80°O. N y S dicen si estás al norte o al sur del ecuador. E y O, si estás al este o al oeste.")
+    experiencias.decir("Llegaste a Quito: 0°, 80°O en este mapa. N y S dicen si estás al norte o al sur del ecuador. E y O, si estás al este o al oeste.")
     experiencias.decir("La altitud es la altura sobre el nivel del mar. Quito está a más de 2 800 m. Mientras más alto estás, más fresco es el aire.")
     experiencias.decir("Las zonas climáticas se marcan por la latitud. Cálida: hasta 23,5° al norte y al sur del ecuador. Templada: de 23,5° a 66,5°. Polar: más allá de 66,5°.")
     experiencias.decir("Quito está en la zona cálida. Es un modelo: el clima real también cambia con la altitud y con otros factores.")
@@ -374,5 +374,6 @@ for (let i = 0; i < sellos.length; i++) {
     lineas.push(sellos[i])
 }
 lineas.push("Zonas visitadas: " + unir(zonasVistas) + ".")
-lineas.push("El mapa es esquemático: las zonas se marcan por la latitud.")
+lineas.push("Mapa esquemático, con coordenadas redondeadas.")
+lineas.push("Las zonas se marcan por la latitud.")
 experiencias.final("Pasaporte de Geeky", lineas)

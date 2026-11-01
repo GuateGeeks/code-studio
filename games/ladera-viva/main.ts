@@ -32,8 +32,8 @@ const C_SIT = [
     "¿Cómo ayuda reforestar a proteger el agua de un nacimiento?"
 ]
 const C_UNO = ["La hace correr más rápido", "La tierra puede moverse y deslizarse", "Les quita el agua", "Lo vuelven polvo", "Puede seguir dando agua", "Entra toda al suelo", "La hace más empinada", "Pierden alimento y refugio", "Cortar árboles de la ladera", "La lluvia deja de caer"]
-const C_DOS = ["Deja que parte entre al suelo", "La tierra se vuelve más firme", "Les da alimento y refugio", "Lo mueven a otro lugar", "Siempre da más agua que en lluvia", "Corre y arrastra tierra", "Quita el agua del suelo", "Tienen más refugio", "Sembrar árboles donde ya no hay", "El agua sube por las ramas"]
-const C_TRES = ["Impide que llegue al nacimiento", "Crecen árboles de inmediato", "No les sirve de nada", "Lo sujetan para que no se lave", "Desaparece para siempre", "Se queda quieta en la ladera", "Ayuda a sujetar la ladera", "No cambia nada", "Regar el pasto de la escuela", "El suelo con raíces guarda agua de lluvia"]
+const C_DOS = ["Deja que parte entre al suelo", "La tierra se vuelve más firme", "Les da alimento y refugio", "Lo mueven a otro lugar", "Siempre da más agua que en lluvia", "Corre y arrastra tierra", "Quita el agua del suelo", "Tienen más refugio", "Sembrar árboles donde ya no hay", "Las ramas tapan el nacimiento"]
+const C_TRES = ["Impide que llegue al nacimiento", "Crecen árboles de inmediato", "No les sirve de nada", "Lo sujetan para que se lave menos", "Desaparece para siempre", "Se queda quieta en la ladera", "Ayuda a sujetar la ladera", "No cambia nada", "Regar el pasto de la escuela", "El suelo con raíces guarda agua de lluvia"]
 const C_OK = [1, 0, 1, 2, 0, 1, 2, 0, 1, 2]
 const SERIE_A = [0, 1, 2, 3, 4]
 const SERIE_B = [5, 6, 7, 8, 9]
@@ -117,7 +117,7 @@ function decidir(n: number): number {
 function mostrarEpocas(n: number) {
     if (n > 0) {
         dibujar(n, 0, true)
-        experiencias.decir("Pasa el tiempo. Los brotes crecen y se vuelven árboles.")
+        experiencias.decir("Pasan varios años. Los brotes crecen y se vuelven árboles.")
         dibujar(n, 0, false)
     } else {
         experiencias.decir("No sembraste nada. La ladera sigue sin árboles.")
@@ -150,14 +150,14 @@ function construir() {
     dibujar(2, 0, true)
     experiencias.decir("Ejemplo: la comunidad siembra muchos árboles en la ladera. Primero son brotes.")
     dibujar(2, 0, false)
-    experiencias.decir("Con el tiempo crecen. Sus raíces entran en la tierra y la sujetan: así la ladera se mueve menos.")
+    experiencias.decir("Con los años crecen. Sus raíces entran en la tierra y la sujetan: así la ladera se mueve menos.")
     dibujar(2, 1, false)
     experiencias.decir("Época lluviosa. " + LLUVIA_TXT[2])
     experiencias.decir(indicadores(2, 1))
     dibujar(2, 2, false)
     experiencias.decir("Época seca. " + SECA_TXT[2])
     experiencias.decir(indicadores(2, 2))
-    experiencias.decir("El agua de la lluvia entra al suelo y en la época seca el nacimiento sigue dando agua. Esa es la relación entre reforestación y agua.")
+    experiencias.decir("En este modelo, el agua de la lluvia entra al suelo y en la época seca el nacimiento sigue dando agua. Por eso reforestar ayuda a proteger el agua.")
     experiencias.decir("Los árboles también dan alimento y refugio a los animales, y el suelo con raíces se lava menos.")
 }
 
@@ -190,7 +190,7 @@ function aplicar() {
     }
     hecho = false
     while (!hecho) {
-        let efecto = experiencias.elegir("Paso 3. ¿Cómo ayudan las raíces a una ladera inclinada?", ["Sujetan la tierra para que no se mueva", "Hacen que la tierra se lave más", "No cambian nada"], EjeEleccion.Vertical)
+        let efecto = experiencias.elegir("Paso 3. ¿Cómo ayudan las raíces a una ladera inclinada?", ["Sujetan la tierra para que se mueva menos", "Hacen que la tierra se lave más", "No cambian nada"], EjeEleccion.Vertical)
         hecho = efecto == 0
         if (hecho) {
             experiencias.decir("Así es. Las raíces sujetan la tierra y la ladera se mueve menos con la lluvia.")
@@ -242,5 +242,6 @@ lineas.push("Animales: " + FIN_ANIMALES[nivel])
 if (probo) {
     lineas.push("Antes probaste no sembrar nada: el suelo se lavó y el nacimiento dio poca agua.")
 }
-lineas.push("Es un modelo en la pantalla. Una ladera real es más compleja.")
+lineas.push("Es un modelo en la pantalla.")
+lineas.push("Una ladera real depende de su suelo y de sus árboles.")
 experiencias.final("Ladera final", lineas)
