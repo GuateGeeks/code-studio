@@ -19,17 +19,21 @@ for (const id of juegos) {
   });
 }
 
-test('rescate-plano con errores da «Todavía no» y la serie B', async ({page}) => {
-  test.setTimeout(120000);
-  const {erradas, serieB} = solucion('rescate-plano');
-  await abrirJuego(page, 'rescate-plano');
-  const tras = await jugar(page, erradas);
-  expect(tras).toMatchObject({fase: 'aplicar', serie: 'B', aprobado: 'false', final: 'false', espera: 'confirmar'});
-  expect(Number(tras.avisos)).toBeGreaterThanOrEqual(2);
-  expect(tras.aciertos).toBe('0');
+// A game with `erradas` also plays the failing path: every wrong answer gives «Todavía no», and the other series follows.
+for (const id of juegos.filter(id => solucion(id).erradas)) {
+  test(`${id} con errores da «Todavía no» y la serie B`, async ({page}) => {
+    test.skip(!REPRESENTANTES.has(id) && !process.env.GG_SOLUCIONES, 'solo los representantes, salvo GG_SOLUCIONES');
+    test.setTimeout(120000);
+    const {erradas, serieB} = solucion(id);
+    await abrirJuego(page, id);
+    const tras = await jugar(page, erradas);
+    expect(tras).toMatchObject({fase: 'aplicar', serie: 'B', aprobado: 'false', final: 'false', espera: expect.stringMatching(/^(confirmar|eleccion)$/)});
+    expect(Number(tras.avisos)).toBeGreaterThanOrEqual(2);
+    expect(tras.aciertos).toBe('0');
 
-  await jugar(page, serieB);
-  const final = await estadoJuego(page);
-  expect(final).toMatchObject({final: 'true', serie: 'B', aprobado: 'true', fase: 'reflexionar'});
-  expect(Number(final.aciertos)).toBeGreaterThanOrEqual(4);
-});
+    await jugar(page, serieB);
+    const final = await estadoJuego(page);
+    expect(final).toMatchObject({final: 'true', serie: 'B', aprobado: 'true', fase: 'reflexionar'});
+    expect(Number(final.aciertos)).toBeGreaterThanOrEqual(4);
+  });
+}
