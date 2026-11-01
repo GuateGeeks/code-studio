@@ -4,33 +4,75 @@ import {readdirSync, readFileSync, statSync} from 'node:fs';
 
 const juegos = readdirSync('games').filter(nombre => statSync(`games/${nombre}`).isDirectory());
 const leer = (id, archivo) => readFileSync(`games/${id}/${archivo}`, 'utf8');
-// Arguments of every call to `nombre(`, split at the top level (strings and nested calls respected).
-function llamadas(codigo, nombre) {
-  const encontradas = [];
-  for (let desde = codigo.indexOf(nombre); desde !== -1; desde = codigo.indexOf(nombre, desde + 1)) {
-    let profundidad = 1;
-    let cadena = false;
-    let argumentos = [''];
-    for (let i = desde + nombre.length; i < codigo.length && profundidad > 0; i++) {
-      const c = codigo[i];
-      if (cadena) {
-        if (c === '\\') argumentos[argumentos.length - 1] += c + codigo[++i];
-        else {
-          if (c === '"') cadena = false;
-          argumentos[argumentos.length - 1] += c;
-        }
-        continue;
-      }
-      if (c === '"') cadena = true;
-      else if (c === '(' || c === '[') profundidad++;
-      else if (c === ')' || c === ']') profundidad--;
-      if (profundidad === 0) break;
-      if (c === ',' && profundidad === 1) argumentos.push('');
-      else argumentos[argumentos.length - 1] += c;
+// Text between the brackets that open at `desde` (the index of the opener), strings respected.
+function cuerpo(codigo, desde) {
+  let profundidad = 0;
+  let cadena = false;
+  for (let i = desde; i < codigo.length; i++) {
+    const c = codigo[i];
+    if (cadena) {
+      if (c === '\\') i++;
+      else if (c === '"') cadena = false;
+    } else if (c === '"') cadena = true;
+    else if (c === '(' || c === '[') profundidad++;
+    else if (c === ')' || c === ']') {
+      profundidad--;
+      if (profundidad === 0) return codigo.slice(desde + 1, i);
     }
-    encontradas.push(argumentos.map(a => a.trim()));
   }
-  return encontradas;
+  throw new Error('paréntesis sin cerrar');
+}
+
+// Splits at the commas of the top level, so nested calls, brackets and strings stay whole.
+function separar(texto) {
+  const partes = [''];
+  let profundidad = 0;
+  let cadena = false;
+  for (let i = 0; i < texto.length; i++) {
+    const c = texto[i];
+    if (cadena) {
+      if (c === '\\') partes[partes.length - 1] += c + texto[++i];
+      else {
+        if (c === '"') cadena = false;
+        partes[partes.length - 1] += c;
+      }
+      continue;
+    }
+    if (c === '"') cadena = true;
+    else if (c === '(' || c === '[') profundidad++;
+    else if (c === ')' || c === ']') profundidad--;
+    if (c === ',' && profundidad === 0) partes.push('');
+    else partes[partes.length - 1] += c;
+  }
+  return partes.map(parte => parte.trim()).filter(parte => parte !== '');
+}
+
+// Arguments of every call to `nombre(`.
+const llamadas = (codigo, nombre) => [...codigo.matchAll(new RegExp(nombre.replace(/[.(]/g, '\\$&'), 'g'))]
+  .map(m => separar(cuerpo(codigo, m.index + nombre.length - 1)));
+
+const literal = texto => texto.match(/^"((?:[^"\\]|\\.)*)"$/)?.[1];
+
+// The strings of a top-level `const NOMBRE = [...]`, or null when there is no such array.
+function arreglo(codigo, nombre) {
+  const m = codigo.match(new RegExp(`^(?:export )?const ${nombre}(?:: [^=]+)? = \\[`, 'm'));
+  return m ? separar(cuerpo(codigo, m.index + m[0].length - 1)).map(literal) : null;
+}
+
+// The options an `elegir` can show: its own strings, plus every string of the constant arrays it indexes or passes by name.
+// What cannot be resolved is returned apart, so the test fails instead of skipping it.
+function opcionesDe(codigo, lista) {
+  const textos = [];
+  const sinResolver = [];
+  const elementos = lista.startsWith('[') ? separar(cuerpo(lista, 0)) : [lista];
+  for (const elemento of elementos) {
+    const nombre = elemento.match(/^(\w+)(?:\[.*\])?$/)?.[1];
+    const valores = literal(elemento) !== undefined ? [literal(elemento)] : nombre ? arreglo(codigo, nombre) : null;
+    if (valores && !valores.includes(undefined)) textos.push(...valores);
+    else sinResolver.push(elemento);
+  }
+  // A list passed by name has as many options as the array; a list written out, as many as elements.
+  return {textos, sinResolver, cuenta: lista.startsWith('[') ? elementos.length : textos.length};
 }
 
 const plantilla = JSON.parse(readFileSync('libs/blocksprj/pxt.json', 'utf8'));
@@ -51,16 +93,16 @@ for (const id of juegos) {
   });
 
   test(`${id}: las opciones de elegir caben en su panel`, () => {
-    for (const [linea] of codigo.matchAll(/^.*experiencias\.elegir\(.*$/gm)) {
-      const lista = linea.match(/\[(.*)\]/);
-      assert.ok(lista, `elegir debe llevar sus opciones en una línea: ${linea}`);
-      const opciones = [...lista[1].matchAll(/"([^"]*)"/g)].map(m => m[1]);
-      if (linea.includes('EjeEleccion.Vertical')) {
+    for (const argumentos of llamadas(codigo, 'experiencias.elegir(')) {
+      const [, lista, eje] = argumentos;
+      const {textos, sinResolver, cuenta} = opcionesDe(codigo, lista);
+      assert.deepEqual(sinResolver, [], `elegir con opciones que la prueba no puede medir: ${lista}`);
+      if (eje === 'EjeEleccion.Vertical') {
         // Vertical options are not wrapped: one line, less the two characters of the marker.
-        for (const opcion of opciones) assert.ok(opcion.length <= 44, `Opción larga: ${opcion}`);
+        for (const opcion of textos) assert.ok(opcion.length <= 44, `Opción larga: ${opcion}`);
       } else {
-        const ancho = Math.floor((Math.floor(296 / opciones.length) - 12) / 6);
-        for (const palabra of opciones.flatMap(opcion => opcion.split(' '))) assert.ok(palabra.length <= ancho, `Palabra larga: ${palabra}`);
+        const ancho = Math.floor((Math.floor(296 / cuenta) - 12) / 6);
+        for (const palabra of textos.flatMap(opcion => opcion.split(' '))) assert.ok(palabra.length <= ancho, `Palabra larga: ${palabra}`);
       }
     }
   });
