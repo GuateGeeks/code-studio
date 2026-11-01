@@ -118,4 +118,7 @@ namespace sprites.gg {
     //% fixedInstance jres whenUsed blockIdentity=images._image
     //% tags="gg-experiencia"
     export const sol = image.ofBuffer(hex``);
+    //% fixedInstance jres whenUsed blockIdentity=images._image
+    //% tags="gg-experiencia"
+    export const cancha = image.ofBuffer(hex``);
 }

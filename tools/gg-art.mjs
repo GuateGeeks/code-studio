@@ -453,10 +453,19 @@ function sol() {
   return rows;
 }
 
+// A piece of schoolyard court. Two side by side share their edge, which reads as the center line.
+function cancha() {
+  const rows = blank(32, 32);
+  box(rows, 0, 0, 32, 32, WHITE);
+  box(rows, 1, 1, 30, 30, 7);
+  for (let x = 0; x < 32; x++) for (let y = 0; y < 32; y++) if (rows[y][x] === 7 && (x * 5 + y * 3) % 13 === 0) rows[y][x] = 6;
+  return rows;
+}
+
 export const SPRITES = {geeky: geeky(), manzana, banano, mango, mira: mira(), pollito: pollito(), perro: perro(), cabra: cabra(),
   punto: punto(), barra: barra(), cero: cero(), flecha: flecha(), casilla: casilla(), arbol: arbol(), brote: brote(), gota: gota(), huella: huella(),
   carta: carta(), moneda: moneda(), nota: nota(), colibri: colibri(), abeja: abeja(), flor: flor(), bromelia: bromelia(), hongo: hongo(),
-  garrapata: garrapata(), lombriz: lombriz(), persona: persona(), lomaVerde: loma(false), lomaDesnuda: loma(true), tierra: tierra(), sol: sol()};
+  garrapata: garrapata(), lombriz: lombriz(), persona: persona(), lomaVerde: loma(false), lomaDesnuda: loma(true), tierra: tierra(), sol: sol(), cancha: cancha()};
 
 // 3x5 glyphs for the axis labels, drawn double size so a 10-year-old can read them on a classroom screen.
 const GLYPHS = {
