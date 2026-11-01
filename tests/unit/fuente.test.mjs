@@ -13,6 +13,29 @@ test('hay al menos un juego con carpeta', () => {
 for (const id of juegos) {
   const codigo = leer(id, 'main.ts');
 
+  const textos = [...codigo.matchAll(/"((?:[^"\\\n]|\\.)*)"/g)].map(m => m[1]);
+
+  test(`${id}: sin Í mayúscula ni textos todo en mayúsculas`, () => {
+    // At font8 size, Í reads as «f». The other capitals with accent are clear.
+    assert.deepEqual(textos.filter(texto => texto.includes('Í')), []);
+    assert.deepEqual(textos.filter(texto => /\p{Lu}{2,}\s+\p{Lu}{2,}/u.test(texto)), []);
+  });
+
+  test(`${id}: las opciones de elegir caben en su panel`, () => {
+    for (const [linea] of codigo.matchAll(/^.*experiencias\.elegir\(.*$/gm)) {
+      const lista = linea.match(/\[(.*)\]/);
+      assert.ok(lista, `elegir debe llevar sus opciones en una línea: ${linea}`);
+      const opciones = [...lista[1].matchAll(/"([^"]*)"/g)].map(m => m[1]);
+      if (linea.includes('EjeEleccion.Vertical')) {
+        // Vertical options are not wrapped: one line, less the two characters of the marker.
+        for (const opcion of opciones) assert.ok(opcion.length <= 44, `Opción larga: ${opcion}`);
+      } else {
+        const ancho = Math.floor((Math.floor(296 / opciones.length) - 12) / 6);
+        for (const palabra of opciones.flatMap(opcion => opcion.split(' '))) assert.ok(palabra.length <= ancho, `Palabra larga: ${palabra}`);
+      }
+    }
+  });
+
   test(`${id}: todo for tiene la forma permitida`, () => {
     const todos = codigo.match(/\bfor\s*\(/g) ?? [];
     const permitidos = codigo.match(/\bfor \(let \w+ = 0; \w+ < [^;]+; \w+\+\+\)/g) ?? [];
@@ -20,7 +43,7 @@ for (const id of juegos) {
   });
 
   test(`${id}: sin APIs prohibidas`, () => {
-    for (const api of ['askForString', 'drawLine', 'game.over']) assert.equal(codigo.includes(api), false, api);
+    for (const api of ['askForString', 'drawLine', 'game.over', '.charAt(', '.onButtonEvent(']) assert.equal(codigo.includes(api), false, api);
   });
 
   test(`${id}: sin if de una línea con llamada`, () => {
